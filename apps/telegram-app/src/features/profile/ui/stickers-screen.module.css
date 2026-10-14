@@ -1,0 +1,940 @@
+.page {
+  --primary: #776ee2;
+  --primary-dark: #5a50c9;
+  --tg: #2aabee;
+  --tg-dark: #1a8acb;
+  background: var(--app-bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  overflow: hidden;
+  width: 100%;
+  word-break: keep-all;
+}
+
+.header {
+  align-items: center;
+  display: grid;
+  flex: none;
+  grid-template-columns: 40px 1fr auto;
+  padding: max(10px, var(--korio-top)) 14px 6px;
+}
+
+.header button {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: var(--text);
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+}
+
+.header h1 {
+  font-size: 19px;
+  font-weight: 900;
+  margin: 0;
+  text-align: center;
+}
+
+.gemChip {
+  align-items: center;
+  background: color-mix(in srgb, #1cb0f6 14%, var(--surface));
+  border-radius: 999px;
+  color: #1899d6;
+  display: flex;
+  font-size: 14px;
+  font-weight: 900;
+  gap: 4px;
+  height: 32px;
+  padding: 0 11px 0 9px;
+}
+
+.scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 0 24px;
+  scrollbar-width: none;
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── 위 카드: 스티커 세 장이 부채처럼 ── */
+.hero {
+  background: linear-gradient(150deg, #7f73ee 0%, #9b7cf4 52%, #f38fc0 100%);
+  border-bottom: 4px solid #5e52d6;
+  border-radius: 26px;
+  color: #fff;
+  margin: 0 18px 16px;
+  overflow: hidden;
+  padding: 14px 18px 18px;
+  position: relative;
+  text-align: center;
+}
+
+.heroGlow {
+  background: radial-gradient(closest-side, rgb(255 255 255 / 42%), transparent);
+  height: 260px;
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: -60px;
+  transform: translateX(-50%);
+  width: 320px;
+}
+
+.heroSpark {
+  animation: twinkle 2.6s ease-in-out var(--d) infinite both;
+  aspect-ratio: 1;
+  background: #fff;
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  left: var(--spot-x);
+  pointer-events: none;
+  position: absolute;
+  top: var(--spot-y);
+  width: 14px;
+}
+
+.fan {
+  height: 150px;
+  margin: 0 auto 6px;
+  max-width: 300px;
+  position: relative;
+}
+
+.fanCard {
+  --x: calc((var(--i) - 1) * 88px);
+  --r: calc((var(--i) - 1) * 11deg);
+  animation:
+    fanIn 0.6s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--i) * 0.08s) both,
+    float 3.2s ease-in-out calc(var(--i) * 0.5s + 0.6s) infinite;
+  filter: drop-shadow(0 8px 12px rgb(40 20 120 / 28%));
+  height: 132px;
+  left: calc(50% - 66px);
+  position: absolute;
+  top: 10px;
+  width: 132px;
+}
+
+.fanCard:nth-child(2) {
+  height: 150px;
+  left: calc(50% - 75px);
+  top: 0;
+  width: 150px;
+  z-index: 1;
+}
+
+.fanPlaceholder {
+  animation: float 3.2s ease-in-out infinite;
+  display: block;
+  height: 140px;
+  left: calc(50% - 62px);
+  position: absolute;
+  top: 6px;
+  width: 124px;
+}
+
+.fanPlaceholder svg {
+  height: 100%;
+  width: 100%;
+}
+
+.tgBadge {
+  align-items: center;
+  animation: pop 0.5s cubic-bezier(0.2, 1.6, 0.4, 1) 0.4s both;
+  background: var(--tg);
+  border: 3px solid #fff;
+  border-radius: 50%;
+  bottom: 4px;
+  box-shadow: 0 4px 10px rgb(20 80 140 / 30%);
+  color: #fff;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  position: absolute;
+  right: calc(50% - 104px);
+  width: 36px;
+  z-index: 2;
+}
+
+.hero h2 {
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  line-height: 26px;
+  margin: 4px 0 6px;
+  position: relative;
+}
+
+.hero p {
+  color: rgb(255 255 255 / 88%);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 19px;
+  margin: 0 auto;
+  max-width: 300px;
+  position: relative;
+}
+
+/* ── 내 세트 상태 ── */
+.status {
+  align-items: center;
+  animation: rise 0.35s ease-out both;
+  background: color-mix(in srgb, #58cc02 12%, var(--surface));
+  border: 2px solid color-mix(in srgb, #58cc02 40%, transparent);
+  border-radius: 18px;
+  display: flex;
+  gap: 12px;
+  margin: 0 18px 18px;
+  padding: 12px 14px;
+}
+
+.statusOutdated {
+  background: color-mix(in srgb, #ff9600 12%, var(--surface));
+  border-color: color-mix(in srgb, #ff9600 45%, transparent);
+}
+
+.statusIcon {
+  align-items: center;
+  background: #58cc02;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  flex: none;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+
+.statusOutdated .statusIcon {
+  animation: spinOnce 1.6s ease-in-out infinite;
+  background: #ff9600;
+}
+
+.statusText {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.statusText b {
+  font-size: 14.5px;
+  font-weight: 900;
+  line-height: 19px;
+}
+
+.statusText small {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.statusLink {
+  background: none;
+  border: 0;
+  color: var(--tg-dark);
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 900;
+  max-width: 96px;
+  padding: 4px 0;
+  text-align: right;
+}
+
+/* ── 8장 미리보기 ── */
+.sectionHead {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  justify-content: space-between;
+  margin: 0 20px 10px;
+}
+
+.sectionHead h3 {
+  font-size: 17px;
+  font-weight: 900;
+  margin: 0;
+}
+
+.sectionHead small {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 18px 22px;
+}
+
+.tile {
+  animation: tileIn 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--i) * 0.05s) both;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%),
+    var(--surface);
+  border: 2px solid var(--border);
+  border-bottom-width: 4px;
+  border-radius: 18px;
+  display: block;
+  overflow: hidden;
+  padding: 4px;
+  position: relative;
+}
+
+.tile:active {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.tile img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.tile img.poke {
+  animation: poke 0.55s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+.tileLoading i {
+  animation: shimmer 1.2s ease-in-out infinite;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--text) 8%, transparent) 50%, transparent 80%);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.failed {
+  align-items: center;
+  background: var(--surface);
+  border: 2px dashed var(--border);
+  border-radius: 18px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 18px 22px;
+  padding: 18px;
+}
+
+.failed p {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.failed button {
+  align-items: center;
+  background: var(--primary);
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  font-size: 13px;
+  font-weight: 900;
+  gap: 6px;
+  padding: 8px 14px;
+}
+
+/* ── 좋은 점 ── */
+.perks {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0 18px;
+  padding: 0;
+}
+
+.perks li {
+  align-items: center;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 18px;
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.perkIcon {
+  align-items: center;
+  background: color-mix(in srgb, var(--perk) 16%, transparent);
+  border-radius: 14px;
+  color: var(--perk);
+  display: flex;
+  flex: none;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.perks li > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.perks b {
+  font-size: 14.5px;
+  font-weight: 900;
+}
+
+.perks small {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 17px;
+}
+
+/* ── 아래 고정 버튼 ── */
+.bottom {
+  background: var(--app-bg);
+  border-top: 1px solid var(--border);
+  flex: none;
+  padding: 12px 18px max(14px, var(--korio-bottom));
+}
+
+.cta {
+  align-items: center;
+  background: var(--border);
+  border: 0;
+  border-bottom: 4px solid color-mix(in srgb, var(--muted) 30%, var(--border));
+  border-radius: 16px;
+  color: var(--muted);
+  display: flex;
+  font-size: 16px;
+  font-weight: 900;
+  gap: 8px;
+  height: 56px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.cta:active:not(:disabled) {
+  border-bottom-width: 2px;
+  transform: translateY(2px);
+}
+
+.ctaBuy {
+  background: var(--primary);
+  border-bottom-color: var(--primary-dark);
+  color: #fff;
+}
+
+.ctaTelegram {
+  background: var(--tg);
+  border-bottom-color: var(--tg-dark);
+  color: #fff;
+}
+
+.ctaMaking {
+  background: color-mix(in srgb, var(--primary) 18%, var(--surface));
+  border-bottom-color: color-mix(in srgb, var(--primary) 35%, var(--surface));
+  color: var(--primary);
+}
+
+.ctaMaking .spinner {
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  border-top-color: var(--primary);
+}
+
+.ctaMaking > span {
+  position: relative;
+}
+
+.progress {
+  animation: progress 5.5s cubic-bezier(0.1, 0.6, 0.3, 1) forwards;
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+  inset: 0 auto 0 0;
+  position: absolute;
+  width: 0;
+}
+
+.ctaLoading .spinner,
+.cta .spinner {
+  position: relative;
+}
+
+.price {
+  align-items: center;
+  background: rgb(255 255 255 / 22%);
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 14px;
+  gap: 3px;
+  margin-left: 4px;
+  padding: 4px 10px 4px 8px;
+}
+
+.shine {
+  animation: shine 2.8s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 32%), transparent);
+  height: 100%;
+  left: -40%;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform: skewX(-20deg);
+  width: 28%;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+  border: 3px solid rgb(255 255 255 / 40%);
+  border-radius: 50%;
+  border-top-color: #fff;
+  display: inline-block;
+  height: 18px;
+  width: 18px;
+}
+
+.ctaLoading .spinner {
+  border-color: color-mix(in srgb, var(--muted) 30%, transparent);
+  border-top-color: var(--muted);
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.error {
+  animation: shake 0.4s ease;
+  color: #ea2b2b;
+  font-size: 13px;
+  font-weight: 800;
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+/* ── 시트·완성 ── */
+.sheetRoot {
+  align-items: flex-end;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: fixed;
+  z-index: 60;
+}
+
+.center {
+  align-items: center;
+  padding: 18px;
+}
+
+.backdrop {
+  animation: fade 0.2s ease both;
+  background: rgb(14 10 40 / 55%);
+  border: 0;
+  inset: 0;
+  position: absolute;
+}
+
+.sheet {
+  animation: sheetUp 0.32s cubic-bezier(0.2, 1, 0.3, 1) both;
+  background: var(--surface);
+  border-radius: 26px 26px 0 0;
+  max-width: var(--content-width);
+  padding: 10px 20px max(16px, var(--korio-bottom));
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.grabber {
+  background: var(--border);
+  border-radius: 3px;
+  display: block;
+  height: 5px;
+  margin: 0 auto 14px;
+  width: 40px;
+}
+
+.sheetIcon {
+  align-items: center;
+  animation: pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1) 0.1s both;
+  background: var(--tg);
+  border-bottom: 4px solid var(--tg-dark);
+  border-radius: 22px;
+  color: #fff;
+  display: inline-flex;
+  height: 64px;
+  justify-content: center;
+  margin-bottom: 10px;
+  width: 64px;
+}
+
+.sheet h2,
+.done h2 {
+  font-size: 20px;
+  font-weight: 900;
+  margin: 0 0 6px;
+}
+
+.sheet > p,
+.done > p {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  margin: 0 0 14px;
+}
+
+.steps {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  text-align: left;
+}
+
+.steps li {
+  align-items: center;
+  background: var(--app-bg);
+  border-radius: 14px;
+  display: flex;
+  font-size: 14px;
+  font-weight: 800;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.steps li b {
+  align-items: center;
+  background: color-mix(in srgb, var(--tg) 16%, transparent);
+  border-radius: 50%;
+  color: var(--tg-dark);
+  display: flex;
+  flex: none;
+  font-size: 13px;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.steps li.stepDone b {
+  background: #58cc02;
+  color: #fff;
+}
+
+.charge {
+  font-size: 12.5px !important;
+  margin-bottom: 12px !important;
+}
+
+.waiting {
+  align-items: center;
+  color: var(--tg-dark) !important;
+  display: flex;
+  font-weight: 800 !important;
+  gap: 8px;
+  justify-content: center;
+}
+
+.dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.dots b {
+  animation: dot 1s ease-in-out infinite;
+  background: currentColor;
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+}
+
+.dots b:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.dots b:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.later {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 900;
+  margin-top: 6px;
+  padding: 10px;
+  width: 100%;
+}
+
+.done {
+  animation: popIn 0.4s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  background: var(--surface);
+  border-radius: 28px;
+  max-width: 360px;
+  overflow: hidden;
+  padding: 18px 20px 12px;
+  position: relative;
+  text-align: center;
+  width: 100%;
+}
+
+.burst {
+  height: 0;
+  left: 50%;
+  position: absolute;
+  top: 98px;
+  width: 0;
+}
+
+.burst i {
+  animation: ray 0.9s ease-out calc(var(--i) * 0.02s) both;
+  background: linear-gradient(to top, rgb(255 200 61 / 0%), #ffc83d);
+  border-radius: 4px;
+  height: 120px;
+  left: -3px;
+  position: absolute;
+  top: -120px;
+  transform: rotate(var(--a));
+  transform-origin: 50% 100%;
+  width: 6px;
+}
+
+.doneFan {
+  height: 170px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.doneFan img {
+  --x: calc((var(--i) - 1) * 84px);
+  --r: calc((var(--i) - 1) * 12deg);
+  animation: fanIn 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) calc(0.15s + var(--i) * 0.1s) both;
+  filter: drop-shadow(0 8px 12px rgb(40 20 120 / 22%));
+  height: 130px;
+  left: calc(50% - 65px);
+  position: absolute;
+  top: 24px;
+  width: 130px;
+}
+
+.doneFan img:nth-child(2) {
+  height: 150px;
+  left: calc(50% - 75px);
+  top: 10px;
+  z-index: 1;
+}
+
+@keyframes fanIn {
+  from {
+    opacity: 0;
+    transform: translate(0, 30px) rotate(0) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(var(--x), 0) rotate(var(--r)) scale(1);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -6px;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(0deg);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-6deg);
+  }
+}
+
+@keyframes poke {
+  0% {
+    transform: scale(1) rotate(0);
+  }
+
+  35% {
+    transform: scale(1.18) rotate(-8deg);
+  }
+
+  65% {
+    transform: scale(0.96) rotate(5deg);
+  }
+
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes spinOnce {
+  0%,
+  60% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes progress {
+  to {
+    width: 92%;
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -40%;
+  }
+
+  60%,
+  100% {
+    left: 130%;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dot {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes ray {
+  from {
+    opacity: 0;
+    transform: rotate(var(--a)) scaleY(0.2);
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: rotate(var(--a)) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fanCard,
+  .fanPlaceholder,
+  .heroSpark,
+  .tile,
+  .statusOutdated .statusIcon,
+  .shine,
+  .burst i,
+  .doneFan img {
+    animation-duration: 0s;
+    animation-iteration-count: 1;
+  }
+}

@@ -10,6 +10,7 @@ import { GeneratedAvatar, AVATAR_BACKGROUNDS, getAvatarHeaderContentColor } from
 import { getMe } from "../api/profile";
 import { TIER_COLORS, TIER_LABELS, type UserMe } from "../model/profile";
 import { QuestBadgesRow } from "../../retention/ui/home-retention";
+import { StickerPromoCard } from "./sticker-promo";
 import styles from "./profile-screen.module.css";
 
 export function ProfileScreen() {
@@ -70,6 +71,11 @@ export function ProfileScreen() {
         </section>
 
         <button className={styles.outlineButton} onClick={() => router.push("/add-friends")} type="button"><MobileIcon name="person-add" size={20} />Do‘st qo‘shish</button>
+
+        {/* 내 캐릭터 텔레그램 스티커팩 */}
+        <div className={styles.stickerPromo}>
+          <StickerPromoCard avatar={avatar} />
+        </div>
 
         <section className={styles.learning}>
           <h2>O‘qish holati</h2>
