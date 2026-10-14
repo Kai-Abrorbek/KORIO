@@ -29,10 +29,10 @@ const TEXT: Record<BotLang, Record<Key, string>> = {
     expired:
       '⏳ Bu havola eskirgan. KORIO ilovasida stikerlar sahifasidan qaytadan bosing.',
     notEnough:
-      "💎 Olmos yetmayapti: {need} kerak, sizda {have}. Darslarda olmos to'plang!",
+      "💎 Gavhar yetmayapti: {need} ta kerak, sizda {have} ta. Darslarda gavhar yig'ing!",
     upToDate: "✅ To'plamingiz allaqachon yangi.",
     failed:
-      "😢 Stikerlarni yarata olmadik. Olmoslaringiz qaytarildi — birozdan keyin yana urinib ko'ring.",
+      "😢 Stikerlarni yarata olmadik. Gavharlaringiz qaytarildi — birozdan keyin yana urinib ko'ring.",
     busy: '⏳ Stikerlaringiz hozir tayyorlanyapti — biroz kuting.',
     wrongAccount:
       "Bu havola boshqa Telegram hisobi uchun. KORIO ni o'z hisobingizdan oching.",
@@ -87,10 +87,10 @@ const TEXT: Record<BotLang, Record<Key, string>> = {
     expired:
       '⏳ Ссылка устарела. Нажмите ещё раз на странице стикеров в KORIO.',
     notEnough:
-      '💎 Не хватает кристаллов: нужно {need}, у вас {have}. Зарабатывайте их на уроках!',
+      '💎 Не хватает самоцветов: нужно {need}, у вас {have}. Зарабатывайте их на уроках!',
     upToDate: '✅ Ваш набор уже обновлён.',
     failed:
-      '😢 Не удалось создать стикеры. Кристаллы вернули — попробуйте чуть позже.',
+      '😢 Не удалось создать стикеры. Самоцветы вернули — попробуйте чуть позже.',
     busy: '⏳ Стикеры уже создаются — подождите немного.',
     wrongAccount:
       'Эта ссылка для другого аккаунта Telegram. Откройте KORIO со своего аккаунта.',
