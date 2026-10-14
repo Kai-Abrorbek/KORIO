@@ -58,6 +58,8 @@ interface Props {
   aura?: boolean;
   /** 카드처럼 여러 개가 한 화면에 있을 때 입자를 반만 */
   auraLite?: boolean;
+  /** Learned word shown by the Hangul aura in prominent personal previews. */
+  hangulWord?: string;
 }
 
 const SKIN = {
@@ -1196,6 +1198,7 @@ export default function AvatarPreview({
   variant = "full",
   aura = false,
   auraLite = false,
+  hangulWord,
 }: Props) {
   const config = mergeAvatarConfig(avatar);
 
@@ -1286,7 +1289,7 @@ export default function AvatarPreview({
 
   if (!aura || variant !== "full" || !isAura(config.aura)) return svg;
   return (
-    <AvatarAura aura={config.aura} size={size} lite={auraLite}>
+    <AvatarAura aura={config.aura} size={size} lite={auraLite} hangulWord={hangulWord}>
       {svg}
     </AvatarAura>
   );

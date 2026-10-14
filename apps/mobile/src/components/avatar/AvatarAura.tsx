@@ -132,17 +132,23 @@ export default function AvatarAura({
   size,
   children,
   lite = false,
+  hangulWord,
 }: {
   aura?: string | null;
   size: number;
   children: ReactNode;
   /** 카드처럼 여러 개가 한 화면에 있을 때 — 입자를 반만 */
   lite?: boolean;
+  /** Recently learned Korean word; remaining orbit positions keep decorative glyphs. */
+  hangulWord?: string;
 }) {
   const still = useReducedMotion();
   if (!isAura(aura)) return <>{children}</>;
   const look = AURA_LOOK[aura];
   const take = <T,>(list: T[]) => (lite ? list.filter((_, i) => i % 2 === 0) : list);
+  const orbitLetters = hangulWord
+    ? [...Array.from(hangulWord), ...LETTERS].slice(0, LETTERS.length)
+    : LETTERS;
 
   return (
     <View style={{ width: size, height: size }}>
@@ -152,8 +158,8 @@ export default function AvatarAura({
         {aura === "aura_flame" &&
           TONGUES.map((t, i) => <Tongue key={i} spec={t} size={size} still={still} />)}
         {aura === "aura_hangul" &&
-          LETTERS.map((l, i) => (
-            <OrbitLetter key={i} letter={l} index={i} size={size} still={still} layer="back" />
+          orbitLetters.map((l, i) => (
+            <OrbitLetter key={i} letter={l} index={i} count={orbitLetters.length} size={size} still={still} layer="back" />
           ))}
       </View>
 
@@ -162,8 +168,8 @@ export default function AvatarAura({
       {/* 앞 */}
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         {aura === "aura_hangul" &&
-          LETTERS.map((l, i) => (
-            <OrbitLetter key={i} letter={l} index={i} size={size} still={still} layer="front" />
+          orbitLetters.map((l, i) => (
+            <OrbitLetter key={i} letter={l} index={i} count={orbitLetters.length} size={size} still={still} layer="front" />
           ))}
         {(aura === "aura_stardust" || aura === "aura_hangul") &&
           take(aura === "aura_hangul" ? SPARKS.filter((_, i) => i % 2 === 0) : SPARKS).map((s, i) => (
@@ -323,17 +329,19 @@ function Tongue({ spec, size, still }: { spec: (typeof TONGUES)[number]; size: n
 function OrbitLetter({
   letter,
   index,
+  count,
   size,
   still,
   layer,
 }: {
   letter: string;
   index: number;
+  count: number;
   size: number;
   still: boolean;
   layer: "back" | "front";
 }) {
-  const v = useLoop(ORBIT_MS, index / LETTERS.length, still);
+  const v = useLoop(ORBIT_MS, index / count, still);
   return <OrbitGlyph letter={letter} v={v} size={size} layer={layer} />;
 }
 

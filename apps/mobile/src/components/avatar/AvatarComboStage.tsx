@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   Easing,
   interpolate,
@@ -12,6 +13,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import type { AvatarConfig } from "@/types/avatar";
+import { useAuthStore } from "@/store/auth.store";
+import { useContentLang } from "@/store/settings.store";
+import { todaysAvatarWord, useAvatarStudyStore } from "@/store/avatar-study.store";
 import AvatarPreview from "./AvatarPreview";
 import AvatarPet from "./AvatarPet";
 
@@ -26,12 +30,20 @@ export default function AvatarComboStage({
   avatar,
   size,
   streak,
+  onWordPress,
 }: {
   avatar?: Partial<AvatarConfig> | null;
   size: number;
   streak?: number | null;
+  onWordPress?: (word: string) => void;
 }) {
   const { t } = useTranslation();
+  const userId = useAuthStore((state) => state.user?.id);
+  const language = useContentLang();
+  const recentWord = useAvatarStudyStore((state) => state.recentWord);
+  const learned = avatar?.aura === "aura_hangul"
+    ? todaysAvatarWord(recentWord, userId, language)
+    : null;
   const active = hasNightGuardianCombo(avatar);
   const reducedMotion = useReducedMotion();
   const portal = useSharedValue(0);
@@ -83,9 +95,25 @@ export default function AvatarComboStage({
         </Animated.View>
       ) : null}
       <Animated.View style={[{ width: size, height: size }, arrivalStyle]}>
-        <AvatarPreview avatar={avatar} size={size} showBackground={false} aura />
+        <AvatarPreview avatar={avatar} size={size} showBackground={false} aura hangulWord={learned?.word} />
         <AvatarPet pet={avatar?.pet} streak={streak} avatarSize={size} />
       </Animated.View>
+      {learned ? (
+        <Pressable
+          accessibilityRole={onWordPress ? "button" : undefined}
+          accessibilityLabel={`${learned.word}, ${learned.meaning}`}
+          disabled={!onWordPress}
+          onPress={(event) => {
+            event.stopPropagation();
+            onWordPress?.(learned.word);
+          }}
+          style={[styles.wordBadge, { maxWidth: size * 0.82 }]}
+        >
+          <Text style={styles.wordText} numberOfLines={1}>{learned.word}</Text>
+          <Text style={styles.wordMeaning} numberOfLines={1}>{learned.meaning}</Text>
+          {onWordPress ? <Ionicons name="volume-medium" size={14} color="#FFF5D8" /> : null}
+        </Pressable>
+      ) : null}
       {active ? (
         <Animated.View
           pointerEvents="none"
@@ -100,6 +128,23 @@ export default function AvatarComboStage({
 }
 
 const styles = StyleSheet.create({
+  wordBadge: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    zIndex: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255, 232, 166, 0.82)",
+    backgroundColor: "rgba(31, 25, 72, 0.82)",
+  },
+  wordText: { color: "#FFF5D8", fontSize: 12, fontWeight: "900" },
+  wordMeaning: { color: "#E3DCF9", fontSize: 10, fontWeight: "600", flexShrink: 1 },
   portal: {
     ...StyleSheet.absoluteFill,
     alignItems: "center",

@@ -42,6 +42,8 @@ import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { WordService } from "@/services/word.service";
 import { useSettingsStore, useContentLang } from "@/store/settings.store";
+import { useAvatarStudyStore } from "@/store/avatar-study.store";
+import { useAuthStore } from "@/store/auth.store";
 import type {
   StudyWord,
   WordSectionSummary,
@@ -1382,7 +1384,16 @@ export default function WordStudyScreen() {
 
   useEffect(() => {
     markSeen(currentWordId);
-  }, [currentWordId, markSeen]);
+    const userId = useAuthStore.getState().user?.id;
+    if (userId && currentWord) {
+      useAvatarStudyStore.getState().rememberWord({
+        userId,
+        word: currentWord.headword,
+        meaning: currentWord.meaning,
+        language: contentLang,
+      });
+    }
+  }, [currentWord, currentWordId, contentLang, markSeen]);
 
   /**
    * 다음 카드들 음성을 미리 받아 둔다.

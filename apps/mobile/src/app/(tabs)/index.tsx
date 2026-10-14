@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useSpeech } from "@/hooks/useSpeech";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
@@ -73,6 +74,7 @@ const BAR_MIN_SEG = 6; // 값이 있으면 최소 이만큼은 보이게
 export default function HomeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { speak: speakAvatarWord } = useSpeech();
   const styles = getStyles(theme);
   const sideButtonIconColor = theme.bg === "#15151D" ? "#D8D3FF" : "#4F43AE";
   const [calendarVisible, setCalendarVisible] = useState(false);
@@ -426,7 +428,12 @@ export default function HomeScreen() {
               <SceneBackdrop scene={user.avatar.scene} />
             )}
             {user?.avatar ? (
-              <AvatarComboStage avatar={user.avatar} size={200} streak={user.streak} />
+              <AvatarComboStage
+                avatar={user.avatar}
+                size={200}
+                streak={user.streak}
+                onWordPress={(word) => speakAvatarWord(word, "ko-KR")}
+              />
             ) : (
               <HaneulmonMascot size={200} mood="default" />
             )}

@@ -23,6 +23,7 @@ import { AVATAR_CATEGORIES } from "@/constants/avatar.catalog";
 import { useAvatarEditorStore } from "@/store/avatar-editor.store";
 import { useAuthStore } from "@/store/auth.store";
 import { useTheme } from "@/hooks/useTheme";
+import { useSpeech } from "@/hooks/useSpeech";
 import type { ThemeColors } from "@/constants/theme";
 import { mergeAvatarConfig } from "@/types/avatar";
 import type { AvatarConfig, AvatarOption } from "@/types/avatar";
@@ -77,6 +78,7 @@ export default function AvatarEditorScreen() {
   const { width } = useWindowDimensions();
   const { t } = useTranslation();
   const theme = useTheme();
+  const { speak: speakAvatarWord } = useSpeech();
   const styles = getStyles(theme);
   const [isSaving, setIsSaving] = useState(false);
   const avatar = useAuthStore((state) => state.user?.avatar);
@@ -424,7 +426,12 @@ export default function AvatarEditorScreen() {
             </View>
           )}
 
-          <AvatarComboStage avatar={draft} size={heroAvatarSize} streak={streak} />
+          <AvatarComboStage
+            avatar={draft}
+            size={heroAvatarSize}
+            streak={streak}
+            onWordPress={(word) => speakAvatarWord(word, "ko-KR")}
+          />
 
           <TouchableOpacity
             activeOpacity={0.84}

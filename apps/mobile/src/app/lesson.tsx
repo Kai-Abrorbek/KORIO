@@ -72,7 +72,8 @@ import {
   parseBlanks,
   templateOf,
 } from "@/utils/blank-sentence";
-import { useContentLang } from "@/store/settings.store";
+import { getContentLang, useContentLang } from "@/store/settings.store";
+import { useAvatarStudyStore } from "@/store/avatar-study.store";
 import type { StudyCelebration } from "@/utils/streak-chest-route";
 
 type Phase = "main" | "reviewIntro" | "review";
@@ -869,6 +870,15 @@ export default function LessonScreen() {
     }
 
     if (isCorrect) {
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        useAvatarStudyStore.getState().rememberWord({
+          userId,
+          word: question.answer,
+          meaning: question.answerTranslation ?? "",
+          language: getContentLang(),
+        });
+      }
       setShowCombo(true);
       correctCount.current += 1;
       if (isReview) reviewCorrectIds.current.add(question.id);
