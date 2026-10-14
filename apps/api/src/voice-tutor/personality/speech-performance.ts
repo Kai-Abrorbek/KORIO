@@ -9,6 +9,8 @@ const AUDIO_TAGS: Partial<Record<TutorDelivery, string>> = {
 
 function v3AudioTag(reaction?: TutorReaction): string | undefined {
   if (!reaction) return undefined;
+  // Emotion describes the reaction; explicit normal delivery keeps it untagged.
+  if (reaction.delivery === 'normal') return undefined;
   const explicit = AUDIO_TAGS[reaction.delivery];
   if (explicit) return explicit;
   if (reaction.emotion === 'laughing') return '[laughs]';

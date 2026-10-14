@@ -36,9 +36,11 @@ describe('voice tutor lesson context', () => {
     ) as {
       recent: { role: string; text: string }[];
       student: { explanationLanguage: string };
+      recentTeacherOpenings: string[];
     };
     expect(input.recent).toHaveLength(12);
     expect(input.recent[0].text).toBe('8');
     expect(input.student.explanationLanguage).toBe('ru');
+    expect(input.recentTeacherOpenings).toEqual(['13', '15', '17', '19']);
   });
 });

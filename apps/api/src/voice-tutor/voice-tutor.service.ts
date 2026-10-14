@@ -118,6 +118,32 @@ export class VoiceTutorService {
     // 건드리지 않는다 — 주제 수업이 끝나면 원래 계획으로 돌아간다
     const topic = topicId ? VOICE_TUTOR_TOPIC_BY_ID.get(topicId) : undefined;
     if (topic) plan = planForTopic(plan, topic);
+    let opening: TutorReaction;
+    try {
+      // Generate before creating the timed session, without fabricating a user turn.
+      opening = await this.agents.lesson(
+        settings,
+        plan,
+        memory,
+        [],
+        lessonProgress(0, []),
+      );
+    } catch {
+      const text = voiceTutorGreeting(
+        settings,
+        plan,
+        topic?.title[settings.explanationLanguage],
+      );
+      opening = {
+        displayText: text,
+        speechText: text,
+        language: settings.explanationLanguage,
+        emotion: 'happy',
+        delivery: 'normal',
+        intensity: 0.25,
+        gesture: 'none',
+      };
+    }
     const session = await this.sessions.create({
       userId: new Types.ObjectId(userId),
       status: 'active',
@@ -126,26 +152,14 @@ export class VoiceTutorService {
       topicId: topic?.id ?? null,
       allowedSec: quota.allowedSec,
       tier: quota.tier,
+      taughtItems: opening.taught ?? [],
     });
     const sessionId = session._id.toString();
-    const text = voiceTutorGreeting(
-      settings,
-      plan,
-      topic?.title[settings.explanationLanguage],
-    );
     const initialMessage = await this.saveTeacherMessage(
       userId,
       sessionId,
       settings,
-      {
-        displayText: text,
-        speechText: text,
-        language: settings.explanationLanguage,
-        emotion: 'happy',
-        delivery: 'normal',
-        intensity: 0.25,
-        gesture: 'none',
-      },
+      opening,
       undefined,
       false,
     );
@@ -160,7 +174,7 @@ export class VoiceTutorService {
         },
         // 워커의 받아쓰기(STT) 언어 힌트용. 학습자가 한국어와 모국어를 섞어 말한다
         settings.explanationLanguage,
-        sttKeywordsFromPlan(plan),
+        sttKeywordsFromPlan(plan, opening.taught),
         quota.allowedSec,
       );
     } catch (error) {
@@ -449,27 +463,25 @@ export class VoiceTutorService {
             .map(({ role, text }) => ({ role, text })),
           { role: 'user' as const, text: userMessage.text },
         ];
-        reply = live && onSpeech
-          ? await this.agents.lessonStream(
-              session.settings,
-              session.plan,
-              memory,
-              recent,
-              onSpeech,
-              live.signal,
-              live.onMeta,
-              lessonProgress(
+        reply =
+          live && onSpeech
+            ? await this.agents.lessonStream(
+                session.settings,
                 session.plan,
-                turnCount,
-                session.taughtItems ?? [],
-              ),
-            )
-          : await this.agents.lesson(
-              session.settings,
-              session.plan,
-              memory,
-              recent,
-            );
+                memory,
+                recent,
+                onSpeech,
+                live.signal,
+                live.onMeta,
+                lessonProgress(turnCount, session.taughtItems ?? []),
+              )
+            : await this.agents.lesson(
+                session.settings,
+                session.plan,
+                memory,
+                recent,
+                lessonProgress(turnCount, session.taughtItems ?? []),
+              );
       } catch (error) {
         if (live?.signal?.aborted) {
           // Cancelled before the learner heard anything (preemptive draft
@@ -525,7 +537,9 @@ export class VoiceTutorService {
             },
           )
           .catch((error: Error) =>
-            this.logger.warn(`Voice Tutor taught items deferred: ${error.name}`),
+            this.logger.warn(
+              `Voice Tutor taught items deferred: ${error.name}`,
+            ),
           );
       }
       if (reply.correction?.wrong && reply.correction.correct) {

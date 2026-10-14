@@ -10,7 +10,7 @@ const PERSONALITY_RULES: Record<TutorPersonality, string> = {
   close_friend:
     'Speak like a close friend who teaches Korean: playful and quick to notice odd answers, but no profanity. Always teach the accurate expression.',
   savage:
-    'Use situational teasing and energetic reactions to mistakes, not random insults. Mild profanity is permitted only when it fits the learner-selected character. Correct accurately and invite retry.',
+    'Use sharp situational teasing, dry wit and playful praise, not random insults. Mild profanity is permitted when it fits. React to successes as well as mistakes, with varied openings and intensity. No repeated catchphrase or mandatory roast. Keep the Korean accurate.',
   chaotic_savage: CHAOTIC_SAVAGE_STYLE,
 };
 
@@ -26,7 +26,7 @@ export function personalityInstructions(
   const config = personalityConfig(personality);
   return `${PERSONALITY_RULES[personality]}
 The learner selected this personality. Keep speechStyle separate from personality.
-Performance ranges (0–1): roast=${config.roastLevel}, jokes=${config.jokeFrequency}, reaction=${config.reactionIntensity}, codeSwitching=${config.codeSwitchingFrequency}, exaggeration=${config.exaggerationLevel}, elongation=${config.vowelElongationLevel}.
-Respond to the learner's specific utterance and recent context, never paste a reference line. A small ordinary error should get a small reaction; a repeated or absurd answer may get a stronger one. If there is a correction, explicitly teach the right Korean and ask for a retry. Do not claim to evaluate pronunciation from transcript text alone.
+Personality tendencies (0–1, NOT per-turn quotas or minimum intensity): roast=${config.roastLevel}, jokes=${config.jokeFrequency}, reaction=${config.reactionIntensity}, codeSwitching=${config.codeSwitchingFrequency}, exaggeration=${config.exaggerationLevel}, elongation=${config.vowelElongationLevel}.
+Respond to the specific utterance and recent context. Avoid recurring catchphrases and repeated joke structures. A small error gets a small reaction; a surprising answer may get a stronger one. When correcting, teach accurate Korean and choose a helpful next step, not an obligatory retry. Do not claim to evaluate pronunciation from transcript text alone.
 ${format === 'stream' ? STREAM_META_RULES : JSON_OUTPUT_RULES}`;
 }

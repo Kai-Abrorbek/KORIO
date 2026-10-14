@@ -39,12 +39,29 @@ describe('Voice Tutor greeting', () => {
     expect(voiceTutorGreeting(settings, plan)).toContain('안녕!');
     expect(
       voiceTutorGreeting({ ...settings, personality: 'chaotic_savage' }, plan),
-    ).toContain('야아아');
+    ).toContain('바로 시작하자');
     expect(
       voiceTutorGreeting(
         { ...settings, speechStyle: 'polite', personality: 'chaotic_savage' },
         plan,
       ),
     ).toContain('오셨네요');
+  });
+
+  it('does not force a scream or invent past attendance in fallback greetings', () => {
+    for (const explanationLanguage of ['ko', 'en', 'ru', 'uz'] as const) {
+      for (const speechStyle of ['polite', 'casual'] as const) {
+        const text = voiceTutorGreeting(
+          {
+            ...settings,
+            explanationLanguage,
+            speechStyle,
+            personality: 'chaotic_savage',
+          },
+          plan,
+        );
+        expect(text).not.toMatch(/야아|ЯАА|Yaaaa|FINALLY|드디어/);
+      }
+    }
   });
 });

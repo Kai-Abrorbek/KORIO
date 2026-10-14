@@ -1,6 +1,21 @@
 import { parseLessonReply, parsePlan, parseProgress } from './agent-output';
 
 describe('voice tutor agent output', () => {
+  it('normalizes newly taught items identically for JSON and stream metadata', () => {
+    expect(
+      parseLessonReply({
+        text: '한 잔 주세요',
+        taught: [' 한 잔 ', null, 4, '', '한 잔', '주세요'],
+      })?.taught,
+    ).toEqual(['한 잔', '주세요']);
+    expect(parseLessonReply({ text: '좋아' })?.taught).toEqual([]);
+    const taught = parseLessonReply({
+      text: '좋아',
+      taught: Array.from({ length: 20 }, (_, i) => `${i}${'가'.repeat(70)}`),
+    })!.taught;
+    expect(taught).toHaveLength(6);
+    expect(taught.every((item) => item.length === 60)).toBe(true);
+  });
   it('rejects an empty teacher turn and bounds model output', () => {
     expect(parseLessonReply({ text: ' ' })).toBeNull();
     expect(

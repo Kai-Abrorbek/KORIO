@@ -19,6 +19,16 @@ describe('OpenAiTutorLlmProvider', () => {
     if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previousKey;
     global.fetch = originalFetch;
+    jest.restoreAllMocks();
+  });
+
+  it('bounds opening latency without changing the ordinary turn deadline', async () => {
+    const timeout = jest.spyOn(AbortSignal, 'timeout');
+    const provider = new OpenAiTutorLlmProvider();
+    await provider.completeJson('test', 'instructions', '{}', 450, 8_000);
+    expect(timeout).toHaveBeenLastCalledWith(8_000);
+    await provider.completeJson('test', 'instructions', '{}', 450);
+    expect(timeout).toHaveBeenLastCalledWith(30_000);
   });
 
   it('uses non-reasoning JSON mode for the configured GPT-5.6 tutor models', async () => {

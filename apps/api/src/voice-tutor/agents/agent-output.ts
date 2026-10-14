@@ -56,6 +56,7 @@ export function parseLessonReply(value: Record<string, unknown>): {
   delivery?: TutorDelivery;
   intensity?: number;
   gesture?: TutorGesture;
+  taught: string[];
 } | null {
   // Newer lesson prompts may provide separate subtitle and spoken text without
   // the legacy `text` field. Accept either while keeping the old shape valid.
@@ -70,6 +71,13 @@ export function parseLessonReply(value: Record<string, unknown>): {
       : null;
   return {
     text,
+    taught: Array.isArray(value.taught)
+      ? [
+          ...new Set(
+            value.taught.map((item) => shortText(item, 60)).filter(Boolean),
+          ),
+        ].slice(0, 6)
+      : [],
     displayText: shortText(value.displayText, 1500) || undefined,
     speechText: shortText(value.speechText, 1500) || undefined,
     emotion: EMOTIONS.includes(value.emotion as TutorEmotion)

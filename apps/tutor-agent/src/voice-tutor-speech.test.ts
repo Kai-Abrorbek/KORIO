@@ -23,11 +23,34 @@ test("crying marks are dropped", () => {
   assert.equal((t.push("아 ㅠㅠ 다시") + t.flush()).trim(), "아 다시");
 });
 
-test("opening tag follows delivery, then strong surprise", () => {
-  assert.equal(openingAudioTag({ delivery: "shout" }), "[shouts]");
+test("explicit normal delivery does not turn emotion into an opening sound", () => {
+  for (const emotion of ["laughing", "shocked", "disbelief"]) {
+    assert.equal(
+      openingAudioTag({ emotion, delivery: "normal", intensity: 0.95 }),
+      undefined,
+    );
+  }
+});
+
+test("opening tag preserves every explicit expressive delivery", () => {
+  for (const [delivery, tag] of [
+    ["shout", "[shouts]"],
+    ["whisper", "[whispers]"],
+    ["laugh", "[laughs]"],
+    ["dramatic", "[dramatic]"],
+  ]) {
+    assert.equal(
+      openingAudioTag({ emotion: "laughing", delivery, intensity: 0.95 }),
+      tag,
+    );
+  }
+});
+
+test("legacy metadata without delivery keeps its emotion fallback", () => {
   assert.equal(openingAudioTag({ emotion: "disbelief", intensity: 0.95 }), "[shouts]");
   assert.equal(openingAudioTag({ emotion: "disbelief", intensity: 0.4 }), undefined);
   assert.equal(openingAudioTag({ emotion: "laughing" }), "[laughs]");
+  assert.equal(openingAudioTag(), undefined);
 });
 
 test("old v2 model names fall back to the expressive default", () => {

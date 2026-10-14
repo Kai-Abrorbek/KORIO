@@ -70,49 +70,53 @@ describe('voice tutor reaction engine', () => {
     );
   });
 
-  it('turns a laughing emotion into a v3 laugh even with normal delivery', () => {
+  it.each(['laughing', 'shocked', 'disbelief'] as const)(
+    'honors normal delivery for a strong %s reaction',
+    (emotion) => {
+      const reaction = performTutorReaction(
+        {
+          text: '배고파라고 해. 다시 해 봐.',
+          language: 'ko',
+          correction: { original: '배구리', corrected: '배고파' },
+          emotion,
+          delivery: 'normal',
+          intensity: 0.95,
+        },
+        settings,
+      );
+      expect(
+        elevenLabsPerformance(reaction.speechText, 'eleven_v4_turbo', reaction)
+          .text,
+      ).toBe('배고파라고 해. 다시 해 봐.');
+    },
+  );
+
+  it.each([
+    ['shout', '[shouts]'],
+    ['whisper', '[whispers]'],
+    ['laugh', '[laughs]'],
+    ['dramatic', '[dramatic]'],
+  ] as const)('preserves explicit %s delivery', (delivery, tag) => {
     const reaction = performTutorReaction(
       {
-        text: '배구리? 너무 웃기다! 배고파라고 해.',
-        language: 'ko',
-        correction: { original: '배구리', corrected: '배고파' },
-        emotion: 'laughing',
-        delivery: 'normal',
-        intensity: 0.7,
-      },
-      settings,
-    );
-    expect(
-      elevenLabsPerformance(reaction.speechText, 'eleven_v3', reaction).text,
-    ).toBe('[laughs] 배구리? 너무 웃기다! 배고파라고 해.');
-  });
-
-  it('shouts only for strong surprise and respects an explicit whisper', () => {
-    const shocked = performTutorReaction(
-      {
-        text: '어제가 오늘이 됐어? 다시 말해 봐.',
+        text: '다시 말해 봐.',
         language: 'ko',
         correction: null,
-        emotion: 'disbelief',
-        delivery: 'normal',
-        intensity: 0.9,
+        emotion: 'laughing',
+        delivery,
+        intensity: 0.95,
       },
       settings,
     );
     expect(
-      elevenLabsPerformance(shocked.speechText, 'eleven_v3', shocked).text,
-    ).toBe('[shouts] 어제가 오늘이 됐어? 다시 말해 봐.');
-    expect(
-      elevenLabsPerformance(shocked.speechText, 'eleven_v3', {
-        ...shocked,
-        intensity: 0.4,
-      }).text,
-    ).toBe('어제가 오늘이 됐어? 다시 말해 봐.');
-    expect(
-      elevenLabsPerformance(shocked.speechText, 'eleven_v3', {
-        ...shocked,
-        delivery: 'whisper',
-      }).text,
-    ).toBe('[whispers] 어제가 오늘이 됐어? 다시 말해 봐.');
+      elevenLabsPerformance(reaction.speechText, 'eleven_v4_turbo', reaction)
+        .text,
+    ).toBe(`${tag} 다시 말해 봐.`);
+  });
+
+  it('does not add an opening tag without reaction metadata', () => {
+    expect(elevenLabsPerformance('다시 말해 봐.', 'eleven_v4_turbo').text).toBe(
+      '다시 말해 봐.',
+    );
   });
 });

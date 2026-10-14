@@ -38,6 +38,7 @@ export class VoiceTutorAgentsService {
     plan: TutorPlan,
     memory: StudentMemorySnapshot,
     recent: TextTurn[],
+    lessonProgress?: LessonPromptContext['lessonProgress'],
   ): Promise<TutorReaction> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().lesson,
@@ -47,18 +48,23 @@ export class VoiceTutorAgentsService {
           settings,
           plan,
           memorySummary: memory.summary,
+          estimatedLevel: memory.estimatedLevel,
+          learnedVocabulary: memory.learnedVocabulary,
           strongPoints: memory.strongPoints,
           weakPoints: memory.weakPoints,
           repeatedMistakes: memory.repeatedMistakes,
           recurringMistakes: memory.recurringMistakes,
+          lessonProgress,
         },
         recent,
       ),
       settings.personality === 'chaotic_savage' ? 600 : 450,
+      // A slow opening must not hold room creation for the normal turn timeout.
+      lessonProgress?.turn === 0 ? 8_000 : undefined,
     );
     const result = parseLessonReply(raw);
     if (!result) throw new VoiceTutorProviderError('INVALID_RESPONSE', 'LLM');
-    return performTutorReaction(result, settings);
+    return { ...performTutorReaction(result, settings), taught: result.taught };
   }
 
   /**
@@ -102,6 +108,8 @@ export class VoiceTutorAgentsService {
             settings,
             plan,
             memorySummary: memory.summary,
+            estimatedLevel: memory.estimatedLevel,
+            learnedVocabulary: memory.learnedVocabulary,
             strongPoints: memory.strongPoints,
             weakPoints: memory.weakPoints,
             repeatedMistakes: memory.repeatedMistakes,
@@ -110,7 +118,7 @@ export class VoiceTutorAgentsService {
           },
           recent,
         ),
-        // A chaotic rant (reference anchor A) runs ~15s of speech.
+        // Leave room for occasional expressive beats without requiring a rant.
         settings.personality === 'chaotic_savage' ? 900 : 500,
         signal,
       )) {
@@ -134,16 +142,9 @@ export class VoiceTutorAgentsService {
       speechText: text,
     });
     if (!result) throw new VoiceTutorProviderError('INVALID_RESPONSE', 'LLM');
-    const taught = parser.metadata.taught;
     return {
       ...performTutorReaction(result, settings),
-      taught: Array.isArray(taught)
-        ? taught
-            .filter((item): item is string => typeof item === 'string')
-            .map((item) => item.trim().slice(0, 60))
-            .filter(Boolean)
-            .slice(0, 6)
-        : [],
+      taught: result.taught,
     };
   }
 

@@ -8,6 +8,7 @@ export class OpenAiTutorLlmProvider {
     system: string,
     input: string,
     maxTokens: number,
+    timeoutMs = 30_000,
   ): Promise<Record<string, unknown>> {
     const apiKey = process.env.OPENAI_API_KEY?.trim();
     if (!apiKey) throw new VoiceTutorProviderError('NOT_CONFIGURED', 'LLM');
@@ -34,7 +35,7 @@ export class OpenAiTutorLlmProvider {
           max_completion_tokens: maxTokens,
           ...(isGpt56 ? { reasoning_effort: 'none' } : {}),
         }),
-        signal: AbortSignal.timeout(30_000),
+        signal: AbortSignal.timeout(timeoutMs),
       });
     } catch {
       throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');

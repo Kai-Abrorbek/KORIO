@@ -23,6 +23,8 @@ const DELIVERY_TAGS: Record<string, string> = {
 /** Eleven v3/v4 audio tag that opens a reply, from the lesson's @meta line. */
 export function openingAudioTag(meta?: TutorSpeechMeta): string | undefined {
   if (!meta) return undefined;
+  // Emotion describes the reaction; explicit normal delivery keeps it untagged.
+  if (meta.delivery === "normal") return undefined;
   const explicit = meta.delivery ? DELIVERY_TAGS[meta.delivery] : undefined;
   if (explicit) return explicit;
   if (meta.emotion === "laughing") return "[laughs]";

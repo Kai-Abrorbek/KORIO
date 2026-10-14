@@ -18,10 +18,7 @@ export interface TutorPlan {
   grammarFocus: string[];
   conversationScenario: string;
   difficulty: string;
-  /**
-   * 이번 수업을 몇 단계로 깊게 가는지. 없으면 lessonCurriculum() 이 계획에서
-   * 기본 단계를 만든다. 주제 수업은 planForTopic() 이 채운다.
-   */
+  /** Legacy saved plans may contain stages; teaching no longer follows a fixed timetable. */
   curriculum?: string[];
 }
 

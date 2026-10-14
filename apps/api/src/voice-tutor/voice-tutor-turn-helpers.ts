@@ -12,8 +12,11 @@ import type { VoiceTutorTopic } from './topics/voice-tutor-topics';
  * a learner's slightly-off "배고파" can come back as some other real word.
  * Hangul-only, short, capped — the recognizer takes literal terms, not prose.
  */
-export function sttKeywordsFromPlan(plan: TutorPlan): string[] {
-  const words = [...plan.targetVocabulary, ...plan.reviewTopics]
+export function sttKeywordsFromPlan(
+  plan: TutorPlan,
+  introduced: string[] = [],
+): string[] {
+  const words = [...introduced, ...plan.targetVocabulary, ...plan.reviewTopics]
     .flatMap((item) => item.split(/[,/·~]/))
     .map((item) => item.trim())
     .filter((item) => /^[가-힣][가-힣\s]{0,19}$/.test(item));
@@ -29,7 +32,12 @@ const PHANTOM_WINDOW_MS = 30_000;
  * draft's transcript. Returns the draft's user+teacher rows, or null.
  */
 export function findPreemptivePhantom<
-  T extends { role: string; text: string; turnId?: string | null; createdAt?: Date },
+  T extends {
+    role: string;
+    text: string;
+    turnId?: string | null;
+    createdAt?: Date;
+  },
 >(history: T[], transcript: string): T[] | null {
   const lastUserIndex = history.map((row) => row.role).lastIndexOf('user');
   if (lastUserIndex < 0) return null;
@@ -43,7 +51,11 @@ export function findPreemptivePhantom<
   )
     return null;
   const after = history.slice(lastUserIndex + 1);
-  if (after.some((row) => row.role !== 'teacher' || row.turnId !== previous.turnId))
+  if (
+    after.some(
+      (row) => row.role !== 'teacher' || row.turnId !== previous.turnId,
+    )
+  )
     return null;
   return [previous, ...after];
 }
@@ -75,7 +87,10 @@ export function connectionFallback(
  * scenario the tutor plays, and the phrases to practise. The learner's weak
  * points from the saved plan stay as review so the topic still feels personal.
  */
-export function planForTopic(plan: TutorPlan, topic: VoiceTutorTopic): TutorPlan {
+export function planForTopic(
+  plan: TutorPlan,
+  topic: VoiceTutorTopic,
+): TutorPlan {
   const core = topic.targetExpressions;
   return {
     lessonGoal: `${topic.title.ko} — ${topic.blurb.ko}`,
@@ -85,61 +100,13 @@ export function planForTopic(plan: TutorPlan, topic: VoiceTutorTopic): TutorPlan
     grammarFocus: topic.targetGrammar,
     conversationScenario: `${topic.title.en}. ${topic.opener}`,
     difficulty: plan.difficulty || topic.level,
-    // Kai: "항상 똑같은 부분까지만 하고 주제를 다 했다고 한다" — 주제 하나를
-    // 7단계로 깊게 판다. 표현 5개로 끝나는 게 아니라 관련 어휘·문법·변형·문화까지
-    curriculum: [
-      `Core phrases: ${core.slice(0, 3).join(' / ')} — meaning, when Koreans use each one, pronunciation tips; the learner says each one in a sentence.`,
-      `More core: ${core.slice(3).join(' / ')}${topic.hints.length ? ` — plus model answers like ${topic.hints.join(' / ')}` : ''}; the learner answers real questions with them.`,
-      `Related vocabulary for "${topic.title.en}": at least 8 more words and phrases Koreans actually use in this situation (things, quantities, numbers, typical questions and answers), taught 2–3 at a time with examples.`,
-      `Grammar behind it: ${topic.targetGrammar.join(', ')} — why this form is used here, contrast it with a similar form learners confuse, 3 fresh examples, then the learner builds their own sentences.`,
-      `Role-play: ${topic.opener} Play the whole scene; then add a complication (something unavailable, a misunderstanding, an unexpected follow-up question) the learner must handle in Korean.`,
-      `Variations and real life: polite vs casual versions, what the other person may say back and how to reply, the mistakes foreigners typically make here, one short culture tip.`,
-      'Mastery: the learner runs the whole situation alone from start to finish; then a harder version with new details and faster pace.',
-    ],
   };
 }
 
-/** Lesson stages for this session — the topic's own, or ones built from the planner's plan. */
-export function lessonCurriculum(plan: TutorPlan): string[] {
-  if (plan.curriculum?.length) return plan.curriculum;
-  const list = (items: string[]) => items.filter(Boolean).join(' / ');
-  return [
-    `Warm-up and review${plan.reviewTopics.length ? `: ${list(plan.reviewTopics)}` : ': how the learner is doing, recycle words from earlier lessons'}.`,
-    `Core of today: ${plan.lessonGoal}${plan.targetVocabulary.length ? ` — introduce ${list(plan.targetVocabulary.slice(0, 4))}` : ''}.`,
-    `Expand vocabulary${plan.targetVocabulary.length > 4 ? `: ${list(plan.targetVocabulary.slice(4))}` : ''} plus closely related words the learner will need, 2–3 at a time with examples.`,
-    `Grammar focus${plan.grammarFocus.length ? `: ${list(plan.grammarFocus)}` : ': the grammar that today\'s sentences rely on'} — explain simply, contrast with a similar form, fresh examples, learner makes own sentences.`,
-    `Scenario practice: ${plan.conversationScenario || 'a realistic everyday situation'} — role-play it, then add a complication.`,
-    'Natural Korean: how Koreans actually say it — polite vs casual variants, typical reactions and replies, a culture note.',
-    'Mixed review: the learner produces a full exchange alone; fix the remaining weak spots, then push to a harder version.',
-  ];
-}
-
-/** Turns spent on one stage before the tutor is nudged to the next. */
-export const TURNS_PER_STAGE = 4;
-
-/**
- * Where this lesson is. The lesson agent only sees ~12 recent messages, so
- * without this it forgot what it had covered, repeated the first part of the
- * topic and then declared the topic "done".
- */
-export function lessonProgress(
-  plan: TutorPlan,
-  turn: number,
-  taughtItems: string[],
-) {
-  const stages = lessonCurriculum(plan);
-  const index = Math.min(
-    Math.floor(Math.max(0, turn - 1) / TURNS_PER_STAGE),
-    stages.length - 1,
-  );
-  const pastEnd = turn > stages.length * TURNS_PER_STAGE;
+/** Coverage survives the short history window; turn count never dictates teaching. */
+export function lessonProgress(turn: number, taughtItems: string[]) {
   return {
     turn,
-    stage: `${index + 1}/${stages.length}`,
-    currentStage: pastEnd
-      ? 'All stages covered once — keep going deeper: new situations, harder variations and related expressions for the same topic; recycle what was taught inside new sentences.'
-      : stages[index],
-    nextStage: pastEnd ? null : (stages[index + 1] ?? null),
-    alreadyTaught: taughtItems.slice(-40),
+    alreadyTaught: [...new Set(taughtItems)].slice(-40),
   };
 }

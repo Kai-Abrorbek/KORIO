@@ -13,37 +13,46 @@ describe('Voice Tutor ElevenLabs adapter', () => {
     jest.restoreAllMocks();
   });
 
-  it('refuses an old v2 value and sends the laughing reaction to an expressive model', async () => {
-    process.env.ELEVENLABS_API_KEY = 'test-key';
-    process.env.VOICE_TUTOR_TTS_MODEL = 'eleven_multilingual_v2';
-    const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
-      ok: true,
-      headers: new Headers({ 'content-length': '3' }),
-      arrayBuffer: () => Promise.resolve(Uint8Array.from([1, 2, 3]).buffer),
-    } as Response);
-    const reaction: TutorReaction = {
-      displayText: '배구리? 배고파라고 해.',
-      speechText: '배구리? 배고파라고 해.',
-      language: 'ko',
-      emotion: 'laughing',
-      delivery: 'normal',
-      intensity: 0.7,
-      gesture: 'none',
-    };
+  it.each([
+    ['normal', '배구리? 배고파라고 해.'],
+    ['laugh', '[laughs] 배구리? 배고파라고 해.'],
+  ] as const)(
+    'uses the expressive model while respecting %s delivery',
+    async (delivery, expectedText) => {
+      process.env.ELEVENLABS_API_KEY = 'test-key';
+      process.env.VOICE_TUTOR_TTS_MODEL = 'eleven_multilingual_v2';
+      const fetchMock = jest.spyOn(global, 'fetch').mockResolvedValue({
+        ok: true,
+        headers: new Headers({ 'content-length': '3' }),
+        arrayBuffer: () => Promise.resolve(Uint8Array.from([1, 2, 3]).buffer),
+      } as Response);
+      const reaction: TutorReaction = {
+        displayText: '배구리? 배고파라고 해.',
+        speechText: '배구리? 배고파라고 해.',
+        language: 'ko',
+        emotion: 'laughing',
+        delivery,
+        intensity: 0.7,
+        gesture: 'none',
+      };
 
-    const audio = await new ElevenLabsTutorTtsProvider().synthesize(
-      reaction.speechText,
-      'testvoice123',
-      reaction,
-    );
+      const audio = await new ElevenLabsTutorTtsProvider().synthesize(
+        reaction.speechText,
+        'testvoice123',
+        reaction,
+      );
 
-    expect(audio).toEqual(Buffer.from([1, 2, 3]));
-    const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toContain('/v1/text-to-speech/testvoice123');
-    expect(typeof options?.body).toBe('string');
-    const body = JSON.parse(options?.body as string) as Record<string, unknown>;
-    expect(body.model_id).toBe('eleven_v4_turbo');
-    expect(body.text).toBe('[laughs] 배구리? 배고파라고 해.');
-    expect(body.voice_settings).toBeUndefined();
-  });
+      expect(audio).toEqual(Buffer.from([1, 2, 3]));
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toContain('/v1/text-to-speech/testvoice123');
+      expect(typeof options?.body).toBe('string');
+      const body = JSON.parse(options?.body as string) as Record<
+        string,
+        unknown
+      >;
+      expect(body.model_id).toBe('eleven_v4_turbo');
+      expect(body.text).toBe(expectedText);
+      expect(body.voice_settings).toBeUndefined();
+    },
+  );
 });

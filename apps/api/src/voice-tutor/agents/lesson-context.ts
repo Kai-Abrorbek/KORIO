@@ -16,5 +16,10 @@ export function buildLessonInput(
   return JSON.stringify({
     student: JSON.parse(buildLessonContext(context)) as Record<string, unknown>,
     recent,
+    // Highlight actual recent openings without prescribing a replacement bank.
+    recentTeacherOpenings: recent
+      .filter(({ role }) => role === 'teacher')
+      .slice(-4)
+      .map(({ text }) => text.slice(0, 100)),
   });
 }

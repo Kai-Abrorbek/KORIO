@@ -42,7 +42,7 @@ describe('Voice Tutor turn helpers', () => {
     ).toEqual(['배고파', '맛있어요', '잘 가요']);
   });
 
-  it('walks a topic lesson through its stages and never runs out', () => {
+  it('keeps topic seed material without creating a fixed curriculum', () => {
     const base = {
       lessonGoal: '',
       reviewTopics: [],
@@ -53,30 +53,24 @@ describe('Voice Tutor turn helpers', () => {
       difficulty: '',
     };
     const plan = planForTopic(base, VOICE_TUTOR_TOPIC_BY_ID.get('cafe')!);
-    expect(plan.curriculum?.length).toBe(7);
-    expect(lessonProgress(plan, 1, []).stage).toBe('1/7');
-    expect(lessonProgress(plan, 5, []).stage).toBe('2/7');
-    const late = lessonProgress(plan, 60, ['배고파']);
-    expect(late.stage).toBe('7/7');
-    expect(late.nextStage).toBeNull();
-    expect(late.currentStage).toContain('deeper');
-    expect(late.alreadyTaught).toEqual(['배고파']);
+    expect(plan.curriculum).toBeUndefined();
+    expect(plan.targetVocabulary.length).toBeGreaterThan(0);
+    expect(plan.lessonGoal).toContain('카페');
+    expect(base.lessonGoal).toBe('');
   });
 
-  it('builds default stages for a planner plan without a curriculum', () => {
-    const progress = lessonProgress(
-      {
-        lessonGoal: '카페 주문',
-        reviewTopics: ['-고 싶어요'],
-        newTopics: [],
-        targetVocabulary: ['아메리카노'],
-        grammarFocus: [],
-        conversationScenario: '',
-        difficulty: '',
-      },
-      1,
-      [],
-    );
-    expect(progress.currentStage).toContain('-고 싶어요');
+  it.each([0, 1, 5, 28, 60])(
+    'reports coverage without scheduling a stage at turn %i',
+    (turn) => {
+      expect(lessonProgress(turn, ['배고파', '배고파', '맛있어요'])).toEqual({
+        turn,
+        alreadyTaught: ['배고파', '맛있어요'],
+      });
+    },
+  );
+
+  it('bounds coverage to forty distinct recent items', () => {
+    const items = Array.from({ length: 60 }, (_, i) => `표현${i}`);
+    expect(lessonProgress(60, items).alreadyTaught).toEqual(items.slice(-40));
   });
 });

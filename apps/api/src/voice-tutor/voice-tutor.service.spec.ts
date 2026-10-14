@@ -50,68 +50,127 @@ describe('VoiceTutorService lifecycle', () => {
     process.env.ELEVENLABS_DEFAULT_VOICE_ID = 'testVoice123';
   });
   afterEach(() => {
-    process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
+    if (originalVoice === undefined)
+      delete process.env.ELEVENLABS_DEFAULT_VOICE_ID;
+    else process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
   });
 
-  it('starts a separate LiveKit room without synthesizing the greeting twice', async () => {
-    const session = { _id: new Types.ObjectId(sessionId) };
-    const sessions = {
-      create: jest.fn().mockResolvedValue(session),
-    };
-    const messages = {
-      create: jest.fn().mockImplementation((row: Record<string, unknown>) =>
-        Promise.resolve({
-          ...row,
-          _id: new Types.ObjectId(),
-          createdAt: new Date(),
+  it.each(['generated', 'fallback', 'room failure'] as const)(
+    'preserves the start lifecycle with a %s opening',
+    async (mode) => {
+      const session = { _id: new Types.ObjectId(sessionId) };
+      const sessions = {
+        create: jest.fn().mockResolvedValue(session),
+        deleteOne: jest.fn().mockResolvedValue({}),
+      };
+      const messages = {
+        deleteMany: jest.fn().mockResolvedValue({}),
+        create: jest.fn().mockImplementation((row: Record<string, unknown>) =>
+          Promise.resolve({
+            ...row,
+            _id: new Types.ObjectId(),
+            createdAt: new Date(),
+          }),
+        ),
+      };
+      const profile = {
+        getSettings: jest
+          .fn()
+          .mockResolvedValue({ ...settings, voiceId: 'default' }),
+        getMemory: jest.fn().mockResolvedValue(memory),
+        latestPlan: jest.fn().mockResolvedValue(plan),
+      };
+      const tts = { synthesize: jest.fn() };
+      const opening: TutorReaction = {
+        displayText:
+          'You are at a café. Ask for water: 물 주세요. What will you say?',
+        speechText:
+          'You are at a café. Ask for water: 물 주세요. What will you say?',
+        language: 'en',
+        emotion: 'happy',
+        delivery: 'normal',
+        intensity: 0.3,
+        taught: ['물 주세요'],
+      };
+      const agents = { lesson: jest.fn().mockResolvedValue(opening) };
+      if (mode === 'fallback')
+        agents.lesson.mockRejectedValue(new Error('LLM unavailable'));
+      const grant = {
+        serverUrl: 'wss://livekit.example',
+        roomName: `voice-tutor-${sessionId}`,
+        participantToken: 'participant-token',
+      };
+      const livekit = { prepareRoom: jest.fn().mockResolvedValue(grant) };
+      if (mode === 'room failure')
+        livekit.prepareRoom.mockRejectedValue(new Error('room unavailable'));
+      const quota = {
+        assertCanStart: jest.fn().mockResolvedValue({ allowedSec: 1200 }),
+      };
+      const service = new VoiceTutorService(
+        sessions as never,
+        messages as never,
+        profile as never,
+        agents as never,
+        {} as never,
+        tts as never,
+        {} as never,
+        livekit as never,
+        quota as never,
+      );
+
+      if (mode === 'room failure') {
+        await expect(service.start(userId)).rejects.toThrow('room unavailable');
+        expect(messages.deleteMany).toHaveBeenCalledWith({
+          sessionId: session._id,
+        });
+        expect(sessions.deleteOne).toHaveBeenCalledWith({ _id: session._id });
+        expect(tts.synthesize).not.toHaveBeenCalled();
+        return;
+      }
+      const result = await service.start(userId);
+      expect(agents.lesson).toHaveBeenCalledWith(
+        result.settings,
+        plan,
+        memory,
+        [],
+        { turn: 0, alreadyTaught: [] },
+      );
+      expect(agents.lesson.mock.invocationCallOrder[0]).toBeLessThan(
+        sessions.create.mock.invocationCallOrder[0],
+      );
+      expect(messages.create).toHaveBeenCalledTimes(1);
+      expect(messages.create).toHaveBeenCalledWith(
+        expect.objectContaining({ role: 'teacher' }),
+      );
+      expect(sessions.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          taughtItems: mode === 'generated' ? opening.taught : [],
         }),
-      ),
-    };
-    const profile = {
-      getSettings: jest
-        .fn()
-        .mockResolvedValue({ ...settings, voiceId: 'default' }),
-      getMemory: jest.fn().mockResolvedValue(memory),
-      latestPlan: jest.fn().mockResolvedValue(plan),
-    };
-    const tts = { synthesize: jest.fn() };
-    const grant = {
-      serverUrl: 'wss://livekit.example',
-      roomName: `voice-tutor-${sessionId}`,
-      participantToken: 'participant-token',
-    };
-    const livekit = { prepareRoom: jest.fn().mockResolvedValue(grant) };
-    const quota = {
-      assertCanStart: jest.fn().mockResolvedValue({ allowedSec: 1200 }),
-    };
-    const service = new VoiceTutorService(
-      sessions as never,
-      messages as never,
-      profile as never,
-      {} as never,
-      {} as never,
-      tts as never,
-      {} as never,
-      livekit as never,
-      quota as never,
-    );
-
-    const result = await service.start(userId);
-    expect(result.livekit).toEqual(grant);
-    expect(result.initialMessage.audioUrl).toBeNull();
-    expect(tts.synthesize).not.toHaveBeenCalled();
-    expect(livekit.prepareRoom).toHaveBeenCalledWith(
-      sessionId,
-      'testVoice123',
-      {
-        displayText: result.initialMessage.displayText,
-        speechText: result.initialMessage.speechText,
-      },
-      result.settings.explanationLanguage,
-      expect.any(Array),
-      1200,
-    );
-  });
+      );
+      if (mode === 'generated') {
+        expect(result.initialMessage.text).toBe(opening.displayText);
+      } else {
+        expect(result.initialMessage.text).toContain('Korean');
+        expect(result.initialMessage.text).not.toContain('야아');
+      }
+      expect(result.livekit).toEqual(grant);
+      expect(result.initialMessage.audioUrl).toBeNull();
+      expect(tts.synthesize).not.toHaveBeenCalled();
+      expect(livekit.prepareRoom).toHaveBeenCalledWith(
+        sessionId,
+        'testVoice123',
+        {
+          displayText: result.initialMessage.displayText,
+          speechText: result.initialMessage.speechText,
+        },
+        result.settings.explanationLanguage,
+        mode === 'generated'
+          ? expect.arrayContaining(['물 주세요'])
+          : expect.any(Array),
+        1200,
+      );
+    },
+  );
 
   it('saves an agent turn once and returns the saved reply on retry without TTS', async () => {
     const session = {
@@ -200,6 +259,13 @@ describe('VoiceTutorService lifecycle', () => {
     expect(first.teacherMessage.speechText).toBe('좋아요!');
     expect(second.teacherMessage.id).toBe(first.teacherMessage.id);
     expect(agents.lesson).toHaveBeenCalledTimes(1);
+    expect(agents.lesson).toHaveBeenCalledWith(
+      session.settings,
+      plan,
+      memory,
+      expect.any(Array),
+      { turn: 1, alreadyTaught: [] },
+    );
     expect(tts.synthesize).not.toHaveBeenCalled();
     expect(rows).toHaveLength(2);
     expect(livekit.verifyAgentToken).toHaveBeenCalledWith(
