@@ -2502,6 +2502,8 @@ export default {
       subtitle: "Everyone sees it in the league and on your profile",
       none: "None",
       owned: "Owned",
+      free: "Free",
+      freeAll: "All auras free",
       wearing: "Wearing",
       tryOn: "Trying on",
       newBadge: "NEW",
@@ -2829,6 +2831,7 @@ export default {
       update: {
         title: "New look, new stickers",
         desc: "Redraw for {{price}} gems — everyone who added the pack sees the update",
+        descFree: "Redraw for free — everyone who added the pack sees the update",
       },
     },
     status: {
@@ -2838,6 +2841,8 @@ export default {
     },
     cta: {
       make: "Create sticker pack",
+      freeTag: "FREE",
+      freeHint: "Free for now — no gems needed",
       update: "Redraw with my new look",
       add: "Add to Telegram",
       addCurrent: "Add current pack",

@@ -151,6 +151,8 @@ export function StickersScreen() {
   const gems = state?.gems ?? user?.gems ?? 0;
   const short = Math.max(0, cost - gems);
   const upToDate = Boolean(pack && !pack.outdated);
+  /** 지금 무료 (어드민 가격 0) — 가격 알약 대신 "무료", 보석 안내 숨김 */
+  const free = Boolean(state) && cost <= 0;
 
   const make = async () => {
     if (!state?.enabled || phase === "making" || short > 0) return;
@@ -286,9 +288,13 @@ export function StickersScreen() {
               </span>
               <span>
                 <b data-i18n={`stickers.perks.${key}.title`}>{uzt(`stickers.perks.${key}.title`)}</b>
-                <small data-i18n={`stickers.perks.${key}.desc`}>
-                  {uzt(`stickers.perks.${key}.desc`, { price: fmt(state?.refreshPrice ?? 0) })}
-                </small>
+                {key === "update" && state && state.refreshPrice <= 0 ? (
+                  <small data-i18n="stickers.perks.update.descFree">{uzt("stickers.perks.update.descFree")}</small>
+                ) : (
+                  <small data-i18n={`stickers.perks.${key}.desc`}>
+                    {uzt(`stickers.perks.${key}.desc`, { price: fmt(state?.refreshPrice ?? 0) })}
+                  </small>
+                )}
               </span>
             </li>
           ))}
@@ -343,14 +349,27 @@ export function StickersScreen() {
               <span data-i18n={refreshing ? "stickers.cta.update" : "stickers.cta.make"}>
                 {uzt(refreshing ? "stickers.cta.update" : "stickers.cta.make")}
               </span>
-              <span className={styles.price} data-no-translate>
-                <MobileIcon name="diamond" size={14} />
-                {fmt(cost)}
-              </span>
+              {free ? (
+                <span className={`${styles.price} ${styles.priceFree}`}>
+                  <MobileIcon name="sparkles" size={14} />
+                  <span data-i18n="stickers.cta.freeTag">{uzt("stickers.cta.freeTag")}</span>
+                </span>
+              ) : (
+                <span className={styles.price} data-no-translate>
+                  <MobileIcon name="diamond" size={14} />
+                  {fmt(cost)}
+                </span>
+              )}
             </button>
-            <p className={styles.hint} data-i18n="stickers.cta.balance">
-              {uzt("stickers.cta.balance", { n: fmt(gems) })}
-            </p>
+            {free ? (
+              <p className={styles.hint} data-i18n="stickers.cta.freeHint">
+                {uzt("stickers.cta.freeHint")}
+              </p>
+            ) : (
+              <p className={styles.hint} data-i18n="stickers.cta.balance">
+                {uzt("stickers.cta.balance", { n: fmt(gems) })}
+              </p>
+            )}
           </>
         )}
       </footer>
@@ -386,9 +405,11 @@ function LinkSheet({ cost, link, onClose, waiting }: { cost: number; link: strin
             </li>
           ))}
         </ol>
-        <p className={styles.charge} data-i18n="stickers.link.charge">
-          {uzt("stickers.link.charge", { n: fmt(cost) })}
-        </p>
+        {cost > 0 ? (
+          <p className={styles.charge} data-i18n="stickers.link.charge">
+            {uzt("stickers.link.charge", { n: fmt(cost) })}
+          </p>
+        ) : null}
         {opened ? (
           <p className={styles.waiting}>
             <i className={styles.dots}>

@@ -503,3 +503,17 @@
     transform: rotate(var(--a)) translateY(-108px) scaleY(1);
   }
 }
+
+/* 무료 — 반짝이 + 보라 */
+.free {
+  align-items: center;
+  background: color-mix(in srgb, #776ee2 14%, transparent);
+  border-radius: 999px;
+  color: #776ee2;
+  display: flex;
+  flex: none;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 3px;
+  padding: 4px 8px;
+}

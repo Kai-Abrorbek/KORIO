@@ -2496,6 +2496,8 @@ export default {
       subtitle: "리그와 프로필에서 모두가 봐요",
       none: "없음",
       owned: "보유 중",
+      free: "무료",
+      freeAll: "오라 전부 무료",
       wearing: "착용 중",
       tryOn: "입어보는 중",
       newBadge: "NEW",
@@ -2823,6 +2825,7 @@ export default {
       update: {
         title: "캐릭터를 바꾸면 스티커도",
         desc: "보석 {{price}}개로 새로 그리면 추가해 둔 사람 모두에게 바뀌어요",
+        descFree: "다시 그려도 무료, 추가해 둔 사람 모두에게 바뀌어요",
       },
     },
     status: {
@@ -2832,6 +2835,8 @@ export default {
     },
     cta: {
       make: "스티커팩 만들기",
+      freeTag: "무료",
+      freeHint: "지금은 무료 — 보석이 들지 않아요",
       update: "새 캐릭터로 다시 그리기",
       add: "텔레그램에 추가",
       addCurrent: "지금 팩 추가",

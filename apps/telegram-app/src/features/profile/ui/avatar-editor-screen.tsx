@@ -22,7 +22,7 @@ import styles from "./avatar-editor-screen.module.css";
 import { playSfx } from "../../../shared/browser/sfx";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { AvatarAura, AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
-import { AuraBought, AuraBuySheet, AuraGrid, auraPrice, ownsAura } from "./aura-picker";
+import { AuraBought, AuraBuySheet, AuraGrid, auraPrice, aurasAllFree, ownsAura } from "./aura-picker";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
@@ -196,7 +196,12 @@ export function AvatarEditorScreen() {
       >
         <i className={styles.heroOrbLarge} />
         <i className={styles.heroOrbSmall} />
-        {selectedCategory === "aura" ? (
+        {selectedCategory === "aura" && aurasAllFree(cosmetics) ? (
+          <span className={styles.freeBadge}>
+            <MobileIcon name="sparkles" size={14} />
+            <span data-i18n="avatarEditor.aura.freeAll">{uzt("avatarEditor.aura.freeAll")}</span>
+          </span>
+        ) : selectedCategory === "aura" ? (
           <span className={`${styles.freeBadge} ${styles.gemBadge}`} data-no-translate>
             <MobileIcon name="diamond" size={14} />
             {gems.toLocaleString("en-US")}
