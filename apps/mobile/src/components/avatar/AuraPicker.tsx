@@ -3,9 +3,10 @@ import { Modal, Pressable, StyleSheet, Text, View, useWindowDimensions } from "r
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AURA_LOOK, AURA_ORDER, RARITY_COLOR, isAura, type AuraId } from "@/components/avatar/AvatarAura";
+import { SCENE_LOOK, SceneBackdrop, isScene, type PaidScene } from "@/components/avatar/AvatarScene";
 import Button3D from "@/features/retention/components/Button3D";
 import SwipeSheet from "@/components/common/SwipeSheet";
 import { useTheme } from "@/hooks/useTheme";
@@ -17,22 +18,39 @@ import * as Haptics from "@/utils/haptics";
 /**
  * 캐릭터 에디터의 "Aura" 탭 — 텔레그램 aura-picker 와 같다.
  * 카드를 누르면 바로 입어본다(위 큰 캐릭터에 오라가 뜬다). 사는 건 아래 버튼 → 시트.
+ * 사는 시트·산 직후 창은 배경 장면(ScenePicker)과 같이 쓴다.
  */
 const fmt = (n: number) => n.toLocaleString("en-US");
 const GEM = "#1899D6";
 
-export function auraPrice(state: CosmeticsState | null, id: string) {
+/** 상점 꾸미기 아이템 (오라 · 배경 장면) */
+export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene;
+export type ShopSlot = "aura" | "scene";
+
+export const slotOf = (id: ShopItemId): ShopSlot => (isScene(id) ? "scene" : "aura");
+
+export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
 }
 
-/** 오라가 전부 무료인가 — 에디터 위 배지를 보석 잔액 대신 "전부 무료" 로 */
-export function aurasAllFree(state: CosmeticsState | null) {
-  return !!state && state.items.length > 0 && state.items.every((item) => item.price <= 0);
+/** 이 칸 아이템이 전부 무료인가 — 에디터 위 배지를 보석 잔액 대신 "전부 무료" 로 */
+export function slotAllFree(state: CosmeticsState | null, slot: ShopSlot) {
+  const items = state?.items.filter((item) => item.slot === slot) ?? [];
+  return items.length > 0 && items.every((item) => item.price <= 0);
 }
 
-export function ownsAura(state: CosmeticsState | null, id: string | undefined) {
-  if (!id || id === "aura_none") return true;
+/** 가격 0 = 무료 (서버는 무료 아이템을 owned 에도 넣어 준다). 없음(_none)은 늘 가진 것 */
+export function ownsCosmetic(state: CosmeticsState | null, id: string | undefined) {
+  if (!id || id.endsWith("_none")) return true;
   return !!state?.owned.includes(id);
+}
+
+const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id);
+
+/** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면은 장면 강조색 */
+function shopLook(id: ShopItemId) {
+  if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
+  return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
 export function AuraGrid({
@@ -67,7 +85,7 @@ export function AuraGrid({
   }
 
   return (
-    <Animated.View entering={FadeInDown.duration(280)} style={{ paddingHorizontal: 16 }}>
+    <Animated.View entering={FadeIn.duration(220)} style={{ paddingHorizontal: 16 }}>
       <Text style={s.headTitle}>{t("avatarEditor.aura.title")}</Text>
       <Text style={s.headSub}>{t("avatarEditor.aura.subtitle")}</Text>
       <View style={s.grid}>
@@ -79,8 +97,8 @@ export function AuraGrid({
             draft={draft}
             selected={(draft.aura ?? "aura_none") === id}
             wearing={equipped === id}
-            owned={ownsAura(state, id)}
-            price={status === "loading" ? null : auraPrice(state, id)}
+            owned={ownsCosmetic(state, id)}
+            price={status === "loading" ? null : cosmeticPrice(state, id)}
             onPress={() => onPick(id)}
             s={s}
           />
@@ -179,8 +197,27 @@ function AuraCard({
   );
 }
 
-/** 사기 전 확인 — 크게 입어보고, 값·내 보석·모자란 만큼 */
-export function AuraBuySheet({
+/** 시트·산 직후 창 위 그림 — 오라는 오라 두른 캐릭터, 장면은 그 장면 앞에 선 캐릭터 */
+function ShopStage({ avatar, id, height, s }: { avatar: AvatarConfig; id: ShopItemId; height: number; s: ReturnType<typeof getStyles> }) {
+  if (isScene(id)) {
+    return (
+      <View style={[s.sceneStage, { height }]}>
+        <SceneBackdrop scene={id} />
+        <AvatarPreview avatar={{ ...avatar, scene: id }} size={height * 0.84} showBackground={false} aura />
+      </View>
+    );
+  }
+  const look = AURA_LOOK[id];
+  return (
+    <LinearGradient colors={["#241F4A", "#3B2F7A"]} style={[s.stage, { height }]}>
+      <View style={[s.stageGlow, { backgroundColor: look.color + "40" }]} />
+      <AvatarPreview avatar={{ ...avatar, aura: id }} size={height * 0.9} showBackground={false} aura />
+    </LinearGradient>
+  );
+}
+
+/** 사기 전 확인 — 크게 입어보고, 값·내 보석·모자란 만큼 (오라 · 배경 장면) */
+export function CosmeticBuySheet({
   visible,
   avatar,
   id,
@@ -193,7 +230,7 @@ export function AuraBuySheet({
 }: {
   visible: boolean;
   avatar: AvatarConfig;
-  id: AuraId | null;
+  id: ShopItemId | null;
   price: number;
   gems: number;
   buying: boolean;
@@ -204,23 +241,20 @@ export function AuraBuySheet({
   const { t } = useTranslation();
   const theme = useTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
-  if (!isAura(id)) return null;
-  const look = AURA_LOOK[id];
+  if (!isShopItem(id)) return null;
+  const look = shopLook(id);
   const rarity = RARITY_COLOR[look.rarity];
   const short = Math.max(0, price - gems);
 
   return (
     // 바닥에 붙고 아래로 끌어 닫는 시트, 페이드로만 열린다 (사는 중엔 못 닫음)
     <SwipeSheet dismissible={!buying} onClose={onClose} visible={visible}>
-      <LinearGradient colors={["#241F4A", "#3B2F7A"]} style={s.stage}>
-        <View style={[s.stageGlow, { backgroundColor: look.color + "40" }]} />
-        <AvatarPreview avatar={{ ...avatar, aura: id }} size={180} showBackground={false} aura />
-      </LinearGradient>
+      <ShopStage avatar={avatar} id={id} height={200} s={s} />
       <View style={[s.sheetRarity, { backgroundColor: rarity }]}>
         <Text style={s.rarityText}>{t(`avatarEditor.aura.rarity.${look.rarity}`)}</Text>
       </View>
-      <Text style={s.sheetTitle}>{t(`avatarEditor.aura.items.${id}.name`)}</Text>
-      <Text style={s.sheetDesc}>{t(`avatarEditor.aura.items.${id}.desc`)}</Text>
+      <Text style={s.sheetTitle}>{t(`${look.keys}.items.${id}.name`)}</Text>
+      <Text style={s.sheetDesc}>{t(`${look.keys}.items.${id}.desc`)}</Text>
 
       <View style={s.rows}>
         <View style={s.row}>
@@ -243,7 +277,7 @@ export function AuraBuySheet({
       {error && <Text style={s.error}>{t("avatarEditor.aura.failed")}</Text>}
 
       <Button3D
-        label={t("avatarEditor.aura.buyWear")}
+        label={t(`${look.keys}.buyWear`)}
         color="#1FA4DC"
         depthColor="#157FAE"
         disabled={short > 0}
@@ -259,30 +293,39 @@ export function AuraBuySheet({
 }
 
 /** 산 직후 — 페이드로만 뜬다 (빛 터짐·튕김 없음) */
-export function AuraBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: AuraId | null; onClose: () => void }) {
+export function CosmeticBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: ShopItemId | null; onClose: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }, []);
-  if (!isAura(id)) return null;
-  const look = AURA_LOOK[id];
+  if (!isShopItem(id)) return null;
+  const look = shopLook(id);
   return (
     <Modal visible transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={onClose}>
       <View style={s.center}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={s.bought}>
-          <View style={[s.boughtGlow, { backgroundColor: look.color + "33" }]} />
-          <AvatarPreview avatar={{ ...avatar, aura: id }} size={170} showBackground={false} aura />
-          <Text style={s.sheetTitle}>{t("avatarEditor.aura.boughtTitle")}</Text>
-          <Text style={[s.sheetDesc, { marginBottom: 16 }]}>{t("avatarEditor.aura.boughtBody")}</Text>
+          {isScene(id) ? (
+            <ShopStage avatar={avatar} id={id} height={170} s={s} />
+          ) : (
+            <>
+              <View style={[s.boughtGlow, { backgroundColor: look.color + "33" }]} />
+              <AvatarPreview avatar={{ ...avatar, aura: id }} size={170} showBackground={false} aura />
+            </>
+          )}
+          <Text style={s.sheetTitle}>{t(`${look.keys}.boughtTitle`)}</Text>
+          <Text style={[s.sheetDesc, { marginBottom: 16 }]}>{t(`${look.keys}.boughtBody`)}</Text>
           <Button3D label={t("avatarEditor.aura.great")} color="#1FA4DC" depthColor="#157FAE" onPress={onClose} style={{ alignSelf: "stretch" }} />
         </View>
       </View>
     </Modal>
   );
 }
+
+/** ScenePicker 가 같은 카드 모양을 쓴다 */
+export const getShopPickerStyles = (theme: ThemeColors) => getStyles(theme);
 
 const getStyles = (theme: ThemeColors) =>
   StyleSheet.create({
@@ -323,6 +366,8 @@ const getStyles = (theme: ThemeColors) =>
     failedText: { color: theme.textSecondary, fontSize: 13, fontWeight: "700", textAlign: "center" },
 
     stage: { height: 200, borderRadius: 22, alignItems: "center", justifyContent: "flex-end", overflow: "hidden", paddingBottom: 6 },
+    // 배경 장면 — 그림 앞에 캐릭터 (발이 그림의 땅에 닿게 아래에 붙인다)
+    sceneStage: { alignSelf: "stretch", borderRadius: 22, alignItems: "center", justifyContent: "flex-end", overflow: "hidden", paddingBottom: 4 },
     stageGlow: { position: "absolute", width: 220, height: 220, borderRadius: 110, top: 10 },
     sheetRarity: { alignSelf: "center", marginTop: 14, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
     sheetTitle: { color: theme.text, fontSize: 22, fontWeight: "900", textAlign: "center", marginTop: 8, marginBottom: 4 },

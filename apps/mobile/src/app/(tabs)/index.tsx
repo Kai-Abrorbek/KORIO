@@ -21,6 +21,7 @@ import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
+import { SceneBackdrop, isScene } from "@/components/avatar/AvatarScene";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
 import NotificationModal from "@/components/notifications/NotificationModal";
@@ -409,7 +410,18 @@ export default function HomeScreen() {
             activeOpacity={0.85}
             onPress={() => router.push("/avatar-editor")}
           >
-            {user?.avatar ? (
+            {user?.avatar && isScene(user.avatar.scene) ? (
+              // 배경 장면을 골랐으면 그 그림 앞에 선 엽서처럼
+              <View style={[styles.sceneCard, { borderColor: theme.bg === "#15151D" ? "#2C2A3F" : "#FFFFFF" }]}>
+                <SceneBackdrop scene={user.avatar.scene} />
+                <AvatarPreview
+                  avatar={user.avatar}
+                  size={166}
+                  showBackground={false}
+                  aura
+                />
+              </View>
+            ) : user?.avatar ? (
               <AvatarPreview
                 avatar={user.avatar}
                 size={200}
@@ -891,6 +903,22 @@ const getStyles = (theme: ThemeColors) =>
     mascotWrap: {
       alignItems: "center",
       marginBottom: 8,
+    },
+    // 배경 장면 엽서 — 그림 앞에 캐릭터 (움직임 없음). 발이 그림의 땅에 닿게 아래에 붙인다
+    sceneCard: {
+      width: 210,
+      height: 196,
+      borderRadius: 32,
+      borderWidth: 4,
+      overflow: "hidden",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      paddingBottom: 2,
+      shadowColor: "#362A8C",
+      shadowOpacity: 0.2,
+      shadowRadius: 22,
+      shadowOffset: { width: 0, height: 10 },
+      elevation: 8,
     },
     lessonBottom: {
       flexDirection: "row",

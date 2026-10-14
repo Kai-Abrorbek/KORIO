@@ -1,15 +1,5 @@
-import { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  Easing,
-  withSpring,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { TIER_LABEL, maxBadge, usePremiumTier } from "@/features/subscription/usePremiumTier";
 import { ThemeColors } from "@/constants/theme";
@@ -20,6 +10,7 @@ import AvatarPreview, {
   AVATAR_BACKGROUNDS,
   getAvatarHeaderContentColor,
 } from "@/components/avatar/AvatarPreview";
+import { SceneBackdrop, sceneHeroColors } from "@/components/avatar/AvatarScene";
 import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
@@ -41,29 +32,14 @@ export default function ProfileHeader({
   const isMax = usePremiumTier() === "max";
   const styles = getStyles(theme);
   const avatarConfig = mergeAvatarConfig(avatar);
-  const headerColors = AVATAR_BACKGROUNDS[avatarConfig.background];
-  const headerContentColor = getAvatarHeaderContentColor(avatar);
-  const bob = useSharedValue(0);
-  const scale = useSharedValue(0.7);
+  // 배경 장면을 골랐으면 그 그림이 히어로 뒤에 깔린다 (색·글자색도 그림에 맞춤)
+  const sceneColors = sceneHeroColors(avatarConfig.scene);
+  const headerColors = sceneColors?.colors ?? AVATAR_BACKGROUNDS[avatarConfig.background];
+  const headerContentColor = sceneColors?.text ?? getAvatarHeaderContentColor(avatar);
   const router = useRouter();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
-    bob.value = withRepeat(
-      withSequence(
-        withTiming(-1, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-  }, [bob, scale]);
-
-  const mascotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }, { translateY: bob.value }],
-  }));
-
+  // 캐릭터는 가만히 서 있다 (튀어나오기·둥둥 없음)
   return (
     <LinearGradient
       colors={headerColors}
@@ -71,6 +47,7 @@ export default function ProfileHeader({
       end={{ x: 1, y: 1 }}
       style={styles.hero}
     >
+      <SceneBackdrop scene={avatarConfig.scene} shade />
       <View style={styles.topRow}>
         <TouchableOpacity
           onPress={() => {
@@ -127,7 +104,7 @@ export default function ProfileHeader({
         </View>
       )}
 
-      <Animated.View style={[styles.avatarWrap, mascotStyle]}>
+      <View style={styles.avatarWrap}>
         <TouchableOpacity
           accessibilityRole="button"
           accessibilityLabel={t("avatarEditor.open")}
@@ -137,7 +114,7 @@ export default function ProfileHeader({
         >
           <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
         </TouchableOpacity>
-      </Animated.View>
+      </View>
     </LinearGradient>
   );
 }
@@ -149,6 +126,7 @@ const getStyles = (theme: ThemeColors) =>
       paddingBottom: 32,
       paddingHorizontal: 20,
       position: "relative",
+      overflow: "hidden",
     },
     topRow: {
       flexDirection: "row",

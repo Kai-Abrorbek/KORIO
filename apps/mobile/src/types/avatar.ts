@@ -99,6 +99,16 @@ export const AVATAR_IDS = {
     "aura_flame",
     "aura_hangul",
   ],
+  /** 캐릭터 뒤 배경 장면 (api cosmetics, slot scene) — 서울 여행 그림. 고르면 색 배경 대신 이 그림 */
+  scene: [
+    "scene_none",
+    "scene_hangang",
+    "scene_cvs",
+    "scene_namsan",
+    "scene_jeju",
+    "scene_snow",
+    "scene_gyeongbokgung",
+  ],
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -119,6 +129,7 @@ export interface AvatarConfig {
   outfit: AvatarValue<"outfit">;
   background: AvatarValue<"background">;
   aura: AvatarValue<"aura">;
+  scene: AvatarValue<"scene">;
 }
 
 export type AvatarUnlock =
@@ -153,6 +164,7 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   outfit: "outfit_hoodie",
   background: "background_lilac",
   aura: "aura_none",
+  scene: "scene_none",
 };
 
 export function mergeAvatarConfig(

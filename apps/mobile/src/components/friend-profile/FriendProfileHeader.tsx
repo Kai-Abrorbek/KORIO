@@ -1,16 +1,6 @@
 import OnlineBadge from "@/components/common/OnlineBadge";
-import { useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  withSpring,
-  Easing,
-} from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import SuperBadge from "@/components/ui/SuperBadge";
@@ -20,6 +10,7 @@ import AvatarPreview, {
   AVATAR_BACKGROUNDS,
   getAvatarHeaderContentColor,
 } from "@/components/avatar/AvatarPreview";
+import { SceneBackdrop, sceneHeroColors } from "@/components/avatar/AvatarScene";
 import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
@@ -47,29 +38,13 @@ export default function FriendProfileHeader({
   const theme = useTheme();
   const styles = getStyles(theme);
 
-  const bob = useSharedValue(0);
-  const scale = useSharedValue(0.7);
-
-  useEffect(() => {
-    scale.value = withSpring(1, { damping: 0, stiffness: 160 });
-    bob.value = withRepeat(
-      withSequence(
-        withTiming(-3, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
-        withTiming(3, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
-      ),
-      -1,
-      true,
-    );
-  }, [bob, scale]);
-
-  const mascotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }, { translateY: bob.value }],
-  }));
-
   const avatarConfig = mergeAvatarConfig(avatar);
-  const headerColors = AVATAR_BACKGROUNDS[avatarConfig.background];
-  const headerContentColor = getAvatarHeaderContentColor(avatar);
+  // 배경 장면을 골랐으면 그 그림이 히어로 뒤에 깔린다
+  const sceneColors = sceneHeroColors(avatarConfig.scene);
+  const headerColors = sceneColors?.colors ?? AVATAR_BACKGROUNDS[avatarConfig.background];
+  const headerContentColor = sceneColors?.text ?? getAvatarHeaderContentColor(avatar);
 
+  // 캐릭터는 가만히 서 있다 (튀어나오기·둥둥 없음)
   return (
     <LinearGradient
       colors={headerColors}
@@ -77,6 +52,7 @@ export default function FriendProfileHeader({
       end={{ x: 1, y: 1 }}
       style={styles.hero}
     >
+      <SceneBackdrop scene={avatarConfig.scene} shade />
       <View style={styles.topRow}>
         <TouchableOpacity onPress={onBack} hitSlop={10} activeOpacity={0.7}>
           <Ionicons name="arrow-back" size={26} color={headerContentColor} />
@@ -109,9 +85,9 @@ export default function FriendProfileHeader({
         </View>
       )}
 
-      <Animated.View style={[styles.avatarWrap, mascotStyle]}>
+      <View style={styles.avatarWrap}>
         <AvatarPreview avatar={avatar} size={230} showBackground={false} aura />
-      </Animated.View>
+      </View>
     </LinearGradient>
   );
 }

@@ -2432,6 +2432,7 @@ export default {
       outfit: "Outfit",
       background: "Background",
       aura: "Aura",
+      scene: "Scene",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2483,6 +2484,46 @@ export default {
         aura_hangul: {
           name: "Hangul orbit",
           desc: "Hangul letters orbit around you. The rarest aura",
+        },
+      },
+    },
+    /** 배경 장면 — 캐릭터 뒤 그림 (api cosmetics, slot scene) */
+    scene: {
+      title: "Seoul trip — a scene behind you",
+      subtitle: "Everyone sees it on your profile and in the league",
+      none: "No scene",
+      freeAll: "All scenes free",
+      inUse: "In use",
+      tryOn: "Previewing",
+      buyWear: "Buy and use",
+      saveWithout: "Save without scene",
+      boughtTitle: "The scene is yours!",
+      boughtBody: "Now everyone sees it on your profile and in the league",
+      loadFailed: "Couldn't load scenes",
+      items: {
+        scene_gyeongbokgung: {
+          name: "Gyeongbokgung at night",
+          desc: "A Joseon palace under the moon",
+        },
+        scene_namsan: {
+          name: "N Seoul Tower",
+          desc: "Love locks and a pink sunset",
+        },
+        scene_hangang: {
+          name: "Ramyeon by the Han River",
+          desc: "Hot noodles by the river at night",
+        },
+        scene_cvs: {
+          name: "Late-night convenience store",
+          desc: "Late-night snacks like in K-dramas",
+        },
+        scene_jeju: {
+          name: "Jeju canola fields",
+          desc: "Dol hareubang and yellow fields",
+        },
+        scene_snow: {
+          name: "Snowy Seoul",
+          desc: "First snow over Seoul",
         },
       },
     },

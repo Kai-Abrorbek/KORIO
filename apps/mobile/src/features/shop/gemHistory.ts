@@ -91,9 +91,11 @@ export function describeGemTx(item: GemTx, t: TFunction): { title: string; detai
       if (item.amount < 0) title = t("gemHistory.sources.admin_out");
       break;
     case "cosmetic":
-      // 어떤 오라를 샀는지
+      // 무엇을 샀는지 — 오라 · 배경 장면
       if (typeof p.item === "string" && p.item.startsWith("aura_")) {
         details.push(t(`avatarEditor.aura.items.${p.item}.name`));
+      } else if (typeof p.item === "string" && p.item.startsWith("scene_")) {
+        details.push(t(`avatarEditor.scene.items.${p.item}.name`));
       }
       break;
   }

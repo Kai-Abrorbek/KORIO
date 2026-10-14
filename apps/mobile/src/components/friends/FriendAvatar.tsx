@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { AuraRing, isAura } from "@/components/avatar/AvatarAura";
+import { SceneBackdrop, isScene } from "@/components/avatar/AvatarScene";
 import type { AvatarConfig } from "@/types/avatar";
 import { getAvatarColor, getInitial } from "@/utils/avatar";
 
@@ -64,6 +65,8 @@ function renderBody(
   size: number,
 ) {
   if (avatar) {
+    // 배경 장면을 고른 사람은 얼굴 뒤로 그 그림이 보인다 — 얼굴을 조금 줄이고 내려서 하늘·불빛이 보이게
+    const scene = isScene(avatar.scene) ? avatar.scene : null;
     return (
       <View
         style={[
@@ -76,12 +79,15 @@ function renderBody(
           },
         ]}
       >
-        <AvatarPreview
-          avatar={avatar}
-          size={size * 1.1}
-          variant="head"
-          showBackground={false}
-        />
+        {scene && <SceneBackdrop scene={scene} focusY="38%" />}
+        <View style={scene ? { transform: [{ translateY: size * 0.08 }] } : null}>
+          <AvatarPreview
+            avatar={avatar}
+            size={size * (scene ? 0.96 : 1.1)}
+            variant="head"
+            showBackground={false}
+          />
+        </View>
       </View>
     );
   }
