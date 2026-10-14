@@ -9,6 +9,7 @@ import {
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   FadeInDown,
   useSharedValue,
@@ -20,9 +21,10 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useAuthStore, User } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import AvatarPreview from "@/components/avatar/AvatarPreview";
+import AvatarPreview, { AVATAR_BACKGROUNDS } from "@/components/avatar/AvatarPreview";
 import { SceneBackdrop, isScene } from "@/components/avatar/AvatarScene";
 import AvatarPet from "@/components/avatar/AvatarPet";
+import { mergeAvatarConfig } from "@/types/avatar";
 import { useCallback, useEffect, useState } from "react";
 import CalendarModal from "@/components/home/CalendarModal";
 import NotificationModal from "@/components/notifications/NotificationModal";
@@ -226,6 +228,10 @@ export default function HomeScreen() {
     },
   ];
 
+  const avatarBackground = user?.avatar
+    ? AVATAR_BACKGROUNDS[mergeAvatarConfig(user.avatar).background]
+    : AVATAR_BACKGROUNDS.background_cloud;
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -411,21 +417,14 @@ export default function HomeScreen() {
             activeOpacity={0.85}
             onPress={() => router.push("/avatar-editor")}
           >
-            {user?.avatar && isScene(user.avatar.scene) ? (
-              // 배경 장면을 골랐으면 그 그림 앞에 선 엽서처럼
-              <View style={[styles.sceneCard, { borderColor: theme.bg === "#15151D" ? "#2C2A3F" : "#FFFFFF" }]}>
-                <SceneBackdrop scene={user.avatar.scene} />
-                <View style={{ width: 166, height: 166 }}>
-                  <AvatarPreview
-                    avatar={user.avatar}
-                    size={166}
-                    showBackground={false}
-                    aura
-                  />
-                  <AvatarPet pet={user.avatar.pet} streak={user.streak} avatarSize={166} />
-                </View>
-              </View>
-            ) : user?.avatar ? (
+            <LinearGradient
+              colors={[avatarBackground[0], avatarBackground[1]]}
+              style={StyleSheet.absoluteFill}
+            />
+            {user?.avatar && isScene(user.avatar.scene) && (
+              <SceneBackdrop scene={user.avatar.scene} />
+            )}
+            {user?.avatar ? (
               <View style={{ width: 200, height: 200 }}>
                 <AvatarPreview
                   avatar={user.avatar}
@@ -909,24 +908,13 @@ const getStyles = (theme: ThemeColors) =>
       shadowOpacity: 0.25,
     },
     mascotWrap: {
-      alignItems: "center",
-      marginBottom: 8,
-    },
-    // 배경 장면 엽서 — 그림 앞에 캐릭터 (움직임 없음). 발이 그림의 땅에 닿게 아래에 붙인다
-    sceneCard: {
-      width: 210,
-      height: 196,
-      borderRadius: 32,
-      borderWidth: 4,
-      overflow: "hidden",
+      width: "100%",
+      height: 240,
       alignItems: "center",
       justifyContent: "flex-end",
-      paddingBottom: 2,
-      shadowColor: "#362A8C",
-      shadowOpacity: 0.2,
-      shadowRadius: 22,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 8,
+      borderRadius: 24,
+      overflow: "hidden",
+      marginBottom: 8,
     },
     lessonBottom: {
       flexDirection: "row",

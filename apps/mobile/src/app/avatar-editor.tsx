@@ -1,4 +1,6 @@
 import {
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,7 +14,7 @@ import * as Haptics from "@/utils/haptics";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import AvatarPreview, {
   AVATAR_BACKGROUNDS,
 } from "@/components/avatar/AvatarPreview";
@@ -106,6 +108,38 @@ export default function AvatarEditorScreen() {
   // 기본 Alert 대신 앱 안 확인창
   const [discardOpen, setDiscardOpen] = useState(false);
   const [saveFailedOpen, setSaveFailedOpen] = useState(false);
+  const [headerCollapsed, setHeaderCollapsed] = useState(false);
+  const headerVisibility = useSharedValue(1);
+  const optionsScrollRef = useRef<ScrollView>(null);
+  const scrollAnchor = useRef(0);
+  const headerStyle = useAnimatedStyle(() => ({
+    height: 60 * headerVisibility.value,
+    paddingTop: 8 * headerVisibility.value,
+    paddingBottom: 10 * headerVisibility.value,
+    opacity: headerVisibility.value,
+  }));
+
+  useEffect(() => {
+    headerVisibility.value = withTiming(headerCollapsed ? 0 : 1, { duration: 220 });
+  }, [headerCollapsed, headerVisibility]);
+
+  const handleOptionsScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
+    const y = Math.max(0, contentOffset.y);
+    const atBottom = contentSize.height > layoutMeasurement.height &&
+      y + layoutMeasurement.height >= contentSize.height - 16;
+
+    if (y <= 8 || atBottom) {
+      setHeaderCollapsed(false);
+      scrollAnchor.current = y;
+    } else if (y - scrollAnchor.current > 24) {
+      setHeaderCollapsed(true);
+      scrollAnchor.current = y;
+    } else if (scrollAnchor.current - y > 24) {
+      setHeaderCollapsed(false);
+      scrollAnchor.current = y;
+    }
+  }, []);
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
@@ -252,6 +286,9 @@ export default function AvatarEditorScreen() {
   const handleCategoryPress = (id: typeof selectedCategory) => {
     void Haptics.selectionAsync();
     selectCategory(id);
+    optionsScrollRef.current?.scrollTo({ y: 0, animated: false });
+    scrollAnchor.current = 0;
+    setHeaderCollapsed(false);
   };
 
   const handleOptionPress = (option: AvatarOption) => {
@@ -297,13 +334,13 @@ export default function AvatarEditorScreen() {
 
   return (
     <View style={styles.container}>
-      <View
+      <View style={{ height: insets.top, backgroundColor: theme.bg }} />
+      <Animated.View
         style={[
           styles.header,
-          {
-            paddingTop: insets.top + 8,
-          },
+          headerStyle,
         ]}
+        pointerEvents={headerCollapsed ? "none" : "auto"}
       >
         <TouchableOpacity
           accessibilityLabel={t("avatarEditor.close")}
@@ -330,7 +367,7 @@ export default function AvatarEditorScreen() {
             color={hasChanges ? theme.text : theme.textSecondary}
           />
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* 고정 영역: 캐릭터 프리뷰 (단일 배경) */}
       <Animated.View entering={FadeIn.duration(350)} style={styles.heroOuter}>
@@ -473,6 +510,7 @@ export default function AvatarEditorScreen() {
 
       {/* 독립 스크롤 영역: 옵션 그리드만 */}
       <ScrollView
+        ref={optionsScrollRef}
         style={styles.optionsScroll}
         contentContainerStyle={[
           styles.optionsScrollContent,
@@ -481,6 +519,8 @@ export default function AvatarEditorScreen() {
           },
         ]}
         showsVerticalScrollIndicator={false}
+        onScroll={handleOptionsScroll}
+        scrollEventThrottle={16}
       >
         {category.id === "aura" ? (
           <AuraGrid
@@ -642,14 +682,13 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.bg,
     },
     header: {
-      minHeight: 60,
       paddingHorizontal: 16,
-      paddingBottom: 10,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
       backgroundColor: theme.bg,
       zIndex: 5,
+      overflow: "hidden",
     },
     headerButton: {
       width: 42,
