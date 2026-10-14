@@ -1,17 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import { useTheme } from "@/hooks/useTheme";
 import { themes, type ThemeColors } from "@/constants/theme";
@@ -21,6 +12,7 @@ import * as Haptics from "@/utils/haptics";
 /**
  * "내 캐릭터 텔레그램 스티커" 들어가는 카드 — 프로필·상점. 텔레그램 sticker-promo 와 같다.
  * 미리보기를 서버에 묻지 않고(무겁다) 내 캐릭터 얼굴 + 말풍선 "ㅋㅋㅋ" 로 그린다.
+ * 움직이는 효과 없음 (흔들림·광택 금지).
  */
 export default function StickerPromoCard({
   avatar,
@@ -34,35 +26,6 @@ export default function StickerPromoCard({
   const { t } = useTranslation();
   const theme = useTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
-  const reduce = useReducedMotion();
-  const wobble = useSharedValue(0);
-  const sweep = useSharedValue(0);
-
-  useEffect(() => {
-    if (reduce) return;
-    wobble.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1300, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0, { duration: 1300, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1,
-    );
-    sweep.value = withRepeat(
-      withSequence(withTiming(1, { duration: 1900, easing: Easing.inOut(Easing.quad) }), withTiming(1, { duration: 1500 })),
-      -1,
-    );
-  }, [reduce, sweep, wobble]);
-
-  const faceStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${-4 + 8 * wobble.value}deg` }, { translateY: -2 * wobble.value }],
-  }));
-  const bubbleStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${-12 + 6 * wobble.value}deg` }, { scale: 1 + 0.12 * wobble.value }],
-  }));
-  const shineStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: -80 + 480 * sweep.value }, { skewX: "-20deg" }],
-  }));
-
   return (
     <Pressable
       onPress={() => {
@@ -77,12 +40,11 @@ export default function StickerPromoCard({
         start={{ x: 0, y: 0 }}
         style={s.card}
       >
-        <Animated.View pointerEvents="none" style={[s.shine, shineStyle]} />
         <View style={s.face}>
-          <Animated.View style={[s.sticker, faceStyle]}>
+          <View style={s.sticker}>
             <AvatarPreview avatar={avatar} showBackground={false} size={52} variant="head" />
-          </Animated.View>
-          <Animated.Text style={[s.bubble, bubbleStyle]}>ㅋㅋㅋ</Animated.Text>
+          </View>
+          <Text style={s.bubble}>ㅋㅋㅋ</Text>
           <View style={s.tg}>
             <Ionicons name="paper-plane" size={11} color="#FFFFFF" />
           </View>
@@ -113,7 +75,6 @@ const getStyles = (theme: ThemeColors) =>
     },
     pressed: { borderBottomWidth: 2, transform: [{ translateY: 2 }] },
     card: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingLeft: 12, paddingRight: 10 },
-    shine: { position: "absolute", top: 0, bottom: 0, left: 0, width: 60, backgroundColor: "rgba(255,255,255,0.35)" },
     face: { width: 58, height: 58 },
     sticker: {
       width: 58,
@@ -135,6 +96,7 @@ const getStyles = (theme: ThemeColors) =>
       top: -9,
       color: "#FFD43B",
       fontSize: 14,
+      transform: [{ rotate: "-12deg" }],
       fontWeight: "900",
       textShadowColor: "#5B3600",
       textShadowRadius: 2,

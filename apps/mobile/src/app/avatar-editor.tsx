@@ -1,5 +1,4 @@
 import {
-  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -39,6 +38,7 @@ import {
   ownsAura,
 } from "@/components/avatar/AuraPicker";
 import Button3D from "@/features/retention/components/Button3D";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 export default function AvatarEditorScreen() {
   const router = useRouter();
@@ -71,6 +71,9 @@ export default function AvatarEditorScreen() {
   const [buying, setBuying] = useState(false);
   const [buyError, setBuyError] = useState(false);
   const [bought, setBought] = useState<AuraId | null>(null);
+  // 기본 Alert 대신 앱 안 확인창
+  const [discardOpen, setDiscardOpen] = useState(false);
+  const [saveFailedOpen, setSaveFailedOpen] = useState(false);
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
@@ -167,21 +170,7 @@ export default function AvatarEditorScreen() {
       return;
     }
 
-    Alert.alert(
-      t("avatarEditor.unsavedTitle"),
-      t("avatarEditor.unsavedMessage"),
-      [
-        {
-          text: t("common.cancel"),
-          style: "cancel",
-        },
-        {
-          text: t("avatarEditor.discard"),
-          style: "destructive",
-          onPress: () => router.back(),
-        },
-      ],
-    );
+    setDiscardOpen(true);
   };
 
   const handleCategoryPress = (id: typeof selectedCategory) => {
@@ -224,10 +213,7 @@ export default function AvatarEditorScreen() {
     } catch {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 
-      Alert.alert(
-        t("avatarEditor.saveFailedTitle"),
-        t("avatarEditor.saveFailedMessage"),
-      );
+      setSaveFailedOpen(true);
     } finally {
       setIsSaving(false);
     }
@@ -505,6 +491,30 @@ export default function AvatarEditorScreen() {
       {bought && (
         <AuraBought avatar={draft} id={bought} onClose={() => setBought(null)} />
       )}
+
+      <ConfirmDialog
+        visible={discardOpen}
+        icon="trash-outline"
+        title={t("avatarEditor.unsavedTitle")}
+        message={t("avatarEditor.unsavedMessage")}
+        confirmLabel={t("avatarEditor.discard")}
+        cancelLabel={t("avatarEditor.keepEditing")}
+        onConfirm={() => {
+          setDiscardOpen(false);
+          router.back();
+        }}
+        onCancel={() => setDiscardOpen(false)}
+      />
+      <ConfirmDialog
+        visible={saveFailedOpen}
+        tone="warning"
+        icon="cloud-offline-outline"
+        title={t("avatarEditor.saveFailedTitle")}
+        message={t("avatarEditor.saveFailedMessage")}
+        confirmLabel={t("common.close")}
+        onConfirm={() => setSaveFailedOpen(false)}
+        onCancel={() => setSaveFailedOpen(false)}
+      />
     </View>
   );
 }
