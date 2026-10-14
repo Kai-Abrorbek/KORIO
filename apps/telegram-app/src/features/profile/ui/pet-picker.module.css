@@ -1,0 +1,38 @@
+/* 펫 카드 — 오라 카드(aura-picker.module.css) 위에 덮어쓰는 것만. 두 번 쓴 클래스 = 불러오는 순서와 상관없이 이기게 */
+.growth {
+  margin-bottom: 12px;
+}
+
+.preview.preview {
+  align-items: flex-end;
+  aspect-ratio: 1.2;
+  background:
+    radial-gradient(circle at 50% 78%, color-mix(in srgb, var(--aura) 22%, transparent), transparent 62%),
+    linear-gradient(160deg, color-mix(in srgb, var(--rarity) 8%, var(--surface)), color-mix(in srgb, var(--rarity) 18%, var(--surface)));
+  display: flex;
+  justify-content: center;
+}
+
+.petImage {
+  display: block;
+  height: 86%;
+  margin-bottom: 2%;
+  width: auto;
+}
+
+.none {
+  align-items: center;
+  align-self: center;
+  color: var(--secondary);
+  display: flex;
+  justify-content: center;
+  opacity: 0.55;
+}
+
+.info.info {
+  align-items: flex-start;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: flex-start;
+}

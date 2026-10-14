@@ -185,6 +185,8 @@ const IONICONS = {
   navigate: 62572,
   "partly-sunny": 62608,
   pause: 62611,
+  paw: 62617,
+  "paw-outline": 62618,
   pencil: 62620,
   "pencil-outline": 62621,
   people: 62623,

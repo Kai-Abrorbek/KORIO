@@ -2,6 +2,7 @@
 
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { SceneBackdrop, isScene } from "../../../shared/ui/avatar-scene";
+import { AvatarPet } from "../../../shared/ui/avatar-pet";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
@@ -109,10 +110,14 @@ function UserArtwork({ user, onPress }: { user: HomeUser; onPress: () => void })
           <SceneBackdrop scene={user.avatar.scene} />
           <span className={styles.sceneArtworkAvatar}>
             <AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura>
+            <AvatarPet pet={user.avatar.pet} streak={user.streak} />
           </span>
         </span>
       ) : user.avatar ? (
-        <span className={styles.generatedArtwork}><AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura></span>
+        <span className={styles.generatedArtwork}>
+          <AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura>
+          <AvatarPet pet={user.avatar.pet} streak={user.streak} />
+        </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img alt="" className={styles.mascotArtwork} src="/characters/hangulmon_default.png" />

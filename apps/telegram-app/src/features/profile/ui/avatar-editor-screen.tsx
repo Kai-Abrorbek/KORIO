@@ -24,6 +24,7 @@ import { playSfx } from "../../../shared/browser/sfx";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { AvatarAura, AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
 import { SCENE_LOOK, SceneBackdrop, isScene, sceneHeroColors, type SceneId } from "../../../shared/ui/avatar-scene";
+import { AvatarPet, PET_LOOK, isPet, type PetId } from "../../../shared/ui/avatar-pet";
 import {
   AuraGrid,
   CosmeticBought,
@@ -35,14 +36,17 @@ import {
   type ShopItemId,
 } from "./aura-picker";
 import { SceneGrid } from "./scene-picker";
+import { PetGrid } from "./pet-picker";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
 }
 
-/** 산 아이템을 입힌 모양 — 오라면 오라 칸, 장면이면 장면 칸 */
+/** 산 아이템을 입힌 모양 — 오라·장면·펫 제 칸에 */
 function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
-  return isScene(item) ? { ...config, scene: item } : { ...config, aura: item };
+  if (isScene(item)) return { ...config, scene: item };
+  if (isPet(item)) return { ...config, pet: item };
+  return { ...config, aura: item };
 }
 
 function goBack(router: ReturnType<typeof useRouter>) {
@@ -95,13 +99,20 @@ export function AvatarEditorScreen() {
 
   const draftAura = isAura(draft.aura) ? draft.aura : null;
   const draftScene = isScene(draft.scene) ? draft.scene : null;
+  const draftPet = isPet(draft.pet) ? draft.pet : null;
   const cosReady = cosStatus === "ready";
-  // 입어보는 중 (아직 안 산 오라 · 장면)
+  const streak = user?.streak ?? 0;
+  // 입어보는 중 (아직 안 산 오라 · 장면 · 펫)
   const pendingAura = draftAura && cosReady && !ownsCosmetic(cosmetics, draftAura) ? draftAura : null;
   const pendingScene = draftScene && cosReady && !ownsCosmetic(cosmetics, draftScene) ? draftScene : null;
+  const pendingPet = draftPet && cosReady && !ownsCosmetic(cosmetics, draftPet) ? draftPet : null;
   // 살 것 — 보고 있는 탭 쪽 먼저
+  const pendingBySlot = { aura: pendingAura, scene: pendingScene, pet: pendingPet };
   const pending: ShopItemId | null =
-    selectedCategory === "scene" ? (pendingScene ?? pendingAura) : (pendingAura ?? pendingScene);
+    (selectedCategory === "scene" || selectedCategory === "pet" ? pendingBySlot[selectedCategory] : null) ??
+    pendingAura ??
+    pendingScene ??
+    pendingPet;
   const tryingOn = pending !== null;
   const tryPrice = pending ? (cosmeticPrice(cosmetics, pending) ?? 0) : 0;
   const gems = cosmetics?.gems ?? user?.gems ?? 0;
@@ -110,10 +121,12 @@ export function AvatarEditorScreen() {
     ...draft,
     ...(pendingAura ? { aura: initial.aura } : null),
     ...(pendingScene ? { scene: initial.scene } : null),
+    ...(pendingPet ? { pet: initial.pet } : null),
   };
   const otherChanges = JSON.stringify(withoutPending) !== JSON.stringify(initial);
-  // 오라·장면 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
-  const shopTab = selectedCategory === "aura" || selectedCategory === "scene" ? selectedCategory : null;
+  // 오라·장면·펫 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
+  const shopTab =
+    selectedCategory === "aura" || selectedCategory === "scene" || selectedCategory === "pet" ? selectedCategory : null;
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
@@ -155,8 +168,8 @@ export function AvatarEditorScreen() {
 
   const randomize = () => {
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
-    // 오라·장면은 상점 아이템이라 그대로 둔다
-    setDraft((current) => randomAvatar({ aura: current.aura, scene: current.scene }));
+    // 오라·장면·펫은 상점 아이템이라 그대로 둔다
+    setDraft((current) => randomAvatar({ aura: current.aura, scene: current.scene, pet: current.pet }));
   };
 
   const pickAura = (id: AuraId) => {
@@ -167,6 +180,11 @@ export function AvatarEditorScreen() {
   const pickScene = (id: SceneId) => {
     hapticSelection();
     setDraft((current) => ({ ...current, scene: id }));
+  };
+
+  const pickPet = (id: PetId) => {
+    hapticSelection();
+    setDraft((current) => ({ ...current, pet: id }));
   };
 
   const buy = async () => {
@@ -265,7 +283,9 @@ export function AvatarEditorScreen() {
           <span
             className={styles.tryOnBadge}
             style={{
-              "--rarity": RARITY_COLOR[isScene(pending) ? SCENE_LOOK[pending].rarity : AURA_LOOK[pending].rarity],
+              "--rarity": RARITY_COLOR[
+                isScene(pending) ? SCENE_LOOK[pending].rarity : isPet(pending) ? PET_LOOK[pending].rarity : AURA_LOOK[pending].rarity
+              ],
             } as React.CSSProperties}
           >
             <span data-i18n={`avatarEditor.${slotOf(pending)}.tryOn`}>{uzt(`avatarEditor.${slotOf(pending)}.tryOn`)}</span>
@@ -275,6 +295,7 @@ export function AvatarEditorScreen() {
           <AvatarAura aura={draft.aura}>
             <GeneratedAvatar avatar={draft} variant="full" />
           </AvatarAura>
+          <AvatarPet pet={draft.pet} streak={streak} />
         </div>
         <button className={styles.randomButton} onClick={randomize} type="button">
           <span>
@@ -300,7 +321,7 @@ export function AvatarEditorScreen() {
               >
                 <MobileIcon name={item.icon} size={20} />
                 {item.label}
-                {item.id === "scene" && !selected ? (
+                {item.id === "pet" && !selected ? (
                   <em className={styles.newBadge} data-i18n="avatarEditor.aura.newBadge">
                     {uzt("avatarEditor.aura.newBadge")}
                   </em>
@@ -320,6 +341,16 @@ export function AvatarEditorScreen() {
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
             status={cosStatus}
+          />
+        ) : category.id === "pet" ? (
+          <PetGrid
+            draft={draft}
+            equipped={initial.pet ?? "pet_none"}
+            onPick={pickPet}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+            streak={streak}
           />
         ) : category.id === "scene" ? (
           <SceneGrid
@@ -413,9 +444,10 @@ export function AvatarEditorScreen() {
           onBuy={() => void buy()}
           onClose={() => setBuyOpen(false)}
           price={tryPrice}
+          streak={streak}
         />
       ) : null}
-      {bought ? <CosmeticBought avatar={draft} id={bought} onClose={() => setBought(null)} /> : null}
+      {bought ? <CosmeticBought avatar={draft} id={bought} onClose={() => setBought(null)} streak={streak} /> : null}
 
       {/* 앱 안 확인창 — 페이드로만 열린다 */}
       <ConfirmDialog

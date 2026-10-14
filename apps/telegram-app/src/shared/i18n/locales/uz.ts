@@ -2506,6 +2506,7 @@ export default {
       background: "Fon",
       aura: "Aura",
       scene: "Sahna",
+      pet: "Hayvoncha",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2597,6 +2598,48 @@ export default {
         scene_snow: {
           name: "Qorli Seul",
           desc: "Seulda birinchi qor",
+        },
+      },
+    },
+    /** 펫 — 캐릭터 옆 친구 (api cosmetics, slot pet). 연속 학습일로 자란다 */
+    pet: {
+      title: "Hayvoncha — har kuni o'qisangiz o'sadi",
+      subtitle: "Profilingizda qahramoningiz yonida turadi",
+      none: "Hayvonchasiz",
+      freeAll: "Hamma hayvonchalar bepul",
+      inUse: "Siz bilan",
+      tryOn: "Sinab ko'ryapsiz",
+      buyWear: "Sotib olish va asrab olish",
+      saveWithout: "Hayvonchasiz saqlash",
+      boughtTitle: "Yangi do'st paydo bo'ldi!",
+      boughtBody: "Har kuni o'qisangiz, tez o'sadi",
+      loadFailed: "Hayvonchalarni yuklab bo'lmadi",
+      streakNow: "Hozir {{n}} kun ketma-ket",
+      growNext: "Yana {{n}} kun ketma-ket o'qisangiz, o'sadi",
+      grownUp: "To'liq o'sdi! Seriya uzilsa, yana chaqaloqqa aylanadi",
+      stageAt: "{{n}} kun",
+      growTitle: "O'sish bosqichlari",
+      stages: {
+        s0: "Chaqaloq",
+        s1: "Kichkintoy",
+        s2: "Katta",
+      },
+      items: {
+        pet_jindo: {
+          name: "Jindo kuchukchasi",
+          desc: "Koreyaning sodiq iti",
+        },
+        pet_hangulmon: {
+          name: "Mini Hangulmon",
+          desc: "KORIO maskotining kichik do'sti",
+        },
+        pet_tiger: {
+          name: "Yo'lbars bolasi",
+          desc: "Koreys xalq rasmlaridagi yo'lbars",
+        },
+        pet_dokkaebi: {
+          name: "Tokkebi",
+          desc: "Gurzi ushlagan sho'x ertak maxluqi",
         },
       },
     },

@@ -2491,6 +2491,7 @@ export default {
       background: "배경",
       aura: "오라",
       scene: "장면",
+      pet: "펫",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2582,6 +2583,48 @@ export default {
         scene_snow: {
           name: "눈 내리는 서울",
           desc: "첫눈 오는 서울의 저녁",
+        },
+      },
+    },
+    /** 펫 — 캐릭터 옆 친구 (api cosmetics, slot pet). 연속 학습일로 자란다 */
+    pet: {
+      title: "펫 — 연속 학습할수록 자라요",
+      subtitle: "프로필에서 내 캐릭터 옆에 함께 있어요",
+      none: "펫 없음",
+      freeAll: "펫 전부 무료",
+      inUse: "함께하는 중",
+      tryOn: "미리 보는 중",
+      buyWear: "사서 데려오기",
+      saveWithout: "펫 빼고 저장",
+      boughtTitle: "새 친구가 생겼어요!",
+      boughtBody: "매일 공부하면 무럭무럭 자라요",
+      loadFailed: "펫을 불러오지 못했어요",
+      streakNow: "지금 {{n}}일 연속",
+      growNext: "{{n}}일만 더 연속 학습하면 자라요",
+      grownUp: "다 자랐어요! 연속 학습이 끊기면 다시 아기가 돼요",
+      stageAt: "{{n}}일",
+      growTitle: "자라는 모습",
+      stages: {
+        s0: "아기",
+        s1: "꼬마",
+        s2: "다 큼",
+      },
+      items: {
+        pet_jindo: {
+          name: "진돗개",
+          desc: "충직한 한국 토종개",
+        },
+        pet_hangulmon: {
+          name: "미니 한글몬",
+          desc: "KORIO 마스코트의 작은 친구",
+        },
+        pet_tiger: {
+          name: "아기 호랑이",
+          desc: "한국 민화 속 그 호랑이",
+        },
+        pet_dokkaebi: {
+          name: "도깨비",
+          desc: "방망이 든 장난꾸러기 요괴",
         },
       },
     },

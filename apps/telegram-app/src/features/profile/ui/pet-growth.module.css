@@ -1,0 +1,93 @@
+/* 펫 자라는 단계 — 정지 */
+.wrap {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-bottom-width: 4px;
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+  text-align: left;
+}
+
+.head {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.head b {
+  color: var(--text);
+  font-size: 13.5px;
+  font-weight: 900;
+}
+
+.streak {
+  align-items: center;
+  background: color-mix(in srgb, #ff7a00 13%, transparent);
+  border-radius: 999px;
+  color: #ff7a00;
+  display: flex;
+  font-size: 12px;
+  font-weight: 900;
+  gap: 4px;
+  padding: 4px 9px;
+}
+
+.stages {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.stage {
+  align-items: center;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 4px 7px;
+}
+
+.stage img {
+  display: block;
+  height: 58px;
+  width: 58px;
+}
+
+.stage b {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  margin-top: 2px;
+}
+
+.stage small {
+  color: var(--secondary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* 지금 단계 */
+.now {
+  background: color-mix(in srgb, var(--primary) 9%, var(--surface));
+  border-color: var(--primary);
+}
+
+.now b {
+  color: var(--primary);
+}
+
+/* 아직 안 온 단계 — 흐리게 */
+.later img {
+  filter: grayscale(0.85);
+  opacity: 0.45;
+}
+
+.note {
+  color: var(--secondary);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 17px;
+  margin: 9px 2px 0;
+}

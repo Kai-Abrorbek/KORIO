@@ -2,6 +2,7 @@
 
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { SceneBackdrop, sceneHeroColors } from "../../../shared/ui/avatar-scene";
+import { AvatarPet } from "../../../shared/ui/avatar-pet";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -65,6 +66,8 @@ export function ProfileScreen() {
             <AvatarAura aura={avatar?.aura}>
               <GeneratedAvatar avatar={avatar} variant="full" />
             </AvatarAura>
+            {/* 펫 — 연속 학습일만큼 자란 모습 */}
+            <AvatarPet pet={avatar?.pet} streak={profile.streak} />
           </button>
         </section>
 

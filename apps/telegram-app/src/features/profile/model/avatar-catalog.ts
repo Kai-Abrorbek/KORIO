@@ -34,6 +34,14 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
     preview: "full",
     options: options(AVATAR_IDS.scene),
   },
+  // 캐릭터 옆 펫 — 그리드가 따로 있다 (pet-picker)
+  {
+    id: "pet",
+    icon: "paw-outline",
+    label: "Hayvoncha",
+    preview: "full",
+    options: options(AVATAR_IDS.pet),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

@@ -271,6 +271,21 @@
   translate: -50% 0;
 }
 
+/* 펫 — 장면이 없으면 펫 색이 살짝 도는 밝은 무대. 캐릭터를 오른쪽으로 비켜 세워 펫 자리를 낸다 */
+.petStage.petStage {
+  background:
+    radial-gradient(circle at 34% 80%, color-mix(in srgb, var(--aura) 30%, transparent), transparent 58%),
+    linear-gradient(160deg, color-mix(in srgb, var(--aura) 10%, var(--surface)), color-mix(in srgb, var(--aura) 26%, var(--surface)));
+}
+
+.petStageAvatar.petStageAvatar {
+  left: 60%;
+}
+
+.sheetGrowth {
+  margin-top: 12px;
+}
+
 .sceneStageAvatar svg {
   display: block;
   height: 100%;

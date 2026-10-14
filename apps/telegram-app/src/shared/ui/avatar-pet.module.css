@@ -1,0 +1,12 @@
+/* 펫 — 캐릭터 왼발 옆, 정지. 발(그림자)이 캐릭터 발과 같은 땅에 오게 bottom 5% */
+.pet {
+  aspect-ratio: 1;
+  bottom: 5%;
+  display: block;
+  left: -10%;
+  pointer-events: none;
+  position: absolute;
+  user-select: none;
+  width: var(--pet-w, 44%);
+  z-index: 2;
+}
