@@ -2461,7 +2461,17 @@ export default {
     UNKNOWN_ERROR: "알 수 없는 오류가 생겼어요. 다시 시도해 주세요.",
     retry: "다시 시도",
   },
+  avatarPostcards: {
+    title: "서울 여행 앨범",
+    count: "{{n}}장의 추억",
+    open: "여행 앨범 보기",
+    emptyTitle: "첫 여행 사진을 기다리고 있어",
+    emptyBody: "장면을 장착하고 레슨을 완료하면 오늘의 캐릭터와 단어가 담긴 카드가 생겨.",
+    localNotice: "이 앨범은 현재 기기에만 저장돼요.",
+    memory: "오늘의 학습 여행",
+  },
   avatarEditor: {
+    secretCombo: { nightGuardian: "✦ 비밀 조합 · 야간 수문장" },
     title: "내 캐릭터",
     subtitle: "나만의 KORIO 캐릭터를 만들어봐",
     allFree: "지금은 모든 아이템 무료",
@@ -2591,6 +2601,7 @@ export default {
     pet: {
       title: "펫 — 연속 학습할수록 자라요",
       subtitle: "프로필에서 내 캐릭터 옆에 함께 있어요",
+      reviewStars: "복습 별 {{n}}개",
       none: "펫 없음",
       freeAll: "펫 전부 무료",
       inUse: "함께하는 중",

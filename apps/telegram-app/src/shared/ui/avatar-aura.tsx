@@ -73,10 +73,12 @@ export function AvatarAura({
   aura,
   children,
   className,
+  hangulWord,
 }: {
   aura?: string | null;
   children: ReactNode;
   className?: string;
+  hangulWord?: string;
 }) {
   if (!isAura(aura)) return <>{children}</>;
   const look = AURA_LOOK[aura];
@@ -88,7 +90,7 @@ export function AvatarAura({
         {aura === "aura_flame" ? <Tongues /> : null}
         {aura === "aura_flame" ? <Embers back /> : null}
       </span>
-      {aura === "aura_hangul" ? <Orbit /> : null}
+      {aura === "aura_hangul" ? <Orbit word={hangulWord} /> : null}
       <span className={styles.body}>{children}</span>
       <span aria-hidden="true" className={styles.front}>
         {aura === "aura_stardust" ? <Sparks /> : null}
@@ -199,16 +201,17 @@ function Embers({ back = false }: { back?: boolean }) {
 }
 
 /** 한글이 캐릭터 허리를 감고 돈다 — 앞으로 올 땐 커지고 아바타 위로, 뒤로 갈 땐 작아지고 아래로 */
-function Orbit() {
+function Orbit({ word }: { word?: string }) {
+  const letters = word ? [...Array.from(word), ...LETTERS].slice(0, LETTERS.length) : LETTERS;
   return (
     <>
-      {LETTERS.map((letter, i) => {
-        const phase = (i / LETTERS.length) * ORBIT_SECONDS;
+      {letters.map((letter, i) => {
+        const phase = (i / letters.length) * ORBIT_SECONDS;
         return (
           <span
             aria-hidden="true"
             className={styles.orbitY}
-            key={letter}
+            key={`${letter}-${i}`}
             style={{ "--t": `${ORBIT_SECONDS / 2}s`, "--d": `${-phase}s` } as P}
           >
             <span className={styles.orbitX} style={{ "--t": `${ORBIT_SECONDS / 2}s`, "--d": `${-phase - ORBIT_SECONDS / 4}s` } as P}>

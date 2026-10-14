@@ -1,0 +1,77 @@
+.screen {
+  min-height: 100dvh;
+  background: var(--bg, #f8f7fc);
+  color: var(--text, #282344);
+  padding-top: var(--korio-top, 0px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 18px 18px;
+}
+
+.back {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  place-items: center;
+  border: 1px solid var(--border, #e6e2f3);
+  border-radius: 15px;
+  background: var(--surface, #fff);
+  color: inherit;
+}
+
+.header h1 { margin: 0; font-size: 24px; font-weight: 900; }
+.header small { display: block; margin-top: 2px; color: var(--muted, #777095); font-size: 13px; font-weight: 600; }
+.notice { margin: 0; padding: 0 20px 14px; color: var(--muted, #777095); font-size: 12px; line-height: 18px; }
+.list { display: grid; justify-items: center; gap: 20px; padding: 0 18px calc(var(--korio-bottom, 0px) + 24px); }
+
+.empty {
+  width: 100%;
+  max-width: 460px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-top: 28px;
+  border: 1px solid var(--border, #e6e2f3);
+  border-radius: 24px;
+  background: var(--surface, #fff);
+  color: #776ee2;
+  padding: 28px;
+  text-align: center;
+}
+
+.empty h2 { margin: 0; color: var(--text, #282344); font-size: 17px; font-weight: 900; }
+.empty p { margin: 0; color: var(--muted, #777095); font-size: 13px; line-height: 21px; }
+
+.card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 20px;
+  background: #fff;
+  padding: 10px;
+  box-shadow: 0 6px 14px rgb(53 44 111 / 12%);
+}
+
+.picture {
+  height: 285px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 13px;
+}
+
+.avatar { width: min(64%, 225px); aspect-ratio: 1; position: relative; margin-bottom: 8px; }
+.avatar svg { display: block; width: 100%; height: 100%; }
+.stamp { position: absolute; top: 12px; left: 12px; border-radius: 999px; background: rgb(255 255 255 / 91%); color: #593d8b; padding: 6px 9px; font-size: 11px; font-weight: 800; }
+.caption { display: flex; justify-content: space-between; gap: 8px; padding: 13px 8px 6px; }
+.caption > div { min-width: 0; }
+.caption strong { color: #2d2857; font-size: 16px; font-weight: 900; }
+.caption p { margin: 3px 0 0; color: #777095; font-size: 12px; line-height: 17px; }
+.caption time { flex: none; margin-top: 3px; color: #a6a0b9; font-size: 11px; font-weight: 700; }

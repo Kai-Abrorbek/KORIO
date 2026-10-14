@@ -208,11 +208,12 @@
 
 .sideActions button {
   align-items: center;
-  background: rgb(119 110 226 / 7%);
-  border: 1.5px solid rgb(119 110 226 / 19%);
-  border-bottom: 4px solid rgb(119 110 226 / 33%);
+  background: #ffffff;
+  border: 2px solid #6659cb;
+  border-bottom: 4px solid #5145ae;
   border-radius: 14px;
-  color: var(--primary);
+  box-shadow: 0 4px 8px rgb(23 19 65 / 28%);
+  color: #4f43ae;
   cursor: pointer;
   display: flex;
   height: 52px;
@@ -221,74 +222,49 @@
   width: 52px;
 }
 
+:global(html[data-theme="dark"]) .sideActions button {
+  background: #292837;
+  border-color: #b7affa;
+  border-bottom-color: #8176df;
+  color: #d8d3ff;
+}
+
 .sideActions button:active {
   border-bottom-width: 2px;
   transform: translateY(2px);
 }
 
 .artworkWrap {
-  align-items: center;
-  display: flex;
-  height: 210px;
-  justify-content: center;
-  margin-bottom: 4px;
-  padding-right: 34px;
+  height: 240px;
+  margin: -16px -16px 8px;
+  position: relative;
 }
 
 .avatarArtworkButton {
   align-items: center;
-  background: transparent;
+  background: linear-gradient(180deg, var(--avatar-from), var(--avatar-to));
   border: 0;
   display: flex;
-  height: 200px;
+  height: 100%;
+  isolation: isolate;
   justify-content: center;
+  overflow: hidden;
   padding: 0;
-  width: 200px;
+  position: relative;
+  width: 100%;
 }
 
 .generatedArtwork,
 .generatedArtwork svg {
   display: block;
-  height: 200px;
-  width: 200px;
-}
-
-/* 펫이 캐릭터 상자 기준으로 선다 */
-.generatedArtwork {
-  position: relative;
-}
-
-/* 배경 장면 엽서 — 그림 앞에 캐릭터 (움직임 없음) */
-.sceneArtwork {
-  border: 4px solid #fff;
-  border-radius: 32px;
-  box-shadow: 0 10px 22px rgb(54 42 140 / 20%);
-  display: block;
-  height: 196px;
-  isolation: isolate;
-  overflow: hidden;
-  position: relative;
+  height: 210px;
   width: 210px;
 }
 
-:global(html[data-theme="dark"]) .sceneArtwork {
-  border-color: #2c2a3f;
-}
-
-.sceneArtworkAvatar {
-  aspect-ratio: 320 / 360;
-  bottom: 3%;
-  display: block;
-  height: 84%;
-  left: 50%;
-  position: absolute;
-  translate: -50% 0;
-}
-
-.sceneArtworkAvatar svg {
-  display: block;
-  height: 100%;
-  width: 100%;
+.generatedArtwork {
+  position: relative;
+  z-index: 1;
+  align-self: flex-end;
 }
 
 .mascotArtwork,
@@ -297,6 +273,10 @@
   height: 200px;
   object-fit: contain;
   width: 200px;
+}
+
+.mascotArtwork {
+  align-self: flex-end;
 }
 
 .userArtwork {
@@ -921,7 +901,7 @@
   }
 
   .artworkWrap {
-    height: 190px;
+    height: 220px;
   }
 
   .mascotArtwork {

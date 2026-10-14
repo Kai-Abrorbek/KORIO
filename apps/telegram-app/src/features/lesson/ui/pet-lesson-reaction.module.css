@@ -1,0 +1,8 @@
+.wrap{position:relative;display:inline-flex;width:58px;height:58px;flex:0 0 58px;align-items:center;justify-content:center}
+.pet{max-width:100%;max-height:100%;object-fit:contain;transform-origin:center bottom}
+.correct{animation:petCelebrate .685s ease-in-out}
+.wrong{animation:petSway .33s ease-in-out}
+.star{position:absolute;top:-13px;right:-5px;border-radius:99px;background:#fff5c2;color:#a55700;padding:2px 5px;font-size:10px;font-weight:900;white-space:nowrap}
+@keyframes petCelebrate{0%,55%,100%{transform:translateY(0)}25%{transform:translateY(-13px)}75%{transform:translateY(-7px)}}
+@keyframes petSway{0%,100%{transform:translateX(0)}33%{transform:translateX(-7px)}66%{transform:translateX(7px)}}
+@media(prefers-reduced-motion:reduce){.correct,.wrong{animation:none}}

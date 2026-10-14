@@ -18,11 +18,21 @@
 .header {
   z-index: 5;
   display: grid;
-  min-height: calc(60px + var(--korio-top));
+  height: calc(60px + var(--korio-top));
   grid-template-columns: 42px minmax(0, 1fr) 42px;
   align-items: end;
+  overflow: hidden;
   padding: calc(var(--korio-top) + 8px) 16px 10px;
   background: var(--bg);
+  transition: height 220ms ease, padding 220ms ease, opacity 220ms ease;
+}
+
+.headerCollapsed {
+  height: var(--korio-top);
+  padding-top: var(--korio-top);
+  padding-bottom: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .header button {
@@ -438,6 +448,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .header {
+    transition: none;
+  }
+
   .hero,
   .optionsGrid {
     animation: none;

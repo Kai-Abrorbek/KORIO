@@ -1,8 +1,7 @@
 "use client";
 
-import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { SceneBackdrop, isScene } from "../../../shared/ui/avatar-scene";
-import { AvatarPet } from "../../../shared/ui/avatar-pet";
+import { mergeAvatarConfig } from "../../../shared/model/avatar";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
@@ -27,7 +26,9 @@ import {
 import { AiChatSheet } from "./ai-chat-sheet";
 import { NotificationSheet } from "./notification-sheet";
 import { RankBanner } from "./rank-banner";
-import { GeneratedAvatar } from "../../league/ui/generated-avatar";
+import { AVATAR_BACKGROUNDS } from "../../league/ui/generated-avatar";
+import { AvatarComboStage } from "../../profile/ui/avatar-combo-stage";
+import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import styles from "./home-screen.module.css";
 import { HomeTour } from "../../tour/home-tour";
 import { getRetentionSummary } from "../../retention/api/retention";
@@ -101,34 +102,41 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
-function UserArtwork({ user, onPress }: { user: HomeUser; onPress: () => void }) {
+function UserArtwork({ user, onPress, onWordPress }: { user: HomeUser; onPress: () => void; onWordPress: (word: string) => void }) {
+  const avatar = user.avatar ? mergeAvatarConfig(user.avatar) : null;
+  const background = avatar
+    ? (AVATAR_BACKGROUNDS[avatar.background] ?? AVATAR_BACKGROUNDS.background_cloud)
+    : AVATAR_BACKGROUNDS.background_cloud;
   return (
-    <button aria-label="Avatarni tahrirlash" className={styles.avatarArtworkButton} onClick={onPress} type="button">
-      {user.avatar && isScene(user.avatar.scene) ? (
-        // 배경 장면을 골랐으면 그 그림 앞에 선 엽서처럼
-        <span className={styles.sceneArtwork}>
-          <SceneBackdrop scene={user.avatar.scene} />
-          <span className={styles.sceneArtworkAvatar}>
-            <AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura>
-            <AvatarPet pet={user.avatar.pet} streak={user.streak} />
-          </span>
-        </span>
-      ) : user.avatar ? (
+    <div
+      aria-label="Avatarni tahrirlash"
+      className={styles.avatarArtworkButton}
+      onClick={onPress}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onPress(); }
+      }}
+      role="button"
+      style={{ "--avatar-from": background[0], "--avatar-to": background[1] } as CSSProperties}
+      tabIndex={0}
+    >
+      {avatar && isScene(avatar.scene) ? <SceneBackdrop scene={avatar.scene} living /> : null}
+      {avatar ? (
         <span className={styles.generatedArtwork}>
-          <AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura>
-          <AvatarPet pet={user.avatar.pet} streak={user.streak} />
+          <AvatarComboStage avatar={avatar} onWordPress={onWordPress} streak={user.streak} userId={user.id} />
         </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
         <img alt="" className={styles.mascotArtwork} src="/characters/hangulmon_default.png" />
       )}
-    </button>
+    </div>
   );
 }
 
 export function HomeScreen() {
   const router = useRouter();
   const { request, user: authenticatedUser } = useTelegramAuth();
+  const { speak: speakAvatarWord } = useKoreanSpeech(request);
   const [profile, setProfile] = useState<HomeUser | null>(authenticatedUser);
   const [week, setWeek] = useState<HomeDayStats[]>(fallbackWeek);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -315,7 +323,7 @@ export function HomeScreen() {
           </div>
 
           <div className={styles.artworkWrap}>
-            <UserArtwork onPress={() => router.push("/avatar-editor")} user={profile} />
+            <UserArtwork onPress={() => router.push("/avatar-editor")} onWordPress={speakAvatarWord} user={profile} />
           </div>
 
           <div className={styles.lessonSummary}>

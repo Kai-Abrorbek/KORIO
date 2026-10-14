@@ -4,6 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useContentLanguage } from "../../../shared/i18n/language-context";
+import { mergeAvatarConfig } from "../../../shared/model/avatar";
+import { isPet } from "../../../shared/ui/avatar-pet";
+import { isScene } from "../../../shared/ui/avatar-scene";
+import {
+  awardPetReviewStar,
+  collectAvatarPostcard,
+  getAvatarStudy,
+  rememberAvatarWord,
+  todaysAvatarWord,
+} from "../../profile/model/avatar-study";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   completeJumpTest,
@@ -170,6 +181,7 @@ export function LessonScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const { request, updateUser, user } = useTelegramAuth();
+  const contentLanguage = useContentLanguage();
   const mode = params.get("mode") ?? "lesson";
   const lessonId = params.get("lessonId");
   const nodeId = params.get("nodeId");
@@ -203,6 +215,7 @@ export function LessonScreen() {
   const [phase, setPhase] = useState<LessonPhase>("main");
   const [answerState, setAnswerState] = useState<"idle" | "correct" | "wrong">("idle");
   const [gradeFeedback, setGradeFeedback] = useState<AnswerGradeResult | null>(null);
+  const [earnedReviewStar, setEarnedReviewStar] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -233,6 +246,7 @@ export function LessonScreen() {
   const nextRef = useRef<() => Promise<void>>(async () => undefined);
   const grammarRetryCounts = useRef(new Map<string, number>());
   const reviewCorrectIds = useRef(new Set<string>());
+  const starredReviewIds = useRef(new Set<string>());
   /** 이번 판에 쓴 에너지 (본풀이 문제 수 — 맞든 틀리든 문제당 1). 완료 정산에 쓴다 */
   const localSpent = useRef(0);
   /** 이번 판에 이미 에너지를 낸 문제 id — 같은 문제를 다시 물을 때 두 번 안 받는다 */
@@ -290,6 +304,7 @@ export function LessonScreen() {
     reviewQuestions.current.clear();
     grammarRetryCounts.current.clear();
     reviewCorrectIds.current.clear();
+    starredReviewIds.current.clear();
     localSpent.current = 0;
     energyChargedIds.current.clear();
     comboTracker.current = newComboTracker();
@@ -298,6 +313,7 @@ export function LessonScreen() {
     setPhase("main");
     setAnswerState("idle");
     setGradeFeedback(null);
+    setEarnedReviewStar(false);
     setCombo(0);
     setLegendCurrentIndex(0);
   }, []);
@@ -486,6 +502,7 @@ export function LessonScreen() {
 
   const commitGrade = (correct: boolean, serverGrade: AnswerGradeResult | null = null) => {
     if (!current || answerState !== "idle") return;
+    setEarnedReviewStar(false);
     const firstAttempt = !answeredInstances.current.has(current.instanceId);
     if (firstAttempt) {
       answeredInstances.current.add(current.instanceId);
@@ -511,6 +528,19 @@ export function LessonScreen() {
     }
 
     if (correct) {
+      if (phase === "review" && user?.id && isPet(user.avatar?.pet) && !starredReviewIds.current.has(current.question.id)) {
+        starredReviewIds.current.add(current.question.id);
+        awardPetReviewStar(user.id);
+        setEarnedReviewStar(true);
+      }
+      if (user?.id) {
+        rememberAvatarWord({
+          userId: user.id,
+          word: current.question.answer,
+          meaning: current.question.answerTranslation ?? "",
+          language: contentLanguage,
+        });
+      }
       const nextCombo = combo + 1;
       setCombo(nextCombo);
       setAnswerState("correct");
@@ -849,6 +879,17 @@ export function LessonScreen() {
       });
       pendingAnswers.current = [];
       updateUser({ energy: result.energy, gems: result.gems, totalXP: result.totalXP });
+      if (user?.id && user.avatar && isScene(user.avatar.scene)) {
+        const recent = todaysAvatarWord(getAvatarStudy().recentWord, user.id, contentLanguage);
+        collectAvatarPostcard({
+          userId: user.id,
+          scene: user.avatar.scene,
+          avatar: mergeAvatarConfig(user.avatar),
+          streak: user.streak ?? 0,
+          word: recent?.word ?? null,
+          meaning: recent?.meaning ?? null,
+        });
+      }
       // 완료 화면이 이어서 띄울 축하들 (앱과 같은 파라미터):
       //   오늘의 첫 레슨 → 연속 학습 / 유닛 완료 → 스코어 상승 / 상자 → 상자 열기
       // "오늘 처음인가"·"유닛을 끝냈나" 판정은 서버가 한다 (클라가 세면 또 축하한다)
@@ -934,6 +975,7 @@ export function LessonScreen() {
       setCursor(nextIndex);
       setAnswerState("idle");
       setGradeFeedback(null);
+      setEarnedReviewStar(false);
       return;
     }
     if (
@@ -1080,6 +1122,9 @@ export function LessonScreen() {
           busy={finishing}
           explanation={current.question.explanation}
           gradingFeedback={gradeFeedback}
+          pet={user?.avatar?.pet}
+          petStreak={user?.streak}
+          recoveredStar={earnedReviewStar}
           onNext={() => void next()}
           state={answerState}
         />

@@ -28,3 +28,19 @@
   height: 74%;
   top: 20%;
 }
+
+.albumButton {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  border: 1px solid #d9d4fb;
+  border-radius: 14px;
+  background: #f6f3ff;
+  color: #6556c4;
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 800;
+}

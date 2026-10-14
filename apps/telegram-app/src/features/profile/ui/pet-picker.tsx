@@ -3,6 +3,8 @@
 import type { CSSProperties } from "react";
 
 import type { AvatarConfig } from "../../../shared/model/avatar";
+import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { useAvatarStudy } from "../model/avatar-study";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { RARITY_COLOR } from "../../../shared/ui/avatar-aura";
 import { PET_LOOK, PET_ORDER, isPet, petSrc, petStage, type PetId } from "../../../shared/ui/avatar-pet";
@@ -38,6 +40,10 @@ export function PetGrid({
   status: "loading" | "ready" | "failed";
   streak: number;
 }) {
+  const { user } = useTelegramAuth();
+  const { petStars } = useAvatarStudy();
+  const starCount = user?.id ? petStars[user.id] ?? 0 : 0;
+
   if (status === "failed") {
     return (
       <div className={styles.failed}>
@@ -56,6 +62,12 @@ export function PetGrid({
         <b data-i18n="avatarEditor.pet.title">{uzt("avatarEditor.pet.title")}</b>
         <small data-i18n="avatarEditor.pet.subtitle">{uzt("avatarEditor.pet.subtitle")}</small>
       </div>
+      {isPet(draft.pet) ? (
+        <div className={petStyles.starBadge}>
+          <MobileIcon name="star" size={14} />
+          <span data-i18n="avatarEditor.pet.reviewStars">{uzt("avatarEditor.pet.reviewStars", { n: starCount })}</span>
+        </div>
+      ) : null}
       <div className={petStyles.growth}>
         <PetGrowth pet={isPet(draft.pet) ? draft.pet : "pet_jindo"} streak={streak} />
       </div>

@@ -2467,7 +2467,17 @@ export default {
     UNKNOWN_ERROR: "An unknown error occurred. Please try again.",
     retry: "Try again",
   },
+  avatarPostcards: {
+    title: "Seoul Travel Album",
+    count: "{{n}} memories",
+    open: "View travel album",
+    emptyTitle: "Your first postcard is waiting",
+    emptyBody: "Equip a scene and finish a lesson to save your character and a word from today.",
+    localNotice: "This album is currently saved on this device only.",
+    memory: "Today's learning trip",
+  },
   avatarEditor: {
+    secretCombo: { nightGuardian: "✦ Secret combo · Night Guardian" },
     title: "My character",
     subtitle: "Create a KORIO character that feels like you",
     allFree: "All items are free for now",
@@ -2597,6 +2607,7 @@ export default {
     pet: {
       title: "Pet — grows with your streak",
       subtitle: "Stands next to your hero on your profile",
+      reviewStars: "Review stars: {{n}}",
       none: "No pet",
       freeAll: "All pets free",
       inUse: "With you",

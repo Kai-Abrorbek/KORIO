@@ -23,6 +23,7 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 export function SceneGrid({
   draft,
   equipped,
+  onOpenAlbum,
   onPick,
   onRetry,
   state,
@@ -31,6 +32,7 @@ export function SceneGrid({
   draft: AvatarConfig;
   /** 지금 저장돼 있는 장면 */
   equipped: string;
+  onOpenAlbum: () => void;
   onPick: (id: SceneId) => void;
   onRetry: () => void;
   state: CosmeticsState | null;
@@ -54,6 +56,10 @@ export function SceneGrid({
         <b data-i18n="avatarEditor.scene.title">{uzt("avatarEditor.scene.title")}</b>
         <small data-i18n="avatarEditor.scene.subtitle">{uzt("avatarEditor.scene.subtitle")}</small>
       </div>
+      <button className={sceneStyles.albumButton} onClick={onOpenAlbum} type="button">
+        <MobileIcon name="image-outline" size={18} />
+        <span data-i18n="avatarPostcards.open">{uzt("avatarPostcards.open")}</span>
+      </button>
       <div className={styles.grid}>
         <SceneCard draft={draft} equipped={equipped} id="scene_none" onPick={onPick} state={state} status={status} />
         {SCENE_ORDER.map((id) => (

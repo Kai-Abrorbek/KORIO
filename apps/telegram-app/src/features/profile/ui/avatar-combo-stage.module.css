@@ -1,0 +1,111 @@
+.stage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  isolation: isolate;
+}
+
+.arrival {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.active .arrival {
+  animation: comboArrival 850ms cubic-bezier(.22,.8,.25,1) both;
+}
+
+.portal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  animation: comboPortal 850ms ease-out both;
+}
+
+.portal i {
+  width: 86%;
+  aspect-ratio: 1;
+  border: 5px solid #ffe19c;
+  border-radius: 50%;
+  background: rgb(255 216 116 / 14%);
+  box-shadow: 0 0 22px #ffd45c;
+}
+
+.portal b {
+  position: absolute;
+  color: #fff6c8;
+  font-size: 25px;
+  text-shadow: 0 0 12px #f8b83b;
+}
+
+.portal b:nth-of-type(1) { top: 5%; left: 16%; }
+.portal b:nth-of-type(2) { top: 17%; right: 8%; }
+.portal b:nth-of-type(3) { bottom: 12%; left: 3%; }
+
+.wordBadge {
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  right: 0;
+  display: flex;
+  max-width: 82%;
+  align-items: center;
+  gap: 5px;
+  overflow: hidden;
+  border: 1px solid rgb(255 232 166 / 82%);
+  border-radius: 999px;
+  background: rgb(31 25 72 / 82%);
+  color: #fff5d8;
+  padding: 5px 9px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.wordBadge strong { font-size: 12px; font-weight: 900; }
+.wordBadge span { overflow: hidden; text-overflow: ellipsis; font-size: 10px; font-weight: 600; }
+.wordBadge span:last-child { flex: none; font-size: 14px; }
+
+.caption {
+  position: absolute;
+  z-index: 4;
+  bottom: 2%;
+  left: 50%;
+  max-width: 96%;
+  border: 1px solid #ffe8a6;
+  border-radius: 999px;
+  background: rgb(29 22 62 / 90%);
+  color: #fff5d8;
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  animation: comboCaption 2.5s ease both;
+  pointer-events: none;
+}
+
+@keyframes comboPortal {
+  0% { opacity: 0; transform: scale(.2); }
+  45% { opacity: .9; }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes comboArrival {
+  0% { transform: scale(.78); }
+  65% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes comboCaption {
+  0%, 13%, 100% { opacity: 0; }
+  24%, 78% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal { display: none; }
+  .active .arrival, .caption { animation: none; }
+}

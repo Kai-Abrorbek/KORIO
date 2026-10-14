@@ -11,8 +11,10 @@ import {
 } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { rememberAvatarWord } from "../../profile/model/avatar-study";
 import { completeStudyNode } from "../../lesson/api/lesson";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { useContentLanguage } from "../../../shared/i18n/language-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getUnitWords,
@@ -682,7 +684,8 @@ function ScopeSheet({
 export function WordStudyScreen() {
   const router = useRouter();
   const params = useSearchParams();
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  const contentLanguage = useContentLanguage();
   const { flush: flushSeen, markSeen } = useSeenWords(request);
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
   const requestedSection = Number(params.get("section")) || 0;
@@ -859,7 +862,15 @@ export function WordStudyScreen() {
 
   useEffect(() => {
     markSeen(currentWordId);
-  }, [currentWordId, markSeen]);
+    if (user?.id && currentWord) {
+      rememberAvatarWord({
+        userId: user.id,
+        word: currentWord.headword,
+        meaning: currentWord.meaning,
+        language: contentLanguage,
+      });
+    }
+  }, [contentLanguage, currentWord, currentWordId, markSeen, user?.id]);
 
   // 모바일처럼 지금 카드부터 4장을 미리 받아 둔다 — 넘기는 즉시 소리가 나게
   useEffect(() => {

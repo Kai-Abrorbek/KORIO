@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import type { AnswerGradeResult, AnswerState } from "../model/lesson";
 import styles from "./lesson-chrome.module.css";
+import { isPet } from "../../../shared/ui/avatar-pet";
+import { PetLessonReaction } from "./pet-lesson-reaction";
 
 /**
  * 레슨 화면의 틀 — 모바일 components/lesson 의 LessonHeader · FeedbackBar ·
@@ -205,6 +207,9 @@ export function FeedbackBar({
   onNext,
   state,
   busy = false,
+  pet,
+  petStreak,
+  recoveredStar,
 }: {
   state: AnswerState;
   answer?: string;
@@ -214,6 +219,9 @@ export function FeedbackBar({
   onNext: () => void;
   nextLabel?: string;
   busy?: boolean;
+  pet?: string | null;
+  petStreak?: number | null;
+  recoveredStar?: boolean;
 }) {
   const [progress, setProgress] = useState(0);
 
@@ -274,8 +282,12 @@ export function FeedbackBar({
       <div className={styles.fbBody}>
         <div className={styles.fbHead}>
           {/* 정답·오답 반응을 캐릭터로 — 아이콘보다 감정이 바로 읽힌다 */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img alt="" className={styles.fbMascot} src={correct ? "/characters/hangulmon_correct.png" : "/characters/hangulmon_wrong.png"} />
+          {isPet(pet) ? (
+            <PetLessonReaction pet={pet} streak={petStreak} state={state} recovered={recoveredStar} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img alt="" className={styles.fbMascot} src={correct ? "/characters/hangulmon_correct.png" : "/characters/hangulmon_wrong.png"} />
+          )}
           <strong className={styles.fbTitle}>
             {!gradingFeedback && meaning ? `${label} Ma'nosi:` : label}
           </strong>

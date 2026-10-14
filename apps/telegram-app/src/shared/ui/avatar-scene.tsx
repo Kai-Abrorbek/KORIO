@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 import styles from "./avatar-scene.module.css";
 
@@ -8,7 +8,7 @@ import styles from "./avatar-scene.module.css";
  * 배경 장면 — 캐릭터 뒤에 까는 서울 여행 그림 (api cosmetics, slot scene). 모바일 AvatarScene 과 같다.
  *
  * 그림은 public/scenes/<id>.webp (1200×1000, 캐릭터가 설 가운데는 비워 둠).
- * 움직이지 않는다 — 반짝임·흔들림 없이 그림만.
+ * 원화는 움직이지 않는다. living일 때만 현지 시간의 색감이 은은하게 바뀐다.
  *
  * - SceneBackdrop: 히어로(에디터·프로필·친구 프로필) 뒤에 꽉 채워 깐다. 부모는 position + isolation 필요
  * - sceneCircleStyle: 리그·친구 목록 동그라미 — 얼굴 뒤 배경으로
@@ -55,6 +55,15 @@ export const isScene = (value: unknown): value is Exclude<SceneId, "scene_none">
 
 export const sceneSrc = (id: Exclude<SceneId, "scene_none">) => `/scenes/${id}.webp`;
 
+type SceneTime = "morning" | "day" | "sunset" | "night";
+
+export function sceneTimeAt(hour: number): SceneTime {
+  if (hour >= 5 && hour < 11) return "morning";
+  if (hour >= 11 && hour < 17) return "day";
+  if (hour >= 17 && hour < 20) return "sunset";
+  return "night";
+}
+
 /** 히어로 색 — 장면이 있으면 장면 색, 없으면 null (색 배경 그대로) */
 export function sceneHeroColors(scene: unknown) {
   if (!isScene(scene)) return null;
@@ -63,7 +72,31 @@ export function sceneHeroColors(scene: unknown) {
 }
 
 /** 히어로 뒤에 꽉 채우는 그림. 밤 장면은 위쪽을 살짝 어둡게 해서 흰 제목이 읽히게 */
-export function SceneBackdrop({ scene, shade = false }: { scene?: string | null; shade?: boolean }) {
+export function SceneBackdrop({
+  scene,
+  shade = false,
+  living = false,
+}: {
+  scene?: string | null;
+  shade?: boolean;
+  /** Tint the existing art by the viewer's local time; leave static cards unchanged. */
+  living?: boolean;
+}) {
+  // The initial server render must not depend on the viewer's clock or timezone.
+  const [time, setTime] = useState<SceneTime | null>(null);
+  useEffect(() => {
+    if (!living) return;
+    const refresh = () => setTime(sceneTimeAt(new Date().getHours()));
+    refresh();
+    const timer = window.setInterval(refresh, 60_000);
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("pageshow", refresh);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("pageshow", refresh);
+    };
+  }, [living]);
   if (!isScene(scene)) return null;
   const look = SCENE_LOOK[scene];
   return (
@@ -75,6 +108,7 @@ export function SceneBackdrop({ scene, shade = false }: { scene?: string | null;
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img alt="" decoding="async" draggable={false} src={sceneSrc(scene)} />
+      {living && time ? <span className={styles.timeTint} data-time={time} key={time} /> : null}
     </span>
   );
 }

@@ -62,7 +62,7 @@ export function FriendProfileScreen() {
   return (
     <main className={styles.screen}><div className={styles.scroll}>
       <section className={styles.friendHero} style={heroStyle}>
-        <SceneBackdrop scene={profile.avatar?.scene} shade />
+        <SceneBackdrop scene={profile.avatar?.scene} shade living />
         <header><button aria-label="Orqaga" onClick={() => goBack(router)} type="button"><MobileIcon name="arrow-back" size={26} /></button><h1>{profile.nickname}</h1><button aria-label="Ulashish" onClick={() => void shareText(profile.nickname, `KORIO’da ${profile.nickname} profilini ko‘ring\nhttps://korio.online/u/${profile.id}`)} type="button"><MobileIcon name="share-outline" size={26} /></button></header>
         {profile.isSuper ? <span className={styles.superBadge}>SUPER</span> : null}
         {profile.isOnline ? <span className={styles.onlineBadge}>● Onlayn</span> : null}

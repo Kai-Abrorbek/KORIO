@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type UIEvent } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -11,6 +11,7 @@ import {
 } from "../../../shared/model/avatar";
 import { ConfirmDialog } from "../../../shared/ui/confirm-dialog";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import {
   AVATAR_BACKGROUNDS,
@@ -22,9 +23,9 @@ import { AVATAR_CATEGORIES, type AvatarOption } from "../model/avatar-catalog";
 import styles from "./avatar-editor-screen.module.css";
 import { playSfx } from "../../../shared/browser/sfx";
 import { uzt } from "../../../shared/i18n/uz-text";
-import { AvatarAura, AURA_LOOK, RARITY_COLOR, type AuraId } from "../../../shared/ui/avatar-aura";
+import { AURA_LOOK, RARITY_COLOR, type AuraId } from "../../../shared/ui/avatar-aura";
 import { SCENE_LOOK, SceneBackdrop, isScene, sceneHeroColors, type SceneId } from "../../../shared/ui/avatar-scene";
-import { AvatarPet, PET_LOOK, isPet, type PetId } from "../../../shared/ui/avatar-pet";
+import { PET_LOOK, isPet, type PetId } from "../../../shared/ui/avatar-pet";
 import {
   AuraGrid,
   CosmeticBought,
@@ -40,6 +41,7 @@ import { WEAR_LOOK, isWearItem, type WearItemId, type WearSlot } from "../../../
 import { WearGrid } from "./wear-picker";
 import { SceneGrid } from "./scene-picker";
 import { PetGrid } from "./pet-picker";
+import { AvatarComboStage } from "./avatar-combo-stage";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
@@ -74,6 +76,7 @@ function goBack(router: ReturnType<typeof useRouter>) {
 export function AvatarEditorScreen() {
   const router = useRouter();
   const { request, updateUser, user } = useTelegramAuth();
+  const { speak: speakAvatarWord } = useKoreanSpeech(request);
   const userAvatar = useMemo(() => mergeAvatarConfig(user?.avatar), [user?.avatar]);
   const [draft, setDraft] = useState<AvatarConfig>(userAvatar);
   const [initial, setInitial] = useState<AvatarConfig>(userAvatar);
@@ -88,6 +91,38 @@ export function AvatarEditorScreen() {
   const [buying, setBuying] = useState(false);
   const [buyError, setBuyError] = useState(false);
   const [bought, setBought] = useState<ShopItemId | null>(null);
+  const [headerCollapsed, setHeaderCollapsed] = useState(false);
+  const optionsScrollRef = useRef<HTMLElement>(null);
+  const scrollAnchor = useRef(0);
+  const bottomRevealOffset = useRef<number | null>(null);
+
+  const handleOptionsScroll = useCallback((event: UIEvent<HTMLElement>) => {
+    const list = event.currentTarget;
+    const y = Math.max(0, list.scrollTop);
+    const maxOffset = Math.max(0, list.scrollHeight - list.clientHeight);
+    const atBottom = maxOffset > 2 ? y >= maxOffset - 2 : headerCollapsed;
+
+    if (atBottom) {
+      setHeaderCollapsed(false);
+      // The viewport shrinks when the header returns; don't immediately hide it again.
+      bottomRevealOffset.current = Math.max(bottomRevealOffset.current ?? y, y);
+      scrollAnchor.current = y;
+      return;
+    }
+    if (bottomRevealOffset.current !== null) {
+      if (y < bottomRevealOffset.current - 24) {
+        bottomRevealOffset.current = null;
+        scrollAnchor.current = y;
+      }
+      return;
+    }
+    if (y - scrollAnchor.current > 24) {
+      setHeaderCollapsed(true);
+      scrollAnchor.current = y;
+    } else if (y < scrollAnchor.current) {
+      scrollAnchor.current = y;
+    }
+  }, [headerCollapsed]);
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
   const dirty = useRef(hasChanges);
@@ -161,6 +196,10 @@ export function AvatarEditorScreen() {
   const selectCategory = (id: AvatarField) => {
     hapticSelection();
     setSelectedCategory(id);
+    if (optionsScrollRef.current) optionsScrollRef.current.scrollTop = 0;
+    scrollAnchor.current = 0;
+    bottomRevealOffset.current = null;
+    setHeaderCollapsed(false);
   };
 
   const selectOption = (option: AvatarOption) => {
@@ -265,7 +304,7 @@ export function AvatarEditorScreen() {
 
   return (
     <main className={styles.screen}>
-      <header className={styles.header}>
+      <header className={`${styles.header} ${headerCollapsed ? styles.headerCollapsed : ""}`}>
         <button aria-label="Yopish" onClick={close} type="button">
           <MobileIcon name="close" size={27} />
         </button>
@@ -288,7 +327,7 @@ export function AvatarEditorScreen() {
         } as React.CSSProperties}
       >
         {draftScene ? (
-          <SceneBackdrop scene={draftScene} />
+          <SceneBackdrop scene={draftScene} living />
         ) : (
           <>
             <i className={styles.heroOrbLarge} />
@@ -320,10 +359,12 @@ export function AvatarEditorScreen() {
           </span>
         ) : null}
         <div className={styles.heroAvatar}>
-          <AvatarAura aura={draft.aura}>
-            <GeneratedAvatar avatar={draft} variant="full" />
-          </AvatarAura>
-          <AvatarPet pet={draft.pet} streak={streak} />
+          <AvatarComboStage
+            avatar={draft}
+            onWordPress={(word) => speakAvatarWord(word)}
+            streak={streak}
+            userId={user?.id}
+          />
         </div>
         <button className={styles.randomButton} onClick={randomize} type="button">
           <span>
@@ -360,7 +401,7 @@ export function AvatarEditorScreen() {
         </nav>
       </section>
 
-      <section className={styles.optionsScroll}>
+      <section className={styles.optionsScroll} onScroll={handleOptionsScroll} ref={optionsScrollRef}>
         {category.id === "aura" ? (
           <AuraGrid
             draft={draft}
@@ -393,6 +434,7 @@ export function AvatarEditorScreen() {
           <SceneGrid
             draft={draft}
             equipped={initial.scene ?? "scene_none"}
+            onOpenAlbum={() => router.push("/avatar-postcards")}
             onPick={pickScene}
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
