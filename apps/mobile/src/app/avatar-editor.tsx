@@ -35,6 +35,7 @@ import {
   AuraBuySheet,
   AuraGrid,
   auraPrice,
+  aurasAllFree,
   ownsAura,
 } from "@/components/avatar/AuraPicker";
 import Button3D from "@/features/retention/components/Button3D";
@@ -280,7 +281,15 @@ export default function AvatarEditorScreen() {
           <View style={styles.heroOrbLarge} />
           <View style={styles.heroOrbSmall} />
 
-          {selectedCategory === "aura" ? (
+          {selectedCategory === "aura" && aurasAllFree(cosmetics) ? (
+            <View style={styles.freeBadge}>
+              <Ionicons name="sparkles" size={14} color="#6B61D8" />
+
+              <Text style={styles.freeBadgeText}>
+                {t("avatarEditor.aura.freeAll")}
+              </Text>
+            </View>
+          ) : selectedCategory === "aura" ? (
             <View style={styles.freeBadge}>
               <Ionicons name="diamond" size={14} color="#1899D6" />
 

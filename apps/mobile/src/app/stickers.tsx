@@ -168,6 +168,8 @@ export default function StickersScreen() {
   const gems = state?.gems ?? user?.gems ?? 0;
   const short = Math.max(0, cost - gems);
   const upToDate = Boolean(pack && !pack.outdated);
+  /** 지금 무료 (어드민 가격 0) — 가격 알약 대신 "무료", 보석 안내 숨김 */
+  const free = !!state && cost <= 0;
 
   const make = async () => {
     if (!state?.enabled || phase === "making" || short > 0) return;
@@ -266,7 +268,11 @@ export default function StickersScreen() {
               </View>
               <View style={s.perkText}>
                 <Text style={s.perkTitle}>{t(`stickers.perks.${key}.title`)}</Text>
-                <Text style={s.perkDesc}>{t(`stickers.perks.${key}.desc`, { price: fmt(state?.refreshPrice ?? 0) })}</Text>
+                <Text style={s.perkDesc}>
+                  {key === "update" && state && state.refreshPrice <= 0
+                    ? t("stickers.perks.update.descFree")
+                    : t(`stickers.perks.${key}.desc`, { price: fmt(state?.refreshPrice ?? 0) })}
+                </Text>
               </View>
             </Animated.View>
           ))}
@@ -314,12 +320,19 @@ export default function StickersScreen() {
           <>
             <Cta color={PRIMARY} depth={PRIMARY_DARK} onPress={() => void make()} shine>
               <Text style={s.ctaText}>{t(refreshing ? "stickers.cta.update" : "stickers.cta.make")}</Text>
-              <View style={s.price}>
-                <Ionicons name="diamond" size={13} color="#FFFFFF" />
-                <Text style={s.priceText}>{fmt(cost)}</Text>
-              </View>
+              {free ? (
+                <View style={[s.price, s.priceFree]}>
+                  <Ionicons name="sparkles" size={13} color="#6A2C00" />
+                  <Text style={[s.priceText, { color: "#6A2C00" }]}>{t("stickers.cta.freeTag")}</Text>
+                </View>
+              ) : (
+                <View style={s.price}>
+                  <Ionicons name="diamond" size={13} color="#FFFFFF" />
+                  <Text style={s.priceText}>{fmt(cost)}</Text>
+                </View>
+              )}
             </Cta>
-            <Text style={s.hint}>{t("stickers.cta.balance", { n: fmt(gems) })}</Text>
+            <Text style={s.hint}>{free ? t("stickers.cta.freeHint") : t("stickers.cta.balance", { n: fmt(gems) })}</Text>
           </>
         )}
       </View>
@@ -577,7 +590,7 @@ function LinkSheet({
               );
             })}
           </View>
-          <Text style={s.charge}>{t("stickers.link.charge", { n: fmt(cost) })}</Text>
+          {cost > 0 ? <Text style={s.charge}>{t("stickers.link.charge", { n: fmt(cost) })}</Text> : null}
           {opened ? (
             <View style={s.waiting}>
               <ActivityIndicator color={TG_DARK} size="small" />
@@ -713,6 +726,7 @@ const getStyles = (theme: ThemeColors) =>
     ctaTextOff: { color: "#9A9AA6" },
     price: { flexDirection: "row", alignItems: "center", gap: 3, marginLeft: 4, paddingLeft: 8, paddingRight: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: "rgba(255,255,255,0.22)" },
     priceText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
+    priceFree: { backgroundColor: "#FFD43B" },
 
     sheetRoot: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(14,10,40,0.55)" },
     sheet: { backgroundColor: theme.surface, borderTopLeftRadius: 26, borderTopRightRadius: 26, paddingHorizontal: 20, paddingTop: 10, alignItems: "center" },

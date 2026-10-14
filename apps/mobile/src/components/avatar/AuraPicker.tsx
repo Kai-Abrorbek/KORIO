@@ -34,6 +34,11 @@ export function auraPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
 }
 
+/** 오라가 전부 무료인가 — 에디터 위 배지를 보석 잔액 대신 "전부 무료" 로 */
+export function aurasAllFree(state: CosmeticsState | null) {
+  return !!state && state.items.length > 0 && state.items.every((item) => item.price <= 0);
+}
+
 export function ownsAura(state: CosmeticsState | null, id: string | undefined) {
   if (!id || id === "aura_none") return true;
   return !!state?.owned.includes(id);
@@ -161,6 +166,11 @@ function AuraCard({
         {id === "aura_none" ? null : wearing ? (
           <View style={[s.pill, { backgroundColor: theme.primary }]}>
             <Text style={[s.pillText, { color: "#FFFFFF" }]}>{t("avatarEditor.aura.wearing")}</Text>
+          </View>
+        ) : price === 0 ? (
+          <View style={[s.pill, { backgroundColor: "#776EE224" }]}>
+            <Ionicons name="sparkles" size={11} color="#776EE2" />
+            <Text style={[s.pillText, { color: "#776EE2" }]}>{t("avatarEditor.aura.free")}</Text>
           </View>
         ) : owned ? (
           <View style={s.ownedRow}>

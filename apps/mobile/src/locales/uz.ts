@@ -2447,6 +2447,8 @@ export default {
       subtitle: "Ligada va profilingizda hamma ko'radi",
       none: "Aurasiz",
       owned: "Sizniki",
+      free: "Bepul",
+      freeAll: "Hammasi bepul",
       wearing: "Kiyilgan",
       tryOn: "Kiyib ko'ryapsiz",
       newBadge: "YANGI",
@@ -2775,6 +2777,7 @@ export default {
       update: {
         title: "Personaj o'zgarsa — stikerlar ham",
         desc: "{{price}} gavharga yangilang, qo'shgan hamma yangisini ko'radi",
+        descFree: "Bepul qayta chizing — qo'shgan hamma yangisini ko'radi",
       },
     },
     status: {
@@ -2784,6 +2787,8 @@ export default {
     },
     cta: {
       make: "Stikerlar yaratish",
+      freeTag: "BEPUL",
+      freeHint: "Hozircha bepul — gavhar sarflanmaydi",
       update: "Yangi personaj bilan chizish",
       add: "Telegramga qo'shish",
       addCurrent: "Hozirgisini qo'shish",
