@@ -27,6 +27,13 @@
   width: 110%;
 }
 
+/* 배경 장면 — 얼굴을 조금 줄이고 내려서 뒤 그림(하늘·불빛)이 보이게 */
+.generated[data-scene] svg {
+  height: 96%;
+  translate: 0 8%;
+  width: 96%;
+}
+
 .image {
   display: block;
   object-fit: cover;

@@ -1,6 +1,7 @@
 "use client";
 
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
+import { SceneBackdrop, isScene } from "../../../shared/ui/avatar-scene";
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
@@ -102,7 +103,15 @@ function ProgressRing({ value }: { value: number }) {
 function UserArtwork({ user, onPress }: { user: HomeUser; onPress: () => void }) {
   return (
     <button aria-label="Avatarni tahrirlash" className={styles.avatarArtworkButton} onClick={onPress} type="button">
-      {user.avatar ? (
+      {user.avatar && isScene(user.avatar.scene) ? (
+        // 배경 장면을 골랐으면 그 그림 앞에 선 엽서처럼
+        <span className={styles.sceneArtwork}>
+          <SceneBackdrop scene={user.avatar.scene} />
+          <span className={styles.sceneArtworkAvatar}>
+            <AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura>
+          </span>
+        </span>
+      ) : user.avatar ? (
         <span className={styles.generatedArtwork}><AvatarAura aura={user.avatar.aura}><GeneratedAvatar avatar={user.avatar} variant="full" /></AvatarAura></span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element

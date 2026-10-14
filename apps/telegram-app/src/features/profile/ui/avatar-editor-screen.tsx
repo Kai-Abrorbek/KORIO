@@ -23,10 +23,26 @@ import styles from "./avatar-editor-screen.module.css";
 import { playSfx } from "../../../shared/browser/sfx";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { AvatarAura, AURA_LOOK, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
-import { AuraBought, AuraBuySheet, AuraGrid, auraPrice, aurasAllFree, ownsAura } from "./aura-picker";
+import { SCENE_LOOK, SceneBackdrop, isScene, sceneHeroColors, type SceneId } from "../../../shared/ui/avatar-scene";
+import {
+  AuraGrid,
+  CosmeticBought,
+  CosmeticBuySheet,
+  cosmeticPrice,
+  ownsCosmetic,
+  slotAllFree,
+  slotOf,
+  type ShopItemId,
+} from "./aura-picker";
+import { SceneGrid } from "./scene-picker";
 
 function hapticSelection() {
   window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
+}
+
+/** 산 아이템을 입힌 모양 — 오라면 오라 칸, 장면이면 장면 칸 */
+function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
+  return isScene(item) ? { ...config, scene: item } : { ...config, aura: item };
 }
 
 function goBack(router: ReturnType<typeof useRouter>) {
@@ -44,13 +60,13 @@ export function AvatarEditorScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [saveErrorOpen, setSaveErrorOpen] = useState(false);
-  // 오라 (보석으로 산다) — 목록 · 가진 것 · 보석
+  // 상점 꾸미기 (오라 · 배경 장면, 보석으로 산다) — 목록 · 가진 것 · 보석
   const [cosmetics, setCosmetics] = useState<CosmeticsState | null>(null);
   const [cosStatus, setCosStatus] = useState<"loading" | "ready" | "failed">("loading");
   const [buyOpen, setBuyOpen] = useState(false);
   const [buying, setBuying] = useState(false);
   const [buyError, setBuyError] = useState(false);
-  const [bought, setBought] = useState<Exclude<AuraId, "aura_none"> | null>(null);
+  const [bought, setBought] = useState<ShopItemId | null>(null);
 
   const hasChanges = JSON.stringify(draft) !== JSON.stringify(initial);
   const dirty = useRef(hasChanges);
@@ -78,19 +94,35 @@ export function AvatarEditorScreen() {
   }, [loadCosmetics]);
 
   const draftAura = isAura(draft.aura) ? draft.aura : null;
-  // 입어보는 중 (아직 안 산 오라)
-  const tryingOn = draftAura !== null && cosStatus === "ready" && !ownsAura(cosmetics, draftAura);
-  const tryPrice = draftAura ? (auraPrice(cosmetics, draftAura) ?? 0) : 0;
+  const draftScene = isScene(draft.scene) ? draft.scene : null;
+  const cosReady = cosStatus === "ready";
+  // 입어보는 중 (아직 안 산 오라 · 장면)
+  const pendingAura = draftAura && cosReady && !ownsCosmetic(cosmetics, draftAura) ? draftAura : null;
+  const pendingScene = draftScene && cosReady && !ownsCosmetic(cosmetics, draftScene) ? draftScene : null;
+  // 살 것 — 보고 있는 탭 쪽 먼저
+  const pending: ShopItemId | null =
+    selectedCategory === "scene" ? (pendingScene ?? pendingAura) : (pendingAura ?? pendingScene);
+  const tryingOn = pending !== null;
+  const tryPrice = pending ? (cosmeticPrice(cosmetics, pending) ?? 0) : 0;
   const gems = cosmetics?.gems ?? user?.gems ?? 0;
-  const otherChanges =
-    JSON.stringify({ ...draft, aura: initial.aura }) !== JSON.stringify(initial);
+  // "빼고 저장" — 안 산 것만 저장된 것으로 되돌린 모양
+  const withoutPending: AvatarConfig = {
+    ...draft,
+    ...(pendingAura ? { aura: initial.aura } : null),
+    ...(pendingScene ? { scene: initial.scene } : null),
+  };
+  const otherChanges = JSON.stringify(withoutPending) !== JSON.stringify(initial);
+  // 오라·장면 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
+  const shopTab = selectedCategory === "aura" || selectedCategory === "scene" ? selectedCategory : null;
 
   const category =
     AVATAR_CATEGORIES.find((item) => item.id === selectedCategory) ??
     AVATAR_CATEGORIES[0]!;
-  const heroBackground =
-    AVATAR_BACKGROUNDS[draft.background] ??
-    AVATAR_BACKGROUNDS.background_cloud;
+  // 장면을 골랐으면 그림이 깔리고, 색은 그림이 뜨기 전 잠깐만 보인다
+  const sceneColors = sceneHeroColors(draft.scene);
+  const heroBackground = sceneColors
+    ? [sceneColors.from, sceneColors.to]
+    : (AVATAR_BACKGROUNDS[draft.background] ?? AVATAR_BACKGROUNDS.background_cloud);
 
   const close = () => {
     if (isSaving) return;
@@ -123,8 +155,8 @@ export function AvatarEditorScreen() {
 
   const randomize = () => {
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
-    // 오라는 산 것이라 그대로 둔다
-    setDraft((current) => randomAvatar({ aura: current.aura }));
+    // 오라·장면은 상점 아이템이라 그대로 둔다
+    setDraft((current) => randomAvatar({ aura: current.aura, scene: current.scene }));
   };
 
   const pickAura = (id: AuraId) => {
@@ -132,20 +164,30 @@ export function AvatarEditorScreen() {
     setDraft((current) => ({ ...current, aura: id }));
   };
 
+  const pickScene = (id: SceneId) => {
+    hapticSelection();
+    setDraft((current) => ({ ...current, scene: id }));
+  };
+
   const buy = async () => {
-    if (!draftAura || buying) return;
+    if (!pending || buying) return;
+    const item = pending;
     setBuying(true);
     setBuyError(false);
     try {
-      const result = await purchaseCosmetic(request, draftAura, true);
-      setCosmetics((current) => (current ? { ...current, gems: result.gems, owned: result.owned, equipped: { aura: draftAura } } : current));
-      // 저장된 쪽도 이 오라로 — 고치던 다른 부분은 그대로 둔다
-      setInitial((current) => ({ ...current, aura: draftAura }));
-      updateUser({ avatar: mergeAvatarConfig({ ...user?.avatar, aura: draftAura }), gems: result.gems });
+      const result = await purchaseCosmetic(request, item, true);
+      setCosmetics((current) =>
+        current
+          ? { ...current, gems: result.gems, owned: result.owned, equipped: { ...current.equipped, [slotOf(item)]: item } }
+          : current,
+      );
+      // 저장된 쪽도 이 아이템으로 — 고치던 다른 부분은 그대로 둔다
+      setInitial((current) => wear(current, item));
+      updateUser({ avatar: wear(mergeAvatarConfig(user?.avatar), item), gems: result.gems });
       window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
       playSfx("combo");
       setBuyOpen(false);
-      setBought(draftAura);
+      setBought(item);
     } catch {
       window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("error");
       setBuyError(true);
@@ -155,11 +197,11 @@ export function AvatarEditorScreen() {
     }
   };
 
-  const save = async (withoutAura = false) => {
+  const save = async (skipPending = false) => {
     if (isSaving) return;
     setIsSaving(true);
     try {
-      const result = await updateAvatar(request, withoutAura ? { ...draft, aura: initial.aura } : draft);
+      const result = await updateAvatar(request, skipPending ? withoutPending : draft);
       updateUser({ avatar: result.avatar });
       window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
       goBack(router);
@@ -195,14 +237,20 @@ export function AvatarEditorScreen() {
           "--hero-to": heroBackground[1],
         } as React.CSSProperties}
       >
-        <i className={styles.heroOrbLarge} />
-        <i className={styles.heroOrbSmall} />
-        {selectedCategory === "aura" && aurasAllFree(cosmetics) ? (
+        {draftScene ? (
+          <SceneBackdrop scene={draftScene} />
+        ) : (
+          <>
+            <i className={styles.heroOrbLarge} />
+            <i className={styles.heroOrbSmall} />
+          </>
+        )}
+        {shopTab && slotAllFree(cosmetics, shopTab) ? (
           <span className={styles.freeBadge}>
             <MobileIcon name="sparkles" size={14} />
-            <span data-i18n="avatarEditor.aura.freeAll">{uzt("avatarEditor.aura.freeAll")}</span>
+            <span data-i18n={`avatarEditor.${shopTab}.freeAll`}>{uzt(`avatarEditor.${shopTab}.freeAll`)}</span>
           </span>
-        ) : selectedCategory === "aura" ? (
+        ) : shopTab ? (
           <span className={`${styles.freeBadge} ${styles.gemBadge}`} data-no-translate>
             <MobileIcon name="diamond" size={14} />
             {gems.toLocaleString("en-US")}
@@ -213,12 +261,14 @@ export function AvatarEditorScreen() {
             <span data-i18n="avatarEditor.basicFree">{uzt("avatarEditor.basicFree")}</span>
           </span>
         )}
-        {tryingOn && draftAura ? (
+        {pending ? (
           <span
             className={styles.tryOnBadge}
-            style={{ "--rarity": RARITY_COLOR[AURA_LOOK[draftAura].rarity] } as React.CSSProperties}
+            style={{
+              "--rarity": RARITY_COLOR[isScene(pending) ? SCENE_LOOK[pending].rarity : AURA_LOOK[pending].rarity],
+            } as React.CSSProperties}
           >
-            <span data-i18n="avatarEditor.aura.tryOn">{uzt("avatarEditor.aura.tryOn")}</span>
+            <span data-i18n={`avatarEditor.${slotOf(pending)}.tryOn`}>{uzt(`avatarEditor.${slotOf(pending)}.tryOn`)}</span>
           </span>
         ) : null}
         <div className={styles.heroAvatar}>
@@ -250,7 +300,7 @@ export function AvatarEditorScreen() {
               >
                 <MobileIcon name={item.icon} size={20} />
                 {item.label}
-                {item.id === "aura" && !selected ? (
+                {item.id === "scene" && !selected ? (
                   <em className={styles.newBadge} data-i18n="avatarEditor.aura.newBadge">
                     {uzt("avatarEditor.aura.newBadge")}
                   </em>
@@ -267,6 +317,15 @@ export function AvatarEditorScreen() {
             draft={draft}
             equipped={initial.aura ?? "aura_none"}
             onPick={pickAura}
+            onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+          />
+        ) : category.id === "scene" ? (
+          <SceneGrid
+            draft={draft}
+            equipped={initial.scene ?? "scene_none"}
+            onPick={pickScene}
             onRetry={() => void loadCosmetics()}
             state={cosmetics}
             status={cosStatus}
@@ -331,7 +390,9 @@ export function AvatarEditorScreen() {
             </button>
             {otherChanges ? (
               <button className={styles.saveWithout} disabled={isSaving} onClick={() => void save(true)} type="button">
-                <span data-i18n="avatarEditor.aura.saveWithout">{uzt("avatarEditor.aura.saveWithout")}</span>
+                <span data-i18n={`avatarEditor.${pending ? slotOf(pending) : "aura"}.saveWithout`}>
+                  {uzt(`avatarEditor.${pending ? slotOf(pending) : "aura"}.saveWithout`)}
+                </span>
               </button>
             ) : null}
           </>
@@ -342,19 +403,19 @@ export function AvatarEditorScreen() {
         )}
       </footer>
 
-      {buyOpen && draftAura ? (
-        <AuraBuySheet
+      {buyOpen && pending ? (
+        <CosmeticBuySheet
           avatar={draft}
           buying={buying}
           error={buyError}
           gems={gems}
-          id={draftAura}
+          id={pending}
           onBuy={() => void buy()}
           onClose={() => setBuyOpen(false)}
           price={tryPrice}
         />
       ) : null}
-      {bought ? <AuraBought avatar={draft} id={bought} onClose={() => setBought(null)} /> : null}
+      {bought ? <CosmeticBought avatar={draft} id={bought} onClose={() => setBought(null)} /> : null}
 
       {/* 앱 안 확인창 — 페이드로만 열린다 */}
       <ConfirmDialog

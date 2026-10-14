@@ -1,0 +1,30 @@
+/* 장면 카드 — 오라 카드(aura-picker.module.css) 위에 덮어쓰는 것만. 두 번 쓴 클래스 = 불러오는 순서와 상관없이 이기게 */
+.preview.preview {
+  aspect-ratio: 1.2;
+  background: none;
+  isolation: isolate;
+}
+
+/* 장면 없음 — 내가 고른 색 배경 */
+.plain {
+  background: linear-gradient(135deg, var(--plain-from), var(--plain-to));
+  display: block;
+  inset: 0;
+  position: absolute;
+  z-index: -1;
+}
+
+/* 장면 이름이 길어서 — 이름 아래에 무료·가격 알약 */
+.info.info {
+  align-items: flex-start;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: flex-start;
+}
+
+/* 그림이 보이게 캐릭터를 조금 작게, 발은 그림의 땅에 */
+.avatar.avatar {
+  height: 74%;
+  top: 20%;
+}

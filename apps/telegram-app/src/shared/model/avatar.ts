@@ -14,6 +14,8 @@ export const AVATAR_IDS = {
   background: ["background_cloud", "background_lilac", "background_sky", "background_mint", "background_lime", "background_sand", "background_peach", "background_coral", "background_navy", "background_plum", "background_sunset", "background_aurora"],
   /** 보석으로 사는 움직이는 효과 (api cosmetics) — 산 것만 장착된다 */
   aura: ["aura_none", "aura_stardust", "aura_snow", "aura_blossom", "aura_flame", "aura_hangul"],
+  /** 캐릭터 뒤 배경 장면 (api cosmetics, slot scene) — 서울 여행 그림. 고르면 색 배경 대신 이 그림 */
+  scene: ["scene_none", "scene_hangang", "scene_cvs", "scene_namsan", "scene_jeju", "scene_snow", "scene_gyeongbokgung"],
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -33,6 +35,7 @@ export interface AvatarConfig {
   outfit: AvatarValue<"outfit">;
   background: AvatarValue<"background">;
   aura: AvatarValue<"aura">;
+  scene: AvatarValue<"scene">;
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
@@ -49,14 +52,15 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   outfit: "outfit_hoodie",
   background: "background_lilac",
   aura: "aura_none",
+  scene: "scene_none",
 };
 
 export function mergeAvatarConfig(avatar?: Partial<AvatarConfig> | null): AvatarConfig {
   return { ...DEFAULT_AVATAR_CONFIG, ...avatar, version: AVATAR_VERSION };
 }
 
-/** 무작위 — 오라는 돈 주고 산 것이라 바꾸지 않는다 */
-export function randomAvatar(keep?: Pick<AvatarConfig, "aura">): AvatarConfig {
+/** 무작위 — 오라·배경 장면은 상점 아이템이라 바꾸지 않는다 */
+export function randomAvatar(keep?: Partial<Pick<AvatarConfig, "aura" | "scene">>): AvatarConfig {
   const pick = <T extends readonly string[]>(values: T): T[number] =>
     values[Math.floor(Math.random() * values.length)]!;
   return {
@@ -73,5 +77,6 @@ export function randomAvatar(keep?: Pick<AvatarConfig, "aura">): AvatarConfig {
     outfit: pick(AVATAR_IDS.outfit),
     background: pick(AVATAR_IDS.background),
     aura: keep?.aura ?? "aura_none",
+    scene: keep?.scene ?? "scene_none",
   };
 }

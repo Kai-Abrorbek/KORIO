@@ -1,0 +1,28 @@
+/* 배경 장면 — 움직임 없음 */
+.backdrop {
+  background: linear-gradient(180deg, var(--scene-from), var(--scene-to));
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.backdrop img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  /* 땅(캐릭터 발)이 그림 아래쪽이라 아래를 남긴다 */
+  object-position: center 72%;
+  user-select: none;
+  width: 100%;
+}
+
+/* 밤 장면 위 흰 제목이 읽히게 */
+.backdrop[data-shade]::after {
+  background: linear-gradient(180deg, rgb(8 6 28 / 52%), rgb(8 6 28 / 0%));
+  content: "";
+  height: 130px;
+  inset: 0 0 auto;
+  position: absolute;
+}

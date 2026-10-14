@@ -14,6 +14,7 @@ import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import { alertDialog } from "../../../shared/telegram/dialogs";
 import { WeeklyVersus } from "./weekly-versus";
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
+import { SceneBackdrop, sceneHeroColors } from "../../../shared/ui/avatar-scene";
 
 const LEAGUE_LABELS: Record<string, string> = { bronze: "Bronza", silver: "Kumush", gold: "Oltin", sapphire: "Safir", ruby: "Yoqut", emerald: "Zumrad", amethyst: "Ametist", pearl: "Marvarid", obsidian: "Obsidian", diamond: "Olmos" };
 const LEAGUE_COLORS: Record<string, string> = { bronze: "#CD7F32", silver: "#9AA0A6", gold: "#F4B400", sapphire: "#3282CE", ruby: "#E54B4B", emerald: "#2BA47F", amethyst: "#8E63CE", pearl: "#D7C9E3", obsidian: "#34343F", diamond: "#45B7D1" };
@@ -50,12 +51,17 @@ export function FriendProfileScreen() {
 
   if (status === "loading") return <main className={styles.screen}><LoadingState /></main>;
   if (status === "error" || !profile || !id) return <main className={styles.screen}><ErrorState onRetry={load} text="Foydalanuvchi profilini yuklab bo‘lmadi" /></main>;
-  const avatarBackground = AVATAR_BACKGROUNDS[profile.avatar?.background ?? "background_lilac"];
-  const heroStyle = { "--hero-from": avatarBackground[0], "--hero-to": avatarBackground[1], "--hero-text": getAvatarHeaderContentColor(profile.avatar) } as CSSProperties;
+  // 배경 장면을 골랐으면 그 그림이 히어로 뒤에 깔린다
+  const sceneColors = sceneHeroColors(profile.avatar?.scene);
+  const avatarBackground = sceneColors
+    ? [sceneColors.from, sceneColors.to]
+    : (AVATAR_BACKGROUNDS[profile.avatar?.background ?? "background_lilac"] ?? AVATAR_BACKGROUNDS.background_lilac);
+  const heroStyle = { "--hero-from": avatarBackground[0], "--hero-to": avatarBackground[1], "--hero-text": sceneColors?.text ?? getAvatarHeaderContentColor(profile.avatar) } as CSSProperties;
   const flag = profile.coursePrimaryFlag ?? languageFlag(profile.targetLanguage);
   return (
     <main className={styles.screen}><div className={styles.scroll}>
       <section className={styles.friendHero} style={heroStyle}>
+        <SceneBackdrop scene={profile.avatar?.scene} shade />
         <header><button aria-label="Orqaga" onClick={() => goBack(router)} type="button"><MobileIcon name="arrow-back" size={26} /></button><h1>{profile.nickname}</h1><button aria-label="Ulashish" onClick={() => void shareText(profile.nickname, `KORIO’da ${profile.nickname} profilini ko‘ring\nhttps://korio.online/u/${profile.id}`)} type="button"><MobileIcon name="share-outline" size={26} /></button></header>
         {profile.isSuper ? <span className={styles.superBadge}>SUPER</span> : null}
         {profile.isOnline ? <span className={styles.onlineBadge}>● Onlayn</span> : null}

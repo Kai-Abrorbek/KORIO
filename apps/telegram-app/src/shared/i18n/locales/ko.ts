@@ -2490,6 +2490,7 @@ export default {
       outfit: "의상",
       background: "배경",
       aura: "오라",
+      scene: "장면",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2541,6 +2542,46 @@ export default {
         aura_hangul: {
           name: "한글 궤도",
           desc: "한글 자모가 내 주위를 돌아요. 가장 귀한 오라",
+        },
+      },
+    },
+    /** 배경 장면 — 캐릭터 뒤 그림 (api cosmetics, slot scene) */
+    scene: {
+      title: "서울 여행 — 내 캐릭터 뒤 장면",
+      subtitle: "프로필과 리그에서 모두가 봐요",
+      none: "장면 없음",
+      freeAll: "장면 전부 무료",
+      inUse: "사용 중",
+      tryOn: "미리 보는 중",
+      buyWear: "사서 바로 적용",
+      saveWithout: "장면 빼고 저장",
+      boughtTitle: "새 장면 획득!",
+      boughtBody: "이제 프로필과 리그에서 모두가 볼 수 있어요",
+      loadFailed: "장면을 불러오지 못했어요",
+      items: {
+        scene_gyeongbokgung: {
+          name: "경복궁 야경",
+          desc: "달빛 아래 조선의 궁궐",
+        },
+        scene_namsan: {
+          name: "남산타워 노을",
+          desc: "자물쇠 걸고 노을 구경",
+        },
+        scene_hangang: {
+          name: "한강 라면",
+          desc: "한강에서 끓여 먹는 라면",
+        },
+        scene_cvs: {
+          name: "편의점의 밤",
+          desc: "드라마처럼 편의점 앞 야식",
+        },
+        scene_jeju: {
+          name: "제주 유채꽃",
+          desc: "돌하르방과 노란 꽃밭",
+        },
+        scene_snow: {
+          name: "눈 내리는 서울",
+          desc: "첫눈 오는 서울의 저녁",
         },
       },
     },

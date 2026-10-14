@@ -26,6 +26,14 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
     preview: "full",
     options: options(AVATAR_IDS.aura),
   },
+  // 서울 여행 배경 그림 — 그리드가 따로 있다 (scene-picker)
+  {
+    id: "scene",
+    icon: "map-outline",
+    label: "Sahna",
+    preview: "full",
+    options: options(AVATAR_IDS.scene),
+  },
   {
     id: "skinTone",
     icon: "color-palette-outline",

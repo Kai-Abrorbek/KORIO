@@ -2505,6 +2505,7 @@ export default {
       outfit: "Kiyim",
       background: "Fon",
       aura: "Aura",
+      scene: "Sahna",
     },
     /** 오라 — 보석으로 사는 움직이는 효과 (api cosmetics) */
     aura: {
@@ -2556,6 +2557,46 @@ export default {
         aura_hangul: {
           name: "Hangul orbitasi",
           desc: "Hangul harflari atrofingizda aylanadi. Eng noyob aura",
+        },
+      },
+    },
+    /** 배경 장면 — 캐릭터 뒤 그림 (api cosmetics, slot scene) */
+    scene: {
+      title: "Seul sayohati — qahramon orqasidagi sahna",
+      subtitle: "Profil va ligada hamma ko'radi",
+      none: "Sahnasiz",
+      freeAll: "Hamma sahnalar bepul",
+      inUse: "Tanlangan",
+      tryOn: "Sinab ko'ryapsiz",
+      buyWear: "Sotib olish va qo'yish",
+      saveWithout: "Sahnasiz saqlash",
+      boughtTitle: "Yangi sahna sizniki!",
+      boughtBody: "Endi uni profilingiz va ligada hamma ko'radi",
+      loadFailed: "Sahnalarni yuklab bo'lmadi",
+      items: {
+        scene_gyeongbokgung: {
+          name: "Kyonbokkun tunda",
+          desc: "Oy nurida Joson saroyi",
+        },
+        scene_namsan: {
+          name: "Namsan minorasi",
+          desc: "Qulf osib, shom manzarasi",
+        },
+        scene_hangang: {
+          name: "Xangang bo'yida ramyon",
+          desc: "Daryo bo'yida issiq ramyon",
+        },
+        scene_cvs: {
+          name: "Tungi do'koncha",
+          desc: "Dramalardagidek tungi gazak",
+        },
+        scene_jeju: {
+          name: "Cheju sariq gullari",
+          desc: "Tosh bobo va sariq dala",
+        },
+        scene_snow: {
+          name: "Qorli Seul",
+          desc: "Seulda birinchi qor",
         },
       },
     },

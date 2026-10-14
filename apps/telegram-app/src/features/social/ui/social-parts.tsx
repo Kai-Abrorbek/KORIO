@@ -6,6 +6,7 @@ import { create as createQrCode } from "qrcode";
 
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import { AuraRing } from "../../../shared/ui/avatar-aura";
+import { sceneCircleBackground } from "../../../shared/ui/avatar-scene";
 import { followUser, unfollowUser } from "../api/social";
 import type { SocialUser } from "../model/social";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
@@ -51,7 +52,13 @@ function initialColor(name: string) {
 }
 
 export function FriendAvatar({ name, avatar, imageUrl, size = 56, online = false }: { name: string; avatar?: Partial<AvatarConfig> | null; imageUrl?: string; size?: number; online?: boolean }) {
-  const boxStyle = { "--avatar-size": `${size}px`, "--avatar-color": initialColor(name) } as CSSProperties;
+  // 배경 장면을 고른 사람은 얼굴 뒤로 그 그림이 보인다 (.avatar>svg 의 배경)
+  const sceneBg = sceneCircleBackground(avatar?.scene);
+  const boxStyle = {
+    "--avatar-size": `${size}px`,
+    "--avatar-color": initialColor(name),
+    ...(sceneBg ? { "--avatar-bg": sceneBg } : null),
+  } as CSSProperties;
   return (
     <span className={styles.avatar} style={boxStyle}>
       {avatar ? <GeneratedAvatar avatar={avatar} variant="head" /> : imageUrl ? (

@@ -6,6 +6,7 @@ import type { AvatarConfig } from "../../../shared/model/avatar";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { AURA_LOOK, AURA_ORDER, AvatarAura, RARITY_COLOR, isAura, type AuraId } from "../../../shared/ui/avatar-aura";
+import { SCENE_LOOK, SceneBackdrop, isScene, type SceneId } from "../../../shared/ui/avatar-scene";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
@@ -18,23 +19,57 @@ import styles from "./aura-picker.module.css";
  */
 const fmt = (n: number) => n.toLocaleString("en-US");
 
-export function auraPrice(state: CosmeticsState | null, id: string) {
+/** 상점 꾸미기 아이템 (오라 · 배경 장면) — 사는 시트·산 직후 창은 둘이 같이 쓴다 */
+export type ShopItemId = Exclude<AuraId, "aura_none"> | Exclude<SceneId, "scene_none">;
+export type ShopSlot = "aura" | "scene";
+
+export const slotOf = (id: ShopItemId): ShopSlot => (isScene(id) ? "scene" : "aura");
+
+export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
 }
 
-/** 가격 0 = 무료 (서버는 무료 오라를 owned 에도 넣어 준다) */
-export function auraIsFree(state: CosmeticsState | null, id: string) {
-  return auraPrice(state, id) === 0;
+/** 이 칸 아이템이 전부 무료인가 — 에디터 위 배지를 보석 잔액 대신 "전부 무료" 로 */
+export function slotAllFree(state: CosmeticsState | null, slot: ShopSlot) {
+  const items = state?.items.filter((item) => item.slot === slot) ?? [];
+  return items.length > 0 && items.every((item) => item.price <= 0);
 }
 
-/** 오라가 전부 무료인가 — 에디터 위 배지를 보석 잔액 대신 "전부 무료" 로 */
-export function aurasAllFree(state: CosmeticsState | null) {
-  return Boolean(state && state.items.length > 0 && state.items.every((item) => item.price <= 0));
-}
-
-export function ownsAura(state: CosmeticsState | null, id: string | undefined) {
-  if (!id || id === "aura_none") return true;
+/** 가격 0 = 무료 (서버는 무료 아이템을 owned 에도 넣어 준다). 없음(_none)은 늘 가진 것 */
+export function ownsCosmetic(state: CosmeticsState | null, id: string | undefined) {
+  if (!id || id.endsWith("_none")) return true;
   return Boolean(state?.owned.includes(id));
+}
+
+/** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면은 장면 강조색 */
+function shopLook(id: ShopItemId) {
+  if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
+  return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
+}
+
+/** 시트·산 직후 창 위 그림 — 오라는 오라 두른 캐릭터, 장면은 그 장면 앞에 선 캐릭터 */
+function ShopStage({ avatar, id, className = "" }: { avatar: AvatarConfig; id: ShopItemId; className?: string }) {
+  if (isScene(id)) {
+    return (
+      <div className={`${className} ${styles.sceneStage}`}>
+        <SceneBackdrop scene={id} />
+        <span className={styles.sceneStageAvatar}>
+          <AvatarAura aura={avatar.aura}>
+            <GeneratedAvatar avatar={{ ...avatar, scene: id }} variant="full" />
+          </AvatarAura>
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className={className}>
+      <span className={styles.sheetAvatar}>
+        <AvatarAura aura={id}>
+          <GeneratedAvatar avatar={{ ...avatar, aura: id }} variant="full" />
+        </AvatarAura>
+      </span>
+    </div>
+  );
 }
 
 export function AuraGrid({
@@ -98,8 +133,8 @@ function AuraCard({
 }) {
   const selected = (draft.aura ?? "aura_none") === id;
   const look = isAura(id) ? AURA_LOOK[id] : null;
-  const owned = ownsAura(state, id);
-  const price = auraPrice(state, id);
+  const owned = ownsCosmetic(state, id);
+  const price = cosmeticPrice(state, id);
   const wearing = equipped === id;
   return (
     <button
@@ -156,8 +191,8 @@ function AuraCard({
   );
 }
 
-/** 사기 전 확인 — 크게 입어보고, 값·내 보석·모자란 만큼 */
-export function AuraBuySheet({
+/** 사기 전 확인 — 크게 입어보고, 값·내 보석·모자란 만큼 (오라 · 배경 장면) */
+export function CosmeticBuySheet({
   avatar,
   buying,
   error,
@@ -171,12 +206,12 @@ export function AuraBuySheet({
   buying: boolean;
   error: boolean;
   gems: number;
-  id: Exclude<AuraId, "aura_none">;
+  id: ShopItemId;
   onBuy: () => void;
   onClose: () => void;
   price: number;
 }) {
-  const look = AURA_LOOK[id];
+  const look = shopLook(id);
   const short = Math.max(0, price - gems);
   const [shown, setShown] = useState(false);
   const sheetRef = useRef<HTMLElement>(null);
@@ -193,18 +228,12 @@ export function AuraBuySheet({
       <button aria-label={uzt("avatarEditor.aura.later")} className={styles.backdrop} onClick={buying ? undefined : onClose} type="button" />
       <section className={styles.sheet} data-rarity={look.rarity} ref={sheetRef} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
         <i className={styles.grabber} />
-        <div className={styles.sheetStage}>
-          <span className={styles.sheetAvatar}>
-            <AvatarAura aura={id}>
-              <GeneratedAvatar avatar={{ ...avatar, aura: id }} variant="full" />
-            </AvatarAura>
-          </span>
-        </div>
+        <ShopStage avatar={avatar} className={styles.sheetStage} id={id} />
         <em className={styles.sheetRarity} data-i18n={`avatarEditor.aura.rarity.${look.rarity}`}>
           {uzt(`avatarEditor.aura.rarity.${look.rarity}`)}
         </em>
-        <h2 data-i18n={`avatarEditor.aura.items.${id}.name`}>{uzt(`avatarEditor.aura.items.${id}.name`)}</h2>
-        <p data-i18n={`avatarEditor.aura.items.${id}.desc`}>{uzt(`avatarEditor.aura.items.${id}.desc`)}</p>
+        <h2 data-i18n={`${look.keys}.items.${id}.name`}>{uzt(`${look.keys}.items.${id}.name`)}</h2>
+        <p data-i18n={`${look.keys}.items.${id}.desc`}>{uzt(`${look.keys}.items.${id}.desc`)}</p>
 
         <div className={styles.rows}>
           <span>
@@ -236,7 +265,7 @@ export function AuraBuySheet({
 
         <button className={styles.buy} disabled={buying || short > 0} onClick={onBuy} type="button">
           {buying ? <i className={styles.spinner} /> : <MobileIcon name="diamond" size={18} />}
-          <span data-i18n="avatarEditor.aura.buyWear">{uzt("avatarEditor.aura.buyWear")}</span>
+          <span data-i18n={`${look.keys}.buyWear`}>{uzt(`${look.keys}.buyWear`)}</span>
         </button>
         <button className={styles.later} disabled={buying} onClick={onClose} type="button">
           <span data-i18n="avatarEditor.aura.later">{uzt("avatarEditor.aura.later")}</span>
@@ -247,20 +276,16 @@ export function AuraBuySheet({
 }
 
 /** 산 직후 — 페이드로만 뜬다 (빛 터짐·튕김 없음) */
-export function AuraBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: Exclude<AuraId, "aura_none">; onClose: () => void }) {
-  const look = AURA_LOOK[id];
+export function CosmeticBought({ avatar, id, onClose }: { avatar: AvatarConfig; id: ShopItemId; onClose: () => void }) {
+  const look = shopLook(id);
   useTelegramBackOverride(onClose);
   return (
     <div aria-modal="true" className={`${styles.sheetRoot} ${styles.shown} ${styles.center}`} role="dialog">
       <button aria-label={uzt("avatarEditor.aura.great")} className={styles.backdrop} onClick={onClose} type="button" />
       <section className={styles.bought} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
-        <span className={styles.boughtAvatar}>
-          <AvatarAura aura={id}>
-            <GeneratedAvatar avatar={{ ...avatar, aura: id }} variant="full" />
-          </AvatarAura>
-        </span>
-        <h2 data-i18n="avatarEditor.aura.boughtTitle">{uzt("avatarEditor.aura.boughtTitle")}</h2>
-        <p data-i18n="avatarEditor.aura.boughtBody">{uzt("avatarEditor.aura.boughtBody")}</p>
+        <ShopStage avatar={avatar} className={styles.boughtStage} id={id} />
+        <h2 data-i18n={`${look.keys}.boughtTitle`}>{uzt(`${look.keys}.boughtTitle`)}</h2>
+        <p data-i18n={`${look.keys}.boughtBody`}>{uzt(`${look.keys}.boughtBody`)}</p>
         <button className={styles.buy} onClick={onClose} type="button">
           <span data-i18n="avatarEditor.aura.great">{uzt("avatarEditor.aura.great")}</span>
         </button>

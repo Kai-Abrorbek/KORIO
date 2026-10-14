@@ -67,6 +67,8 @@
   border-radius: 30px;
   background: linear-gradient(135deg, var(--hero-from), var(--hero-to));
   padding: 40px 0 28px;
+  /* 배경 장면 그림(SceneBackdrop, z-index -1)이 히어로 안에만 깔리게 */
+  isolation: isolate;
   animation: fadeIn 350ms ease both;
 }
 
@@ -401,7 +403,7 @@
 }
 
 @keyframes optionsIn {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; }
 }
 
 :global(html[data-theme="dark"]) .screen {

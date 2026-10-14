@@ -1,6 +1,7 @@
 "use client";
 
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
+import { SceneBackdrop, sceneHeroColors } from "../../../shared/ui/avatar-scene";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -31,8 +32,12 @@ export function ProfileScreen() {
   if (!profile?.nickname) return null;
 
   const avatar = profile.avatar;
-  const colors = AVATAR_BACKGROUNDS[avatar?.background ?? "background_lilac"];
-  const contentColor = getAvatarHeaderContentColor(avatar);
+  // 배경 장면을 골랐으면 그 그림이 히어로 뒤에 깔린다 (색·글자색도 그림에 맞춤)
+  const sceneColors = sceneHeroColors(avatar?.scene);
+  const colors = sceneColors
+    ? [sceneColors.from, sceneColors.to]
+    : (AVATAR_BACKGROUNDS[avatar?.background ?? "background_lilac"] ?? AVATAR_BACKGROUNDS.background_lilac);
+  const contentColor = sceneColors?.text ?? getAvatarHeaderContentColor(avatar);
   const friendStreaks = profile.friendStreaks ?? [];
   const placeholders = Math.max(0, 5 - friendStreaks.length);
 
@@ -46,6 +51,7 @@ export function ProfileScreen() {
     <main className={styles.screen}>
       <div className={styles.scroll}>
         <section className={styles.hero} style={{ "--hero-from": colors[0], "--hero-to": colors[1], "--hero-text": contentColor } as React.CSSProperties}>
+          <SceneBackdrop scene={avatar?.scene} shade />
           <header>
             <button aria-label="Orqaga" onClick={() => window.history.length > 1 ? router.back() : router.replace("/home")} type="button"><MobileIcon name="chevron-back" size={28} /></button>
             <h1>{profile.nickname}</h1>

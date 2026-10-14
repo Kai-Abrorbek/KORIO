@@ -94,13 +94,8 @@
 
 .card[data-rarity="legendary"] .rarity,
 .sheet[data-rarity="legendary"] .sheetRarity {
+  /* 금색 — 정지 (반짝이며 지나가는 빛 없음) */
   background: linear-gradient(90deg, #e2a83a, #ffd45c, #e2a83a);
-  background-size: 200% 100%;
-}
-
-.card[data-rarity="legendary"] .rarity,
-.sheet[data-rarity="legendary"] .sheetRarity {
-  animation: goldShine 2.4s linear infinite;
 }
 
 .check {
@@ -259,8 +254,30 @@
   width: 180px;
 }
 
-.sheetAvatar svg,
-.boughtAvatar svg {
+/* 배경 장면 — 그림 앞에 캐릭터 (발이 그림의 땅에 닿게 아래에 붙인다) */
+.sceneStage {
+  isolation: isolate;
+  padding-top: 0;
+  position: relative;
+}
+
+.sceneStageAvatar {
+  aspect-ratio: 320 / 360;
+  bottom: 4%;
+  display: block;
+  height: 82%;
+  left: 50%;
+  position: absolute;
+  translate: -50% 0;
+}
+
+.sceneStageAvatar svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.sheetAvatar svg {
   display: block;
   height: 100%;
   width: 100%;
@@ -422,11 +439,21 @@
   width: 100%;
 }
 
-.boughtAvatar {
-  display: block;
+.boughtStage {
+  display: flex;
   height: 170px;
-  position: relative;
+  justify-content: center;
+  width: 100%;
+}
+
+.boughtStage .sheetAvatar {
+  height: 170px;
   width: 170px;
+}
+
+.boughtStage.sceneStage {
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 .bought h2 {
@@ -446,13 +473,6 @@
 @keyframes optionsIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
-  }
-}
-
-@keyframes goldShine {
-  to {
-    background-position: -200% 0;
   }
 }
 

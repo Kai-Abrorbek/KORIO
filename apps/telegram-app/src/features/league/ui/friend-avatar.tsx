@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import type { LeagueMember } from "../model/league";
 import { GeneratedAvatar } from "./generated-avatar";
 import { AuraRing } from "../../../shared/ui/avatar-aura";
+import { sceneCircleStyle } from "../../../shared/ui/avatar-scene";
 import styles from "./friend-avatar.module.css";
 
 const PALETTE = [
@@ -26,7 +27,10 @@ export function FriendAvatar({ member, size = 52 }: { member: LeagueMember; size
       style={{ "--avatar-size": `${size}px` } as CSSProperties}
     >
       {avatar ? (
-        <span className={styles.generated}><GeneratedAvatar avatar={avatar} /></span>
+        // 배경 장면을 고른 사람은 얼굴 뒤로 그 그림이 보인다
+        <span className={styles.generated} data-scene={sceneCircleStyle(avatar.scene) ? "" : undefined} style={sceneCircleStyle(avatar.scene)}>
+          <GeneratedAvatar avatar={avatar} />
+        </span>
       ) : member.profileImage ? (
         // 서버 사용자의 프로필 주소는 호스트가 고정되지 않는다.
         // eslint-disable-next-line @next/next/no-img-element

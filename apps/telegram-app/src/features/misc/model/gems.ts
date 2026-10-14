@@ -124,9 +124,11 @@ export function describeGemTx(item: GemTx): { title: GemText; details: GemText[]
       if (item.amount < 0) title = { key: "gemHistory.sources.admin_out" };
       break;
     case "cosmetic":
-      // 어떤 오라를 샀는지 (avatarEditor.aura.items.<id>.name)
+      // 무엇을 샀는지 — 오라 (avatarEditor.aura.items.<id>) · 배경 장면 (avatarEditor.scene.items.<id>)
       if (typeof p.item === "string" && p.item.startsWith("aura_")) {
         details.push({ key: `avatarEditor.aura.items.${p.item}.name` });
+      } else if (typeof p.item === "string" && p.item.startsWith("scene_")) {
+        details.push({ key: `avatarEditor.scene.items.${p.item}.name` });
       }
       break;
   }
