@@ -205,6 +205,7 @@ describe('CosmeticsService — 장면(scene)', () => {
       costume: 'costume_none',
       hand: 'hand_none',
       hat: 'hat_none',
+      title: 'title_none',
     });
     expect(res.items.some((item) => item.slot === 'scene')).toBe(true);
   });
@@ -335,5 +336,63 @@ describe('CosmeticsService — 한국 전통 세트(hat)', () => {
     );
     expect(() => assertCosmeticOwned('hat_none', [])).not.toThrow();
     expect(() => assertCosmeticOwned('hat_ikseongwan', [])).not.toThrow();
+  });
+});
+
+describe('CosmeticsService — 칭호(title)', () => {
+  const userId = new Types.ObjectId().toString();
+
+  it('일반 칭호는 무료면 누구나 — 세트 칭호는 그 세트를 받아 둔 사람만', () => {
+    expect(() => assertCosmeticOwned('title_dawn', [])).not.toThrow();
+    expect(() => assertCosmeticOwned('title_king', [])).toThrow(
+      'COSMETIC_NOT_OWNED',
+    );
+    expect(() =>
+      assertCosmeticOwned('title_king', ['costume_gonryongpo']),
+    ).toThrow('COSMETIC_NOT_OWNED');
+    expect(() =>
+      assertCosmeticOwned('title_king', [
+        'costume_gonryongpo',
+        'hat_ikseongwan',
+      ]),
+    ).not.toThrow();
+    // K팝은 응원봉·마이크 중 하나면 된다
+    expect(() =>
+      assertCosmeticOwned('title_kpop_idol', ['costume_stage', 'hand_mic']),
+    ).not.toThrow();
+  });
+
+  it('목록 owned 에는 조건 못 채운 세트 칭호가 없다', async () => {
+    const users = {
+      findById: jest
+        .fn()
+        .mockReturnValue(
+          chain({ gems: 0, ownedCosmetics: ['costume_taekwondo'], avatar: {} }),
+        ),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    const res = await service.list(userId);
+    expect(res.owned).toContain('title_taekwondo');
+    expect(res.owned).toContain('title_dawn');
+    expect(res.owned).not.toContain('title_king');
+    const king = res.items.find((item) => item.id === 'title_king');
+    expect(king?.requires).toEqual([
+      ['costume_gonryongpo'],
+      ['hat_ikseongwan'],
+    ]);
+  });
+
+  it('세트를 안 받아 둔 채 세트 칭호를 사려 하면 SET_NOT_COMPLETE', async () => {
+    const users = {
+      findById: jest
+        .fn()
+        .mockReturnValue(chain({ ownedCosmetics: ['costume_seonbi'] })),
+      findOneAndUpdate: jest.fn(),
+    };
+    const service = new CosmeticsService(users as never, undefined);
+    await expect(
+      service.purchase(userId, 'title_seonbi', true),
+    ).rejects.toThrow('SET_NOT_COMPLETE');
+    expect(users.findOneAndUpdate).not.toHaveBeenCalled();
   });
 });

@@ -17,8 +17,9 @@ import {
   CosmeticSlot,
   NONE_BY_SLOT,
   cosmeticById,
-  isFreeCosmetic,
+  isFreeForUser,
   isNoneCosmetic,
+  meetsRequires,
   ownedWithFree,
 } from './cosmetics.const';
 
@@ -30,7 +31,7 @@ export function assertCosmeticOwned(
   id: string | null | undefined,
   owned: readonly string[] | null | undefined,
 ) {
-  if (!id || isNoneCosmetic(id) || isFreeCosmetic(id)) return;
+  if (!id || isNoneCosmetic(id) || isFreeForUser(id, owned)) return;
   if (!(owned ?? []).includes(id))
     throw new ForbiddenException('COSMETIC_NOT_OWNED');
 }
@@ -79,6 +80,10 @@ export class CosmeticsService {
         slot: item.slot,
         rarity: item.rarity,
         price: item.price,
+        // 세트 칭호 — 먼저 입어 봐야 하는 것 (앱이 잠금 안내에 쓴다)
+        ...(item.requires
+          ? { requires: item.requires.map((group) => [...group]) }
+          : {}),
       })),
     };
   }
@@ -88,6 +93,14 @@ export class CosmeticsService {
     if (!item) throw new BadRequestException('UNKNOWN_COSMETIC');
     const uid = new Types.ObjectId(userId);
     const price = item.price;
+
+    // 세트 칭호 — 그 세트를 받아 둔 사람만
+    if (item.requires) {
+      const me = await this.users.findById(uid).select('ownedCosmetics').lean();
+      if (!me) throw new NotFoundException('USER_NOT_FOUND');
+      if (!meetsRequires(item, me.ownedCosmetics))
+        throw new BadRequestException('SET_NOT_COMPLETE');
+    }
 
     // 무료 — 보석 없이 내 것으로 넣고(나중에 다시 팔아도 유지) 바로 입힌다
     if (price <= 0) {

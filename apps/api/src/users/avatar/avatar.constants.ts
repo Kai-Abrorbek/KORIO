@@ -3,6 +3,7 @@ import {
   COSTUME_IDS,
   HAND_IDS,
   HAT_IDS,
+  TITLE_IDS,
   PET_IDS,
   SCENE_IDS,
 } from '../../cosmetics/cosmetics.const';
@@ -111,6 +112,8 @@ export const AVATAR_OPTIONS = {
   hand: HAND_IDS,
   /** 기본 모자 대신 쓰는 모자 (cosmetics) */
   hat: HAT_IDS,
+  /** 이름 밑 칭호 (cosmetics). 세트 칭호는 그 세트를 받아 둔 사람만 */
+  title: TITLE_IDS,
 } as const;
 
 export interface AvatarConfigValue {
@@ -132,6 +135,7 @@ export interface AvatarConfigValue {
   costume?: (typeof AVATAR_OPTIONS.costume)[number];
   hand?: (typeof AVATAR_OPTIONS.hand)[number];
   hat?: (typeof AVATAR_OPTIONS.hat)[number];
+  title?: (typeof AVATAR_OPTIONS.title)[number];
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
@@ -153,4 +157,5 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfigValue = {
   costume: 'costume_none',
   hand: 'hand_none',
   hat: 'hat_none',
+  title: 'title_none',
 };

@@ -89,4 +89,10 @@ export class UpdateAvatarDto {
   @IsString()
   @IsIn([...AVATAR_OPTIONS.hat])
   hat?: AvatarConfigValue['hat'];
+
+  /** 칭호 — 없으면(예전 앱) 지금 것을 그대로 둔다 */
+  @IsOptional()
+  @IsString()
+  @IsIn([...AVATAR_OPTIONS.title])
+  title?: AvatarConfigValue['title'];
 }

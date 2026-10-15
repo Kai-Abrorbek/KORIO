@@ -104,6 +104,10 @@ export class AvatarConfig {
   /** 기본 모자 대신 쓰는 모자 (cosmetics, 예: hat_gat) — 산 것·무료만 */
   @Prop({ type: String, default: 'hat_none' })
   hat: string;
+
+  /** 이름 밑 칭호 (cosmetics, 예: title_hangul_master) — 산 것·무료만, 세트 칭호는 세트를 받아 둔 사람만 */
+  @Prop({ type: String, default: 'title_none' })
+  title: string;
 }
 
 export const AvatarConfigSchema = SchemaFactory.createForClass(AvatarConfig);

@@ -19,6 +19,7 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  * pet: 캐릭터 옆 펫 (avatar.pet) — 연속 학습일에 따라 앱이 아기·꼬마·다 큰 모습으로 그린다
  * costume: 기본 옷 대신 입는 의상 (avatar.costume) · hand: 오른손에 든 것 (avatar.hand)
  * hat: 기본 모자 대신 쓰는 모자 (avatar.hat)
+ * title: 이름 밑 칭호 문구 (avatar.title) — 세트 칭호는 그 세트를 입어 본 사람만 (requires)
  * 세트(K팝·왕·선비·수문장·태권도)와 세트 효과는 앱이 정한다 — 서버는 칸·id·가격만
  */
 export type CosmeticSlot =
@@ -27,7 +28,8 @@ export type CosmeticSlot =
   | 'pet'
   | 'costume'
   | 'hand'
-  | 'hat';
+  | 'hat'
+  | 'title';
 export type CosmeticRarity = 'common' | 'rare' | 'epic' | 'legendary';
 
 export interface CosmeticItem {
@@ -35,6 +37,12 @@ export interface CosmeticItem {
   slot: CosmeticSlot;
   rarity: CosmeticRarity;
   price: number;
+  /**
+   * 이걸 가지려면 먼저 가져야 하는 것 — 묶음마다 하나 이상 (세트 칭호).
+   * 무료여도 "모두의 것"이 아니다: 실제로 받아 둔(ownedCosmetics) 것으로만 따진다.
+   * 무료 아이템은 입어서 저장하면 ownedCosmetics 에 들어가니, 세트를 한 번 입어 보면 열린다.
+   */
+  requires?: string[][];
 }
 
 export const AURA_NONE = 'aura_none';
@@ -68,6 +76,53 @@ export const COSMETICS: CosmeticItem[] = runtimeConfig('COSMETICS', [
   { id: 'costume_guard', slot: 'costume', rarity: 'epic', price: 0 },
   { id: 'hat_jeollip', slot: 'hat', rarity: 'rare', price: 0 },
   { id: 'costume_taekwondo', slot: 'costume', rarity: 'rare', price: 0 },
+  // 칭호 — 이름 밑 문구
+  { id: 'title_hangul_master', slot: 'title', rarity: 'rare', price: 0 },
+  { id: 'title_dawn', slot: 'title', rarity: 'common', price: 0 },
+  { id: 'title_night_owl', slot: 'title', rarity: 'common', price: 0 },
+  { id: 'title_word_collector', slot: 'title', rarity: 'common', price: 0 },
+  { id: 'title_kdrama', slot: 'title', rarity: 'common', price: 0 },
+  { id: 'title_seoul_dreamer', slot: 'title', rarity: 'rare', price: 0 },
+  { id: 'title_tteokbokki', slot: 'title', rarity: 'common', price: 0 },
+  { id: 'title_honorific', slot: 'title', rarity: 'rare', price: 0 },
+  { id: 'title_topik', slot: 'title', rarity: 'epic', price: 0 },
+  { id: 'title_league_hunter', slot: 'title', rarity: 'epic', price: 0 },
+  // 세트 칭호 — 그 세트를 입어 본(받아 둔) 사람만
+  {
+    id: 'title_kpop_idol',
+    slot: 'title',
+    rarity: 'epic',
+    price: 0,
+    requires: [['costume_stage'], ['hand_lightstick', 'hand_mic']],
+  },
+  {
+    id: 'title_king',
+    slot: 'title',
+    rarity: 'legendary',
+    price: 0,
+    requires: [['costume_gonryongpo'], ['hat_ikseongwan']],
+  },
+  {
+    id: 'title_seonbi',
+    slot: 'title',
+    rarity: 'epic',
+    price: 0,
+    requires: [['costume_seonbi'], ['hat_gat']],
+  },
+  {
+    id: 'title_guard',
+    slot: 'title',
+    rarity: 'epic',
+    price: 0,
+    requires: [['costume_guard'], ['hat_jeollip']],
+  },
+  {
+    id: 'title_taekwondo',
+    slot: 'title',
+    rarity: 'epic',
+    price: 0,
+    requires: [['costume_taekwondo']],
+  },
 ]);
 
 /** avatar.aura 에 들어갈 수 있는 값 (none 포함) */
@@ -107,6 +162,7 @@ export const PET_IDS = [
 export const COSTUME_NONE = 'costume_none';
 export const HAND_NONE = 'hand_none';
 export const HAT_NONE = 'hat_none';
+export const TITLE_NONE = 'title_none';
 
 /** avatar.costume / hand / hat 에 들어갈 수 있는 값 (none 포함). 모양은 앱이 같은 id 로 갖고 있다 */
 export const COSTUME_IDS = [
@@ -118,6 +174,25 @@ export const COSTUME_IDS = [
   'costume_taekwondo',
 ] as const;
 export const HAND_IDS = [HAND_NONE, 'hand_lightstick', 'hand_mic'] as const;
+/** avatar.title 에 들어갈 수 있는 값 (none 포함). 문구는 앱 i18n 이 같은 id 로 갖고 있다 */
+export const TITLE_IDS = [
+  TITLE_NONE,
+  'title_hangul_master',
+  'title_dawn',
+  'title_night_owl',
+  'title_word_collector',
+  'title_kdrama',
+  'title_seoul_dreamer',
+  'title_tteokbokki',
+  'title_honorific',
+  'title_topik',
+  'title_league_hunter',
+  'title_kpop_idol',
+  'title_king',
+  'title_seonbi',
+  'title_guard',
+  'title_taekwondo',
+] as const;
 export const HAT_IDS = [
   HAT_NONE,
   'hat_ikseongwan',
@@ -133,6 +208,7 @@ export const NONE_BY_SLOT: Record<CosmeticSlot, string> = {
   costume: COSTUME_NONE,
   hand: HAND_NONE,
   hat: HAT_NONE,
+  title: TITLE_NONE,
 };
 /** avatar 에 장착되는 칸 (저장·목록에서 다 같이 다룬다) */
 export const COSMETIC_SLOTS = Object.keys(NONE_BY_SLOT) as CosmeticSlot[];
@@ -142,16 +218,37 @@ export const isNoneCosmetic = (id: string) => NONE_IDS.has(id);
 export const cosmeticById = (id: string): CosmeticItem | undefined =>
   COSMETICS.find((item) => item.id === id);
 
-/** 가격 0 = 무료 = 모두가 가진 것 */
+/** 조건(requires)을 채웠나 — 실제로 받아 둔 것(ownedCosmetics)으로만 본다 */
+export const meetsRequires = (
+  item: CosmeticItem,
+  owned: readonly string[] | null | undefined,
+): boolean =>
+  !item.requires ||
+  item.requires.every((group) =>
+    group.some((id) => (owned ?? []).includes(id)),
+  );
+
+/** 가격 0 = 무료 = 모두가 가진 것 (조건 있는 아이템은 빼고) */
 export const isFreeCosmetic = (id: string | null | undefined): boolean => {
   const item = id ? cosmeticById(id) : undefined;
-  return Boolean(item && item.price <= 0);
+  return Boolean(item && item.price <= 0 && !item.requires);
 };
 
-/** 산 것 + 지금 무료인 것 */
+/** 무료인데 조건을 채워서 내 것으로 칠 수 있나 (세트 칭호) */
+export const isFreeForUser = (
+  id: string | null | undefined,
+  owned: readonly string[] | null | undefined,
+): boolean => {
+  const item = id ? cosmeticById(id) : undefined;
+  return Boolean(item && item.price <= 0 && meetsRequires(item, owned));
+};
+
+/** 산 것 + 지금 무료인 것 (조건 있는 무료는 조건을 채웠을 때만) */
 export const ownedWithFree = (owned: readonly string[] | null | undefined) => [
   ...new Set([
     ...(owned ?? []),
-    ...COSMETICS.filter((item) => item.price <= 0).map((item) => item.id),
+    ...COSMETICS.filter(
+      (item) => item.price <= 0 && meetsRequires(item, owned),
+    ).map((item) => item.id),
   ]),
 ];

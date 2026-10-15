@@ -37,6 +37,7 @@ import {
   CosmeticSlot,
   NONE_BY_SLOT,
   isFreeCosmetic,
+  isFreeForUser,
 } from '../cosmetics/cosmetics.const';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import {
@@ -835,7 +836,7 @@ export class UsersService {
   }
 
   async updateAvatar(userId: string, dto: UpdateAvatarDto) {
-    // 상점 꾸미기 칸(오라·장면·펫·의상·손)은 산 것·무료만.
+    // 상점 꾸미기 칸(오라·장면·펫·의상·모자·손·칭호)은 산 것·무료만.
     // 예전 앱은 모르는 칸을 안 보낸다 → 지금 장착한 걸 그대로 둔다
     const current = await this.userModel
       .findById(userId)
@@ -853,10 +854,14 @@ export class UsersService {
         dto[slot] ?? worn[slot] ?? NONE_BY_SLOT[slot],
       ]),
     ) as Record<CosmeticSlot, string>;
-    for (const id of Object.values(shop))
-      assertCosmeticOwned(id, current.ownedCosmetics);
-    // 무료로 입은 건 내 것으로 남긴다 (나중에 다시 팔아도 유지)
-    const claimed = Object.values(shop).filter((id) => isFreeCosmetic(id));
+    // 무료로 입은 건 내 것으로 남긴다 (나중에 다시 팔아도 유지).
+    // 세트를 처음 입으면서 그 세트 칭호를 같이 골라도 되게, 이번에 받는 것까지 쳐서 본다
+    const freeNow = Object.values(shop).filter((id) => isFreeCosmetic(id));
+    const ownedNow = [...(current.ownedCosmetics ?? []), ...freeNow];
+    for (const id of Object.values(shop)) assertCosmeticOwned(id, ownedNow);
+    const claimed = Object.values(shop).filter((id) =>
+      isFreeForUser(id, ownedNow),
+    );
 
     const updated = await this.userModel
       .findByIdAndUpdate(
