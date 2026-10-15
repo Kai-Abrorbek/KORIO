@@ -257,8 +257,32 @@ export default {
       listening: "Tinglash",
       topik: "TOPIK",
       pronunciation: "Talaffuz",
+      alphabet: "Alifbo",
     },
     dailyGoal: "Kunlik maqsad",
+    // 홈 카드 — 지금 코스·모드의 진행도 (api learn-progress)
+    changeCourse: "O'rganish tilini almashtirish",
+    modeHint: {
+      conversation: "AI bilan erkin suhbat",
+      alphabet: "Harf va tovushlardan boshlang",
+    },
+    progress: {
+      scope: {
+        section: "{{n}}-bo'lim",
+        level: "{{n}}-daraja",
+        topic: "{{n}}-mavzu",
+        topik: "TOPIK {{n}}",
+      },
+      count: {
+        lesson: "{{done}}/{{total}} dars",
+        day: "{{done}}/{{total}} kun",
+        grammar: "{{done}}/{{total}} qoida",
+        expression: "{{done}}/{{total}} yodlandi",
+        sentence: "{{done}}/{{total}} gap",
+        reading: "{{done}}/{{total}} matn",
+        exam: "{{done}}/{{total}} test",
+      },
+    },
     weeklyStudy: "Bu hafta",
     weeklyInfo: "O'quv ma'lumoti",
     weekUnit: "hafta",

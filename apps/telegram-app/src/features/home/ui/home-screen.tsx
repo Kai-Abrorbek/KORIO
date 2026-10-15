@@ -19,10 +19,16 @@ import {
 import { HomeCalendar } from "./home-calendar";
 import { HomeIcon, type HomeIconName } from "./home-icon";
 import {
+  LEARN_COURSES,
   canUseLearningFeature,
   continueLearningDestination,
+  learnCourseOf,
+  type LearnMode,
   type LearningFeature,
 } from "../../learning/model/learning-options";
+import { getLearnProgress, type LearnProgress } from "../api/learn-progress";
+import { uzt } from "../../../shared/i18n/uz-text";
+import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { AiChatSheet } from "./ai-chat-sheet";
 import { NotificationSheet } from "./notification-sheet";
 import { RankBanner } from "./rank-banner";
@@ -73,9 +79,50 @@ function featureOfLearnMode(mode: string | undefined): LearningFeature {
       return "topik";
     case "conversation":
       return "tutor";
+    case "alphabet":
+      return "hangul";
     default:
       return "lesson";
   }
+}
+
+/** 셀 진도가 없는 모드(대화·글자)는 링 대신 이 아이콘과 한 줄 소개 (앱 홈과 같다) */
+const MODE_ICON: Partial<Record<LearnMode, IoniconName>> = {
+  conversation: "chatbubbles",
+  alphabet: "text",
+};
+const MODE_HINT: Partial<Record<LearnMode, string>> = {
+  conversation: "home.modeHint.conversation",
+  alphabet: "home.modeHint.alphabet",
+};
+
+/**
+ * "2-bo'lim · 12/40 dars". 번역기가 틀 단위로 갈아 끼우게 조각마다 data-i18n 을 단다 —
+ * 번역된 글자를 다른 틀에 끼워 넣으면 그 틀이 안 맞아 번역이 안 붙는다.
+ * 주제 이름은 서버가 이미 그 말로 줘서 번역하지 않는다.
+ */
+function ProgressLine({ progress }: { progress: LearnProgress }) {
+  const scopeKey = `home.progress.scope.${progress.scope}`;
+  const countKey = `home.progress.count.${progress.unit}`;
+  const n =
+    progress.scope === "topik" ? (progress.scopeNumber === 2 ? "II" : "I") : progress.scopeNumber;
+  return (
+    <p className={styles.progressLine}>
+      {progress.title ? (
+        <span className={styles.progressScope} data-no-translate>
+          {progress.title}
+        </span>
+      ) : (
+        <span className={styles.progressScope} data-i18n={scopeKey}>
+          {uzt(scopeKey, { n })}
+        </span>
+      )}
+      <span aria-hidden className={styles.progressDot}>·</span>
+      <span className={styles.progressCount} data-i18n={countKey}>
+        {uzt(countKey, { done: progress.done, total: progress.total })}
+      </span>
+    </p>
+  );
 }
 
 const SIDE_ACTIONS: Array<{
@@ -138,6 +185,11 @@ export function HomeScreen() {
   const { request, user: authenticatedUser } = useTelegramAuth();
   const { speak: speakAvatarWord } = useKoreanSpeech(request);
   const [profile, setProfile] = useState<HomeUser | null>(authenticatedUser);
+  // 지금 코스·모드의 진행도. undefined = 아직 모름, null = 셀 게 없는 모드
+  const [learnProgress, setLearnProgress] = useState<{
+    key: string;
+    value: LearnProgress | null;
+  } | null>(null);
   const [week, setWeek] = useState<HomeDayStats[]>(fallbackWeek);
   const [unreadCount, setUnreadCount] = useState(0);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -199,6 +251,25 @@ export function HomeScreen() {
     };
   }, [authenticatedUser, request, router]);
 
+  // 진행도는 코스·모드가 정해진 뒤에 묻는다 — 계정 값이 바뀌면(모드 변경) 다시
+  const learnCourse = learnCourseOf(profile?.learnCourse);
+  const learnMode = (profile?.learnMode ?? "vocabulary") as LearnMode;
+  const studyMode = profile?.studyMode ?? "guided";
+  const topikLevel = profile?.topikLevel ?? "1";
+  const progressKey = `${learnCourse}:${learnMode}:${studyMode}:${topikLevel}`;
+  useEffect(() => {
+    if (!profile?.isOnboardingCompleted) return;
+    let active = true;
+    void getLearnProgress(request, { course: learnCourse, mode: learnMode, studyMode, topikLevel })
+      .then(({ progress }) => {
+        if (active) setLearnProgress({ key: progressKey, value: progress });
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [profile?.isOnboardingCompleted, request, learnCourse, learnMode, studyMode, topikLevel, progressKey]);
+
   const summary = useMemo(() => {
     const studySeconds = week.reduce(
       (sum, day) => sum + (day.studyTimeSeconds ?? 0),
@@ -214,10 +285,11 @@ export function HomeScreen() {
 
   if (!profile || !profile.isOnboardingCompleted) return null;
 
-  const progress = profile.currentUnitProgress ?? 0;
-  const modeLabel =
-    HOME_MODE_LABELS[profile.learnMode ?? "vocabulary"] ??
-    HOME_MODE_LABELS.vocabulary;
+  const course = LEARN_COURSES[learnCourse];
+  const courseKey = `userCourses.list.${course.key}`;
+  const modeKey = HOME_MODE_LABELS[learnMode] ? `home.mode.${learnMode}` : "home.mode.vocabulary";
+  const progress = learnProgress?.key === progressKey ? learnProgress.value : undefined;
+  const hintKey = MODE_HINT[learnMode];
 
   return (
     <main className={styles.homePage}>
@@ -328,17 +400,39 @@ export function HomeScreen() {
 
           <div className={styles.lessonSummary}>
             <div>
-              <button className={styles.reviewRate} type="button">
-                <span className={styles.checkDisc}>
-                  <HomeIcon name="check" size={10} />
+              {/* 지금 배우는 코스(언어). 누르면 코스를 바꾸러 간다 */}
+              <button
+                aria-label={uzt("home.changeCourse")}
+                className={styles.reviewRate}
+                onClick={() => router.push("/courses")}
+                type="button"
+              >
+                <span aria-hidden className={styles.courseFlag} data-no-translate>
+                  {course.flag}
                 </span>
-                Takrorlash natijasi {Math.round(progress)}%
+                <span data-i18n={courseKey}>{uzt(courseKey)}</span>
                 <HomeIcon name="chevron" size={12} />
               </button>
-              <h1>{modeLabel}</h1>
-              <p>Kunlik maqsad</p>
+              <h1 data-i18n={modeKey}>{uzt(modeKey)}</h1>
+              {progress ? (
+                <ProgressLine progress={progress} />
+              ) : progress === null && hintKey ? (
+                <p className={styles.progressLine} data-i18n={hintKey}>
+                  {uzt(hintKey)}
+                </p>
+              ) : progress === undefined ? (
+                <span aria-hidden className={styles.progressLineSkeleton} />
+              ) : null}
             </div>
-            <ProgressRing value={progress} />
+            {progress ? (
+              <ProgressRing value={progress.percent} />
+            ) : progress === undefined ? (
+              <span aria-hidden className={styles.ringSkeleton} />
+            ) : (
+              <span aria-hidden className={styles.modeDisc}>
+                <MobileIcon name={MODE_ICON[learnMode] ?? "book"} size={24} />
+              </span>
+            )}
           </div>
 
           <button

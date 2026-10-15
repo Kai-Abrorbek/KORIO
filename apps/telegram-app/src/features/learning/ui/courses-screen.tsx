@@ -62,7 +62,7 @@ export function CoursesScreen() {
       updateUser({ studyMode });
 
       if (studyMode === "guided") {
-        const learned = await saveLearnMode(request, "vocabulary");
+        const learned = await saveLearnMode(request, "vocabulary", undefined, "ko");
         updateUser({ ...learned, learnMode: "vocabulary" });
         setPending(null);
         router.push(guidedDestination(user?.hasPickedLevel));

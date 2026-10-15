@@ -256,8 +256,32 @@ export default {
       listening: "Аудирование",
       topik: "TOPIK",
       pronunciation: "Произношение",
+      alphabet: "Алфавит",
     },
     dailyGoal: "Дневная цель",
+    // 홈 카드 — 지금 코스·모드의 진행도 (api learn-progress)
+    changeCourse: "Сменить курс",
+    modeHint: {
+      conversation: "Свободный разговор с ИИ",
+      alphabet: "Начните с букв и звуков",
+    },
+    progress: {
+      scope: {
+        section: "Раздел {{n}}",
+        level: "Уровень {{n}}",
+        topic: "Тема {{n}}",
+        topik: "TOPIK {{n}}",
+      },
+      count: {
+        lesson: "{{done}}/{{total}} уроков",
+        day: "{{done}}/{{total}} дней",
+        grammar: "{{done}}/{{total}} правил",
+        expression: "выучено {{done}}/{{total}}",
+        sentence: "{{done}}/{{total}} предложений",
+        reading: "{{done}}/{{total}} текстов",
+        exam: "{{done}}/{{total}} тестов",
+      },
+    },
     weeklyStudy: "На этой неделе",
     weeklyInfo: "Учебная информация",
     month: "месяц",

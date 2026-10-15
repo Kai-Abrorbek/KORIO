@@ -309,6 +309,76 @@
   margin: 0;
 }
 
+/* 왼쪽 글 칸이 링을 밀어내지 않게 — 긴 주제 이름은 … 으로 */
+.lessonSummary > div:first-child {
+  flex: 1;
+  margin-right: 12px;
+  min-width: 0;
+}
+
+.lessonSummary h1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 주제 이름이 길면 이름만 줄이고 개수는 늘 보인다 */
+.lessonSummary .progressLine {
+  align-items: baseline;
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.progressScope {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progressDot,
+.progressCount {
+  flex: none;
+}
+
+.courseFlag {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* 진행도를 받기 전 자리 — 움직이지 않는다 */
+.progressLineSkeleton {
+  background: var(--border);
+  border-radius: 6px;
+  display: block;
+  height: 12px;
+  margin-top: 4px;
+  width: 120px;
+}
+
+.ringSkeleton {
+  border: 4px solid var(--border);
+  border-radius: 50%;
+  box-sizing: border-box;
+  flex: 0 0 64px;
+  height: 64px;
+  width: 64px;
+}
+
+/* 셀 진도가 없는 모드(대화·글자) — 링 대신 모드 아이콘 */
+.modeDisc {
+  align-items: center;
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-radius: 50%;
+  color: var(--primary);
+  display: flex;
+  flex: 0 0 64px;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
 .reviewRate {
   align-items: center;
   background: transparent;

@@ -16,6 +16,8 @@ export interface KorioTelegramUser {
   languageLevel?: number;
   hasPickedLevel?: boolean;
   learnMode?: string;
+  /** 지금 배우는 코스(언어). learnMode 는 이 코스 안의 모드 (learning-options LEARN_COURSES) */
+  learnCourse?: "ko" | "en";
   studyMode?: "guided" | "free";
   topikLevel?: "1" | "2";
   league?: string;

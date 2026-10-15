@@ -45,6 +45,7 @@ export const HOME_MODE_LABELS: Record<string, string> = {
   speaking: "Gapirish",
   topik: "TOPIK",
   vocabulary: "So'z o'rganish",
+  alphabet: "Alifbo",
 };
 
 export const WEEKDAY_LABELS = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"];

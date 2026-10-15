@@ -8,7 +8,41 @@ export type LearnMode =
   | "speaking"
   | "conversation"
   | "listening"
-  | "topik";
+  | "topik"
+  // 글자부터 — 영어 코스의 알파벳 (한국어 한글은 아직 단발 바로가기라 모드가 아니다)
+  | "alphabet";
+
+/**
+ * 학습 코스(= 배우는 언어). 학습 모드와 다른 축이다 — "무엇을" 배우느냐가 코스,
+ * "어떻게" 배우느냐가 모드. 앱 constants/learnCourses · api COURSE_MODES 와 같은 표다.
+ * 코스를 늘릴 때: 여기 한 줄 + 서버 COURSE_MODES + userCourses.list.<key> 번역.
+ */
+export type LearnCourse = "ko" | "en";
+
+export const LEARN_COURSES: Record<
+  LearnCourse,
+  { key: "korean" | "english"; flag: string; modes: readonly LearnMode[] }
+> = {
+  ko: {
+    key: "korean",
+    flag: "🇰🇷",
+    modes: [
+      "vocabulary",
+      "grammarPractice",
+      "grammar",
+      "expression",
+      "speaking",
+      "conversation",
+      "listening",
+      "topik",
+    ],
+  },
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet"] },
+};
+
+export function learnCourseOf(value: unknown): LearnCourse {
+  return value === "en" ? "en" : "ko";
+}
 
 export type LearningIconName =
   | "albums"
@@ -213,6 +247,8 @@ export function learningDestination(
     speaking: "/speaking",
     topik: `/topik-sections?level=${topikLevel}`,
     vocabulary: "/roadmap",
+    // 영어 알파벳은 아직 앱에만 있다 — 미니앱은 준비 중 화면으로
+    alphabet: "/coming-soon",
     wordCard: "/word-study",
   };
   return destinations[category] ?? null;

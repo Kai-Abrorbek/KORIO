@@ -93,7 +93,7 @@ export function CourseCategoriesScreen() {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveLearnMode(request, "vocabulary");
+      const result = await saveLearnMode(request, "vocabulary", undefined, "ko");
       updateUser({ ...result, learnMode: "vocabulary" });
       router.push(guidedDestination(user?.hasPickedLevel));
     } catch {
@@ -131,7 +131,7 @@ export function CourseCategoriesScreen() {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveLearnMode(request, category.category);
+      const result = await saveLearnMode(request, category.category, undefined, "ko");
       updateUser({ ...result, learnMode: category.category });
       router.push(destination);
     } catch {
@@ -226,7 +226,7 @@ export function CourseCategoriesScreen() {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveLearnMode(request, "topik", level);
+      const result = await saveLearnMode(request, "topik", level, "ko");
       updateUser({ ...result, learnMode: "topik", topikLevel: level });
       setTopikOpen(false);
       router.push(learningDestination("topik", level) ?? "/home");
