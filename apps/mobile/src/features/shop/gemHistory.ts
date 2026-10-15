@@ -100,6 +100,8 @@ export function describeGemTx(item: GemTx, t: TFunction): { title: string; detai
         details.push(t(`avatarEditor.pet.items.${p.item}.name`));
       } else if (typeof p.item === "string" && /^(costume|hat|hand)_/.test(p.item)) {
         details.push(t(`avatarEditor.wear.items.${p.item}.name`));
+      } else if (typeof p.item === "string" && p.item.startsWith("title_")) {
+        details.push(t(`avatarEditor.nameTitle.items.${p.item}`));
       }
       break;
   }

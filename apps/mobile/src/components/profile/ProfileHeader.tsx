@@ -12,6 +12,7 @@ import AvatarPreview, {
 } from "@/components/avatar/AvatarPreview";
 import { SceneBackdrop, sceneHeroColors } from "@/components/avatar/AvatarScene";
 import AvatarPet from "@/components/avatar/AvatarPet";
+import { NameTitleRow } from "@/components/avatar/NameTitle";
 import { mergeAvatarConfig, type AvatarConfig } from "@/types/avatar";
 
 interface Props {
@@ -120,6 +121,8 @@ export default function ProfileHeader({
           <AvatarPet pet={avatarConfig.pet} streak={streak} avatarSize={230} />
         </TouchableOpacity>
       </View>
+      {/* 칭호 — 캐릭터 발 밑 이름표 */}
+      <NameTitleRow title={avatarConfig.title} style={{ marginTop: -10, marginBottom: -12 }} />
     </LinearGradient>
   );
 }

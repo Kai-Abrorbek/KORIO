@@ -10,6 +10,8 @@ import { SCENE_LOOK, SceneBackdrop, isScene, type PaidScene } from "@/components
 import AvatarPet, { PET_LOOK, isPet, type PaidPet } from "@/components/avatar/AvatarPet";
 import PetGrowth from "@/components/avatar/PetGrowth";
 import { WEAR_LOOK, isWearItem, wearSlotOf, type WearItemId } from "@/components/avatar/avatarWearables";
+import { TITLE_LOOK, isTitle, type PaidTitle } from "@/components/avatar/avatarTitles";
+import NameTitle from "@/components/avatar/NameTitle";
 import Button3D from "@/features/retention/components/Button3D";
 import SwipeSheet from "@/components/common/SwipeSheet";
 import { useTheme } from "@/hooks/useTheme";
@@ -26,12 +28,15 @@ import * as Haptics from "@/utils/haptics";
 const fmt = (n: number) => n.toLocaleString("en-US");
 const GEM = "#1899D6";
 
-/** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫) */
-export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene | PaidPet | WearItemId;
-export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat";
+/** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫 · 의상 · 모자 · 손 · 칭호) */
+export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene | PaidPet | WearItemId | PaidTitle;
+export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat" | "title";
 
 export const slotOf = (id: ShopItemId): ShopSlot =>
-  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : "aura";
+  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : isTitle(id) ? "title" : "aura";
+
+/** 칭호 등급 색 (시트 강조) */
+const TITLE_COLOR = { common: "#776EE2", rare: "#1899D6", epic: "#A946DA", legendary: "#E2A83A" } as const;
 
 export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
@@ -49,13 +54,15 @@ export function ownsCosmetic(state: CosmeticsState | null, id: string | undefine
   return !!state?.owned.includes(id);
 }
 
-const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id) || isPet(id) || isWearItem(id);
+const isShopItem = (id: unknown): id is ShopItemId =>
+  isAura(id) || isScene(id) || isPet(id) || isWearItem(id) || isTitle(id);
 
 /** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면·펫은 강조색 */
 function shopLook(id: ShopItemId) {
   if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
   if (isPet(id)) return { rarity: PET_LOOK[id].rarity, color: PET_LOOK[id].accent, keys: "avatarEditor.pet" };
   if (isWearItem(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
+  if (isTitle(id)) return { rarity: TITLE_LOOK[id].rarity, color: TITLE_COLOR[TITLE_LOOK[id].rarity], keys: "avatarEditor.nameTitle" };
   return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
@@ -217,6 +224,22 @@ function ShopStage({
   s: ReturnType<typeof getStyles>;
   streak?: number;
 }) {
+  if (isTitle(id)) {
+    // 칭호 — 캐릭터 밑 이름표
+    const color = TITLE_COLOR[TITLE_LOOK[id].rarity];
+    return (
+      <LinearGradient
+        colors={[color + "1F", color + "47"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[s.sceneStage, { height, paddingBottom: 12 }]}
+      >
+        <SceneBackdrop scene={avatar.scene} />
+        <AvatarPreview avatar={avatar} size={height * 0.7} showBackground={false} aura />
+        <NameTitle title={id} style={{ alignSelf: "center", marginTop: -6 }} />
+      </LinearGradient>
+    );
+  }
   if (isWearItem(id)) {
     // 의상·모자·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
     const look = WEAR_LOOK[id];
@@ -310,8 +333,9 @@ export function CosmeticBuySheet({
       <View style={[s.sheetRarity, { backgroundColor: rarity }]}>
         <Text style={s.rarityText}>{t(`avatarEditor.aura.rarity.${look.rarity}`)}</Text>
       </View>
-      <Text style={s.sheetTitle}>{t(`${look.keys}.items.${id}.name`)}</Text>
-      <Text style={s.sheetDesc}>{t(`${look.keys}.items.${id}.desc`)}</Text>
+      {/* 칭호는 문구 자체가 이름 — 설명 자리에 안내 */}
+      <Text style={s.sheetTitle}>{t(isTitle(id) ? `${look.keys}.items.${id}` : `${look.keys}.items.${id}.name`)}</Text>
+      <Text style={s.sheetDesc}>{t(isTitle(id) ? `${look.keys}.subtitle` : `${look.keys}.items.${id}.desc`)}</Text>
       {isPet(id) && (
         <View style={{ marginTop: 12 }}>
           <PetGrowth pet={id} streak={streak} />
@@ -379,7 +403,7 @@ export function CosmeticBought({
       <View style={s.center}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={s.bought}>
-          {isScene(id) || isPet(id) || isWearItem(id) ? (
+          {isScene(id) || isPet(id) || isWearItem(id) || isTitle(id) ? (
             <ShopStage avatar={avatar} id={id} height={170} s={s} streak={streak} />
           ) : (
             <>

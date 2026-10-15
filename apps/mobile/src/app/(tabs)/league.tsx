@@ -30,6 +30,7 @@ import Animated, {
 import { TIERS, getTier, getTierIndex } from "@/constants/league-tiers";
 import TierCrystal from "@/components/league/TierCrystal";
 import FriendAvatar from "@/components/friends/FriendAvatar";
+import NameTitle from "@/components/avatar/NameTitle";
 import LeagueRankRow, {
   RANK_ANIM_TOTAL_MS,
 } from "@/components/league/LeagueRankRow";
@@ -443,6 +444,8 @@ export default function LeagueScreen() {
                       {m.streak != null && (
                         <Text style={s.streak}>{m.streak}</Text>
                       )}
+                      {/* 칭호 — 이름 밑 작은 이름표 */}
+                      {!m.isBot && <NameTitle size="sm" title={m.avatar?.title} />}
                     </View>
                   </View>
                   <Text style={[s.xp, m.isMe && s.xpMe]}>{m.xp} XP</Text>
@@ -660,6 +663,7 @@ const styles = (theme: ThemeColors) =>
       alignItems: "center",
       gap: 6,
       marginTop: 3,
+      minWidth: 0,
     },
     flag: { fontSize: 17 },
     streak: { fontSize: 16, fontWeight: "700", color: "#AFAFAF" },
