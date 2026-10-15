@@ -2611,10 +2611,31 @@ export default {
       loadFailed: "To'plamlarni yuklab bo'lmadi",
       progress: "{{n}}/{{total}}",
       done: "Tayyor!",
+      bonus: "To'plamni to'liq yig'sangiz, qahramon orqasida to'plam nuri yonadi",
+      groups: {
+        kpop: "K-pop",
+        tradition: "Koreys an'anaviy to'plami",
+      },
       sets: {
         kpop: {
           name: "K-pop to'plami",
           desc: "Sahnadagi aydol kabi — kostyum va tayoqcha yoki mikrofon bilan to'liq",
+        },
+        king: {
+          name: "Qirol",
+          desc: "Gonryongpo va ikseongvan — Joson qiroli",
+        },
+        seonbi: {
+          name: "Sonbi olim",
+          desc: "Oq to'n va gat shlyapa — Joson olimi",
+        },
+        guard: {
+          name: "Saroy qo'riqchisi",
+          desc: "Cheollik to'n va jeollip — saroy darvozasi qo'riqchisi",
+        },
+        taekwondo: {
+          name: "Tekvondo",
+          desc: "Qora belbog'li dobok — bitta o'zi yetarli",
         },
       },
       items: {
@@ -2629,6 +2650,34 @@ export default {
         hand_mic: {
           name: "Mikrofon",
           desc: "Sahnadagi kumush mikrofon",
+        },
+        costume_gonryongpo: {
+          name: "Gonryongpo",
+          desc: "Ko'krak va yelkada oltin ajdar",
+        },
+        hat_ikseongwan: {
+          name: "Ikseongvan",
+          desc: "Qanotli qirol qalpog'i",
+        },
+        costume_seonbi: {
+          name: "Sonbi to'ni",
+          desc: "Qora yoqa va qizil belbog'",
+        },
+        hat_gat: {
+          name: "Gat",
+          desc: "Munchoq bog'ichli olim shlyapasi",
+        },
+        costume_guard: {
+          name: "Qo'riqchi to'ni",
+          desc: "Ko'k to'n va qizil belbog'",
+        },
+        hat_jeollip: {
+          name: "Jeollip",
+          desc: "Qizil popukli harbiy qalpoq",
+        },
+        costume_taekwondo: {
+          name: "Tekvondo doboki",
+          desc: "Qora belbog' va ko'krakda tegük",
         },
       },
     },

@@ -9,8 +9,8 @@ import { RARITY_COLOR } from "@/components/avatar/AvatarAura";
 import {
   WEAR_LOOK,
   WEAR_SETS,
-  isCostume,
   setProgress,
+  wearSlotOf,
   type WearItemId,
   type WearSlot,
 } from "@/components/avatar/avatarWearables";
@@ -28,9 +28,14 @@ import type { CosmeticsState } from "@/services/cosmetics.service";
  */
 const fmt = (n: number) => n.toLocaleString("en-US");
 const GEM = "#1899D6";
-const SET_ICON: Record<(typeof WEAR_SETS)[number]["id"], keyof typeof Ionicons.glyphMap> = { kpop: "musical-notes" };
-
-const slotOfWear = (id: WearItemId): WearSlot => (isCostume(id) ? "costume" : "hand");
+const SET_ICON: Record<(typeof WEAR_SETS)[number]["id"], keyof typeof Ionicons.glyphMap> = {
+  kpop: "musical-notes",
+  king: "sunny",
+  seonbi: "book",
+  guard: "shield-checkmark",
+  taekwondo: "fitness",
+};
+const GROUPS = ["kpop", "tradition"] as const;
 
 export function WearGrid({
   draft,
@@ -69,54 +74,98 @@ export function WearGrid({
     <Animated.View entering={FadeIn.duration(220)} style={{ paddingHorizontal: 16 }}>
       <Text style={s.headTitle}>{t("avatarEditor.wear.title")}</Text>
       <Text style={s.headSub}>{t("avatarEditor.wear.subtitle")}</Text>
-      {WEAR_SETS.map((set) => {
-        const progress = setProgress(set, draft);
-        const ids = set.parts.flatMap((part) => part.ids);
-        return (
-          <View key={set.id} style={local.set}>
-            <View style={local.setHead}>
-              <View style={local.setIcon}>
-                <Ionicons name={SET_ICON[set.id]} size={18} color={theme.primary} />
-              </View>
-              <View style={local.setText}>
-                <Text style={local.setName}>{t(`avatarEditor.wear.sets.${set.id}.name`)}</Text>
-                <Text style={local.setDesc}>{t(`avatarEditor.wear.sets.${set.id}.desc`)}</Text>
-              </View>
-              {progress.complete ? (
-                <View style={[local.progress, local.complete]}>
-                  <Ionicons name="checkmark-circle" size={14} color="#1DBB7F" />
-                  <Text style={[local.progressText, { color: "#1DBB7F" }]}>{t("avatarEditor.wear.done")}</Text>
-                </View>
-              ) : (
-                <View style={local.progress}>
-                  <Text style={local.progressText}>
-                    {t("avatarEditor.wear.progress", { n: progress.done, total: progress.total })}
-                  </Text>
-                </View>
-              )}
-            </View>
-            <View style={s.grid}>
-              {ids.map((id) => {
-                const slot = slotOfWear(id);
-                return (
-                  <WearCard
-                    key={id}
-                    id={id}
-                    width={cardW}
-                    draft={draft}
-                    selected={draft[slot] === id}
-                    wearing={equipped[slot] === id}
-                    owned={ownsCosmetic(state, id)}
-                    price={status === "loading" ? null : cosmeticPrice(state, id)}
-                    onPress={() => onToggle(slot, id)}
-                  />
-                );
-              })}
-            </View>
-          </View>
-        );
-      })}
+      {/* 세트 효과 안내 */}
+      <View style={local.bonus}>
+        <Ionicons name="sparkles" size={15} color="#B07A12" />
+        <Text style={local.bonusText}>{t("avatarEditor.wear.bonus")}</Text>
+      </View>
+      {GROUPS.map((group, gi) => (
+        <View key={group} style={gi > 0 ? local.groupNext : null}>
+          {group === "tradition" && <Text style={local.groupTitle}>{t(`avatarEditor.wear.groups.${group}`)}</Text>}
+          {WEAR_SETS.filter((set) => set.group === group).map((set) => (
+            <SetSection
+              key={set.id}
+              set={set}
+              draft={draft}
+              equipped={equipped}
+              onToggle={onToggle}
+              state={state}
+              status={status}
+              cardW={cardW}
+            />
+          ))}
+        </View>
+      ))}
     </Animated.View>
+  );
+}
+
+/** 세트 하나 — 머리글(아이콘·이름·설명·몇 칸 채웠나) + 그 세트 아이템 카드 */
+function SetSection({
+  set,
+  draft,
+  equipped,
+  onToggle,
+  state,
+  status,
+  cardW,
+}: {
+  set: (typeof WEAR_SETS)[number];
+  draft: AvatarConfig;
+  equipped: Partial<Record<WearSlot, string>>;
+  onToggle: (slot: WearSlot, id: WearItemId) => void;
+  state: CosmeticsState | null;
+  status: "loading" | "ready" | "failed";
+  cardW: number;
+}) {
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const s = useMemo(() => getShopPickerStyles(theme), [theme]);
+  const local = useMemo(() => getLocalStyles(theme), [theme]);
+  const progress = setProgress(set, draft);
+  const ids = set.parts.flatMap((part) => part.ids);
+  return (
+    <View style={local.set}>
+      <View style={local.setHead}>
+        <View style={[local.setIcon, { backgroundColor: set.halo + "45" }]}>
+          <Ionicons name={SET_ICON[set.id]} size={18} color={theme.text} />
+        </View>
+        <View style={local.setText}>
+          <Text style={local.setName}>{t(`avatarEditor.wear.sets.${set.id}.name`)}</Text>
+          <Text style={local.setDesc}>{t(`avatarEditor.wear.sets.${set.id}.desc`)}</Text>
+        </View>
+        {progress.complete ? (
+          <View style={[local.progress, local.complete]}>
+            <Ionicons name="checkmark-circle" size={14} color="#1DBB7F" />
+            <Text style={[local.progressText, { color: "#1DBB7F" }]}>{t("avatarEditor.wear.done")}</Text>
+          </View>
+        ) : (
+          <View style={local.progress}>
+            <Text style={local.progressText}>
+              {t("avatarEditor.wear.progress", { n: progress.done, total: progress.total })}
+            </Text>
+          </View>
+        )}
+      </View>
+      <View style={s.grid}>
+        {ids.map((id) => {
+          const slot = wearSlotOf(id);
+          return (
+            <WearCard
+              key={id}
+              id={id}
+              width={cardW}
+              draft={draft}
+              selected={draft[slot] === id}
+              wearing={equipped[slot] === id}
+              owned={ownsCosmetic(state, id)}
+              price={status === "loading" ? null : cosmeticPrice(state, id)}
+              onPress={() => onToggle(slot, id)}
+            />
+          );
+        })}
+      </View>
+    </View>
   );
 }
 
@@ -145,7 +194,7 @@ function WearCard({
   const look = WEAR_LOOK[id];
   const rarity = RARITY_COLOR[look.rarity];
   const previewH = width * 0.86;
-  const worn = { ...draft, [slotOfWear(id)]: id } as AvatarConfig;
+  const worn = { ...draft, [wearSlotOf(id)]: id } as AvatarConfig;
   return (
     <Pressable
       onPress={onPress}
@@ -209,6 +258,22 @@ const cardInfo = StyleSheet.create({
 
 const getLocalStyles = (theme: ThemeColors) =>
   StyleSheet.create({
+    bonus: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 7,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderColor: "#E2A83A4D",
+      backgroundColor: "#E2A83A1F",
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+      marginHorizontal: 2,
+      marginBottom: 14,
+    },
+    bonusText: { flex: 1, color: theme.text, fontSize: 12.5, lineHeight: 17, fontWeight: "800" },
+    groupNext: { borderTopWidth: 1.5, borderStyle: "dashed", borderColor: theme.border, paddingTop: 14 },
+    groupTitle: { color: theme.text, fontSize: 15, fontWeight: "900", marginHorizontal: 2, marginBottom: 12 },
     set: { marginBottom: 18 },
     setHead: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10, marginHorizontal: 2 },
     setIcon: {
@@ -217,7 +282,6 @@ const getLocalStyles = (theme: ThemeColors) =>
       borderRadius: 12,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.primary + "24",
     },
     setText: { flex: 1, minWidth: 0 },
     setName: { color: theme.text, fontSize: 14, fontWeight: "900" },

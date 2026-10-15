@@ -47,6 +47,7 @@ function createRandomAvatar(): AvatarConfig {
     pet: "pet_none",
     costume: "costume_none",
     hand: "hand_none",
+    hat: "hat_none",
   };
 }
 
@@ -81,7 +82,7 @@ export const useAvatarEditorStore = create<AvatarEditorState>((set) => ({
     })),
 
   // 오라는 산 것이라 무작위로 바꾸지 않는다
-  // 상점 아이템(오라·장면·펫·의상·손)은 무작위로 바꾸지 않는다
+  // 상점 아이템(오라·장면·펫·의상·손·모자)은 무작위로 바꾸지 않는다
   randomize: () =>
     set((state) => ({
       draft: {
@@ -91,6 +92,7 @@ export const useAvatarEditorStore = create<AvatarEditorState>((set) => ({
         pet: state.draft.pet,
         costume: state.draft.costume,
         hand: state.draft.hand,
+        hat: state.draft.hat,
       },
     })),
 

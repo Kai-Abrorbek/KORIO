@@ -17,7 +17,7 @@ import {
   type AvatarConfig,
 } from "@/types/avatar";
 import AvatarAura, { isAura } from "./AvatarAura";
-import { costumeShapes, handShapes, type WShape } from "./avatarWearables";
+import { costumeShapes, handShapes, hatShapes, setHaloShapes, type WShape } from "./avatarWearables";
 
 /** 입는 꾸미기 도형 → react-native-svg (텔레그램은 같은 도형을 DOM SVG 로 그린다) */
 function WearShapes({ shapes }: { shapes: WShape[] }) {
@@ -1216,6 +1216,9 @@ export default function AvatarPreview({
   const wearBody = { bodyX, bodyWidth, skin };
   const costume = costumeShapes(config.costume, wearBody);
   const handItem = variant === "full" ? handShapes(config.hand, wearBody) : null;
+  const hat = hatShapes(config.hat);
+  // 세트 효과 — 다 갖추면 뒤에 은은한 빛 (전신만)
+  const halo = variant === "full" ? setHaloShapes(config) : null;
 
   const svg = (
     <Svg
@@ -1243,6 +1246,8 @@ export default function AvatarPreview({
       {showBackground && (
         <Circle cx="160" cy="149" r="126" fill="url(#avatarGlow)" />
       )}
+
+      {halo && <WearShapes shapes={halo} />}
 
       <Ellipse
         cx="160"
@@ -1281,7 +1286,7 @@ export default function AvatarPreview({
 
       <AvatarEyewear eyewear={config.eyewear} />
 
-      <AvatarHeadwear headwear={config.headwear} outfit={outfit} />
+      {hat ? <WearShapes shapes={hat} /> : <AvatarHeadwear headwear={config.headwear} outfit={outfit} />}
 
       {handItem && <WearShapes shapes={handItem} />}
     </Svg>

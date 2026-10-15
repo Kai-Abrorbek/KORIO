@@ -2602,10 +2602,31 @@ export default {
       loadFailed: "Couldn't load sets",
       progress: "{{n}}/{{total}}",
       done: "Complete!",
+      bonus: "Complete a set and a set glow lights up behind your hero",
+      groups: {
+        kpop: "K-pop",
+        tradition: "Korean tradition set",
+      },
       sets: {
         kpop: {
           name: "K-pop set",
           desc: "Like an idol on stage — the outfit plus a lightstick or a mic",
+        },
+        king: {
+          name: "King",
+          desc: "Royal robe and winged crown — a Joseon king",
+        },
+        seonbi: {
+          name: "Seonbi scholar",
+          desc: "White robe and gat hat — a Joseon scholar",
+        },
+        guard: {
+          name: "Palace guard",
+          desc: "Robe and jeollip hat — keeper of the palace gate",
+        },
+        taekwondo: {
+          name: "Taekwondo",
+          desc: "A black-belt dobok is all it takes",
         },
       },
       items: {
@@ -2620,6 +2641,34 @@ export default {
         hand_mic: {
           name: "Microphone",
           desc: "A silver stage mic",
+        },
+        costume_gonryongpo: {
+          name: "Royal dragon robe",
+          desc: "Golden dragons on chest and shoulders",
+        },
+        hat_ikseongwan: {
+          name: "Ikseongwan",
+          desc: "The king's cap with cicada wings",
+        },
+        costume_seonbi: {
+          name: "Scholar's robe",
+          desc: "Black collar and a red sash cord",
+        },
+        hat_gat: {
+          name: "Gat",
+          desc: "A scholar's hat with bead strings",
+        },
+        costume_guard: {
+          name: "Guard's robe",
+          desc: "Navy robe with a red waist sash",
+        },
+        hat_jeollip: {
+          name: "Jeollip",
+          desc: "A military hat with a red tassel",
+        },
+        costume_taekwondo: {
+          name: "Taekwondo dobok",
+          desc: "Black belt and a taegeuk on the chest",
         },
       },
     },

@@ -44,7 +44,7 @@ import {
   type ShopSlot,
 } from "@/components/avatar/AuraPicker";
 import { WearGrid } from "@/components/avatar/WearPicker";
-import { WEAR_LOOK, isCostume, isHand, type WearItemId, type WearSlot } from "@/components/avatar/avatarWearables";
+import { WEAR_LOOK, isWearItem, type WearItemId, type WearSlot } from "@/components/avatar/avatarWearables";
 import { SceneGrid } from "@/components/avatar/ScenePicker";
 import { PetGrid } from "@/components/avatar/PetPicker";
 import { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
@@ -52,7 +52,7 @@ import Button3D from "@/features/retention/components/Button3D";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 /** 상점 칸 — 아바타에 장착되는 꾸미기 */
-const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hand"];
+const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hat", "hand"];
 const isShopSlot = (value: string): value is ShopSlot => (SHOP_SLOTS as string[]).includes(value);
 
 /** 산 아이템을 입힌 모양 — 제 칸에 */
@@ -64,12 +64,12 @@ function wear(config: AvatarConfig, item: ShopItemId): AvatarConfig {
 function rarityOf(item: ShopItemId) {
   if (isScene(item)) return SCENE_LOOK[item].rarity;
   if (isPet(item)) return PET_LOOK[item].rarity;
-  if (isCostume(item) || isHand(item)) return WEAR_LOOK[item].rarity;
+  if (isWearItem(item)) return WEAR_LOOK[item].rarity;
   return AURA_LOOK[item].rarity;
 }
 function keysOf(item: ShopItemId) {
   const slot = slotOf(item);
-  return `avatarEditor.${slot === "costume" || slot === "hand" ? "wear" : slot}`;
+  return `avatarEditor.${slot === "costume" || slot === "hand" || slot === "hat" ? "wear" : slot}`;
 }
 
 export default function AvatarEditorScreen() {
@@ -185,7 +185,7 @@ export default function AvatarEditorScreen() {
   ) as Record<ShopSlot, ShopItemId | null>;
   // 보고 있는 탭이 어느 칸인지 (세트 탭 = 의상·손)
   const tabSlots: ShopSlot[] =
-    selectedCategory === "costume" ? ["costume", "hand"] : isShopSlot(selectedCategory) ? [selectedCategory] : [];
+    selectedCategory === "costume" ? ["costume", "hat", "hand"] : isShopSlot(selectedCategory) ? [selectedCategory] : [];
   // 살 것 — 보고 있는 탭 쪽 먼저
   const pending: ShopItemId | null =
     [...tabSlots, ...SHOP_SLOTS].map((slot) => pendingBySlot[slot]).find((id) => id !== null) ?? null;
@@ -549,7 +549,7 @@ export default function AvatarEditorScreen() {
         ) : category.id === "costume" ? (
           <WearGrid
             draft={draft}
-            equipped={{ costume: initial.costume, hand: initial.hand }}
+            equipped={{ costume: initial.costume, hat: initial.hat, hand: initial.hand }}
             onToggle={handleWearToggle}
             onRetry={() => void loadCosmetics()}
             state={cosmetics}

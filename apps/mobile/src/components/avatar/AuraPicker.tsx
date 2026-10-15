@@ -9,7 +9,7 @@ import { AURA_LOOK, AURA_ORDER, RARITY_COLOR, isAura, type AuraId } from "@/comp
 import { SCENE_LOOK, SceneBackdrop, isScene, type PaidScene } from "@/components/avatar/AvatarScene";
 import AvatarPet, { PET_LOOK, isPet, type PaidPet } from "@/components/avatar/AvatarPet";
 import PetGrowth from "@/components/avatar/PetGrowth";
-import { WEAR_LOOK, isCostume, isHand, type WearItemId } from "@/components/avatar/avatarWearables";
+import { WEAR_LOOK, isWearItem, wearSlotOf, type WearItemId } from "@/components/avatar/avatarWearables";
 import Button3D from "@/features/retention/components/Button3D";
 import SwipeSheet from "@/components/common/SwipeSheet";
 import { useTheme } from "@/hooks/useTheme";
@@ -28,10 +28,10 @@ const GEM = "#1899D6";
 
 /** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫) */
 export type ShopItemId = Exclude<AuraId, "aura_none"> | PaidScene | PaidPet | WearItemId;
-export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand";
+export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat";
 
 export const slotOf = (id: ShopItemId): ShopSlot =>
-  isScene(id) ? "scene" : isPet(id) ? "pet" : isCostume(id) ? "costume" : isHand(id) ? "hand" : "aura";
+  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : "aura";
 
 export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
@@ -49,13 +49,13 @@ export function ownsCosmetic(state: CosmeticsState | null, id: string | undefine
   return !!state?.owned.includes(id);
 }
 
-const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id) || isPet(id) || isCostume(id) || isHand(id);
+const isShopItem = (id: unknown): id is ShopItemId => isAura(id) || isScene(id) || isPet(id) || isWearItem(id);
 
 /** 사는 시트·산 직후 창의 색 — 오라는 오라 빛, 장면·펫은 강조색 */
 function shopLook(id: ShopItemId) {
   if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
   if (isPet(id)) return { rarity: PET_LOOK[id].rarity, color: PET_LOOK[id].accent, keys: "avatarEditor.pet" };
-  if (isCostume(id) || isHand(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
+  if (isWearItem(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
   return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
@@ -217,10 +217,10 @@ function ShopStage({
   s: ReturnType<typeof getStyles>;
   streak?: number;
 }) {
-  if (isCostume(id) || isHand(id)) {
-    // 의상·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
+  if (isWearItem(id)) {
+    // 의상·모자·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
     const look = WEAR_LOOK[id];
-    const worn = { ...avatar, [isCostume(id) ? "costume" : "hand"]: id } as AvatarConfig;
+    const worn = { ...avatar, [wearSlotOf(id)]: id } as AvatarConfig;
     return (
       <LinearGradient
         colors={[look.accent + "1F", look.accent + "47"]}
@@ -379,7 +379,7 @@ export function CosmeticBought({
       <View style={s.center}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View style={s.bought}>
-          {isScene(id) || isPet(id) || isCostume(id) || isHand(id) ? (
+          {isScene(id) || isPet(id) || isWearItem(id) ? (
             <ShopStage avatar={avatar} id={id} height={170} s={s} streak={streak} />
           ) : (
             <>
