@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Href } from "expo-router";
+import { isLearnCourse, type LearnCourse } from "@/constants/learnCourses";
 import {
   DEFAULT_SPEECH_VOICE,
   DEFAULT_ENGLISH_SPEECH_VOICE,
@@ -30,7 +31,9 @@ export type LearnMode =
   | "speaking"
   | "conversation"
   | "listening"
-  | "topik";
+  | "topik"
+  // 글자부터 — 영어 코스의 알파벳 (한국어 한글은 아직 단발 바로가기라 모드가 아니다)
+  | "alphabet";
 
 export type TopikLevel = "1" | "2";
 
@@ -47,6 +50,7 @@ const LEARN_MODES: LearnMode[] = [
   "conversation",
   "listening",
   "topik",
+  "alphabet",
 ];
 
 /**
@@ -76,6 +80,8 @@ export function learnModePath(
   mode: LearnMode,
   topikLevel: TopikLevel,
   studyMode: StudyMode = "free",
+  /** 글자 학습처럼 코스마다 같은 화면을 다른 언어로 여는 모드가 있다 */
+  course: LearnCourse = "ko",
 ): Href {
   // 학습 로드 모드는 어휘 트랙 위에서만 하루치를 짜준다.
   // 문법·표현·토픽은 각자 전용 흐름이 있어 그대로 둔다.
@@ -102,6 +108,9 @@ export function learnModePath(
     // 대화라서 로드맵이 없다.
     case "conversation":
       return "/voice-tutor";
+    // 글자 학습 — 한글 화면이 코스 언어(lang)에 맞춰 알파벳으로 바뀐다
+    case "alphabet":
+      return `/hangul?lang=${course}` as Href;
     default:
       return `/coming-soon?mode=${mode}` as Href;
   }
@@ -161,6 +170,8 @@ interface SettingsState {
   theme: Theme;
   learningTheme: LearningTheme;
   learnMode: LearnMode; // 현재 진행 중인 학습 모드
+  /** 지금 배우는 코스(언어). learnMode 는 이 코스 안의 모드다 (constants/learnCourses) */
+  learnCourse: LearnCourse;
   /** 순서대로 배우는 가이드 모드인지, 원하는 대로 고르는 자율 모드인지 */
   studyMode: StudyMode;
   /** 마지막으로 고른 토픽 급수. 홈에서 토픽으로 돌아갈 때 필요 */
@@ -178,6 +189,7 @@ interface SettingsState {
   setTheme: (theme: Theme) => void;
   setLearningTheme: (t: LearningTheme) => void;
   setLearnMode: (m: LearnMode) => void;
+  setLearnCourse: (c: LearnCourse) => void;
   setStudyMode: (m: StudyMode) => void;
   setTopikLevel: (l: TopikLevel) => void;
   setWordStudyAutoPlay: (enabled: boolean) => void;
@@ -197,6 +209,7 @@ export const useSettingsStore = create<SettingsState>()(
       theme: "system",
       learningTheme: "skyBlue",
       learnMode: "vocabulary",
+      learnCourse: "ko",
       // 뭘 해야 할지 모르는 유저가 기본값이다 — 처음엔 순서를 짜준다
       studyMode: "guided",
       topikLevel: "1",
@@ -233,6 +246,7 @@ export const useSettingsStore = create<SettingsState>()(
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
+      setLearnCourse: (learnCourse) => set({ learnCourse }),
       setStudyMode: (studyMode) => set({ studyMode }),
       setTopikLevel: (topikLevel) => set({ topikLevel }),
       setWordStudyAutoPlay: (wordStudyAutoPlay) =>
@@ -280,6 +294,10 @@ export const useSettingsStore = create<SettingsState>()(
         // 홈 제목이 번역 키 그대로 노출되므로 되돌린다.
         if (state?.learnMode && !LEARN_MODES.includes(state.learnMode)) {
           state.learnMode = "vocabulary";
+        }
+        // 코스가 생기기 전에 저장된 데이터에는 없다 — 그땐 한국어뿐이었다
+        if (state && !isLearnCourse(state.learnCourse)) {
+          state.learnCourse = "ko";
         }
 
         // 급수는 "1"/"2" 둘뿐. 이상한 값이 저장돼 있으면 토픽 화면이 깨진다.

@@ -10,6 +10,7 @@ import {
   type TopikLevel,
 } from "./settings.store";
 import { useOnboardingStore } from "./onboarding.store";
+import type { LearnCourse } from "@/constants/learnCourses";
 
 export interface User {
   id: string;
@@ -66,6 +67,8 @@ export interface User {
   hasPickedLevel?: boolean;
   /** 현재 학습 중인 모드 — 기기가 아니라 계정에 붙는다 */
   learnMode?: LearnMode;
+  /** 지금 배우는 코스(언어) — learnMode 는 이 코스 안의 모드 */
+  learnCourse?: LearnCourse;
   /** 순서대로(guided) 인지 자율(free) 인지 */
   studyMode?: StudyMode;
   /** 토픽 학습 중이면 어느 급수인지 */
@@ -105,6 +108,7 @@ export const useAuthStore = create<AuthState>()(
         // 학습 모드는 계정 데이터라 로컬 거울에 남겨두면 안 된다.
         // 안 지우면 다음 사람이 앞사람 모드로 시작한다.
         useSettingsStore.getState().setLearnMode("vocabulary");
+        useSettingsStore.getState().setLearnCourse("ko");
         useSettingsStore.getState().setTopikLevel("1");
         // 로그인한 사람이 레벨 테스트를 다시 보면 guestOnboardingDone 이
         // 켜진다. 안 비우면 로그아웃 뒤 앱을 켤 때 웰컴이 아니라 요금제로

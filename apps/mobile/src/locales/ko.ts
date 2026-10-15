@@ -279,8 +279,32 @@ export default {
       listening: "듣기 학습",
       topik: "토픽 학습",
       pronunciation: "발음",
+      alphabet: "알파벳 학습",
     },
     dailyGoal: "하루 목표",
+    // 홈 카드 — 지금 코스·모드의 진행도 (api learn-progress)
+    changeCourse: "학습 언어 바꾸기",
+    modeHint: {
+      conversation: "AI와 자유롭게 대화해요",
+      alphabet: "글자와 소리부터 익혀요",
+    },
+    progress: {
+      scope: {
+        section: "섹션 {{n}}",
+        level: "{{n}}급",
+        topic: "주제 {{n}}",
+        topik: "TOPIK {{n}}",
+      },
+      count: {
+        lesson: "{{done}}/{{total}} 레슨",
+        day: "{{done}}/{{total}}일",
+        grammar: "문법 {{done}}/{{total}}",
+        expression: "{{done}}/{{total}} 익힘",
+        sentence: "{{done}}/{{total}} 문장",
+        reading: "{{done}}/{{total}}편",
+        exam: "기출 {{done}}/{{total}}회",
+      },
+    },
     weeklyStudy: "이번 주 학습",
     weeklyInfo: "학습 정보",
     weekUnit: "주차",

@@ -279,8 +279,32 @@ export default {
       listening: "Listening",
       topik: "TOPIK",
       pronunciation: "Pronunciation",
+      alphabet: "Alphabet",
     },
     dailyGoal: "Daily goal",
+    // 홈 카드 — 지금 코스·모드의 진행도 (api learn-progress)
+    changeCourse: "Change course",
+    modeHint: {
+      conversation: "Talk freely with AI",
+      alphabet: "Start with letters and sounds",
+    },
+    progress: {
+      scope: {
+        section: "Section {{n}}",
+        level: "Level {{n}}",
+        topic: "Topic {{n}}",
+        topik: "TOPIK {{n}}",
+      },
+      count: {
+        lesson: "{{done}}/{{total}} lessons",
+        day: "{{done}}/{{total}} days",
+        grammar: "{{done}}/{{total}} grammar points",
+        expression: "{{done}}/{{total}} learned",
+        sentence: "{{done}}/{{total}} sentences",
+        reading: "{{done}}/{{total}} texts",
+        exam: "{{done}}/{{total}} past papers",
+      },
+    },
     weeklyStudy: "This week",
     weeklyInfo: "Study Info",
     weekUnit: "week",

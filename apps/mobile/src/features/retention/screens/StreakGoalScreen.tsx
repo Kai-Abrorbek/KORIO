@@ -60,6 +60,7 @@ export default function StreakGoalScreen() {
   const learnMode = useSettingsStore((st) => st.learnMode);
   const topikLevel = useSettingsStore((st) => st.topikLevel);
   const studyMode = useSettingsStore((st) => st.studyMode);
+  const learnCourse = useSettingsStore((st) => st.learnCourse);
 
   const [page, setPage] = useState<StreakGoalPage | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -116,7 +117,7 @@ export default function StreakGoalScreen() {
   };
 
   const goStudy = () => {
-    router.push(learnModePath(learnMode, topikLevel, studyMode));
+    router.push(learnModePath(learnMode, topikLevel, studyMode, learnCourse));
   };
 
   return (

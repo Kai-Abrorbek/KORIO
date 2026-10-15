@@ -20,7 +20,7 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { useSpeech } from "@/hooks/useSpeech";
 import { ThemeColors } from "@/constants/theme";
-import { useAuthStore, User } from "@/store/auth.store";
+import { useAuthStore } from "@/store/auth.store";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { AVATAR_BACKGROUNDS } from "@/components/avatar/AvatarPreview";
 import AvatarComboStage from "@/components/avatar/AvatarComboStage";
@@ -37,7 +37,16 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { UserService } from "@/services/user.service";
 import { StatsService, DayStats } from "@/services/stats.service";
 import CircleProgress from "@/components/home/CircleProgress";
-import { useSettingsStore, learnModePath } from "@/store/settings.store";
+import {
+  useSettingsStore,
+  learnModePath,
+  type LearnMode,
+} from "@/store/settings.store";
+import { LEARN_COURSES } from "@/constants/learnCourses";
+import {
+  LearnProgressService,
+  type LearnProgress,
+} from "@/services/learn-progress.service";
 import { hydrateLearnMode } from "@/utils/learn-mode";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { featureOfLearnMode } from "@/features/subscription/access";
@@ -66,6 +75,22 @@ const CATEGORIES = [
   { key: "other", color: "#9AA0A6" },
 ] as const;
 
+/**
+ * 홈 카드 진행도 캐시 (코스·모드별). 홈으로 돌아올 때마다 서버에 다시 묻지만,
+ * 그 사이 직전 값을 바로 보여 줘서 링이 빈 채로 깜빡이지 않게 한다.
+ */
+const progressCache = new Map<string, LearnProgress | null>();
+
+/** 셀 진도가 없는 모드(대화·글자)는 링 대신 이 아이콘과 한 줄 소개 */
+const MODE_ICON: Partial<Record<LearnMode, keyof typeof Ionicons.glyphMap>> = {
+  conversation: "chatbubbles",
+  alphabet: "text",
+};
+const MODE_HINT: Partial<Record<LearnMode, string>> = {
+  conversation: "home.modeHint.conversation",
+  alphabet: "home.modeHint.alphabet",
+};
+
 const CHART_HEIGHT = 78; // 막대 영역 높이
 const BAR_MAX = 66; // 최대 막대 길이 (나머지는 segment 간격 몫)
 const BAR_GAP = 3; // 색 구간 사이 간격
@@ -83,12 +108,19 @@ export default function HomeScreen() {
   const [weekly, setWeekly] = useState<DayStats[]>([]);
   const [chatVisible, setChatVisible] = useState(false);
   const learnMode = useSettingsStore((s) => s.learnMode);
+  const learnCourse = useSettingsStore((s) => s.learnCourse);
+  const course = LEARN_COURSES[learnCourse] ?? LEARN_COURSES.ko;
   const topikLevel = useSettingsStore((s) => s.topikLevel);
 
   // 현재 학습 모드에 맞는 "이어서 학습하기" 경로.
   // 로드맵을 쓰는 모드와 전용 페이지가 있는 모드가 섞여 있어서 스토어에 모아뒀다.
   const studyMode = useSettingsStore((s) => s.studyMode);
-  const continuePath = learnModePath(learnMode, topikLevel, studyMode);
+  const continuePath = learnModePath(
+    learnMode,
+    topikLevel,
+    studyMode,
+    learnCourse,
+  );
   const [chatPrefill, setChatPrefill] = useState("");
   const aiPulse = useSharedValue(0.4);
   const router = useRouter();
@@ -103,9 +135,59 @@ export default function HomeScreen() {
     "home.ai",
   ]);
   const { requirePremium } = useFeatureAccess();
-  const { user } = useAuthStore();
+  const { user, isLoggedIn } = useAuthStore();
   const setUserData = useAuthStore((st) => st.setUserData);
-  const lessonProgress = (user as User)?.currentUnitProgress ?? 0;
+
+  // ── 지금 코스·모드의 진행도 (서버가 모드 화면이 보여 주는 범위로 센다) ──
+  const progressKey = `${learnCourse}:${learnMode}:${studyMode}:${topikLevel}`;
+  const [progressByKey, setProgressByKey] = useState<
+    Record<string, LearnProgress | null>
+  >(() => Object.fromEntries(progressCache));
+  // undefined = 아직 모름(로딩), null = 셀 게 없는 모드
+  const learnProgress = isLoggedIn ? progressByKey[progressKey] : null;
+  useFocusEffect(
+    useCallback(() => {
+      if (!isLoggedIn) return;
+      let alive = true;
+      LearnProgressService.get({
+        course: learnCourse,
+        mode: learnMode,
+        studyMode,
+        topikLevel,
+      })
+        .then(({ progress }) => {
+          progressCache.set(progressKey, progress);
+          if (alive) {
+            setProgressByKey((prev) => ({ ...prev, [progressKey]: progress }));
+          }
+        })
+        .catch(() => {});
+      return () => {
+        alive = false;
+      };
+    }, [isLoggedIn, learnCourse, learnMode, studyMode, topikLevel, progressKey]),
+  );
+  const progressScope = learnProgress
+    ? learnProgress.title ||
+      t(`home.progress.scope.${learnProgress.scope}`, {
+        n:
+          learnProgress.scope === "topik"
+            ? learnProgress.scopeNumber === 2
+              ? "II"
+              : "I"
+            : learnProgress.scopeNumber,
+      })
+    : "";
+  const progressCount = learnProgress
+    ? t(`home.progress.count.${learnProgress.unit}`, {
+        done: learnProgress.done,
+        total: learnProgress.total,
+      })
+    : "";
+  const modeHint =
+    learnProgress === null && MODE_HINT[learnMode]
+      ? t(MODE_HINT[learnMode] as string)
+      : "";
   // 리텐션 — 복구펜·퀘스트·출석·복귀·XP 부스트·연속 목표 (서버 요약 하나)
   const retention = useRetentionStore((st) => st.summary);
   const refreshRetention = useRetentionStore((st) => st.refresh);
@@ -442,14 +524,16 @@ export default function HomeScreen() {
           {/* 하단 정보 */}
           <View style={styles.lessonBottom}>
             <View style={styles.lessonBottomLeft}>
-              <TouchableOpacity style={styles.reviewRate}>
-                <Ionicons
-                  name="checkmark-circle"
-                  size={14}
-                  color={theme.primary}
-                />
+              {/* 지금 배우는 코스(언어). 누르면 코스를 바꾸러 간다 */}
+              <TouchableOpacity
+                style={styles.reviewRate}
+                onPress={() => router.push("/courses")}
+                accessibilityRole="button"
+                accessibilityLabel={t("home.changeCourse")}
+              >
+                <Text style={styles.courseFlag}>{course.flag}</Text>
                 <Text style={styles.reviewRateText}>
-                  {t("home.reviewRate")} {Math.round(lessonProgress)}%{" "}
+                  {t(`courses.languages.${course.key}`)}
                 </Text>
                 <Ionicons
                   name="chevron-forward"
@@ -457,16 +541,47 @@ export default function HomeScreen() {
                   color={theme.primary}
                 />
               </TouchableOpacity>
-              <Text style={styles.lessonTitle}>
+              <Text style={styles.lessonTitle} numberOfLines={1}>
                 {t(`home.mode.${learnMode}`)}
               </Text>
-              <Text style={styles.lessonSubTitle}>{t("home.dailyGoal")}</Text>
+              {learnProgress ? (
+                // 주제 이름이 길면 이름만 줄이고 개수는 늘 보인다
+                <View style={styles.progressRow}>
+                  <Text
+                    style={[styles.lessonSubTitle, styles.progressScope]}
+                    numberOfLines={1}
+                  >
+                    {progressScope}
+                  </Text>
+                  <Text style={styles.lessonSubTitle}>
+                    {` · ${progressCount}`}
+                  </Text>
+                </View>
+              ) : modeHint ? (
+                <Text style={styles.lessonSubTitle} numberOfLines={1}>
+                  {modeHint}
+                </Text>
+              ) : learnProgress === undefined ? (
+                <View style={styles.progressLineSkeleton} />
+              ) : null}
             </View>
-            <CircleProgress
-              percent={lessonProgress}
-              color={theme.primary}
-              textColor={theme.primary}
-            />
+            {learnProgress ? (
+              <CircleProgress
+                percent={learnProgress.percent}
+                color={theme.primary}
+                textColor={theme.primary}
+              />
+            ) : learnProgress === undefined ? (
+              <View style={styles.ringSkeleton} />
+            ) : (
+              <View style={styles.modeDisc}>
+                <Ionicons
+                  name={MODE_ICON[learnMode] ?? "book"}
+                  size={24}
+                  color={theme.primary}
+                />
+              </View>
+            )}
           </View>
 
           <TourTarget tourId="home.continue" style={styles.tourBlock}>
@@ -924,7 +1039,43 @@ const getStyles = (theme: ThemeColors) =>
       marginTop: 20,
     },
     lessonBottomLeft: {
+      flex: 1,
+      minWidth: 0,
       gap: 4,
+      marginRight: 12,
+    },
+    courseFlag: {
+      fontSize: 13,
+    },
+    progressRow: {
+      flexDirection: "row",
+      alignItems: "baseline",
+      minWidth: 0,
+    },
+    progressScope: {
+      flexShrink: 1,
+    },
+    progressLineSkeleton: {
+      width: 120,
+      height: 12,
+      marginTop: 3,
+      borderRadius: 6,
+      backgroundColor: theme.border,
+    },
+    ringSkeleton: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      borderWidth: 6,
+      borderColor: theme.border,
+    },
+    modeDisc: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.primary + "1A",
     },
     reviewRate: {
       flexDirection: "row",

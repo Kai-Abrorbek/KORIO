@@ -112,6 +112,9 @@ export function featureOfLearnMode(mode: string | undefined): Feature {
       return "topik";
     case "conversation":
       return "tutor";
+    // 글자 학습 — 한글과 같은 무료 기능
+    case "alphabet":
+      return "hangul";
     // vocabulary · grammarPractice 는 레슨(에너지)으로 간다
     default:
       return "lesson";

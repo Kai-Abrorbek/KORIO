@@ -226,6 +226,9 @@ function makeGo(
 ): () => void {
   return () => {
     if (c.category === "hangul") {
+      // 영어 코스의 글자 학습은 그 코스의 학습 모드다 — 홈 "이어서 학습하기" 가 여기로 온다.
+      // 한국어 한글은 아직 단발 바로가기라 모드로 저장하지 않는다
+      if (language === "en") commitLearnMode("alphabet", undefined, "en");
       router.push({ pathname: "/hangul", params: { lang: language } });
       return;
     }
@@ -252,11 +255,12 @@ function makeGo(
     // 나머지는 전부 학습 모드로 기억하고(계정에 저장),
     // 목적지는 한 곳에서 계산한다.
     const mode = c.category as LearnMode;
-    commitLearnMode(mode);
+    commitLearnMode(mode, undefined, language === "en" ? "en" : "ko");
     // 학습 방식(가이드/자율)까지 넘겨야 어휘를 골랐을 때 하루치
     // 로드맵으로 간다. 안 넘기면 늘 자율 로드맵으로 떨어진다.
+    const settings = useSettingsStore.getState();
     router.push(
-      learnModePath(mode, "1", useSettingsStore.getState().studyMode),
+      learnModePath(mode, "1", settings.studyMode, settings.learnCourse),
     );
   };
 }
@@ -402,7 +406,7 @@ export default function CourseCategories() {
   const selectTopikLevel = (level: TopikLevel) => {
     Haptics.selectionAsync();
     // 급수까지 계정에 저장해야 홈에서 그 급수로 바로 들어간다
-    commitLearnMode("topik", level);
+    commitLearnMode("topik", level, "ko");
     setTopikModalVisible(false);
     router.push({ pathname: "/topik-sections", params: { level } });
   };
@@ -430,7 +434,7 @@ export default function CourseCategories() {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
             // 홈의 "이어서 학습하기" 도 여기로 온다.
-            commitLearnMode("vocabulary");
+            commitLearnMode("vocabulary", undefined, "ko");
             // 급수를 아직 안 골랐으면 그것부터. 골랐으면 바로 이어서 간다.
             router.push(guidedEntryPath());
           }}

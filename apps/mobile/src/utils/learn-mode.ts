@@ -15,6 +15,11 @@ import {
 } from "@/store/settings.store";
 import { useAuthStore } from "@/store/auth.store";
 import { UserService } from "@/services/user.service";
+import {
+  isLearnCourse,
+  resolveLearnCourse,
+  type LearnCourse,
+} from "@/constants/learnCourses";
 
 const isLearnMode = (v: unknown): v is LearnMode =>
   typeof v === "string" &&
@@ -27,6 +32,7 @@ const isLearnMode = (v: unknown): v is LearnMode =>
     "conversation",
     "listening",
     "topik",
+    "alphabet",
   ].includes(v);
 
 const isTopikLevel = (v: unknown): v is TopikLevel => v === "1" || v === "2";
@@ -37,11 +43,13 @@ const isStudyMode = (v: unknown): v is StudyMode =>
 /** getMe 응답을 로컬 거울에 반영. 서버 값이 항상 이긴다. */
 export function hydrateLearnMode(me: {
   learnMode?: unknown;
+  learnCourse?: unknown;
   topikLevel?: unknown;
   studyMode?: unknown;
 }) {
   const s = useSettingsStore.getState();
   if (isLearnMode(me.learnMode)) s.setLearnMode(me.learnMode);
+  if (isLearnCourse(me.learnCourse)) s.setLearnCourse(me.learnCourse);
   if (isTopikLevel(me.topikLevel)) s.setTopikLevel(me.topikLevel);
   if (isStudyMode(me.studyMode)) s.setStudyMode(me.studyMode);
 }
@@ -49,22 +57,36 @@ export function hydrateLearnMode(me: {
 /**
  * 모드를 골랐을 때 호출. 로컬을 먼저 바꿔서 화면이 기다리지 않게 하고,
  * 서버에는 뒤따라 보낸다. 실패해도 다음 getMe 때 다시 맞춰진다.
+ *
+ * course: 고른 화면이 어느 언어 코스인지 (코스 목록 → 분야 화면이 lang 으로 안다).
+ * 모드 이름은 코스끼리 겹칠 수 있어서(어휘·문법…) 화면이 알면 꼭 넘긴다.
  */
-export function commitLearnMode(mode: LearnMode, topikLevel?: TopikLevel) {
+export function commitLearnMode(
+  mode: LearnMode,
+  topikLevel?: TopikLevel,
+  course?: LearnCourse,
+) {
   const s = useSettingsStore.getState();
+  const learnCourse = resolveLearnCourse(mode, s.learnCourse, course);
   s.setLearnMode(mode);
+  s.setLearnCourse(learnCourse);
   if (topikLevel) s.setTopikLevel(topikLevel);
 
   const auth = useAuthStore.getState();
   auth.updateUser({
     learnMode: mode,
+    learnCourse,
     ...(topikLevel ? { topikLevel } : {}),
   });
 
   // 게스트는 서버에 계정이 없다
   if (!auth.isLoggedIn) return;
 
-  UserService.updateLearnMode({ learnMode: mode, topikLevel }).catch(() => {
+  UserService.updateLearnMode({
+    learnMode: mode,
+    topikLevel,
+    course: learnCourse,
+  }).catch(() => {
     // 네트워크가 끊겨도 학습을 막을 이유는 없다. 다음 getMe 가 정리한다.
   });
 }

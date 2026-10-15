@@ -61,6 +61,8 @@ export interface UserMe {
   isOnboardingCompleted: boolean;
   /** 현재 학습 중인 모드 (계정에 저장됨) */
   learnMode: string;
+  /** 지금 배우는 코스(언어). learnMode 는 이 코스 안의 모드 */
+  learnCourse?: string;
   /** 순서대로(guided) 인지 자율(free) 인지 */
   studyMode: "guided" | "free";
   /** 토픽 학습 중이면 어느 급수인지 */
@@ -130,7 +132,13 @@ export const UserService = {
   updateLearnMode: (data: {
     learnMode: string;
     topikLevel?: "1" | "2";
-  }): Promise<{ learnMode: string; topikLevel: "1" | "2" }> =>
+    /** 어느 언어 코스의 모드인지 (constants/learnCourses) */
+    course?: string;
+  }): Promise<{
+    learnMode: string;
+    topikLevel: "1" | "2";
+    learnCourse?: string;
+  }> =>
     api.patch(`/users/me/learn-mode`, data),
 
   /**
