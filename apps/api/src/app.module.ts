@@ -40,6 +40,7 @@ import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
 import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
 import { CosmeticsModule } from './cosmetics/cosmetics.module';
 import { StickersModule } from './stickers/stickers.module';
+import { LearnProgressModule } from './learn-progress/learn-progress.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { StickersModule } from './stickers/stickers.module';
     CosmeticsModule,
     StickersModule,
     MailModule,
+    LearnProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],

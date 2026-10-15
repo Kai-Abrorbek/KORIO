@@ -82,6 +82,11 @@ import {
 } from './utils/study-category.util';
 import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import { UpdateLearnModeDto } from './dto/update-learn-mode.dto';
+import {
+  COURSE_LANGUAGE,
+  courseOf,
+  resolveLearnCourse,
+} from './learn-mode.constants';
 import { UpdateStudyModeDto } from './dto/update-study-mode.dto';
 import { UpdateTimezoneDto } from './dto/update-timezone.dto';
 import { SavePronunciationDto } from './dto/save-pronunciation.dto';
@@ -324,6 +329,8 @@ export class UsersService {
       // 기존 유저 문서엔 이 필드가 없다. 기본값을 내려줘야 앱이
       // 로컬에 남아 있던 (다른 계정의) 값을 그대로 쓰지 않는다.
       learnMode: user.learnMode || 'vocabulary',
+      // 지금 배우는 코스(언어). learnMode 는 이 코스 안의 모드다 — 홈 카드가 둘을 같이 보여준다
+      learnCourse: courseOf(user.targetLanguage),
       // 기본은 가이드(학습 로드) 모드. 뭘 해야 할지 모르는 유저가 기본값이다
       studyMode: user.studyMode || 'guided',
       topikLevel: user.topikLevel || '1',
@@ -750,8 +757,26 @@ export class UsersService {
    * 급수가 안 왔으면 이전 값을 유지한다 (덮어써서 1급으로 되돌리면 안 됨).
    */
   async updateLearnMode(userId: string, dto: UpdateLearnModeDto) {
+    const me = await this.userModel
+      .findById(userId)
+      .select('targetLanguage')
+      .lean();
+    if (!me) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    // 모드는 코스 안에 있다. 그 코스에 없는 모드(영어 코스에 TOPIK 등)는 받지 않는다
+    const course = resolveLearnCourse(
+      dto.learnMode,
+      courseOf(me.targetLanguage),
+      dto.course,
+    );
+    if (!course) throw new BadRequestException('LEARN_MODE_NOT_IN_COURSE');
+
     const $set: Record<string, string> = { learnMode: dto.learnMode };
     if (dto.topikLevel) $set.topikLevel = dto.topikLevel;
+    // 코스가 바뀔 때만 쓴다 — 온보딩이 'korean' 으로 넣어 둔 값을 같은 코스로 덮지 않게
+    if (course !== courseOf(me.targetLanguage)) {
+      $set.targetLanguage = COURSE_LANGUAGE[course];
+    }
 
     const updated = await this.userModel
       .findByIdAndUpdate(
@@ -759,7 +784,7 @@ export class UsersService {
         { $set },
         { returnDocument: 'after', runValidators: true },
       )
-      .select('learnMode topikLevel')
+      .select('learnMode topikLevel targetLanguage')
       .lean();
 
     if (!updated) throw new NotFoundException('유저를 찾을 수 없습니다');
@@ -767,6 +792,7 @@ export class UsersService {
     return {
       learnMode: updated.learnMode,
       topikLevel: updated.topikLevel,
+      learnCourse: courseOf(updated.targetLanguage),
     };
   }
 
