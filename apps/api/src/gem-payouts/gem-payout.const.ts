@@ -7,7 +7,7 @@ import { runtimeConfig } from '../app-settings/runtime-values';
  * 운영자가 한 건씩 손으로 송금하므로 너무 작은 요청은 수수료·수고가 더 크다.
  */
 export const GEM_PAYOUT = runtimeConfig('GEM_PAYOUT', {
-  MIN_GEMS: 100,
+  MIN_GEMS: 50000,
 });
 
 /** 보석 1개 = 1 so'm (상점에 그렇게 적혀 있다) */
