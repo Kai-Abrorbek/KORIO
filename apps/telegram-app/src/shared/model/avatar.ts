@@ -1,4 +1,5 @@
 import { COSTUME_IDS, HAND_IDS, HAT_IDS } from "./avatar-wearables";
+import { TITLE_IDS } from "./avatar-titles";
 
 export const AVATAR_VERSION = 1 as const;
 
@@ -26,6 +27,8 @@ export const AVATAR_IDS = {
   hand: HAND_IDS,
   /** 상점 모자 (api cosmetics, slot hat) — 기본 모자 대신 그린다 */
   hat: HAT_IDS,
+  /** 이름 밑 칭호 (api cosmetics, slot title) */
+  title: TITLE_IDS,
 } as const;
 
 export type AvatarField = keyof typeof AVATAR_IDS;
@@ -50,6 +53,7 @@ export interface AvatarConfig {
   costume: AvatarValue<"costume">;
   hand: AvatarValue<"hand">;
   hat: AvatarValue<"hat">;
+  title: AvatarValue<"title">;
 }
 
 export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
@@ -71,6 +75,7 @@ export const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   costume: "costume_none",
   hand: "hand_none",
   hat: "hat_none",
+  title: "title_none",
 };
 
 export function mergeAvatarConfig(avatar?: Partial<AvatarConfig> | null): AvatarConfig {
@@ -78,7 +83,7 @@ export function mergeAvatarConfig(avatar?: Partial<AvatarConfig> | null): Avatar
 }
 
 /** 상점 아이템 칸 — 무작위로 바꾸지 않는다 */
-export type ShopFields = Pick<AvatarConfig, "aura" | "scene" | "pet" | "costume" | "hand" | "hat">;
+export type ShopFields = Pick<AvatarConfig, "aura" | "scene" | "pet" | "costume" | "hand" | "hat" | "title">;
 
 /** 무작위 — 상점 아이템(오라·장면·펫·의상·손)은 그대로 둔다 */
 export function randomAvatar(keep?: Partial<ShopFields>): AvatarConfig {
@@ -103,5 +108,6 @@ export function randomAvatar(keep?: Partial<ShopFields>): AvatarConfig {
     costume: keep?.costume ?? "costume_none",
     hand: keep?.hand ?? "hand_none",
     hat: keep?.hat ?? "hat_none",
+    title: keep?.title ?? "title_none",
   };
 }

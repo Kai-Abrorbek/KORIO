@@ -133,6 +133,8 @@ export function describeGemTx(item: GemTx): { title: GemText; details: GemText[]
         details.push({ key: `avatarEditor.pet.items.${p.item}.name` });
       } else if (typeof p.item === "string" && /^(costume|hat|hand)_/.test(p.item)) {
         details.push({ key: `avatarEditor.wear.items.${p.item}.name` });
+      } else if (typeof p.item === "string" && p.item.startsWith("title_")) {
+        details.push({ key: `avatarEditor.nameTitle.items.${p.item}` });
       }
       break;
   }

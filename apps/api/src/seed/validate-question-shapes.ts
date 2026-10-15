@@ -11,6 +11,7 @@
 
 import * as seedData from './data/vocabulary';
 import { composeAnswer } from '../lessons/chip-builder.util';
+import { findVocabularyReferenceErrors } from './validate-vocabulary-references';
 
 type SeedQuestion = Record<string, any>;
 
@@ -385,6 +386,17 @@ if (require.main === module) {
   const questions = collectQuestions();
   const targets = questions.filter(([, q]) => TARGET_TYPES.has(q.type));
   const { errors, warnings } = checkQuestions(questions);
+  const nodes: Array<
+    Parameters<typeof findVocabularyReferenceErrors>[1][number]
+  > = [];
+  for (const [name, value] of Object.entries(seedData)) {
+    if (name.endsWith('_NODES') && Array.isArray(value)) {
+      nodes.push(...(value as typeof nodes));
+    }
+  }
+  errors.push(
+    ...findVocabularyReferenceErrors(Object.fromEntries(questions), nodes),
+  );
 
   const byType = new Map<string, number>();
   for (const [, q] of targets) {

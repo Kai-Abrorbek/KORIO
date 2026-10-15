@@ -42,6 +42,14 @@ export const AVATAR_CATEGORIES: readonly AvatarCategory[] = [
     preview: "full",
     options: options(AVATAR_IDS.pet),
   },
+  // 칭호 — 이름 밑 문구 (title-picker)
+  {
+    id: "title",
+    icon: "ribbon-outline",
+    label: "Unvon",
+    preview: "full",
+    options: options(AVATAR_IDS.title),
+  },
   // 세트 — 상점 의상·손에 든 것 (wear-picker). 칸 id 는 costume 이지만 hand 도 이 탭에서 고른다
   {
     id: "costume",

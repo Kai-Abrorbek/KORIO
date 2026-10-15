@@ -7,6 +7,7 @@ import { Lesson, LessonCategory } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
 import { Expression } from '../expressions/schemas/expression.schema';
 import { questionXp } from '../lessons/economy.const';
+import { findVocabularyReferenceErrors } from './validate-vocabulary-references';
 import {
   UNIT1_QUESTIONS,
   UNIT1_NODES,
@@ -113,21 +114,6 @@ import {
 } from './data/vocabulary';
 
 async function seed() {
-  const app = await NestFactory.createApplicationContext(AppModule);
-
-  const questionModel = app.get<Model<Question>>(getModelToken(Question.name));
-  const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
-  const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
-  const expressionModel = app.get<Model<Expression>>(
-    getModelToken(Expression.name),
-  );
-
-  console.log('🌱 시딩 시작 (upsert 방식 — 진행도 유지)...');
-
-  // 이번 실행이 실제로 써낸 것들. 끝나고 여기 없는 옛 문서를 걷어내는 데 쓴다.
-  const writtenNodeIds: Types.ObjectId[] = [];
-  const writtenLessonIds: Types.ObjectId[] = [];
-
   const allQuestions = {
     ...UNIT1_QUESTIONS,
     ...UNIT2_QUESTIONS,
@@ -246,6 +232,28 @@ async function seed() {
     ...S6_UNIT9_NODES,
   ];
 
+  const referenceErrors = findVocabularyReferenceErrors(allQuestions, allNodes);
+  if (referenceErrors.length > 0) {
+    throw new Error(
+      `어휘 시드 중단: 문제 참조 오류 ${referenceErrors.length}건\n${referenceErrors.join('\n')}`,
+    );
+  }
+
+  const app = await NestFactory.createApplicationContext(AppModule);
+
+  const questionModel = app.get<Model<Question>>(getModelToken(Question.name));
+  const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
+  const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
+  const expressionModel = app.get<Model<Expression>>(
+    getModelToken(Expression.name),
+  );
+
+  console.log('🌱 시딩 시작 (upsert 방식 — 진행도 유지)...');
+
+  // 이번 실행이 실제로 써낸 것들. 끝나고 여기 없는 옛 문서를 걷어내는 데 쓴다.
+  const writtenNodeIds: Types.ObjectId[] = [];
+  const writtenLessonIds: Types.ObjectId[] = [];
+
   for (const nodeData of allNodes) {
     const { lessons, ...nodeInfo } = nodeData;
 
@@ -272,8 +280,7 @@ async function seed() {
       let lessonXp = 0;
       for (const key of qKeys) {
         if (!allQuestions[key]) {
-          console.log('❌ 없는 키:', key);
-          continue;
+          throw new Error(`어휘 시드 중단: ${key} 문항을 찾을 수 없습니다`);
         }
         // question code = allQuestions의 key (안정적!)
         const q = await questionModel.findOneAndUpdate(

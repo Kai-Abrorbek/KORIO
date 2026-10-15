@@ -1,0 +1,54 @@
+/* 칭호 이름표 — 정지. 등급마다 색 */
+.plate {
+  align-items: center;
+  background: #f1eeff;
+  border: 1.5px solid #dcd6ff;
+  border-bottom-width: 3px;
+  border-radius: 999px;
+  color: #5d54c5;
+  display: inline-flex;
+  flex: none;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 900;
+  gap: 5px;
+  line-height: 1;
+  max-width: 100%;
+  padding: 6px 12px 5px;
+  white-space: nowrap;
+}
+
+.plate > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plate[data-rarity="rare"] {
+  background: linear-gradient(180deg, #e6f5ff, #cdeaff);
+  border-color: #a9d8f7;
+  color: #1474b4;
+}
+
+.plate[data-rarity="epic"] {
+  background: linear-gradient(180deg, #f4e9ff, #e3ccff);
+  border-color: #cfa9f5;
+  color: #8a35c4;
+}
+
+.plate[data-rarity="legendary"] {
+  background: linear-gradient(180deg, #fff1bf, #ffd45c);
+  border-color: #e2a83a;
+  color: #7a4c00;
+}
+
+/* 리그 줄 — 작게, 자리가 모자라면 줄여서 … */
+.sm {
+  flex: 0 1 auto;
+  min-width: 0;
+  border-width: 1px;
+  border-bottom-width: 2px;
+  font-size: 10.5px;
+  gap: 3px;
+  padding: 3px 7px 2px;
+}

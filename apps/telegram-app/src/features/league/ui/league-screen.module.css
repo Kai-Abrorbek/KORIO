@@ -224,6 +224,7 @@
   font-weight: 700;
   gap: 6px;
   margin-top: 3px;
+  min-width: 0;
 }
 
 .memberSub .flag { font-size: 17px; }

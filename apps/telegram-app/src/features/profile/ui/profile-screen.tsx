@@ -3,6 +3,7 @@
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { SceneBackdrop, sceneHeroColors } from "../../../shared/ui/avatar-scene";
 import { AvatarPet } from "../../../shared/ui/avatar-pet";
+import { NameTitle } from "../../../shared/ui/name-title";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -69,6 +70,12 @@ export function ProfileScreen() {
             {/* 펫 — 연속 학습일만큼 자란 모습 */}
             <AvatarPet pet={avatar?.pet} streak={profile.streak} />
           </button>
+          {/* 칭호 — 캐릭터 발 밑 이름표 */}
+          {avatar?.title && avatar.title !== "title_none" ? (
+            <div className={styles.heroTitle}>
+              <NameTitle title={avatar.title} />
+            </div>
+          ) : null}
         </section>
 
         <p className={styles.meta}>@{profile.nickname} · {profile.joinedYear ?? new Date(profile.createdAt).getFullYear()}-yilda qo‘shildi</p>

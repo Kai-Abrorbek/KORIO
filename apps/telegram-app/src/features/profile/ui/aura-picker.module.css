@@ -278,6 +278,19 @@
     linear-gradient(160deg, color-mix(in srgb, var(--aura) 10%, var(--surface)), color-mix(in srgb, var(--aura) 26%, var(--surface)));
 }
 
+/* 칭호 — 캐릭터를 조금 올리고 아래에 이름표 */
+.titleStageAvatar.titleStageAvatar {
+  bottom: 22%;
+  height: 72%;
+}
+
+.stageTitle {
+  bottom: 9%;
+  left: 50%;
+  position: absolute;
+  translate: -50% 0;
+}
+
 .petStageAvatar.petStageAvatar {
   left: 60%;
 }

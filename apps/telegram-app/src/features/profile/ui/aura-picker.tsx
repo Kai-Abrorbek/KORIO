@@ -9,6 +9,8 @@ import { AURA_LOOK, AURA_ORDER, AvatarAura, RARITY_COLOR, isAura, type AuraId } 
 import { SCENE_LOOK, SceneBackdrop, isScene, type SceneId } from "../../../shared/ui/avatar-scene";
 import { AvatarPet, PET_LOOK, isPet, type PaidPet } from "../../../shared/ui/avatar-pet";
 import { WEAR_LOOK, isWearItem, wearSlotOf, type WearItemId } from "../../../shared/model/avatar-wearables";
+import { TITLE_LOOK, isTitle, type PaidTitle } from "../../../shared/model/avatar-titles";
+import { NameTitle } from "../../../shared/ui/name-title";
 import { PetGrowth } from "./pet-growth";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
@@ -23,11 +25,14 @@ import styles from "./aura-picker.module.css";
 const fmt = (n: number) => n.toLocaleString("en-US");
 
 /** 상점 꾸미기 아이템 (오라 · 배경 장면 · 펫) — 사는 시트·산 직후 창은 다 같이 쓴다 */
-export type ShopItemId = Exclude<AuraId, "aura_none"> | Exclude<SceneId, "scene_none"> | PaidPet | WearItemId;
-export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat";
+export type ShopItemId = Exclude<AuraId, "aura_none"> | Exclude<SceneId, "scene_none"> | PaidPet | WearItemId | PaidTitle;
+export type ShopSlot = "aura" | "scene" | "pet" | "costume" | "hand" | "hat" | "title";
 
 export const slotOf = (id: ShopItemId): ShopSlot =>
-  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : "aura";
+  isScene(id) ? "scene" : isPet(id) ? "pet" : isWearItem(id) ? wearSlotOf(id) : isTitle(id) ? "title" : "aura";
+
+/** 칭호 등급 색 (시트 강조) */
+const TITLE_COLOR = { common: "#776EE2", rare: "#1899D6", epic: "#A946DA", legendary: "#E2A83A" } as const;
 
 export function cosmeticPrice(state: CosmeticsState | null, id: string) {
   return state?.items.find((item) => item.id === id)?.price ?? null;
@@ -50,6 +55,7 @@ function shopLook(id: ShopItemId) {
   if (isScene(id)) return { rarity: SCENE_LOOK[id].rarity, color: SCENE_LOOK[id].accent, keys: "avatarEditor.scene" };
   if (isPet(id)) return { rarity: PET_LOOK[id].rarity, color: PET_LOOK[id].accent, keys: "avatarEditor.pet" };
   if (isWearItem(id)) return { rarity: WEAR_LOOK[id].rarity, color: WEAR_LOOK[id].accent, keys: "avatarEditor.wear" };
+  if (isTitle(id)) return { rarity: TITLE_LOOK[id].rarity, color: TITLE_COLOR[TITLE_LOOK[id].rarity], keys: "avatarEditor.nameTitle" };
   return { rarity: AURA_LOOK[id].rarity, color: AURA_LOOK[id].color, keys: "avatarEditor.aura" };
 }
 
@@ -65,6 +71,20 @@ function ShopStage({
   className?: string;
   streak?: number;
 }) {
+  if (isTitle(id)) {
+    // 칭호 — 캐릭터 아래 이름표
+    return (
+      <div className={`${className} ${styles.sceneStage} ${styles.petStage}`}>
+        <SceneBackdrop scene={avatar.scene} />
+        <span className={`${styles.sceneStageAvatar} ${styles.titleStageAvatar}`}>
+          <AvatarAura aura={avatar.aura}>
+            <GeneratedAvatar avatar={avatar} variant="full" />
+          </AvatarAura>
+        </span>
+        <NameTitle className={styles.stageTitle} title={id} />
+      </div>
+    );
+  }
   if (isWearItem(id)) {
     // 의상·모자·손 — 그 아이템을 입은 캐릭터 (장면이 있으면 그 앞에)
     const worn = { ...avatar, [wearSlotOf(id)]: id };
@@ -279,8 +299,13 @@ export function CosmeticBuySheet({
         <em className={styles.sheetRarity} data-i18n={`avatarEditor.aura.rarity.${look.rarity}`}>
           {uzt(`avatarEditor.aura.rarity.${look.rarity}`)}
         </em>
-        <h2 data-i18n={`${look.keys}.items.${id}.name`}>{uzt(`${look.keys}.items.${id}.name`)}</h2>
-        <p data-i18n={`${look.keys}.items.${id}.desc`}>{uzt(`${look.keys}.items.${id}.desc`)}</p>
+        {/* 칭호는 문구 자체가 이름 — 설명 자리에 안내 */}
+        <h2 data-i18n={isTitle(id) ? `${look.keys}.items.${id}` : `${look.keys}.items.${id}.name`}>
+          {uzt(isTitle(id) ? `${look.keys}.items.${id}` : `${look.keys}.items.${id}.name`)}
+        </h2>
+        <p data-i18n={isTitle(id) ? `${look.keys}.subtitle` : `${look.keys}.items.${id}.desc`}>
+          {uzt(isTitle(id) ? `${look.keys}.subtitle` : `${look.keys}.items.${id}.desc`)}
+        </p>
         {isPet(id) ? (
           <div className={styles.sheetGrowth}>
             <PetGrowth pet={id} streak={streak} />

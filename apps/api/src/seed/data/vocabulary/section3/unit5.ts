@@ -4891,6 +4891,43 @@ export const S3_UNIT5_QUESTIONS = withTypedAnswerGrading({
     xpReward: 25,
     isActive: true,
   },
+
+  s3u5_052_dialog_complete: {
+    type: 'dialog_complete',
+    level: QuestionLevel.LEVEL_2,
+    lessonCategory: LessonCategory.CONVERSATION,
+    instruction: I.dialog,
+    dialogLines: [
+      {
+        speaker: 'npc',
+        text: '여행 준비는 다 끝났어요?',
+      },
+    ],
+    options: [
+      '네, 항공권과 숙소를 모두 예약했어요.',
+      '아니요, 홍콩에 다녀왔어요.',
+      '네, 비행기가 늦게 도착했어요.',
+      '아니요, 호텔이 서울에 있어요.',
+    ],
+    answer: '네, 항공권과 숙소를 모두 예약했어요.',
+    acceptedAnswers: ['네, 항공권과 숙소를 모두 예약했어요'],
+    answerTranslation: {
+      ko: '네, 항공권과 숙소를 모두 예약했어요.',
+      uz: 'Ha, samolyot chiptasi va turar joyni ham band qildim.',
+      en: 'Yes, I booked both the flight and the accommodation.',
+      ru: 'Да, я забронировал и авиабилет, и жильё.',
+    },
+    difficulty: 3,
+    tags: ['여행 준비', '항공권', '숙소', '대화'],
+    hint: {
+      ko: '준비를 마쳤는지 묻는 질문에 맞게 대답하세요.',
+      uz: 'Tayyorgarlik tugaganmi degan savolga javob bering.',
+      en: 'Answer whether the trip preparations are finished.',
+      ru: 'Ответьте, закончена ли подготовка к поездке.',
+    },
+    xpReward: 15,
+    isActive: true,
+  },
   // ──────────────────────────────────────────────────────────
   // Lesson 4 · 여행 준비를 끝내요
   // 86~87쪽 전체 종합

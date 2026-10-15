@@ -39,6 +39,9 @@ import {
 } from "./aura-picker";
 import { WEAR_LOOK, isWearItem, type WearItemId, type WearSlot } from "../../../shared/model/avatar-wearables";
 import { WearGrid } from "./wear-picker";
+import { TitleGrid } from "./title-picker";
+import { TITLE_LOOK, isTitle, type TitleId } from "../../../shared/model/avatar-titles";
+import { NameTitle } from "../../../shared/ui/name-title";
 import { SceneGrid } from "./scene-picker";
 import { PetGrid } from "./pet-picker";
 import { AvatarComboStage } from "./avatar-combo-stage";
@@ -48,7 +51,7 @@ function hapticSelection() {
 }
 
 /** 상점 칸 — 아바타에 장착되는 꾸미기 */
-const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hat", "hand"];
+const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hat", "hand", "title"];
 const isShopSlot = (value: string): value is ShopSlot => (SHOP_SLOTS as string[]).includes(value);
 
 /** 산 아이템을 입힌 모양 — 제 칸에 */
@@ -61,10 +64,12 @@ function rarityOf(item: ShopItemId) {
   if (isScene(item)) return SCENE_LOOK[item].rarity;
   if (isPet(item)) return PET_LOOK[item].rarity;
   if (isWearItem(item)) return WEAR_LOOK[item].rarity;
+  if (isTitle(item)) return TITLE_LOOK[item].rarity;
   return AURA_LOOK[item].rarity;
 }
 function keysOf(item: ShopItemId) {
   const slot = slotOf(item);
+  if (slot === "title") return "avatarEditor.nameTitle";
   return `avatarEditor.${slot === "costume" || slot === "hand" || slot === "hat" ? "wear" : slot}`;
 }
 
@@ -175,7 +180,14 @@ export function AvatarEditorScreen() {
   );
   const otherChanges = JSON.stringify(withoutPending) !== JSON.stringify(initial);
   // 상점 탭 — 위 배지가 "전부 무료" 또는 보석 잔액
-  const shopTab = tabSlots.length > 0 ? (selectedCategory === "costume" ? "wear" : tabSlots[0]!) : null;
+  const shopTab =
+    tabSlots.length > 0
+      ? selectedCategory === "costume"
+        ? "wear"
+        : selectedCategory === "title"
+          ? "nameTitle"
+          : tabSlots[0]!
+      : null;
   const shopTabFree = tabSlots.length > 0 && tabSlots.every((slot) => slotAllFree(cosmetics, slot));
 
   const category =
@@ -231,6 +243,7 @@ export function AvatarEditorScreen() {
         costume: current.costume,
         hand: current.hand,
         hat: current.hat,
+        title: current.title,
       }),
     );
   };
@@ -256,6 +269,12 @@ export function AvatarEditorScreen() {
     setDraft((current) =>
       ({ ...current, [slot]: current[slot] === id ? `${slot}_none` : id }) as AvatarConfig,
     );
+  };
+
+  // 칭호 — 누르면 달고, 단 걸 다시 누르면 뗀다
+  const toggleTitle = (id: TitleId) => {
+    hapticSelection();
+    setDraft((current) => ({ ...current, title: current.title === id ? "title_none" : id }));
   };
 
   const buy = async () => {
@@ -358,6 +377,8 @@ export function AvatarEditorScreen() {
             <span data-i18n={`${keysOf(pending)}.tryOn`}>{uzt(`${keysOf(pending)}.tryOn`)}</span>
           </span>
         ) : null}
+        {/* 칭호 — 히어로 왼쪽 아래 (오른쪽엔 무작위 버튼) */}
+        <NameTitle className={styles.heroTitle} title={draft.title} />
         <div className={styles.heroAvatar}>
           <AvatarComboStage
             avatar={draft}
@@ -408,6 +429,15 @@ export function AvatarEditorScreen() {
             equipped={initial.aura ?? "aura_none"}
             onPick={pickAura}
             onRetry={() => void loadCosmetics()}
+            state={cosmetics}
+            status={cosStatus}
+          />
+        ) : category.id === "title" ? (
+          <TitleGrid
+            draft={draft}
+            equipped={initial.title ?? "title_none"}
+            onRetry={() => void loadCosmetics()}
+            onToggle={toggleTitle}
             state={cosmetics}
             status={cosStatus}
           />

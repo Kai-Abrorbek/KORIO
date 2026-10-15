@@ -123,6 +123,15 @@
   font-weight: 900;
 }
 
+/* 칭호 이름표 — 히어로 왼쪽 아래 (오른쪽엔 무작위 버튼) */
+.heroTitle {
+  bottom: 18px;
+  left: 16px;
+  max-width: calc(100% - 170px);
+  position: absolute;
+  z-index: 2;
+}
+
 .heroAvatar {
   position: relative;
   z-index: 1;

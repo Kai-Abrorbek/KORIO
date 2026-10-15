@@ -16,6 +16,7 @@ import { WeeklyVersus } from "./weekly-versus";
 import { AvatarAura } from "../../../shared/ui/avatar-aura";
 import { SceneBackdrop, sceneHeroColors } from "../../../shared/ui/avatar-scene";
 import { AvatarPet } from "../../../shared/ui/avatar-pet";
+import { NameTitle } from "../../../shared/ui/name-title";
 
 const LEAGUE_LABELS: Record<string, string> = { bronze: "Bronza", silver: "Kumush", gold: "Oltin", sapphire: "Safir", ruby: "Yoqut", emerald: "Zumrad", amethyst: "Ametist", pearl: "Marvarid", obsidian: "Obsidian", diamond: "Olmos" };
 const LEAGUE_COLORS: Record<string, string> = { bronze: "#CD7F32", silver: "#9AA0A6", gold: "#F4B400", sapphire: "#3282CE", ruby: "#E54B4B", emerald: "#2BA47F", amethyst: "#8E63CE", pearl: "#D7C9E3", obsidian: "#34343F", diamond: "#45B7D1" };
@@ -67,6 +68,7 @@ export function FriendProfileScreen() {
         {profile.isSuper ? <span className={styles.superBadge}>SUPER</span> : null}
         {profile.isOnline ? <span className={styles.onlineBadge}>● Onlayn</span> : null}
         <div className={styles.heroAvatar}><AvatarAura aura={profile.avatar?.aura}><GeneratedAvatar avatar={profile.avatar} variant="full" /></AvatarAura><AvatarPet pet={profile.avatar?.pet} streak={profile.streak} /></div>
+        {profile.avatar?.title && profile.avatar.title !== "title_none" ? <div className={styles.heroTitle}><NameTitle title={profile.avatar.title} /></div> : null}
       </section>
       <p className={styles.profileMeta}>@{profile.username || profile.nickname} · {profile.joinedYear ?? new Date().getFullYear()}-yilda qo‘shildi</p>
       <section className={styles.profileStats}>

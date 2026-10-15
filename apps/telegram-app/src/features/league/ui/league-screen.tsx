@@ -23,6 +23,7 @@ import {
   type LeagueResult,
 } from "../model/league";
 import { FriendAvatar } from "./friend-avatar";
+import { NameTitle } from "../../../shared/ui/name-title";
 import { TierCrystal } from "./tier-crystal";
 import styles from "./league-screen.module.css";
 
@@ -116,6 +117,8 @@ function MemberRow({
         <span className={styles.memberSub}>
           {member.flag ? <span className={styles.flag}>{member.flag}</span> : null}
           {member.streak != null ? <span>{member.streak}</span> : null}
+          {/* 칭호 — 이름 밑 작은 이름표 */}
+          {!member.isBot ? <NameTitle size="sm" title={member.avatar?.title} /> : null}
         </span>
       </span>
       <b className={member.isMe ? styles.xpMe : styles.xp}>{`${member.xp} XP`}</b>

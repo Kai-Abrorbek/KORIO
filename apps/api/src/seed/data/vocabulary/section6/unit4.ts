@@ -18632,34 +18632,6 @@ const S6_UNIT4_NODE6_WORDS = [
   },
 ] satisfies readonly WordSeedEntry[];
 
-const S6_UNIT4_QUESTION_TYPE_RHYTHM = [
-  'translate_builder',
-  'type_answer',
-  'fill_in_blank',
-  'listening',
-  'translate_builder',
-  'word_arrange',
-  'type_answer',
-  'reading_quiz',
-  'error_hunt',
-  'translate_builder',
-  'listen_fill',
-  'cloze_passage',
-  'type_answer',
-  'speaking',
-  'translate_builder',
-  'listening',
-  'fill_in_blank',
-  'word_arrange',
-  'type_answer',
-  'reading_quiz',
-] as const;
-
-const s6u4LessonQuestions = (start: number) =>
-  S6_UNIT4_QUESTION_TYPE_RHYTHM.map(
-    (type, index) => `s6u4_${String(start + index).padStart(3, '0')}_${type}`,
-  );
-
 export const S6_UNIT4_QUESTIONS = {
   ...S6_UNIT4_NODE1_QUESTIONS,
   ...S6_UNIT4_NODE2_QUESTIONS,
@@ -18668,6 +18640,18 @@ export const S6_UNIT4_QUESTIONS = {
   ...S6_UNIT4_NODE5_QUESTIONS,
   ...S6_UNIT4_NODE6_QUESTIONS,
 };
+
+const s6u4LessonQuestions = (start: number) =>
+  Array.from({ length: 20 }, (_, index) => {
+    const prefix = `s6u4_${String(start + index).padStart(3, '0')}_`;
+    const matches = Object.keys(S6_UNIT4_QUESTIONS).filter((key) =>
+      key.startsWith(prefix),
+    );
+    if (matches.length !== 1) {
+      throw new Error(`Expected exactly one question key for ${prefix}`);
+    }
+    return matches[0];
+  });
 
 export const S6_UNIT4_WORDS = [
   ...S6_UNIT4_NODE1_WORDS,
