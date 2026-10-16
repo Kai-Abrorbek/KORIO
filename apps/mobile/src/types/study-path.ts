@@ -133,6 +133,11 @@ export interface LevelExamResult {
   level: number;
   /** 합격해서 열린 다음 급. 떨어졌으면 null */
   nextLevel: number | null;
+  /** 다음 급 제목·설명 (네 언어) — 레벨업 연출 (옛 서버는 안 보낸다) */
+  nextLevelMeta?: {
+    title: Record<string, string>;
+    description: Record<string, string>;
+  } | null;
   /** 틀린 문제가 몰린 영역 (lessonCategory). 최대 2개 */
   weakAreas: string[];
   gemsEarned: number;

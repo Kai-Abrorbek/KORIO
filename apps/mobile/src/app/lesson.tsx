@@ -3,8 +3,8 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -73,7 +73,18 @@ import {
   parseBlanks,
   templateOf,
 } from "@/utils/blank-sentence";
-import { getContentLang, useContentLang } from "@/store/settings.store";
+import {
+  backToRoadmap,
+  getContentLang,
+  useContentLang,
+} from "@/store/settings.store";
+import {
+  LEVEL_UP_ROUTE,
+  payloadFromSectionUp,
+  queueLevelUp,
+  setLevelUp,
+  type SectionUpResult,
+} from "@/features/level-up/levelUp";
 import { todaysAvatarWord, useAvatarStudyStore } from "@/store/avatar-study.store";
 import { isPet } from "@/components/avatar/AvatarPet";
 import { isScene } from "@/components/avatar/AvatarScene";
@@ -632,6 +643,8 @@ export default function LessonScreen() {
     // 엉뚱한 안내가 나간다 (섹션을 통째로 건너뛴 경우가 그랬다)
     let openedSection: number | null = null;
     let openedLessons = 0;
+    // 합격으로 섹션을 넘었으면 결과 화면 대신 바로 레벨업 연출
+    let sectionUp: SectionUpResult | null = null;
 
     if (attemptId) {
       try {
@@ -642,12 +655,25 @@ export default function LessonScreen() {
         passed = res.passed;
         openedSection = res.section ?? null;
         openedLessons = res.completed ?? 0;
+        sectionUp = res.sectionUp ?? null;
       } catch (e) {
         console.log("jump complete fail:", e);
         passed = false; // 서버가 인정 안 한 진급은 통과로 치지 않는다
       }
     } else {
       passed = false;
+    }
+
+    if (passed && sectionUp) {
+      setLevelUp(
+        payloadFromSectionUp(
+          sectionUp,
+          "jump",
+          backToRoadmap(category ? String(category) : undefined),
+        ),
+      );
+      router.replace(LEVEL_UP_ROUTE);
+      return;
     }
 
     router.replace({
@@ -1090,8 +1116,8 @@ export default function LessonScreen() {
           totalXP: res.totalXP,
           ...(res.gems != null ? { gems: res.gems } : {}),
         } as any);
-        router.replace({
-          pathname: "/level-exam-result",
+        const examResult = {
+          pathname: "/level-exam-result" as const,
           params: {
             passed: res.passed ? "1" : "0",
             correct: String(res.correct),
@@ -1107,7 +1133,22 @@ export default function LessonScreen() {
             heartsOut: heartsOut ? "1" : "",
             hearts: String(jumpHeartLimit),
           },
-        });
+        };
+        // 합격해서 다음 급이 열렸으면 레벨업 연출을 먼저, 끝나면 시험 결과(보석·XP) 화면
+        if (res.passed && res.nextLevel) {
+          setLevelUp({
+            kind: "level",
+            to: res.nextLevel,
+            from: res.level,
+            title: res.nextLevelMeta?.title ?? null,
+            description: res.nextLevelMeta?.description ?? null,
+            via: "exam",
+            next: examResult,
+          });
+          router.replace(LEVEL_UP_ROUTE);
+          return;
+        }
+        router.replace(examResult);
         return;
       } catch (err) {
         console.error("졸업 시험 저장 실패:", err);
@@ -1257,6 +1298,10 @@ export default function LessonScreen() {
         // 축하 화면들이 보석 카운터를 이어서 센다 — 받기 전 숫자에서 시작
         const gemsBefore =
           res.gems - (res.chest?.gems ?? 0) - (res.streakChest?.gems ?? 0);
+
+        // 섹션을 다 끝냈으면 축하 화면들(도장·스코어·상자)을 다 보고 로드맵/홈에
+        // 돌아왔을 때 레벨업 연출을 띄운다
+        if (res.sectionUp) queueLevelUp(payloadFromSectionUp(res.sectionUp, "lesson"));
 
         router.replace({
           pathname: "/lesson-complete",

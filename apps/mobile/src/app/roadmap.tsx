@@ -3,10 +3,11 @@ import {
   Text,
   FlatList,
   StyleSheet,
+  Pressable,
   ActivityIndicator,
   BackHandler,
+  TouchableOpacity,
 } from "react-native";
-import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
@@ -19,6 +20,11 @@ import UnitRoadmap from "@/components/roadmap/UnitRoadmap";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";
 import { LessonService } from "@/services/lesson.service";
+import {
+  LEVEL_UP_ROUTE,
+  setLevelUp,
+  takeQueuedLevelUp,
+} from "@/features/level-up/levelUp";
 import { energySpendsSettled, useEnergyStore } from "@/store/energy.store";
 import { useRevealPopover } from "@/components/roadmap/useRevealPopover";
 import { useAuthStore } from "@/store/auth.store";
@@ -207,6 +213,16 @@ export default function RoadmapScreen() {
     useCallback(() => {
       loadRoadmap();
     }, [loadRoadmap]),
+  );
+
+  // 섹션을 다 끝내고 축하 화면들(도장·스코어·상자)을 지나 돌아왔으면 레벨업 연출
+  useFocusEffect(
+    useCallback(() => {
+      const queued = takeQueuedLevelUp();
+      if (!queued) return;
+      setLevelUp(queued);
+      router.push(LEVEL_UP_ROUTE);
+    }, [router]),
   );
 
   useFocusEffect(

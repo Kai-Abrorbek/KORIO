@@ -63,6 +63,11 @@ export default function RootLayout() {
               name="level-exam-result"
               options={{ animation: "fade", gestureEnabled: false }}
             />
+            {/* 레벨업 연출 (한글 로켓) — 섹션·급이 열린 순간 */}
+            <Stack.Screen
+              name="level-up"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
             <Stack.Screen
               name="courses"
               options={{

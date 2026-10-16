@@ -2,10 +2,10 @@ import {
   View,
   Text,
   ScrollView,
+  TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,6 +43,11 @@ import {
   type LearnMode,
 } from "@/store/settings.store";
 import { LEARN_COURSES } from "@/constants/learnCourses";
+import {
+  LEVEL_UP_ROUTE,
+  setLevelUp,
+  takeQueuedLevelUp,
+} from "@/features/level-up/levelUp";
 import {
   LearnProgressService,
   type LearnProgress,
@@ -136,6 +141,15 @@ export default function HomeScreen() {
   ]);
   const { requirePremium } = useFeatureAccess();
   const { user, isLoggedIn } = useAuthStore();
+  // 섹션을 끝낸 축하 화면들을 지나 홈으로 왔으면 여기서 레벨업 연출 (로드맵과 같다)
+  useFocusEffect(
+    useCallback(() => {
+      const queued = takeQueuedLevelUp();
+      if (!queued) return;
+      setLevelUp(queued);
+      router.push(LEVEL_UP_ROUTE);
+    }, [router]),
+  );
   // 홈 아바타는 이 화면이 보일 때만 움직인다 (다른 탭에 가 있으면 멈춤)
   const [homeFocused, setHomeFocused] = useState(false);
   useFocusEffect(

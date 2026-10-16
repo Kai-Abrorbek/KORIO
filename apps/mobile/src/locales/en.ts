@@ -3242,4 +3242,22 @@ export default {
       surgeSub: "Energy earned by reviewing",
     },
   },
+  // 레벨업 연출 (한글 로켓) — 섹션·급이 열린 순간
+  levelUp: {
+    introSection: "Section {{n}} complete!",
+    introJump: "Test passed!",
+    introLevel: "Level {{n}} exam passed!",
+    go: "Let's go!",
+    kickerSection: "New section unlocked",
+    kickerLevel: "New level unlocked",
+    kickerCourse: "Course complete",
+    titleSection: "Section {{n}}",
+    titleLevel: "Level {{n}}",
+    titleCourse: "Every section done!",
+    bodySection: "New words and phrases are waiting for you.",
+    bodyLevel: "A higher level of Korean is waiting for you.",
+    bodyCourse: "New sections are coming soon. Keep your skills sharp with review.",
+    skip: "Skip",
+    continue: "Continue",
+  },
 };

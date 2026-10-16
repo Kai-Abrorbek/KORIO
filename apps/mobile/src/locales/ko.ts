@@ -3236,4 +3236,22 @@ export default {
       surgeSub: "복습으로 번 에너지",
     },
   },
+  // 레벨업 연출 (한글 로켓) — 섹션·급이 열린 순간
+  levelUp: {
+    introSection: "섹션 {{n}} 완료!",
+    introJump: "테스트 통과!",
+    introLevel: "{{n}}급 졸업 시험 통과!",
+    go: "출발!",
+    kickerSection: "새 섹션이 열렸어요",
+    kickerLevel: "새 급이 열렸어요",
+    kickerCourse: "코스 완주",
+    titleSection: "섹션 {{n}}",
+    titleLevel: "{{n}}급",
+    titleCourse: "모든 섹션 완주!",
+    bodySection: "새 단어와 표현이 기다리고 있어요.",
+    bodyLevel: "한 단계 더 높은 한국어가 기다리고 있어요.",
+    bodyCourse: "새 섹션이 곧 열려요. 그동안 복습으로 실력을 다져요.",
+    skip: "건너뛰기",
+    continue: "계속하기",
+  },
 };

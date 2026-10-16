@@ -1,3 +1,4 @@
+import type { SectionUpResult } from "@/features/level-up/levelUp";
 import api from "./api";
 
 /**
@@ -170,6 +171,8 @@ export const LessonService = {
     streakChest?: { grade: string; gems: number; streak: number } | null;
     /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
     unitCompleted: { section: number; unit: number; score: number } | null;
+    /** 이 레슨으로 섹션을 다 끝냈으면 — 축하 화면들 뒤에 레벨업 연출 (옛 서버는 안 보낸다) */
+    sectionUp?: SectionUpResult | null;
     /** 오늘의 첫 레슨이면 채워진다. 연속 학습 축하 화면을 띄우는 신호 */
     dailyStreak: {
       streak: number;
@@ -263,6 +266,8 @@ export const LessonService = {
     /** 무엇이 열렸는지. 섹션 점프면 이 섹션이 통째로 열린 것이다 */
     section?: number;
     unit?: number;
+    /** 합격으로 섹션을 넘었으면 — 바로 레벨업 연출 (옛 서버는 안 보낸다) */
+    sectionUp?: SectionUpResult | null;
   }> =>
     api.post(`/lessons/jump-complete`, { attemptId, wrongQuestionIds }),
 

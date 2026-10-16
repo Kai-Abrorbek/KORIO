@@ -24,8 +24,8 @@ import { costumeShapes, handShapes, hatShapes, setHaloShapes, splitArms, type WS
 import { FEET, LOOK_SHIFT, NECK, armGeometry, type MotionBody } from "./avatarMotion";
 import { useAvatarMotion } from "./useAvatarMotion";
 
-/** 입는 꾸미기 도형 → react-native-svg (텔레그램은 같은 도형을 DOM SVG 로 그린다) */
-function WearShapes({ shapes }: { shapes: WShape[] }) {
+/** 입는 꾸미기 도형 → react-native-svg (텔레그램은 같은 도형을 DOM SVG 로 그린다). 레벨업 연출도 이걸로 그린다 */
+export function WearShapes({ shapes }: { shapes: WShape[] }) {
   return (
     <>
       {shapes.map((shape, index) => {
@@ -70,6 +70,8 @@ interface Props {
    * 동작은 avatarMotion 표대로 (텔레그램 GeneratedAvatar alive 와 같다)
    */
   alive?: boolean;
+  /** alive 일 때 쿨다운과 상관없이 나타나자마자 손을 흔든다 (레벨업 연출의 착륙) */
+  greet?: boolean;
 }
 
 const SKIN = {
@@ -1269,6 +1271,7 @@ export default function AvatarPreview({
   auraLite = false,
   hangulWord,
   alive = false,
+  greet = false,
 }: Props) {
   const config = mergeAvatarConfig(avatar);
 
@@ -1373,6 +1376,7 @@ export default function AvatarPreview({
         size={size}
         expression={config.expression}
         body={{ bodyX, bodyWidth, outfit: config.outfit, costume: config.costume, hand: config.hand }}
+        greet={greet}
       />
     ) : (
       <Svg
@@ -1457,16 +1461,19 @@ function AliveAvatar({
   size,
   expression,
   body,
+  greet,
 }: {
   parts: AvatarParts;
   size: number;
   expression: string;
   body: MotionBody;
+  greet: boolean;
 }) {
   const { blink, look, tilt, lean, armL, armR } = useAvatarMotion({
     body,
     enabled: true,
     expression,
+    forceGreet: greet,
   });
   // 캔버스 → 화면 px (xMidYMid meet: 세로가 꽉 차고 가로는 가운데)
   const k = size / 360;
