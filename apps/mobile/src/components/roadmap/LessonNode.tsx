@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,

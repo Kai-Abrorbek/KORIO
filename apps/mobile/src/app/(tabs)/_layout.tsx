@@ -6,16 +6,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
 import ContentLanguagePrompt from "@/components/settings/ContentLanguagePrompt";
 import AdminRewardPrompt from "@/components/rewards/AdminRewardPrompt";
+import { useSound } from "@/hooks/useSound";
 
 export default function TabsLayout() {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { play } = useSound();
 
   return (
     <>
       <Tabs
         key={i18n.language}
+        screenListeners={{ tabPress: () => play("click") }}
         screenOptions={{
           headerShown: false,
           tabBarStyle: {

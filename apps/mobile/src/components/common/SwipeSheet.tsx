@@ -1,5 +1,6 @@
 import { useMemo, type ReactNode } from "react";
-import { Modal, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { Modal, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

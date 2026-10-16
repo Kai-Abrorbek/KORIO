@@ -2,11 +2,9 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Switch,
   ScrollView,
-  Pressable,
 } from "react-native";
+import { TouchableOpacity, Switch, Pressable } from "@/components/ui/Pressables";
 import { router, useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

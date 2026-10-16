@@ -2,10 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";

@@ -3,9 +3,8 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Pressable,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";

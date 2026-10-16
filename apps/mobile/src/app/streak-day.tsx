@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { goNext, viaStreakChest } from "@/utils/streak-chest-route";

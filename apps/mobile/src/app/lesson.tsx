@@ -3,8 +3,8 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  TouchableOpacity,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

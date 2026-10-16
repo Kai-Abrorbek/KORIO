@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
-import { AUTO_SPEECH_DELAY_MS, haptic, shuffle, useLessonSpeech, type QuestionProps } from "./shared";
+import { haptic, shuffle, useLessonSpeech, useQuestionAutoSpeech, type QuestionProps } from "./shared";
 import q from "./questions.module.css";
 import styles from "./reading.module.css";
 
@@ -26,9 +26,8 @@ export function listeningScript(question: { audioText?: string; answer?: string 
  *
  * ⚠️ 예전엔 audioText 를 무시하고 정답 문장을 읽은 뒤 같은 문장을 고르게 해서 찍기였다.
  */
-export function Listening({ answerState, onAnswer, onSkip, question }: QuestionProps) {
-  const { speak, speakAuto, speaking } = useLessonSpeech();
-  const auto = useRef(false);
+export function Listening({ answerState, instanceKey, onAnswer, onSkip, question }: QuestionProps) {
+  const { speak, speaking } = useLessonSpeech();
   const [selected, setSelected] = useState<string | null>(null);
   const locked = answerState !== "idle";
   const script = listeningScript(question);
@@ -36,12 +35,7 @@ export function Listening({ answerState, onAnswer, onSkip, question }: QuestionP
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const options = useMemo(() => shuffle(question.options ?? []), [question.id]);
 
-  useEffect(() => {
-    if (auto.current || !script) return;
-    auto.current = true;
-    const timer = window.setTimeout(() => speakAuto(script), AUTO_SPEECH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [script, speakAuto]);
+  useQuestionAutoSpeech(script, instanceKey);
 
   return (
     <div className={q.q}>

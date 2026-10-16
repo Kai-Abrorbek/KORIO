@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import type { ComponentProps } from "react";
 import {
-  AccessibilityInfo, ActivityIndicator, Animated, Linking, Modal, Pressable,
-  ScrollView, StyleSheet, Text, View,
+  AccessibilityInfo,
+  ActivityIndicator,
+  Animated,
+  Linking,
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
+import { Pressable, PressableText } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -323,12 +331,12 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                       const assessed = result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word));
                       const tone = assessed ? wordToneOf(assessed) : null;
                       const color = tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? REC : p.ink;
-                      return <Text key={`${i}-${word}`} onPress={() => practice.listen(false, word)}
+                      return <PressableText key={`${i}-${word}`} onPress={() => practice.listen(false, word)}
                         accessibilityRole="button"
                         accessibilityLabel={assessed ? `${word}, ${Math.round(assessed.accuracy)}, ${tone === "good" ? c.good : tone === "warn" ? c.improve : c.needsPractice}` : undefined}
                         style={{ color, textDecorationLine: assessed ? "underline" : "none", textDecorationStyle: "dotted" }}>
                         {word}{i < words.length - 1 ? " " : ""}
-                      </Text>;
+                      </PressableText>;
                     })}
                   </Text>
                 ) : mask.mode !== "none" ? (

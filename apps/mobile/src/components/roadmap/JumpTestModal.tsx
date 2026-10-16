@@ -2,10 +2,9 @@ import {
   Modal,
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  Pressable,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import Animated, { SlideInDown, FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";

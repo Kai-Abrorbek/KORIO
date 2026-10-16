@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
   View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import * as Haptics from "@/utils/haptics";
 
 interface Props {

@@ -3,13 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Keyboard,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
 

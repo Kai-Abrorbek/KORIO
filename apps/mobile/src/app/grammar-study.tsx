@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Pressable,
   TextStyle,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Animated, {
   FadeInDown,
   useSharedValue,

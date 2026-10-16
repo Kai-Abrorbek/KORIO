@@ -1,4 +1,5 @@
-import { ScrollView, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { ScrollView, Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { useSwipePagerBlocker } from "@/components/common/SwipePager";

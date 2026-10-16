@@ -4,8 +4,8 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

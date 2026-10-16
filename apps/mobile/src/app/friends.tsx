@@ -2,10 +2,10 @@ import { useCallback, useMemo, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useFocusEffect, useRouter, useLocalSearchParams } from "expo-router";

@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   Share,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 // ⚠️ useFocusEffect 는 반드시 expo-router 에서 가져온다.
 // @react-navigation/native 에서 직접 가져오면 expo-router 의 네비게이션
 // 컨텍스트를 못 찾아 "Couldn't find a navigation object" 로 터진다.

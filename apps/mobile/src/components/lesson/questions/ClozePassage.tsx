@@ -1,10 +1,10 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { TouchableOpacity, PressableText } from "@/components/ui/Pressables";
 import Animated, {
   FadeIn,
   useSharedValue,
@@ -149,7 +149,7 @@ export default function ClozePassage({
               <Text key={i}>
                 <Text style={s.passage}>{part}</Text>
                 {i < blankCount ? (
-                  <Text
+                  <PressableText
                     onPress={() => filled[i] !== null && removeWord(i)}
                     style={[
                       s.blankInline,
@@ -162,7 +162,7 @@ export default function ClozePassage({
                   >
                     {" "}
                     {filledWords[i] ?? "＿＿＿"}{" "}
-                  </Text>
+                  </PressableText>
                 ) : null}
               </Text>
             ))}

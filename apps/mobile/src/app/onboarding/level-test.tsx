@@ -5,8 +5,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   ScrollView,
-  TouchableOpacity,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";

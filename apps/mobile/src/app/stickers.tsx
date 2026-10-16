@@ -4,13 +4,13 @@ import {
   AppState,
   Linking,
   Modal,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
   useWindowDimensions,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";

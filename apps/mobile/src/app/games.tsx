@@ -8,10 +8,9 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Pressable,
   ScrollView,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";

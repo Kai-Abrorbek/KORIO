@@ -1,12 +1,12 @@
 import { memo } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
   View,
   ViewStyle,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useAnimatedStyle,

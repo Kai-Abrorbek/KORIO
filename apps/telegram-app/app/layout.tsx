@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { TelegramAuthProvider } from "../src/features/auth/model/telegram-auth-context";
 import { LanguageProvider } from "../src/shared/i18n/language-context";
 import { MicrophonePermissionBootstrap } from "../src/shared/browser/microphone-permission-bootstrap";
+import { ButtonSoundBootstrap } from "../src/shared/browser/button-sound-bootstrap";
 import { ThemeProvider } from "../src/shared/theme/theme-context";
 
 import "./globals.css";
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           strategy="beforeInteractive"
         />
         <MicrophonePermissionBootstrap />
+        <ButtonSoundBootstrap />
         <LanguageProvider>
           <ThemeProvider>
             <TelegramAuthProvider>{children}</TelegramAuthProvider>

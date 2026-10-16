@@ -2,12 +2,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  Switch,
   ScrollView,
   Modal,
 } from "react-native";
+import { TouchableOpacity, Pressable, Switch } from "@/components/ui/Pressables";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";

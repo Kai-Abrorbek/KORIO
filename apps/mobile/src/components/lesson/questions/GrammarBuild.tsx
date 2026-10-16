@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSpeech } from "@/hooks/useSpeech";

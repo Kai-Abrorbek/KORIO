@@ -4,12 +4,12 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
-  Pressable,
   StyleSheet,
   Text,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import {
   Gesture,
   GestureDetector,

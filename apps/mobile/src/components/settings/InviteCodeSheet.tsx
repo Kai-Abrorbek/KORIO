@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import {
   Modal,
-  Pressable,
   Share,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";

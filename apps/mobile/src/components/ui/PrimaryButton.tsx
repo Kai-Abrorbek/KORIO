@@ -1,5 +1,5 @@
-import { Text, TouchableOpacity, StyleSheet, ViewStyle } from "react-native";
-import { useSound } from "@/hooks/useSound";
+import { Text, StyleSheet, ViewStyle } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 
 interface Props {
   label: string;
@@ -20,19 +20,14 @@ export default function PrimaryButton({
   style,
   silent,
 }: Props) {
-  const { play } = useSound();
   const bg = disabled ? "#D1D1D6" : color;
   const dark = disabled ? "#B5B5BA" : darkColor;
-
-  const handlePress = () => {
-    if (!silent) play("click");
-    onPress?.();
-  };
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={handlePress}
+      onPress={onPress}
+      sound={silent ? false : "click"}
       disabled={disabled}
       style={[
         styles.btn,

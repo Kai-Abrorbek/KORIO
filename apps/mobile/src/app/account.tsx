@@ -10,8 +10,6 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Pressable,
   ScrollView,
   TextInput,
   Modal,
@@ -19,6 +17,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import { useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";

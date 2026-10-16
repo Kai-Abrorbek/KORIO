@@ -1,12 +1,12 @@
 import { RefObject, useState } from "react";
 import {
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   TextStyle,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
 import { BlankToken } from "@/utils/blank-sentence";

@@ -5,15 +5,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Platform,
   ActivityIndicator,
-  Pressable,
   ScrollView,
   Modal,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
+import { Pressable, TouchableOpacity, PressableText } from "@/components/ui/Pressables";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { buildSpokenTimeline } from "@/features/expressions/utils/speech-timing";
@@ -727,7 +726,7 @@ function Passage({
                 part.wordIndex !== null;
 
               return (
-                <Text
+                <PressableText
                   key={`${segment.key}-part-${partIndex}`}
                   onPress={
                     glossable ? () => onGlossWord!(part.text) : undefined
@@ -741,12 +740,12 @@ function Passage({
                   }
                 >
                   {part.text}
-                </Text>
+                </PressableText>
               );
             });
 
             return segment.vocabularyId ? (
-              <Text
+              <PressableText
                 key={segment.key}
                 accessibilityRole="button"
                 onPress={() => onWordPress(segment.vocabularyId!)}
@@ -760,7 +759,7 @@ function Passage({
                 ]}
               >
                 {content}
-              </Text>
+              </PressableText>
             ) : (
               <Text key={segment.key}>{content}</Text>
             );

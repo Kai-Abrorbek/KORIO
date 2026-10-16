@@ -3,11 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
-  Pressable,
   ScrollView,
   Modal,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,

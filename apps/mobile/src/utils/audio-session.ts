@@ -1,23 +1,22 @@
 import { setAudioModeAsync, setIsAudioActiveAsync } from "expo-audio";
+import { isUiSoundCaptureActive } from "./ui-sound-capture";
 
 export type PlaybackInterruptionMode = "doNotMix" | "mixWithOthers";
 
-type AudioSessionMode = PlaybackInterruptionMode | "recording";
-
-let activeMode: AudioSessionMode | null = null;
 let audioSessionQueue: Promise<void> = Promise.resolve();
 
 function configureAudioSession(
-  mode: AudioSessionMode,
   configure: () => Promise<void>,
+  allowed: () => boolean = () => true,
 ) {
   const update = audioSessionQueue.then(async () => {
+    if (!allowed()) return;
     // 같은 모드라도 매번 적용한다. 네이티브 전역 세션은 녹음·다른 플레이어·
     // 포커스 상실로 우리 모르게 바뀔 수 있는데, JS 캐시만 믿고 건너뛰면
     // playsInSilentMode 가 false 인 채로 남아 play() 가 조용히 무시된다.
     await setIsAudioActiveAsync(true);
+    if (!allowed()) return;
     await configure();
-    activeMode = mode;
   });
 
   // 여러 플레이어가 동시에 모드를 바꿔도 네이티브 전역 세션 변경 순서를 보장한다.
@@ -29,7 +28,7 @@ function configureAudioSession(
 export async function activatePlaybackAudio(
   interruptionMode: PlaybackInterruptionMode,
 ) {
-  await configureAudioSession(interruptionMode, () =>
+  await configureAudioSession(() =>
     setAudioModeAsync({
       allowsRecording: false,
       playsInSilentMode: true,
@@ -42,7 +41,7 @@ export async function activatePlaybackAudio(
 
 /** 재생 세션 캐시까지 갱신해 녹음 직후 스피커 복원이 생략되지 않게 한다. */
 export async function activateRecordingAudio() {
-  await configureAudioSession("recording", () =>
+  await configureAudioSession(() =>
     setAudioModeAsync({
       allowsRecording: true,
       playsInSilentMode: true,
@@ -50,3 +49,21 @@ export async function activateRecordingAudio() {
     }),
   );
 }
+
+/** Short SFX must not replace a recording/LiveKit session with allowsRecording:false. */
+export async function activateUiSoundAudio() {
+  await configureAudioSession(
+    () =>
+      setAudioModeAsync({
+        allowsRecording: false,
+        playsInSilentMode: true,
+        shouldPlayInBackground: false,
+        shouldRouteThroughEarpiece: false,
+        interruptionMode: "mixWithOthers",
+      }),
+    () => !isUiSoundCaptureActive(),
+  );
+}
+
+/** Drain pending Expo configuration before a different audio library takes ownership. */
+export const waitForAudioSessionIdle = () => audioSessionQueue;

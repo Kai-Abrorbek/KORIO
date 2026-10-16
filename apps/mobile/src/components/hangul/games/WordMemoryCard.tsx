@@ -1,4 +1,5 @@
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Text, StyleSheet } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useSharedValue,

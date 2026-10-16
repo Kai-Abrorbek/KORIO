@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

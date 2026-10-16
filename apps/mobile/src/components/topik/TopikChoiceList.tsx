@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { Image } from "expo-image";
 import type { TopikChoice, TopikChoiceLayout } from "@/types/topik";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";

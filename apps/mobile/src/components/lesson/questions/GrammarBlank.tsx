@@ -4,13 +4,13 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Pressable,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   useWindowDimensions,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Animated, {

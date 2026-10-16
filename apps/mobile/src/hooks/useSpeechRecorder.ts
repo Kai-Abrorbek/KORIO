@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
 import { activateRecordingAudio } from "@/utils/audio-session";
+import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 import {
   TARGET_SAMPLE_RATE,
   concatInt16,
@@ -62,6 +63,13 @@ export function useSpeechRecorder({
   const sourceRate = useRef(TARGET_SAMPLE_RATE);
   const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
   const active = useRef(false);
+  const starting = useRef(false);
+  const startRequest = useRef(0);
+  const captureRelease = useRef<(() => void) | null>(null);
+  const releaseCapture = useCallback(() => {
+    captureRelease.current?.();
+    captureRelease.current = null;
+  }, []);
   const voiceStarted = useRef(false);
   const lastVoiceAt = useRef(0);
   const silenceFinishQueued = useRef(false);
@@ -122,7 +130,11 @@ export function useSpeechRecorder({
   };
 
   const finish = useCallback(() => {
-    if (!active.current) return;
+    startRequest.current += 1;
+    if (!active.current) {
+      releaseCapture();
+      return;
+    }
     active.current = false;
     clearTimer();
     setIsRecording(false);
@@ -132,6 +144,7 @@ export function useSpeechRecorder({
     } catch {
       // 이미 멈춘 경우
     }
+    releaseCapture();
 
     const merged = concatInt16(chunks.current);
     chunks.current = [];
@@ -150,46 +163,56 @@ export function useSpeechRecorder({
     const trimmed = trimSilence(resampled, TARGET_SAMPLE_RATE);
     const payload = trimmed.length >= MIN_SAMPLES ? trimmed : resampled;
     onResultRef.current(encodeWav(payload, TARGET_SAMPLE_RATE));
-  }, [stream]);
+  }, [stream, releaseCapture]);
   finishRef.current = finish;
 
   const start = useCallback(async () => {
-    if (active.current) return false;
-
-    if (!stream) {
-      onErrorRef.current?.("unsupported");
-      return false;
-    }
-
-    const permission = await requestRecordingPermissionsAsync();
-    if (!permission.granted) {
-      onErrorRef.current?.("permission");
-      return false;
-    }
-
-    chunks.current = [];
-    sourceRate.current = TARGET_SAMPLE_RATE;
-    voiceStarted.current = false;
-    lastVoiceAt.current = 0;
-    silenceFinishQueued.current = false;
-
+    if (active.current || starting.current) return false;
+    starting.current = true;
+    const request = ++startRequest.current;
     try {
+      if (!stream) {
+        onErrorRef.current?.("unsupported");
+        return false;
+      }
+      const permission = await requestRecordingPermissionsAsync();
+      if (request !== startRequest.current) return false;
+      if (!permission.granted) {
+        onErrorRef.current?.("permission");
+        return false;
+      }
+
+      chunks.current = [];
+      sourceRate.current = TARGET_SAMPLE_RATE;
+      voiceStarted.current = false;
+      lastVoiceAt.current = 0;
+      silenceFinishQueued.current = false;
+      captureRelease.current = holdUiSoundsForCapture();
       await activateRecordingAudio();
+      if (request !== startRequest.current) return false;
       active.current = true;
       await stream.start();
+      if (request !== startRequest.current) {
+        stream.stop();
+        return false;
+      }
+      setIsRecording(true);
+      autoStop.current = setTimeout(finish, maxSeconds * 1000);
+      return true;
     } catch {
       active.current = false;
-      onErrorRef.current?.("mic");
+      releaseCapture();
+      if (request === startRequest.current) onErrorRef.current?.("mic");
       return false;
+    } finally {
+      starting.current = false;
     }
-
-    setIsRecording(true);
-    autoStop.current = setTimeout(finish, maxSeconds * 1000);
-    return true;
-  }, [finish, maxSeconds, stream]);
+  }, [finish, maxSeconds, stream, releaseCapture]);
 
   /** 결과를 버리고 즉시 중단 (화면 이탈 등) */
   const cancel = useCallback(() => {
+    startRequest.current += 1;
+    releaseCapture();
     if (!active.current) return;
     active.current = false;
     clearTimer();
@@ -203,7 +226,7 @@ export function useSpeechRecorder({
     } catch {
       // 무시
     }
-  }, [stream]);
+  }, [stream, releaseCapture]);
 
   useEffect(() => cancel, [cancel]);
 

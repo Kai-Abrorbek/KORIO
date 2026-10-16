@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import * as Haptics from "@/utils/haptics";
 import { LinearGradient } from "expo-linear-gradient";

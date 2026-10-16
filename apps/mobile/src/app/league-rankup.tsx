@@ -2,11 +2,11 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   Image,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";

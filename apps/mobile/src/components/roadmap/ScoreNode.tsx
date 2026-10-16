@@ -1,5 +1,6 @@
 import { useEffect } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Svg, { Path } from "react-native-svg";
 import Animated, {
   useSharedValue,

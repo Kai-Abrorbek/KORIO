@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 import { CheckButton } from "../lesson-chrome";
 import { useChipWords } from "./answer-chip";
 import { AnswerArea, NpcSpeakers, WordBank, isLongBank, useCompact } from "./builder-kit";
-import { AUTO_SPEECH_DELAY_MS, useLessonSpeech, type QuestionProps } from "./shared";
+import { useQuestionAutoSpeech, type QuestionProps } from "./shared";
 import styles from "./builder.module.css";
 import q from "./questions.module.css";
 
@@ -15,18 +13,10 @@ import q from "./questions.module.css";
  * 룰드 라인 답 영역에 칩을 올린다. 칩이 많으면 뱅크를 바텀시트로 내린다.
  */
 export function SentenceBuilder({ answerState, combo, instanceKey, onAnswer, question }: QuestionProps) {
-  const { speakAuto } = useLessonSpeech();
   const compact = useCompact();
   const speechText = question.audioText || question.answer;
   const { moveToZone, placed, swap, tap, words } = useChipWords(question.options, instanceKey, true);
-  const auto = useRef(false);
-
-  useEffect(() => {
-    if (auto.current) return;
-    auto.current = true;
-    const timer = window.setTimeout(() => speakAuto(speechText), AUTO_SPEECH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [speakAuto, speechText]);
+  useQuestionAutoSpeech(speechText, instanceKey);
 
   const locked = answerState !== "idle";
   return (
@@ -45,17 +35,9 @@ export function SentenceBuilder({ answerState, combo, instanceKey, onAnswer, que
  * 섞지 않고(서버 순서), 읽는 건 언제나 정답 문장이다.
  */
 export function WordArrange({ answerState, combo, instanceKey, onAnswer, question }: QuestionProps) {
-  const { speakAuto } = useLessonSpeech();
   const compact = useCompact();
   const { moveToZone, placed, swap, tap, words } = useChipWords(question.options, instanceKey);
-  const auto = useRef(false);
-
-  useEffect(() => {
-    if (auto.current) return;
-    auto.current = true;
-    const timer = window.setTimeout(() => speakAuto(question.answer), AUTO_SPEECH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [question.answer, speakAuto]);
+  useQuestionAutoSpeech(question.answer, instanceKey);
 
   const locked = answerState !== "idle";
   return (

@@ -2,12 +2,12 @@ import type { ReactNode } from "react";
 import { useEffect } from "react";
 import {
   Modal,
-  Pressable,
   type StyleProp,
   StyleSheet,
   type ViewStyle,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import {
   Gesture,

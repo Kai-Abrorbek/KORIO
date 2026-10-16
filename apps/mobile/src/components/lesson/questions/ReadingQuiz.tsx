@@ -1,10 +1,10 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";

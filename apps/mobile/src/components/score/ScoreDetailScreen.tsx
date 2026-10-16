@@ -1,10 +1,10 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useEffect, useState } from "react";
 import Svg, { Path } from "react-native-svg";
 import Animated, {

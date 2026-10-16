@@ -3,8 +3,8 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import ProfileHeader from "@/components/profile/ProfileHeader";

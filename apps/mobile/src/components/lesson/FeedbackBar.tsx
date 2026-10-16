@@ -2,10 +2,10 @@ import { useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, {
   FadeInDown,
   FadeOutDown,

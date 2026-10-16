@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Keyboard,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
+import { useSoundAlert } from "@/hooks/useSoundAlert";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useRouter, type Href } from "expo-router";
@@ -51,6 +51,7 @@ import { useRetentionStore } from "@/store/retention.store";
 const KEYBOARD_PAD = 260;
 
 export default function ShopScreen() {
+  const Alert = useSoundAlert();
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);

@@ -1,3 +1,5 @@
+import { stopSfxForRecording } from "./sfx";
+
 const AUDIO_CONSTRAINTS: MediaTrackConstraints = {
   autoGainControl: true,
   echoCancellation: true,
@@ -58,7 +60,9 @@ export async function prepareMicrophoneSession() {
 }
 
 export async function acquireMicrophoneStream() {
+  stopSfxForRecording();
   const stream = await microphoneStream();
+  stopSfxForRecording();
   setEnabled(stream, true);
   return stream;
 }

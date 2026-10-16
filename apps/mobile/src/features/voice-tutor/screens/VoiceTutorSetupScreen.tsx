@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
-  Pressable,
   ScrollView,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";

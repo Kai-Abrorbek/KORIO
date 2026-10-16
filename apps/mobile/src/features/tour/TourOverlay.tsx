@@ -3,9 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   type LayoutChangeEvent,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Svg, { Path } from "react-native-svg";
 import Animated, {
   FadeIn,

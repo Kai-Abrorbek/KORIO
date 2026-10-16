@@ -2,11 +2,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMemo } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { TopikSheetModal } from "./TopikSheetModal";

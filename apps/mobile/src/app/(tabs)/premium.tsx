@@ -3,11 +3,10 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
-  Pressable,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";

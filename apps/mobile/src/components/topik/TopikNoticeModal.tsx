@@ -3,11 +3,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useMemo } from "react";
 import {
   ActivityIndicator,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { TopikSheetModal } from "./TopikSheetModal";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
 

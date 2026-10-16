@@ -1,7 +1,4 @@
-import {
-  AudioSession,
-  AndroidAudioTypePresets,
-} from "@livekit/react-native";
+import { AudioSession, AndroidAudioTypePresets } from "@livekit/react-native";
 import {
   ConnectionState,
   Room,
@@ -10,6 +7,8 @@ import {
   type RemoteParticipant,
   type TextStreamReader,
 } from "livekit-client";
+import { waitForAudioSessionIdle } from "@/utils/audio-session";
+import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 
 /**
  * LiveKit 튜터 연결 하나. (옛 `features/tutor/services/livekit-tutor.ts` 에서
@@ -105,6 +104,8 @@ export async function connectLiveKitTutor(
   grant: LiveKitGrant,
   handlers: LiveKitTutorHandlers = {},
 ): Promise<LiveKitTutorConnection> {
+  const releaseCapture = holdUiSoundsForCapture();
+  let room: Room;
   /**
    * 통화 오디오 경로.
    *
@@ -115,22 +116,29 @@ export async function connectLiveKitTutor(
    * ⚠️ `media` 로 두면 스피커 소리가 마이크로 돌아와서 선생님이 자기 말에
    *    끼어든다. 회화 앱에서 제일 티 나는 고장이다.
    */
-  await AudioSession.configureAudio({
-    android: {
-      // 이어폰/블루투스가 없으면 스피커로. 수화기로 나가면 "소리가 안 난다"는
-      // 문의가 그대로 온다
-      preferredOutputList: ["speaker"],
-      audioTypeOptions: AndroidAudioTypePresets.communication,
-    },
-    ios: { defaultOutput: "speaker" },
-  });
-  await AudioSession.startAudioSession();
+  try {
+    await waitForAudioSessionIdle();
+    await AudioSession.configureAudio({
+      android: {
+        // 이어폰/블루투스가 없으면 스피커로. 수화기로 나가면 "소리가 안 난다"는
+        // 문의가 그대로 온다
+        preferredOutputList: ["speaker"],
+        audioTypeOptions: AndroidAudioTypePresets.communication,
+      },
+      ios: { defaultOutput: "speaker" },
+    });
+    await AudioSession.startAudioSession();
 
-  const room = new Room({
-    // 마이크는 통화 품질 기준으로. 음악이 아니라 말이다
-    adaptiveStream: false,
-    dynacast: false,
-  });
+    room = new Room({
+      // 마이크는 통화 품질 기준으로. 음악이 아니라 말이다
+      adaptiveStream: false,
+      dynacast: false,
+    });
+  } catch (error) {
+    await AudioSession.stopAudioSession().catch(() => undefined);
+    releaseCapture();
+    throw error;
+  }
 
   /**
    * 델타를 이어 붙이는 버퍼.
@@ -157,6 +165,13 @@ export async function connectLiveKitTutor(
   };
 
   let closed = false;
+  let stopAudioPromise: Promise<void> | undefined;
+  const stopAudio = () => {
+    stopAudioPromise ??= AudioSession.stopAudioSession()
+      .catch(() => undefined)
+      .finally(releaseCapture);
+    return stopAudioPromise;
+  };
   const close = async () => {
     if (closed) return;
     closed = true;
@@ -172,16 +187,15 @@ export async function connectLiveKitTutor(
     } catch {
       /* 이미 끊겼으면 그만 */
     }
-    try {
-      await AudioSession.stopAudioSession();
-    } catch {
-      /* 다른 화면이 쓰고 있을 수 있다 */
-    }
+    await stopAudio();
   };
 
   room
     .on(RoomEvent.Disconnected, (reason) => {
-      handlers.onDisconnected?.(reason !== undefined ? String(reason) : undefined);
+      void stopAudio();
+      handlers.onDisconnected?.(
+        reason !== undefined ? String(reason) : undefined,
+      );
     })
     .on(RoomEvent.ConnectionStateChanged, (s) => {
       if (s === ConnectionState.Disconnected) handlers.onDisconnected?.();
@@ -250,7 +264,9 @@ export async function connectLiveKitTutor(
         } catch (e) {
           // 자막 하나 놓친 걸로 통화를 끊지는 않는다
           buffers.delete(streamId);
-          handlers.onError?.(e instanceof Error ? e : new Error("TRANSCRIPT_ERROR"));
+          handlers.onError?.(
+            e instanceof Error ? e : new Error("TRANSCRIPT_ERROR"),
+          );
         }
       })();
     },
@@ -288,7 +304,9 @@ export async function connectLiveKitTutor(
      * 예문 하나 들려줄 때마다 소리가 튄다.
      */
     setMicEnabled: (on: boolean) => {
-      void room.localParticipant?.setMicrophoneEnabled(on).catch(() => undefined);
+      void room.localParticipant
+        ?.setMicrophoneEnabled(on)
+        .catch(() => undefined);
     },
     close,
   };

@@ -9,15 +9,14 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
-  TouchableOpacity,
   useWindowDimensions,
   View,
 } from "react-native";
+import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import {
   Gesture,
   GestureDetector,

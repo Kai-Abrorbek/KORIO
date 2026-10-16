@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   BackHandler,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
+import { useSoundAlert } from "@/hooks/useSoundAlert";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -38,6 +38,7 @@ import { useExpressionRoadmap } from "../hooks/useExpressionRoadmap";
 import { buildExpressionRoadmapViewModel } from "../utils/expression-roadmap.adapter";
 
 export default function ExpressionRoadmapScreen() {
+  const Alert = useSoundAlert();
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
@@ -159,7 +160,7 @@ export default function ExpressionRoadmapScreen() {
         setJumpingTopic(null);
       }
     },
-    [jumpingTopic, roadmap, setRoadmap, t],
+    [Alert, jumpingTopic, roadmap, setRoadmap, t],
   );
 
   // 목록에서 고른 주제 — 아직 못 간 곳이면 바로 넘어가고, 이미 열린 곳이면 그 자리로 스크롤만

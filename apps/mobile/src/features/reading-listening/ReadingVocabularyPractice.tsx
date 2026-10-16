@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import {
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
-} from 'react-native';
+} from "react-native";
+import { Pressable, PressableText } from "@/components/ui/Pressables";
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import type {
   ReadingLanguage,
@@ -185,7 +185,7 @@ function ExerciseTemplate({
         const shown = response?.response.trim() || '　　　　';
 
         return (
-          <Text
+          <PressableText
             key={blank.id}
             accessibilityRole="button"
             onPress={() => onBlankPress(blank.id)}
@@ -211,7 +211,7 @@ function ExerciseTemplate({
             ]}
           >
             {shown}
-          </Text>
+          </PressableText>
         );
       })}
     </Text>

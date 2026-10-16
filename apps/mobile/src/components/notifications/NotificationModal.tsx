@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   Modal,
   SectionList,
   ActivityIndicator,
   Dimensions,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

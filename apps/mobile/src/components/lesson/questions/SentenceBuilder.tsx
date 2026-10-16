@@ -1,10 +1,10 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";

@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   ScrollView,
   Modal,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";

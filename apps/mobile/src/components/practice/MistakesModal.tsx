@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Modal } from "react-native";
 import Animated, { SlideInRight, SlideOutRight } from "react-native-reanimated";
 import { Ionicons } from "@expo/vector-icons";

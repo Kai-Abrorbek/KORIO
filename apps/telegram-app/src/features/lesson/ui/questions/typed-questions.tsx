@@ -8,7 +8,7 @@ import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
 import { LessonCharacter } from "../lesson-character";
 import { answersOf, blankCount, BlankSentence, fillTemplate, isComplete, parseBlanks, templateOf, toAnswerPayload } from "./blank-sentence";
-import { AUTO_SPEECH_DELAY_MS, useLessonSpeech, type QuestionProps } from "./shared";
+import { useLessonSpeech, useQuestionAutoSpeech, type QuestionProps } from "./shared";
 import q from "./questions.module.css";
 import styles from "./typed-questions.module.css";
 
@@ -105,18 +105,13 @@ export function TypeAnswer({ answerState, isChecking, onAnswer, question }: Ques
 }
 
 /** 듣고 받아쓰기 (listen_type) — 모바일 questions/ListenType */
-export function ListenType({ answerState, isChecking, onAnswer, question }: QuestionProps) {
-  const { speakAuto } = useLessonSpeech();
+export function ListenType({ answerState, instanceKey, isChecking, onAnswer, question }: QuestionProps) {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const locked = answerState !== "idle" || isChecking;
   const audioText = question.answer;
 
-  useEffect(() => {
-    if (!audioText) return;
-    const timer = window.setTimeout(() => speakAuto(audioText), AUTO_SPEECH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [audioText, speakAuto]);
+  useQuestionAutoSpeech(audioText, instanceKey);
 
   const check = () => {
     if (!input.trim() || locked) return;
@@ -152,19 +147,14 @@ export function ListenType({ answerState, isChecking, onAnswer, question }: Ques
 }
 
 /** 듣고 빈칸 채우기 (listen_fill) — 모바일 questions/ListenFill */
-export function ListenFill({ answerState, isChecking, onAnswer, onSkip, question }: QuestionProps) {
-  const { speakAuto } = useLessonSpeech();
+export function ListenFill({ answerState, instanceKey, isChecking, onAnswer, onSkip, question }: QuestionProps) {
   const { setValue, tokens, values } = useBlankValues(question);
   const inputRefs = useRef<Record<number, HTMLInputElement | HTMLTextAreaElement | null>>({});
   const locked = answerState !== "idle" || isChecking;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const audioText = useMemo(() => fillTemplate(tokens, answersOf(question)), [tokens, question.blankAnswers, question.answer]);
 
-  useEffect(() => {
-    if (!audioText) return;
-    const timer = window.setTimeout(() => speakAuto(audioText), AUTO_SPEECH_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [audioText, speakAuto]);
+  useQuestionAutoSpeech(audioText, instanceKey);
 
   const complete = isComplete(tokens, values);
   const check = () => {

@@ -2,13 +2,13 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Keyboard,
   Platform,
   ScrollView,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";

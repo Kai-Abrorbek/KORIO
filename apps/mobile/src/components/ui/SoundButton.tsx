@@ -1,12 +1,9 @@
-import {
-  TouchableOpacity,
-  TouchableOpacityProps,
-  GestureResponderEvent,
-} from "react-native";
-import { useSound, SoundKey } from "@/hooks/useSound";
+import { TouchableOpacityProps } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
+import type { SoundKey } from "@/hooks/useSound";
 
 interface Props extends TouchableOpacityProps {
-  sound?: SoundKey; // 기본 "click"
+  sound?: SoundKey | false; // 기본 "click"
   silent?: boolean;
 }
 
@@ -16,12 +13,11 @@ export default function SoundButton({
   silent,
   ...rest
 }: Props) {
-  const { play } = useSound();
-
-  const handlePress = (e: GestureResponderEvent) => {
-    if (!silent) play(sound);
-    onPress?.(e);
-  };
-
-  return <TouchableOpacity {...rest} onPress={handlePress} />;
+  return (
+    <TouchableOpacity
+      {...rest}
+      onPress={onPress}
+      sound={silent ? false : sound}
+    />
+  );
 }

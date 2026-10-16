@@ -2,11 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
-  Pressable,
   StyleSheet,
-  TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "@/utils/haptics";

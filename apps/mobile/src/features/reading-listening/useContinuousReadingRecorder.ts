@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
 import { activateRecordingAudio } from "@/utils/audio-session";
+import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 import {
   TARGET_SAMPLE_RATE,
   concatInt16,
@@ -70,7 +71,8 @@ const SCAN_WINDOW_MS = 20;
  * 안드로이드는 44.1/48kHz 로 주는 일이 흔하고(그래서 보낼 때 resample 한다),
  * 여기서 16kHz 로 가정하고 계산하면 버릴 길이가 3배씩 틀어진다.
  */
-const msToSamples = (ms: number, rate: number) => Math.round((ms * rate) / 1000);
+const msToSamples = (ms: number, rate: number) =>
+  Math.round((ms * rate) / 1000);
 const samplesToMs = (n: number, rate: number) => Math.round((n * 1000) / rate);
 
 function rmsLevel(samples: Int16Array): number {
@@ -103,6 +105,13 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
   const [isRecording, setIsRecording] = useState(false);
 
   const active = useRef(false);
+  const starting = useRef(false);
+  const startRequest = useRef(0);
+  const captureRelease = useRef<(() => void) | null>(null);
+  const releaseCapture = useCallback(() => {
+    captureRelease.current?.();
+    captureRelease.current = null;
+  }, []);
   /** 아직 채점되지 않은 소리 */
   const buffer = useRef<Int16Array[]>([]);
   const bufferSamples = useRef(0);
@@ -213,7 +222,9 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
       return;
     }
     if (lead > LEAD_TRIM_MIN_MS) dropFront(lead - LEAD_KEEP_MS);
-    if (samplesToMs(bufferSamples.current, sourceRate.current) < MIN_SEGMENT_MS) {
+    if (
+      samplesToMs(bufferSamples.current, sourceRate.current) < MIN_SEGMENT_MS
+    ) {
       return;
     }
 
@@ -245,7 +256,10 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
 
         // 진행이 없는데 계속 쌓이면 오래된 쪽을 버린다.
         // 안 그러면 요청 본문이 커지고 같은 소리를 반복해서 채점한다.
-        const pendingMs = samplesToMs(bufferSamples.current, sourceRate.current);
+        const pendingMs = samplesToMs(
+          bufferSamples.current,
+          sourceRate.current,
+        );
         if (pendingMs > HARD_MAX_MS) dropFront(pendingMs - HARD_MAX_MS / 2);
       }
     })();
@@ -253,39 +267,52 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
   flushRef.current = flush;
 
   const start = useCallback(async () => {
-    if (active.current) return false;
-    if (!stream) {
-      onErrorRef.current?.("unsupported");
-      return false;
-    }
-
-    const permission = await requestRecordingPermissionsAsync();
-    if (!permission.granted) {
-      onErrorRef.current?.("permission");
-      return false;
-    }
-
-    reset();
-    inFlight.current = false;
-    lastFlushAt.current = 0;
-    sourceRate.current = TARGET_SAMPLE_RATE;
-
+    if (active.current || starting.current) return false;
+    starting.current = true;
+    const request = ++startRequest.current;
     try {
+      if (!stream) {
+        onErrorRef.current?.("unsupported");
+        return false;
+      }
+      const permission = await requestRecordingPermissionsAsync();
+      if (request !== startRequest.current) return false;
+      if (!permission.granted) {
+        onErrorRef.current?.("permission");
+        return false;
+      }
+
+      reset();
+      inFlight.current = false;
+      lastFlushAt.current = 0;
+      sourceRate.current = TARGET_SAMPLE_RATE;
+      captureRelease.current = holdUiSoundsForCapture();
       await activateRecordingAudio();
+      if (request !== startRequest.current) return false;
       active.current = true;
       await stream.start();
+      if (request !== startRequest.current) {
+        stream.stop();
+        return false;
+      }
+      setIsRecording(true);
+      return true;
     } catch {
       active.current = false;
-      onErrorRef.current?.("mic");
+      releaseCapture();
+      if (request === startRequest.current) onErrorRef.current?.("mic");
       return false;
+    } finally {
+      starting.current = false;
     }
-
-    setIsRecording(true);
-    return true;
-  }, [reset, stream]);
+  }, [reset, stream, releaseCapture]);
 
   const stop = useCallback(() => {
-    if (!active.current) return;
+    startRequest.current += 1;
+    if (!active.current) {
+      releaseCapture();
+      return;
+    }
     active.current = false;
     inFlight.current = false;
     reset();
@@ -295,7 +322,8 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
     } catch {
       // 이미 멈춤
     }
-  }, [reset, stream]);
+    releaseCapture();
+  }, [reset, stream, releaseCapture]);
 
   /** 틀린 단어를 다시 읽게 할 때. 지금까지 쌓인 소리는 쓸모가 없다 */
   const discardPending = useCallback(() => reset(), [reset]);

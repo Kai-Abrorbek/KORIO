@@ -1,9 +1,9 @@
 import {
   View,
-  TouchableOpacity,
   StyleSheet,
   type LayoutChangeEvent,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import Animated, {
   interpolateColor,

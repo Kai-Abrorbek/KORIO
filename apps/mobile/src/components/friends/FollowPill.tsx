@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";

@@ -1,10 +1,9 @@
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
-  Pressable,
 } from "react-native";
+import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";

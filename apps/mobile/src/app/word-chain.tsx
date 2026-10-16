@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { useSoundAlert } from "@/hooks/useSoundAlert";
 import { useRouter } from "expo-router";
 import * as Haptics from "@/utils/haptics";
 import { useTranslation } from "react-i18next";
@@ -27,6 +28,7 @@ const MAX_HINTS = 3;
 const TURN_TIME = 10; // 초
 
 export default function WordChainScreen() {
+  const Alert = useSoundAlert();
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다
   const { isChallenge, finish } = useLeagueChallenge();
   const router = useRouter();
@@ -256,7 +258,7 @@ export default function WordChainScreen() {
       { text: t("common.cancel"), style: "cancel" },
       { text: t("common.confirm"), onPress: () => router.back() },
     ]);
-  }, [finish, isChallenge, phase, router, score, t]);
+  }, [Alert, finish, isChallenge, phase, router, score, t]);
 
   const userTurnActive = phase === "user-turn";
 

@@ -2,13 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Keyboard,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Animated, { Easing, LinearTransition } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeakingPalette } from "@/features/speaking/palette";

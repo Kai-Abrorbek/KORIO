@@ -5,9 +5,9 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
-  Pressable,
   useWindowDimensions,
 } from "react-native";
+import { Pressable, PressableText } from "@/components/ui/Pressables";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -331,13 +331,13 @@ export default function LeagueScreen() {
       <View style={s.header}>
         {/* 개발 빌드에서만: 티어 이름을 길게 눌러 순위 애니를 다시 본다.
             릴리스에선 onLongPress 가 undefined 라 그냥 텍스트다 */}
-        <Text
+        <PressableText
           style={s.title}
           onLongPress={__DEV__ ? replayRankAnim : undefined}
           suppressHighlighting
         >
           {t(`league.tiers.${data.tier}`)}
-        </Text>
+        </PressableText>
         <View style={s.timeRow}>
           <Ionicons name="time-outline" size={16} color={theme.textSecondary} />
           <Text style={s.timeText}>{timeLabel}</Text>

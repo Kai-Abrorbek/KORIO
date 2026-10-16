@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { playSfx } from "../../../../shared/browser/sfx";
+import { playSfx, suppressDefaultButtonSound } from "../../../../shared/browser/sfx";
 
 import type { AnswerState } from "../../model/lesson";
 import { shuffle } from "./shared";
@@ -113,7 +113,10 @@ export function AnswerChip({ answerState, item, large = false, onDragToZone, onS
       data-no-translate
       disabled={locked}
       onClick={() => {
-        if (suppressClick.current || locked) return;
+        if (suppressClick.current || locked) {
+          suppressDefaultButtonSound();
+          return;
+        }
         playSfx("select");
         onTap(item.id);
       }}

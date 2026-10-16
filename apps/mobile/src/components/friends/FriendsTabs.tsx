@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import Animated, { useAnimatedStyle, type SharedValue } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";

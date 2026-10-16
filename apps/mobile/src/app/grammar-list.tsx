@@ -5,10 +5,10 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Pressable,
   ActivityIndicator,
   Modal,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Animated, {
   FadeInDown,
   useSharedValue,

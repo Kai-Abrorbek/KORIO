@@ -1,4 +1,5 @@
-import { View, Text, TouchableOpacity, StyleSheet, Share } from "react-native";
+import { View, Text, StyleSheet, Share } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import QRCode from "react-native-qrcode-svg";

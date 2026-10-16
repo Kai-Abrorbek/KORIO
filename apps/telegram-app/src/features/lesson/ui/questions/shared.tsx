@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { useTelegramAuth } from "../../../auth/model/telegram-auth-context";
 import { useKoreanSpeech, type SpeechLanguage } from "../../../../shared/browser/use-korean-speech";
@@ -64,23 +64,34 @@ export function LessonSpeechProvider({ children }: { children: ReactNode }) {
   const { request } = useTelegramAuth();
   const korean = useKoreanSpeech(request);
   const { prewarm, progress, speak, speaking, stop } = korean;
+  // Keep commands stable when speaking changes, otherwise autoplay effects
+  // restart their timer every time speech starts or finishes.
+  const speakLesson = useCallback<LessonSpeech["speak"]>(
+    (text, options) =>
+      speak(text, {
+        language: options?.language,
+        onEnd: options?.onEnd,
+        rate: options?.rate ?? (options?.slow ? Math.max(0.25, (soundSettings().speechRate ?? 1) * SLOW_FACTOR) : undefined),
+      }),
+    [speak],
+  );
+  const speakAuto = useCallback<LessonSpeech["speakAuto"]>((text) => {
+    if (!autoPlayEnabled()) return;
+    speak(text);
+  }, [speak]);
+  const prewarmLesson = useCallback<LessonSpeech["prewarm"]>(
+    (texts) => prewarm(texts.filter(Boolean)),
+    [prewarm],
+  );
   const value = useMemo<LessonSpeech>(
     () => ({
-      prewarm: (texts) => prewarm(texts.filter(Boolean)),
-      speak: (text, options) =>
-        speak(text, {
-          language: options?.language,
-          onEnd: options?.onEnd,
-          rate: options?.rate ?? (options?.slow ? Math.max(0.25, (soundSettings().speechRate ?? 1) * SLOW_FACTOR) : undefined),
-        }),
-      speakAuto: (text) => {
-        if (!autoPlayEnabled()) return;
-        speak(text);
-      },
+      prewarm: prewarmLesson,
+      speak: speakLesson,
+      speakAuto,
       speaking,
       stop,
     }),
-    [prewarm, speak, speaking, stop],
+    [prewarmLesson, speakAuto, speakLesson, speaking, stop],
   );
   return (
     <SpeechContext.Provider value={value}>
@@ -93,6 +104,27 @@ export function useLessonSpeech(): LessonSpeech {
   const value = useContext(SpeechContext);
   if (!value) throw new Error("useLessonSpeech must be used inside LessonSpeechProvider");
   return value;
+}
+
+/** One delayed automatic read per question instance; explicit replay stays independent. */
+export function useQuestionAutoSpeech(text: string, instanceKey: string) {
+  const { speakAuto, stop } = useLessonSpeech();
+  const startedInstance = useRef<string | null>(null);
+
+  useEffect(() => {
+    let timer: number | undefined;
+    if (text && startedInstance.current !== instanceKey) {
+      timer = window.setTimeout(() => {
+        // Mark only when the timer fires: StrictMode cancels the first setup.
+        startedInstance.current = instanceKey;
+        speakAuto(text);
+      }, AUTO_SPEECH_DELAY_MS);
+    }
+    return () => {
+      window.clearTimeout(timer);
+      stop();
+    };
+  }, [instanceKey, speakAuto, stop, text]);
 }
 
 export function useSpeechProgress() {

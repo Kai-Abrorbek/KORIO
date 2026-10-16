@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   View,
   TextInput,
-  TouchableOpacity,
   Text,
   StyleSheet,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   useSharedValue,

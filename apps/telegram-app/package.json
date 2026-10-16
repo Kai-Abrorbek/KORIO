@@ -9,6 +9,8 @@
     "build": "next build",
     "start": "next start --port 3002",
     "lint": "eslint --max-warnings 0",
+    "test:sfx": "node --experimental-strip-types --test scripts/sfx-regression.test.mjs",
+    "test:speech": "node --test scripts/lesson-speech-regression.test.mjs",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {

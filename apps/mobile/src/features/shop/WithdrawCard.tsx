@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
+import { useSoundAlert } from "@/hooks/useSoundAlert";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -82,6 +82,7 @@ interface Props {
 }
 
 export default function WithdrawCard({ gems, onInputFocus, onGemsChange }: Props) {
+  const Alert = useSoundAlert();
   const { t } = useTranslation();
   const theme = useTheme();
   const s = styles(theme);

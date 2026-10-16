@@ -3,10 +3,9 @@ import {
   View,
   Text,
   ScrollView,
-  Pressable,
-  TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";

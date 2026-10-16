@@ -1,11 +1,11 @@
 import {
   View,
   Text,
-  Pressable,
   ScrollView,
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";

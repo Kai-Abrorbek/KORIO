@@ -5,7 +5,8 @@
  * 로드맵으로 보내면 안 된다. 페이지가 생기면 learnModePath 에서
  * 이 경로만 실제 경로로 바꾸면 된다.
  */
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

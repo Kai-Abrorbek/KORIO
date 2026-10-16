@@ -3,8 +3,8 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Pressable,
 } from "react-native";
+import { Pressable } from "@/components/ui/Pressables";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
