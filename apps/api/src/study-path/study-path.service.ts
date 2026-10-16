@@ -494,6 +494,15 @@ export class StudyPathService {
       level,
       /** 합격해서 열린 다음 급. 떨어졌으면 null — 지금 급에 머문다 */
       nextLevel: next?.level ?? null,
+      /** 다음 급 제목·설명 (네 언어) — 앱의 레벨업 연출이 쓴다 */
+      nextLevelMeta: next
+        ? (() => {
+            const meta = PLACEMENT_LEVELS.find((m) => m.level === next.level);
+            return meta
+              ? { title: meta.title, description: meta.description }
+              : null;
+          })()
+        : null,
       weakAreas: await this.weakAreas(wrongIds),
       gemsEarned,
       /** 지급 후 잔액. 앱이 이 값으로 덮어쓴다 */

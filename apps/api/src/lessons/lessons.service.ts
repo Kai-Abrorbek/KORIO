@@ -64,6 +64,12 @@ import {
 } from './economy.const';
 import { getSectionMeta, pickSectionText } from './section.const';
 import { SELF_LEVEL_BAND, sectionRangeForLevel } from './placement.const';
+import {
+  jumpCrossesSection,
+  trackNodeFilter,
+  trackOfNode,
+  type SectionUp,
+} from './section-up.util';
 import { streakWeek } from '../users/utils/streak.util';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
@@ -736,6 +742,14 @@ export class LessonsService {
       ? await this.checkUnitCompleted(userId, node.section, node.unit)
       : null;
 
+    // ── 섹션을 통째로 끝냈나 → 다음 섹션이 열린 순간 (앱이 레벨업 연출을 띄운다) ──
+    // 처음 끝낸 레슨일 때만 본다 — 이 레슨이 안 끝나 있었으니 직전엔 섹션이 덜 끝나
+    // 있었고, 지금 다 끝났다면 바로 이 완료가 섹션을 연 것이다 (다시 풀기로 또 안 뜬다)
+    const sectionUp =
+      node && dto.isCompleted && !replay
+        ? await this.checkSectionUp(userId, node).catch(() => null)
+        : null;
+
     // ── 에너지 차감 ── 서버가 한다
     //
     // 예전에는 앱이 정답마다 `/energy/consume` 을 스스로 불렀다. 서버는 불러줄
@@ -795,6 +809,8 @@ export class LessonsService {
       streakChest: celebration.streakChest,
       /** 이 레슨으로 유닛을 통째로 끝냈으면 채워진다. 스코어가 오른 순간이다 */
       unitCompleted,
+      /** 이 레슨으로 섹션을 통째로 끝냈으면 채워진다. 축하 화면들이 끝난 뒤 레벨업 연출 */
+      sectionUp,
       /**
        * 오늘 처음 "완료" 한 학습이면 채워진다 (어떤 모드든). 연속 학습 축하 화면 신호.
        * 판정은 서버가 한다 — User.streakCelebratedOn 으로 하루 한 번.
@@ -886,6 +902,39 @@ export class LessonsService {
    *
    * 돌려주는 score 는 갱신된 전체 스코어라 화면이 "N 이 됐다" 를 바로 띄운다.
    */
+  /** 이 노드의 섹션(같은 트랙)을 다 끝냈으면 다음 섹션. section-up.util 참고 */
+  private async checkSectionUp(
+    userId: string,
+    node: { section: number; category?: string | null },
+  ): Promise<SectionUp | null> {
+    const track = trackOfNode(node.category);
+    if (!track) return null;
+    const filter = {
+      isActive: true,
+      nodeType: { $ne: 'chest' },
+      ...trackNodeFilter(track),
+    };
+    const nodes = await this.nodeModel
+      .find({ ...filter, section: node.section })
+      .select('lessonIds')
+      .lean();
+    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    if (!lessonIds.length) return null;
+    const done = await this.userProgressModel.countDocuments({
+      userId: new Types.ObjectId(userId),
+      lessonId: { $in: lessonIds },
+      isCompleted: true,
+    });
+    if (done < lessonIds.length) return null;
+    const next = await this.nodeModel
+      .findOne({ ...filter, section: { $gt: node.section } })
+      .sort({ section: 1 })
+      .select('section')
+      .lean();
+    const to = next?.section ?? null;
+    return { track, from: node.section, to, meta: sectionUpMeta(to) };
+  }
+
   private async checkUnitCompleted(
     userId: string,
     section: number,
@@ -2540,11 +2589,19 @@ export class LessonsService {
       };
     }
 
+    const jumpCategory =
+      normalizeJumpTestCategory(attempt.category) ?? 'vocabulary';
+    // 진도를 바꾸기 전에 본다 — 이 합격이 앞 섹션을 건너뛰어 새 섹션에 들어서나
+    const sectionUp = await this.jumpSectionUp(
+      userId,
+      attempt.section,
+      jumpCategory,
+    ).catch(() => null);
     const result = await this.applyUnitJump(
       userId,
       attempt.section,
       attempt.unit,
-      normalizeJumpTestCategory(attempt.category) ?? 'vocabulary',
+      jumpCategory,
     );
     return {
       passed: true,
@@ -2555,8 +2612,57 @@ export class LessonsService {
       // 라고 떴다 — 열린 건 섹션인데 유닛 하나로 안내한 것이다.
       section: attempt.section,
       unit: attempt.unit,
+      /** 합격으로 섹션을 넘었으면 채워진다 — 앱이 바로 레벨업 연출을 띄운다 */
+      sectionUp,
       ...result,
     };
+  }
+
+  /** 점프 합격이 섹션을 넘는지 (진도 반영 전에 부른다). section-up.util 참고 */
+  private async jumpSectionUp(
+    userId: string,
+    targetSection: number,
+    category: JumpTestCategory,
+  ): Promise<SectionUp | null> {
+    const track = category === 'grammar' ? 'grammar' : 'vocabulary';
+    const me = await this.userModel
+      .findById(userId)
+      .select('placementLevel')
+      .lean();
+    const startSection = sectionRangeForLevel(me?.placementLevel ?? 1)[0];
+    const nodes = await this.nodeModel
+      .find({
+        isActive: true,
+        nodeType: { $ne: 'chest' },
+        section: { $lt: targetSection },
+        ...trackNodeFilter(track),
+      })
+      .select('section lessonIds')
+      .lean();
+    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    const doneRows = lessonIds.length
+      ? await this.userProgressModel
+          .find({
+            userId: new Types.ObjectId(userId),
+            lessonId: { $in: lessonIds },
+            isCompleted: true,
+          })
+          .select('lessonId')
+          .lean()
+      : [];
+    const done = new Set(doneRows.map((row) => row.lessonId.toString()));
+    const from = jumpCrossesSection(
+      nodes.map((n) => ({
+        section: n.section,
+        lessonIds: (n.lessonIds ?? []).map((id) => id.toString()),
+      })),
+      done,
+      targetSection,
+      startSection,
+    );
+    return from === null
+      ? null
+      : { track, from, to: targetSection, meta: sectionUpMeta(targetSection) };
   }
 
   /** 실제 진도 반영. 합격이 확인된 뒤에만 불린다 */
@@ -2740,4 +2846,11 @@ export class LessonsService {
       totalXP: res.totalXP ?? 0,
     };
   }
+}
+
+/** 레벨업 연출에 띄울 새 섹션 제목·설명 (네 언어) */
+function sectionUpMeta(section: number | null): SectionUp['meta'] {
+  if (section === null) return null;
+  const meta = getSectionMeta(section);
+  return { title: meta.title, description: meta.description };
 }
