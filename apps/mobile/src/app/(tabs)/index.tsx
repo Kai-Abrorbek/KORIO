@@ -136,6 +136,14 @@ export default function HomeScreen() {
   ]);
   const { requirePremium } = useFeatureAccess();
   const { user, isLoggedIn } = useAuthStore();
+  // 홈 아바타는 이 화면이 보일 때만 움직인다 (다른 탭에 가 있으면 멈춤)
+  const [homeFocused, setHomeFocused] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setHomeFocused(true);
+      return () => setHomeFocused(false);
+    }, []),
+  );
   const setUserData = useAuthStore((st) => st.setUserData);
 
   // ── 지금 코스·모드의 진행도 (서버가 모드 화면이 보여 주는 범위로 센다) ──
@@ -511,6 +519,7 @@ export default function HomeScreen() {
             )}
             {user?.avatar ? (
               <AvatarComboStage
+                alive={homeFocused}
                 avatar={user.avatar}
                 size={200}
                 streak={user.streak}

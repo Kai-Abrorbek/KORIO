@@ -16,8 +16,13 @@ import {
   mergeAvatarConfig,
   type AvatarConfig,
 } from "@/types/avatar";
+import type { ComponentProps, ReactNode } from "react";
+import { StyleSheet, View } from "react-native";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import AvatarAura, { isAura } from "./AvatarAura";
-import { costumeShapes, handShapes, hatShapes, setHaloShapes, type WShape } from "./avatarWearables";
+import { costumeShapes, handShapes, hatShapes, setHaloShapes, splitArms, type WShape } from "./avatarWearables";
+import { FEET, LOOK_SHIFT, NECK, armGeometry, type MotionBody } from "./avatarMotion";
+import { useAvatarMotion } from "./useAvatarMotion";
 
 /** 입는 꾸미기 도형 → react-native-svg (텔레그램은 같은 도형을 DOM SVG 로 그린다) */
 function WearShapes({ shapes }: { shapes: WShape[] }) {
@@ -60,6 +65,11 @@ interface Props {
   auraLite?: boolean;
   /** Learned word shown by the Hangul aura in prominent personal previews. */
   hangulWord?: string;
+  /**
+   * 홈 아바타 — 눈을 깜빡이고, 들어올 때 손을 흔들고, 가끔 두리번거린다 (전신만).
+   * 동작은 avatarMotion 표대로 (텔레그램 GeneratedAvatar alive 와 같다)
+   */
+  alive?: boolean;
 }
 
 const SKIN = {
@@ -260,22 +270,58 @@ function AvatarLegs({ skin }: { skin: string }) {
   );
 }
 
+/**
+ * 기본 옷. part 로 몸통(body)과 팔(L/R — 소매+손)을 따로 그린다 — 홈 아바타가 손을
+ * 흔들 때 팔만 돌린다 (텔레그램 generated-avatar Outfit 과 같다). 몸통 → 팔 순서로
+ * 그리면 예전과 같은 그림이다 (옷 장식은 가운데라 팔과 안 겹친다).
+ */
 function AvatarOutfit({
   bodyX,
   bodyWidth,
   outfit,
   outfitId,
   skin,
+  part,
 }: {
   bodyX: number;
   bodyWidth: number;
   outfit: (typeof OUTFITS)[keyof typeof OUTFITS];
   outfitId: AvatarConfig["outfit"];
   skin: string;
+  part: "body" | "L" | "R";
 }) {
   const right = bodyX + bodyWidth;
 
   if (outfitId === "outfit_hanbok") {
+    // 한복 소매는 몸매와 상관없이 고정 좌표
+    if (part === "L") {
+      return (
+        <G>
+          <Path
+            d="M110 199 Q84 222 82 260"
+            fill="none"
+            stroke={outfit.primary}
+            strokeWidth="31"
+            strokeLinecap="round"
+          />
+          <Circle cx="80" cy="269" r="18" fill={skin} />
+        </G>
+      );
+    }
+    if (part === "R") {
+      return (
+        <G>
+          <Path
+            d="M210 199 Q236 222 238 260"
+            fill="none"
+            stroke={outfit.secondary}
+            strokeWidth="31"
+            strokeLinecap="round"
+          />
+          <Circle cx="240" cy="269" r="18" fill={skin} />
+        </G>
+      );
+    }
     return (
       <G>
         <Path
@@ -317,25 +363,41 @@ function AvatarOutfit({
           rx="6"
           fill={outfit.accent}
         />
+      </G>
+    );
+  }
 
+  if (part === "L") {
+    return (
+      <G>
         <Path
-          d="M110 199 Q84 222 82 260"
+          d={`
+            M${bodyX + 18} 201
+            Q${bodyX - 17} 220 ${bodyX - 19} 263
+          `}
           fill="none"
           stroke={outfit.primary}
-          strokeWidth="31"
+          strokeWidth="33"
           strokeLinecap="round"
         />
-
+        <Circle cx={bodyX - 20} cy="271" r="18" fill={skin} />
+      </G>
+    );
+  }
+  if (part === "R") {
+    return (
+      <G>
         <Path
-          d="M210 199 Q236 222 238 260"
+          d={`
+            M${right - 18} 201
+            Q${right + 17} 220 ${right + 19} 263
+          `}
           fill="none"
           stroke={outfit.secondary}
-          strokeWidth="31"
+          strokeWidth="33"
           strokeLinecap="round"
         />
-
-        <Circle cx="80" cy="269" r="18" fill={skin} />
-        <Circle cx="240" cy="269" r="18" fill={skin} />
+        <Circle cx={right + 20} cy="271" r="18" fill={skin} />
       </G>
     );
   }
@@ -365,32 +427,6 @@ function AvatarOutfit({
         fill={outfit.secondary}
         opacity="0.5"
       />
-
-      <Path
-        d={`
-          M${bodyX + 18} 201
-          Q${bodyX - 17} 220 ${bodyX - 19} 263
-        `}
-        fill="none"
-        stroke={outfit.primary}
-        strokeWidth="33"
-        strokeLinecap="round"
-      />
-
-      <Path
-        d={`
-          M${right - 18} 201
-          Q${right + 17} 220 ${right + 19} 263
-        `}
-        fill="none"
-        stroke={outfit.secondary}
-        strokeWidth="33"
-        strokeLinecap="round"
-      />
-
-      <Circle cx={bodyX - 20} cy="271" r="18" fill={skin} />
-
-      <Circle cx={right + 20} cy="271" r="18" fill={skin} />
 
       {outfitId === "outfit_hoodie" && (
         <G>
@@ -646,13 +682,19 @@ function AvatarBackHair({
   );
 }
 
-function AvatarHead({ skin }: { skin: string }) {
+/** 머리. 귀(ears)와 머리통(head)을 따로 — 고개를 돌릴 때 서로 반대로 움직인다 */
+function AvatarHead({ skin, part }: { skin: string; part: "ears" | "head" }) {
+  if (part === "ears") {
+    return (
+      <G>
+        <Ellipse cx="84" cy="139" rx="24" ry="29" fill={skin} />
+
+        <Ellipse cx="236" cy="139" rx="24" ry="29" fill={skin} />
+      </G>
+    );
+  }
   return (
     <G>
-      <Ellipse cx="84" cy="139" rx="24" ry="29" fill={skin} />
-
-      <Ellipse cx="236" cy="139" rx="24" ry="29" fill={skin} />
-
       <Ellipse cx="160" cy="130" rx="76" ry="91" fill={skin} />
 
       <Ellipse cx="137" cy="92" rx="43" ry="28" fill="#FFFFFF" opacity="0.08" />
@@ -673,14 +715,29 @@ function AvatarHead({ skin }: { skin: string }) {
   );
 }
 
+/** 감은 눈 — 깜빡일 때 (뜬 눈 자리에 살짝 처진 선) */
+function ClosedEye({ cx, cy, eye }: { cx: number; cy: number; eye: string }) {
+  return (
+    <Path
+      d={`M${cx - 14} ${cy + 1} Q${cx} ${cy + 8} ${cx + 14} ${cy + 1}`}
+      fill="none"
+      stroke={eye}
+      strokeWidth="6"
+      strokeLinecap="round"
+    />
+  );
+}
+
 function AvatarFace({
   expression,
   eye,
   skin,
+  blink = false,
 }: {
   expression: AvatarConfig["expression"];
   eye: string;
   skin: string;
+  blink?: boolean;
 }) {
   const leftEyeY = expression === "expression_curious" ? 124 : 128;
 
@@ -736,11 +793,17 @@ function AvatarFace({
             strokeLinecap="round"
           />
 
-          <Ellipse cx="194" cy="128" rx="12" ry="15" fill="#FFFFFF" />
+          {blink ? (
+            <ClosedEye cx={194} cy={128} eye={eye} />
+          ) : (
+            <G>
+              <Ellipse cx="194" cy="128" rx="12" ry="15" fill="#FFFFFF" />
 
-          <Circle cx="194" cy="130" r="7" fill={eye} />
+              <Circle cx="194" cy="130" r="7" fill={eye} />
 
-          <Circle cx="197" cy="126" r="2.4" fill="#FFFFFF" />
+              <Circle cx="197" cy="126" r="2.4" fill="#FFFFFF" />
+            </G>
+          )}
         </G>
       ) : expression === "expression_proud" ? (
         <G>
@@ -759,6 +822,12 @@ function AvatarFace({
             strokeWidth="7"
             strokeLinecap="round"
           />
+        </G>
+      ) : blink ? (
+        <G>
+          <ClosedEye cx={126} cy={leftEyeY} eye={eye} />
+
+          <ClosedEye cx={194} cy={rightEyeY} eye={eye} />
         </G>
       ) : (
         <G>
@@ -1199,6 +1268,7 @@ export default function AvatarPreview({
   aura = false,
   auraLite = false,
   hangulWord,
+  alive = false,
 }: Props) {
   const config = mergeAvatarConfig(avatar);
 
@@ -1215,18 +1285,16 @@ export default function AvatarPreview({
   // 상점 의상 (기본 옷 대신) · 손에 든 것 (전신만)
   const wearBody = { bodyX, bodyWidth, skin };
   const costume = costumeShapes(config.costume, wearBody);
+  // 의상의 팔(소매·손)은 따로 — 손을 흔들 때 팔만 돈다. 순서는 그대로라 그림은 같다
+  const costumeParts = costume ? splitArms(costume) : null;
   const handItem = variant === "full" ? handShapes(config.hand, wearBody) : null;
   const hat = hatShapes(config.hat);
   // 세트 효과 — 다 갖추면 뒤에 은은한 빛 (전신만)
   const halo = variant === "full" ? setHaloShapes(config) : null;
 
-  const svg = (
-    <Svg
-      width={size}
-      height={size}
-      viewBox={viewBox}
-      preserveAspectRatio="xMidYMid meet"
-    >
+  // ── 부위 (정지 그림은 한 장에 차례대로, 홈 아바타는 부위마다 따로 움직인다) ──
+  const base = (
+    <>
       <Defs>
         <LinearGradient id="avatarBackground" x1="0" y1="0" x2="1" y2="1">
           <Stop offset="0" stopColor={background[0]} />
@@ -1257,45 +1325,243 @@ export default function AvatarPreview({
         fill="#151521"
         opacity="0.14"
       />
-
-      <AvatarBackHair hairstyle={config.hairstyle} hair={hair} />
-
-      <AvatarLegs skin={skin} />
-
-      {costume ? (
-        <WearShapes shapes={costume} />
-      ) : (
-        <AvatarOutfit
-          bodyX={bodyX}
-          bodyWidth={bodyWidth}
-          outfit={outfit}
-          outfitId={config.outfit}
-          skin={skin}
-        />
-      )}
-
-      <Rect x="139" y="180" width="42" height="34" rx="15" fill={skin} />
-
-      <AvatarHead skin={skin} />
-
-      <AvatarFace expression={config.expression} eye={eye} skin={skin} />
-
-      <AvatarFacialHair facialHair={config.facialHair} hair={hair} />
-
-      <AvatarFrontHair hairstyle={config.hairstyle} hair={hair} />
-
-      <AvatarEyewear eyewear={config.eyewear} />
-
-      {hat ? <WearShapes shapes={hat} /> : <AvatarHeadwear headwear={config.headwear} outfit={outfit} />}
-
-      {handItem && <WearShapes shapes={handItem} />}
-    </Svg>
+    </>
   );
+  const outfitPart = (part: "body" | "L" | "R") => (
+    <AvatarOutfit
+      bodyX={bodyX}
+      bodyWidth={bodyWidth}
+      outfit={outfit}
+      outfitId={config.outfit}
+      skin={skin}
+      part={part}
+    />
+  );
+  const parts: AvatarParts = {
+    base,
+    backHair: <AvatarBackHair hairstyle={config.hairstyle} hair={hair} />,
+    legs: <AvatarLegs skin={skin} />,
+    armBackL: costumeParts?.backL.length ? <WearShapes shapes={costumeParts.backL} /> : null,
+    armBackR: costumeParts?.backR.length ? <WearShapes shapes={costumeParts.backR} /> : null,
+    body: (
+      <>
+        {costumeParts ? <WearShapes shapes={costumeParts.body} /> : outfitPart("body")}
+      </>
+    ),
+    armFrontL: costumeParts ? <WearShapes shapes={costumeParts.frontL} /> : outfitPart("L"),
+    armFrontR: costumeParts ? <WearShapes shapes={costumeParts.frontR} /> : outfitPart("R"),
+    neck: <Rect x="139" y="180" width="42" height="34" rx="15" fill={skin} />,
+    ears: <AvatarHead skin={skin} part="ears" />,
+    head: <AvatarHead skin={skin} part="head" />,
+    face: (blink: boolean) => (
+      <>
+        <AvatarFace expression={config.expression} eye={eye} skin={skin} blink={blink} />
+
+        <AvatarFacialHair facialHair={config.facialHair} hair={hair} />
+      </>
+    ),
+    frontHair: <AvatarFrontHair hairstyle={config.hairstyle} hair={hair} />,
+    eyewear: config.eyewear !== "eyewear_none" ? <AvatarEyewear eyewear={config.eyewear} /> : null,
+    hat: hat ? <WearShapes shapes={hat} /> : <AvatarHeadwear headwear={config.headwear} outfit={outfit} />,
+    handItem: handItem ? <WearShapes shapes={handItem} /> : null,
+  };
+
+  const svg =
+    alive && variant === "full" ? (
+      <AliveAvatar
+        parts={parts}
+        size={size}
+        expression={config.expression}
+        body={{ bodyX, bodyWidth, outfit: config.outfit, costume: config.costume, hand: config.hand }}
+      />
+    ) : (
+      <Svg
+        width={size}
+        height={size}
+        viewBox={viewBox}
+        preserveAspectRatio="xMidYMid meet"
+      >
+        {parts.base}
+        {parts.backHair}
+        {parts.legs}
+        {parts.armBackL}
+        {parts.armBackR}
+        {parts.body}
+        {parts.armFrontL}
+        {parts.armFrontR}
+        {parts.neck}
+        {parts.ears}
+        {parts.head}
+        {parts.face(false)}
+        {parts.frontHair}
+        {parts.eyewear}
+        {parts.hat}
+        {parts.handItem}
+      </Svg>
+    );
 
   if (!aura || variant !== "full" || !isAura(config.aura)) return svg;
   return (
     <AvatarAura aura={config.aura} size={size} lite={auraLite} hangulWord={hangulWord}>
       {svg}
     </AvatarAura>
+  );
+}
+
+interface AvatarParts {
+  base: ReactNode;
+  backHair: ReactNode;
+  legs: ReactNode;
+  armBackL: ReactNode;
+  armBackR: ReactNode;
+  body: ReactNode;
+  armFrontL: ReactNode;
+  armFrontR: ReactNode;
+  neck: ReactNode;
+  ears: ReactNode;
+  head: ReactNode;
+  face: (blink: boolean) => ReactNode;
+  frontHair: ReactNode;
+  eyewear: ReactNode;
+  hat: ReactNode;
+  handItem: ReactNode;
+}
+
+/** 한 부위 = 같은 캔버스(320×360)를 통째로 덮는 SVG 한 장. 겹쳐 쌓고 View 째로 움직인다 */
+function MotionLayer({
+  size,
+  style,
+  children,
+}: {
+  size: number;
+  style?: ComponentProps<typeof Animated.View>["style"];
+  children: ReactNode;
+}) {
+  return (
+    <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, style]}>
+      <Svg width={size} height={size} viewBox="0 0 320 360" preserveAspectRatio="xMidYMid meet">
+        {children}
+      </Svg>
+    </Animated.View>
+  );
+}
+
+/**
+ * 홈 아바타 — 눈을 깜빡이고, 들어올 때 손을 흔들고, 가끔 두리번거린다.
+ * 동작표는 avatarMotion (텔레그램 generated-avatar alive 와 같다).
+ * react-native-svg 안의 그룹을 UI 스레드에서 움직이기보다, 부위마다 SVG 한 장씩
+ * 겹쳐 놓고 Animated.View 를 돌리는 쪽이 플랫폼 상관없이 확실하다.
+ */
+function AliveAvatar({
+  parts,
+  size,
+  expression,
+  body,
+}: {
+  parts: AvatarParts;
+  size: number;
+  expression: string;
+  body: MotionBody;
+}) {
+  const { blink, look, tilt, lean, armL, armR } = useAvatarMotion({
+    body,
+    enabled: true,
+    expression,
+  });
+  // 캔버스 → 화면 px (xMidYMid meet: 세로가 꽉 차고 가로는 가운데)
+  const k = size / 360;
+  const offX = (size - 320 * k) / 2;
+  const at = (point: { x: number; y: number }) => ({
+    transformOrigin: [offX + point.x * k, point.y * k, 0] as [number, number, number],
+  });
+  const pivotL = armGeometry("L", body).pivot;
+  const pivotR = armGeometry("R", body).pivot;
+
+  // 같은 animated style 을 여러 View 에 나눠 쓰지 않는다 — 부위마다 하나씩
+  const leanStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${lean.value}deg` }],
+  }));
+  const armBackLStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${armL.value}deg` }],
+  }));
+  const armBackRStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${armR.value}deg` }],
+  }));
+  const armFrontLStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${armL.value}deg` }],
+  }));
+  const armFrontRStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${armR.value}deg` }],
+  }));
+  // 고개 돌리기 — 얼굴이 제일 많이, 머리는 조금, 귀·뒷머리는 반대로 (LOOK_SHIFT)
+  const backHairStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.back * look.value * k }],
+  }));
+  const earsStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.ears * look.value * k }],
+  }));
+  const headStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.head * look.value * k }],
+  }));
+  const faceStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.face * look.value * k }],
+  }));
+  const eyewearStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.face * look.value * k }],
+  }));
+  const frontStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${tilt.value}deg` }, { translateX: LOOK_SHIFT.front * look.value * k }],
+  }));
+
+  const neck = at(NECK);
+  return (
+    <View pointerEvents="none" style={{ width: size, height: size }}>
+      <MotionLayer size={size}>{parts.base}</MotionLayer>
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, at(FEET), leanStyle]}>
+        <MotionLayer size={size} style={[neck, backHairStyle]}>
+          {parts.backHair}
+        </MotionLayer>
+        <MotionLayer size={size}>{parts.legs}</MotionLayer>
+        {parts.armBackL ? (
+          <MotionLayer size={size} style={[at(pivotL), armBackLStyle]}>
+            {parts.armBackL}
+          </MotionLayer>
+        ) : null}
+        {parts.armBackR ? (
+          <MotionLayer size={size} style={[at(pivotR), armBackRStyle]}>
+            {parts.armBackR}
+          </MotionLayer>
+        ) : null}
+        <MotionLayer size={size}>
+          {parts.body}
+          {parts.neck}
+        </MotionLayer>
+        <MotionLayer size={size} style={[at(pivotL), armFrontLStyle]}>
+          {parts.armFrontL}
+        </MotionLayer>
+        <MotionLayer size={size} style={[at(pivotR), armFrontRStyle]}>
+          {parts.armFrontR}
+        </MotionLayer>
+        <MotionLayer size={size} style={[neck, earsStyle]}>
+          {parts.ears}
+        </MotionLayer>
+        <MotionLayer size={size} style={[neck, headStyle]}>
+          {parts.head}
+        </MotionLayer>
+        <MotionLayer size={size} style={[neck, faceStyle]}>
+          {parts.face(blink)}
+        </MotionLayer>
+        <MotionLayer size={size} style={[neck, frontStyle]}>
+          {parts.frontHair}
+          {parts.hat}
+        </MotionLayer>
+        {parts.eyewear ? (
+          <MotionLayer size={size} style={[neck, eyewearStyle]}>
+            {parts.eyewear}
+          </MotionLayer>
+        ) : null}
+        {parts.handItem ? <MotionLayer size={size}>{parts.handItem}</MotionLayer> : null}
+      </Animated.View>
+    </View>
   );
 }

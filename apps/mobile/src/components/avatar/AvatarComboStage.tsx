@@ -31,11 +31,14 @@ export default function AvatarComboStage({
   size,
   streak,
   onWordPress,
+  alive = false,
 }: {
   avatar?: Partial<AvatarConfig> | null;
   size: number;
   streak?: number | null;
   onWordPress?: (word: string) => void;
+  /** 홈 — 아바타가 깜빡이고 손을 흔들고 두리번거린다 (AvatarPreview alive) */
+  alive?: boolean;
 }) {
   const { t } = useTranslation();
   const userId = useAuthStore((state) => state.user?.id);
@@ -95,7 +98,7 @@ export default function AvatarComboStage({
         </Animated.View>
       ) : null}
       <Animated.View style={[{ width: size, height: size }, arrivalStyle]}>
-        <AvatarPreview avatar={avatar} size={size} showBackground={false} aura hangulWord={learned?.word} />
+        <AvatarPreview avatar={avatar} size={size} showBackground={false} aura hangulWord={learned?.word} alive={alive} />
         <AvatarPet pet={avatar?.pet} streak={streak} avatarSize={size} />
       </Animated.View>
       {learned ? (
