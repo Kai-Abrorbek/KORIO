@@ -9,18 +9,46 @@
  * 좌표는 아바타 캔버스 320×360. 몸통 왼쪽 bodyX, 너비 bodyWidth (몸매마다 다름),
  * 손은 (bodyX-20, 271) · (bodyX+bodyWidth+20, 271) 반지름 18.
  * 움직이지 않는다 — 응원봉 "빛"도 겹친 동그라미로 그린 정지 그림.
+ * (홈 아바타는 팔 도형(arm)만 돌려서 손을 흔든다 — avatar-motion)
  *
  * 의상은 기본 옷(outfit) 대신, 모자는 기본 모자(headwear) 대신 그린다.
  * 예전 앱은 이 칸을 몰라서 기본 옷·모자로 보인다(안 깨짐).
  *
  * 세트를 다 갖추면 세트 효과: 캐릭터 뒤 은은한 빛(setHaloShapes, 정지).
  */
-export type WShape =
+export type WShape = (
   | { k: "path"; d: string; f?: string; s?: string; w?: number; o?: number; round?: boolean }
   | { k: "rect"; x: number; y: number; width: number; height: number; rx?: number; f?: string; s?: string; w?: number; o?: number }
   | { k: "circle"; cx: number; cy: number; r: number; f?: string; s?: string; w?: number; o?: number }
   | { k: "ellipse"; cx: number; cy: number; rx: number; ry: number; f?: string; s?: string; w?: number; o?: number }
-  | { k: "g"; transform: string; children: WShape[] };
+  | { k: "g"; transform: string; children: WShape[] }
+) & {
+  /** 팔(소매·소맷단·손)이면 어느 쪽인지 — 홈 아바타가 손을 흔들 때 이 도형만 돌린다 (avatar-motion) */
+  arm?: "L" | "R";
+};
+
+/**
+ * 의상 도형을 팔/몸으로 나눈다. 순서는 그대로 지킨다 —
+ * 몸통보다 먼저 그린 팔 도형(소매)은 몸 뒤(back), 나중 것(손)은 몸 앞(front).
+ */
+export function splitArms(shapes: WShape[]) {
+  const out = {
+    backL: [] as WShape[],
+    backR: [] as WShape[],
+    body: [] as WShape[],
+    frontL: [] as WShape[],
+    frontR: [] as WShape[],
+  };
+  let seenBody = false;
+  for (const shape of shapes) {
+    if (!shape.arm) {
+      seenBody = true;
+      out.body.push(shape);
+    } else if (shape.arm === "L") (seenBody ? out.frontL : out.backL).push(shape);
+    else (seenBody ? out.frontR : out.backR).push(shape);
+  }
+  return out;
+}
 
 export interface WearBody {
   bodyX: number;
@@ -162,10 +190,10 @@ function stage({ bodyX, bodyWidth, skin }: WearBody): WShape[] {
   const LAPEL = "#3B3486";
   return [
     // 소매 (뒤) — 재킷 색 + 금 소맷단
-    { k: "path", d: `M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`, s: JACKET, w: 33, round: true },
-    { k: "path", d: `M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`, s: SHADE, w: 33, round: true },
-    { k: "path", d: `M${bodyX - 33} 250 L${bodyX - 3} 254`, s: GOLD, w: 7, round: true },
-    { k: "path", d: `M${right + 3} 254 L${right + 33} 250`, s: GOLD, w: 7, round: true },
+    { k: "path", d: `M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`, s: JACKET, w: 33, round: true, arm: "L" },
+    { k: "path", d: `M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`, s: SHADE, w: 33, round: true, arm: "R" },
+    { k: "path", d: `M${bodyX - 33} 250 L${bodyX - 3} 254`, s: GOLD, w: 7, round: true, arm: "L" },
+    { k: "path", d: `M${right + 3} 254 L${right + 33} 250`, s: GOLD, w: 7, round: true, arm: "R" },
     // 몸통
     {
       k: "path",
@@ -199,8 +227,8 @@ function stage({ bodyX, bodyWidth, skin }: WearBody): WShape[] {
     { k: "circle", cx: bodyX + 14, cy: 256, r: 2.2, f: "#FFFFFF", o: 0.8 },
     { k: "circle", cx: right - 12, cy: 240, r: 2.2, f: "#FFFFFF", o: 0.8 },
     // 손
-    { k: "circle", cx: bodyX - 20, cy: 271, r: 18, f: skin },
-    { k: "circle", cx: right + 20, cy: 271, r: 18, f: skin },
+    { k: "circle", cx: bodyX - 20, cy: 271, r: 18, f: skin, arm: "L" },
+    { k: "circle", cx: right + 20, cy: 271, r: 18, f: skin, arm: "R" },
   ];
 }
 
@@ -208,8 +236,8 @@ function stage({ bodyX, bodyWidth, skin }: WearBody): WShape[] {
 function robeSleeves({ bodyX, bodyWidth }: WearBody, fill: string, shade: string, width = 40): WShape[] {
   const right = bodyX + bodyWidth;
   return [
-    { k: "path", d: `M${bodyX + 18} 199 Q${bodyX - 20} 220 ${bodyX - 21} 258`, s: fill, w: width, round: true },
-    { k: "path", d: `M${right - 18} 199 Q${right + 20} 220 ${right + 21} 258`, s: shade, w: width, round: true },
+    { k: "path", d: `M${bodyX + 18} 199 Q${bodyX - 20} 220 ${bodyX - 21} 258`, s: fill, w: width, round: true, arm: "L" },
+    { k: "path", d: `M${right - 18} 199 Q${right + 20} 220 ${right + 21} 258`, s: shade, w: width, round: true, arm: "R" },
   ];
 }
 const robeBody = ({ bodyX, bodyWidth }: WearBody, fill: string): WShape => {
@@ -222,8 +250,8 @@ const robeBody = ({ bodyX, bodyWidth }: WearBody, fill: string): WShape => {
   };
 };
 const hands = ({ bodyX, bodyWidth, skin }: WearBody): WShape[] => [
-  { k: "circle", cx: bodyX - 20, cy: 271, r: 18, f: skin },
-  { k: "circle", cx: bodyX + bodyWidth + 20, cy: 271, r: 18, f: skin },
+  { k: "circle", cx: bodyX - 20, cy: 271, r: 18, f: skin, arm: "L" },
+  { k: "circle", cx: bodyX + bodyWidth + 20, cy: 271, r: 18, f: skin, arm: "R" },
 ];
 
 /** 곤룡포 — 붉은 왕의 옷, 가슴·어깨에 금 용 무늬(보), 옥대 */
@@ -273,8 +301,8 @@ function seonbi(body: WearBody): WShape[] {
   return [
     ...robeSleeves(body, ROBE, SHADE, 42),
     // 소매 끝 검은 단
-    { k: "path", d: `M${bodyX - 38} 248 L${bodyX - 4} 252`, s: "#2B2F3A", w: 6, round: true },
-    { k: "path", d: `M${right + 4} 252 L${right + 38} 248`, s: "#2B2F3A", w: 6, round: true },
+    { k: "path", d: `M${bodyX - 38} 248 L${bodyX - 4} 252`, s: "#2B2F3A", w: 6, round: true, arm: "L" },
+    { k: "path", d: `M${right + 4} 252 L${right + 38} 248`, s: "#2B2F3A", w: 6, round: true, arm: "R" },
     robeBody(body, ROBE),
     { k: "path", d: `M160 182 Q${right - 10} 186 ${right + 6} 236 L${right + 10} 312 Q194 322 160 322 Z`, f: SHADE, o: 0.55 },
     // 겹친 깃 (왼쪽이 위) — 검은 깃 + 흰 동정
@@ -299,8 +327,8 @@ function guard(body: WearBody): WShape[] {
   const SHADE = "#22387E";
   return [
     ...robeSleeves(body, NAVY, SHADE, 38),
-    { k: "path", d: `M${bodyX - 36} 249 L${bodyX - 4} 253`, s: "#F2C14E", w: 6, round: true },
-    { k: "path", d: `M${right + 4} 253 L${right + 36} 249`, s: "#F2C14E", w: 6, round: true },
+    { k: "path", d: `M${bodyX - 36} 249 L${bodyX - 4} 253`, s: "#F2C14E", w: 6, round: true, arm: "L" },
+    { k: "path", d: `M${right + 4} 253 L${right + 36} 249`, s: "#F2C14E", w: 6, round: true, arm: "R" },
     robeBody(body, NAVY),
     { k: "path", d: `M160 182 Q${right - 10} 186 ${right + 6} 236 L${right + 10} 312 Q194 322 160 322 Z`, f: SHADE, o: 0.5 },
     // 붉은 깃 (V) + 노란 테
@@ -325,8 +353,8 @@ function taekwondo(body: WearBody): WShape[] {
   const WHITE = "#FFFFFF";
   const SHADE = "#E3E6EE";
   return [
-    { k: "path", d: `M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`, s: WHITE, w: 33, round: true },
-    { k: "path", d: `M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`, s: SHADE, w: 33, round: true },
+    { k: "path", d: `M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`, s: WHITE, w: 33, round: true, arm: "L" },
+    { k: "path", d: `M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`, s: SHADE, w: 33, round: true, arm: "R" },
     {
       k: "path",
       d: `M${bodyX + 16} 188 Q160 166 ${right - 16} 188 Q${right + 3} 222 ${right + 2} 290 Q160 307 ${bodyX - 2} 290 Q${bodyX - 3} 222 ${bodyX + 16} 188 Z`,

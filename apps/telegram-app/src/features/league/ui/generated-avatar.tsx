@@ -1,7 +1,8 @@
-import { useId, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 
 import type { AvatarConfig } from "../model/league";
-import { costumeShapes, handShapes, hatShapes, setHaloShapes, type WShape } from "../../../shared/model/avatar-wearables";
+import { costumeShapes, handShapes, hatShapes, setHaloShapes, splitArms, type WShape } from "../../../shared/model/avatar-wearables";
+import { partStyle, useAvatarMotion, type AvatarPart } from "./use-avatar-motion";
 
 /** 입는 꾸미기 도형 → SVG (모바일은 같은 도형을 react-native-svg 로 그린다) */
 function WearShapes({ shapes }: { shapes: WShape[] }) {
@@ -104,28 +105,49 @@ function BackHair({ hair, style }: { hair: string; style: string }) {
   return <path d="M78 108 Q82 39 160 30 Q238 39 242 108 L228 198 Q197 219 160 215 Q123 219 92 198 Z" fill={hair} />;
 }
 
-function Outfit({ bodyX, bodyWidth, id, skin }: { bodyX: number; bodyWidth: number; id: string; skin: string }) {
+/**
+ * 기본 옷. part 로 몸통(body)과 팔(L/R — 소매+손)을 따로 그린다 —
+ * 홈 아바타가 손을 흔들 때 팔만 돌린다. 몸통 → 팔 순서로 그리면 예전과 같은 그림이다
+ * (옷 장식은 가운데라 팔과 안 겹친다).
+ * 한복은 소매가 몸매와 상관없이 고정 좌표다 (앱 AvatarPreview 와 같다).
+ */
+function Outfit({ bodyX, bodyWidth, id, skin, part }: { bodyX: number; bodyWidth: number; id: string; skin: string; part: "body" | "L" | "R" }) {
   const outfit = OUTFITS[id] ?? OUTFITS.outfit_hoodie!;
   const right = bodyX + bodyWidth;
-  if (id === "outfit_hanbok") return <g><path d={`M${bodyX + 10} 191 Q160 164 ${right - 10} 191 L${right + 9} 292 Q160 314 ${bodyX - 9} 292 Z`} fill={outfit.primary} /><path d={`M160 178 L160 294 L${right + 9} 292 L${right - 8} 207 Z`} fill={outfit.secondary} opacity=".38" /><path d="M132 184 L160 214 L188 184" fill="none" stroke={outfit.accent} strokeLinejoin="round" strokeWidth="12" /><rect fill={outfit.accent} height="13" rx="6" width="104" x="108" y="236" /></g>;
+  if (id === "outfit_hanbok") {
+    if (part === "L") return <g><path d="M110 199 Q84 222 82 260" fill="none" stroke={outfit.primary} strokeLinecap="round" strokeWidth="31" /><circle cx="80" cy="269" fill={skin} r="18" /></g>;
+    if (part === "R") return <g><path d="M210 199 Q236 222 238 260" fill="none" stroke={outfit.secondary} strokeLinecap="round" strokeWidth="31" /><circle cx="240" cy="269" fill={skin} r="18" /></g>;
+    return <g><path d={`M${bodyX + 10} 191 Q160 164 ${right - 10} 191 L${right + 9} 292 Q160 314 ${bodyX - 9} 292 Z`} fill={outfit.primary} /><path d={`M160 178 L160 294 L${right + 9} 292 L${right - 8} 207 Z`} fill={outfit.secondary} opacity=".38" /><path d="M132 184 L160 214 L188 184" fill="none" stroke={outfit.accent} strokeLinejoin="round" strokeWidth="12" /><rect fill={outfit.accent} height="13" rx="6" width="104" x="108" y="236" /></g>;
+  }
+  if (part === "L") return <g><path d={`M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`} fill="none" stroke={outfit.primary} strokeLinecap="round" strokeWidth="33" /><circle cx={bodyX - 20} cy="271" fill={skin} r="18" /></g>;
+  if (part === "R") return <g><path d={`M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`} fill="none" stroke={outfit.secondary} strokeLinecap="round" strokeWidth="33" /><circle cx={right + 20} cy="271" fill={skin} r="18" /></g>;
   let details: ReactNode = null;
   if (id === "outfit_hoodie") details = <><path d="M124 190 Q160 219 196 190" fill="none" stroke={outfit.secondary} strokeLinecap="round" strokeWidth="14" /><line stroke={outfit.accent} strokeLinecap="round" strokeWidth="4" x1="145" x2="143" y1="207" y2="244" /><line stroke={outfit.accent} strokeLinecap="round" strokeWidth="4" x1="175" x2="177" y1="207" y2="244" /></>;
   if (id === "outfit_varsity") details = <><rect fill={outfit.accent} height="105" opacity=".9" width="16" x="152" y="186" /><path d="M119 190 Q160 216 201 190" fill="none" stroke={outfit.accent} strokeWidth="12" /></>;
   if (id === "outfit_sweater") details = <><path d="M119 193 Q160 215 201 193" fill="none" stroke={outfit.accent} strokeWidth="12" /><path d="M127 234 H193" opacity=".75" stroke={outfit.accent} strokeDasharray="8 7" strokeWidth="7" /></>;
   if (id === "outfit_sport") details = <><path d="M126 188 L160 219 L194 188" fill={outfit.accent} opacity=".95" /><circle cx="160" cy="246" fill={outfit.secondary} opacity=".85" r="23" /></>;
   if (id === "outfit_denim") details = <><path d="M127 189 L160 216 L193 189" fill={outfit.accent} /><line opacity=".8" stroke={outfit.accent} strokeWidth="4" x1="160" x2="160" y1="212" y2="290" /></>;
-  return <g><path d={`M${bodyX + 16} 188 Q160 166 ${right - 16} 188 Q${right + 3} 222 ${right + 2} 290 Q160 307 ${bodyX - 2} 290 Q${bodyX - 3} 222 ${bodyX + 16} 188 Z`} fill={outfit.primary} /><path d={`M160 180 Q${right - 12} 183 ${right + 2} 226 L${right + 2} 290 Q192 301 160 301 Z`} fill={outfit.secondary} opacity=".5" /><path d={`M${bodyX + 18} 201 Q${bodyX - 17} 220 ${bodyX - 19} 263`} fill="none" stroke={outfit.primary} strokeLinecap="round" strokeWidth="33" /><path d={`M${right - 18} 201 Q${right + 17} 220 ${right + 19} 263`} fill="none" stroke={outfit.secondary} strokeLinecap="round" strokeWidth="33" /><circle cx={bodyX - 20} cy="271" fill={skin} r="18" /><circle cx={right + 20} cy="271" fill={skin} r="18" />{details}</g>;
+  return <g><path d={`M${bodyX + 16} 188 Q160 166 ${right - 16} 188 Q${right + 3} 222 ${right + 2} 290 Q160 307 ${bodyX - 2} 290 Q${bodyX - 3} 222 ${bodyX + 16} 188 Z`} fill={outfit.primary} /><path d={`M160 180 Q${right - 12} 183 ${right + 2} 226 L${right + 2} 290 Q192 301 160 301 Z`} fill={outfit.secondary} opacity=".5" />{details}</g>;
 }
 
-function Face({ expression, eye, skin }: { expression: string; eye: string; skin: string }) {
+/** 감은 눈 — 깜빡일 때 (뜬 눈 자리에 살짝 처진 선) */
+function ClosedEye({ cx, cy, eye }: { cx: number; cy: number; eye: string }) {
+  return <path d={`M${cx - 14} ${cy + 1} Q${cx} ${cy + 8} ${cx + 14} ${cy + 1}`} fill="none" stroke={eye} strokeLinecap="round" strokeWidth="6" />;
+}
+
+function Face({ expression, eye, skin, blink = false }: { expression: string; eye: string; skin: string; blink?: boolean }) {
   const leftY = expression === "expression_curious" ? 124 : 128;
   const rightY = expression === "expression_curious" ? 132 : 128;
   const brow = darken(skin, 58);
   let eyes: ReactNode;
-  if (expression === "expression_playful") {
+  if (expression === "expression_playful" && blink) {
+    eyes = <><path d="M110 129 Q126 139 142 129" fill="none" stroke={eye} strokeLinecap="round" strokeWidth="7" /><ClosedEye cx={194} cy={128} eye={eye} /></>;
+  } else if (expression === "expression_playful") {
     eyes = <><path d="M110 129 Q126 139 142 129" fill="none" stroke={eye} strokeLinecap="round" strokeWidth="7" /><ellipse cx="194" cy="128" fill="#fff" rx="12" ry="15" /><circle cx="194" cy="130" fill={eye} r="7" /><circle cx="197" cy="126" fill="#fff" r="2.4" /></>;
   } else if (expression === "expression_proud") {
     eyes = <><path d="M110 130 Q126 139 142 130" fill="none" stroke={eye} strokeLinecap="round" strokeWidth="7" /><path d="M178 130 Q194 139 210 130" fill="none" stroke={eye} strokeLinecap="round" strokeWidth="7" /></>;
+  } else if (blink) {
+    eyes = <><ClosedEye cx={126} cy={leftY} eye={eye} /><ClosedEye cx={194} cy={rightY} eye={eye} /></>;
   } else {
     eyes = <><ellipse cx="126" cy={leftY} fill="#fff" rx="12" ry="15" /><ellipse cx="194" cy={rightY} fill="#fff" rx="12" ry="15" /><circle cx="126" cy={leftY + 2} fill={eye} r="7" /><circle cx="194" cy={rightY + 2} fill={eye} r="7" /><circle cx="129" cy={leftY - 2} fill="#fff" r="2.5" /><circle cx="197" cy={rightY - 2} fill="#fff" r="2.5" /></>;
   }
@@ -174,10 +196,15 @@ export function getAvatarHeaderContentColor(avatar?: Partial<AvatarConfig> | nul
   return background === "background_navy" || background === "background_plum" ? "#FFFFFF" : "#25252F";
 }
 
-export function GeneratedAvatar({ avatar, variant = "head", showBackground = false }: {
+export function GeneratedAvatar({ avatar, variant = "head", showBackground = false, alive = false }: {
   avatar?: Partial<AvatarConfig> | null;
   variant?: "full" | "head";
   showBackground?: boolean;
+  /**
+   * 홈 아바타 — 눈을 깜빡이고, 들어올 때 손을 흔들고, 가끔 두리번거린다 (전신만).
+   * 동작은 shared/model/avatar-motion 표대로 (앱 AvatarPreview alive 와 같다)
+   */
+  alive?: boolean;
 }) {
   const config = { ...DEFAULTS, ...avatar };
   const gradientId = `avatarBackground${useId().replaceAll(":", "")}`;
@@ -191,31 +218,90 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
   // 상점 의상 (기본 옷 대신) · 손에 든 것 (전신만)
   const wearBody = { bodyX, bodyWidth, skin };
   const costume = costumeShapes(config.costume, wearBody);
+  // 의상의 팔(소매·손)은 따로 — 손을 흔들 때 팔만 돈다. 순서는 그대로라 그림은 같다
+  const costumeParts = costume ? splitArms(costume) : null;
   const hand = variant === "full" ? handShapes(config.hand, wearBody) : null;
   const hat = hatShapes(config.hat);
   // 세트 효과 — 다 갖추면 뒤에 은은한 빛 (전신만)
   const halo = variant === "full" ? setHaloShapes(config) : null;
+
+  // ── 동작 (홈 전신만) ──
+  const motionOn = alive && variant === "full";
+  const motionBody = { bodyX, bodyWidth, outfit: config.outfit, costume: config.costume, hand: config.hand };
+  const partRefs = useRef<Partial<Record<AvatarPart, SVGGElement | null>>>({});
+  const blink = useAvatarMotion({ body: motionBody, enabled: motionOn, expression: config.expression, parts: partRefs });
+  const part = (key: AvatarPart) =>
+    motionOn
+      ? {
+          ref: (el: SVGGElement | null) => {
+            partRefs.current[key] = el;
+          },
+          style: partStyle(key, motionBody),
+          "data-part": key,
+        }
+      : {};
+
   return (
     <svg aria-hidden="true" preserveAspectRatio="xMidYMid meet" viewBox={variant === "head" ? "52 16 216 216" : "0 0 320 360"}>
       {showBackground ? <AvatarBackground colors={background} gradientId={gradientId} /> : null}
       {showBackground ? <circle cx="160" cy="149" fill="#fff" opacity=".24" r="126" /> : null}
       {halo ? <WearShapes shapes={halo} /> : null}
       <ellipse cx="160" cy="337" fill="#151521" opacity=".14" rx="91" ry="15" />
-      <BackHair hair={hair} style={config.hairstyle} />
-      <AvatarLegs skin={skin} />
-      {costume ? <WearShapes shapes={costume} /> : <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} skin={skin} />}
-      <rect fill={skin} height="34" rx="15" width="42" x="139" y="180" />
-      <ellipse cx="84" cy="139" fill={skin} rx="24" ry="29" />
-      <ellipse cx="236" cy="139" fill={skin} rx="24" ry="29" />
-      <ellipse cx="160" cy="130" fill={skin} rx="76" ry="91" />
-      <ellipse cx="137" cy="92" fill="#fff" opacity=".08" rx="43" ry="28" />
-      <path d="M99 160 Q112 210 160 219 Q208 210 221 160 Q212 228 160 238 Q108 228 99 160 Z" fill={darken(skin, 12)} opacity=".16" />
-      <Face expression={config.expression} eye={eye} skin={skin} />
-      <FacialHair hair={hair} style={config.facialHair} />
-      <FrontHair hair={hair} style={config.hairstyle} />
-      <Eyewear style={config.eyewear} />
-      {hat ? <WearShapes shapes={hat} /> : <Headwear id={config.headwear} outfit={outfit} />}
-      {hand ? <WearShapes shapes={hand} /> : null}
+      <g {...part("lean")}>
+        <g {...part("backHair")}>
+          <BackHair hair={hair} style={config.hairstyle} />
+        </g>
+        <AvatarLegs skin={skin} />
+        {costumeParts ? (
+          <>
+            <g {...part("armBackL")}>
+              <WearShapes shapes={costumeParts.backL} />
+            </g>
+            <g {...part("armBackR")}>
+              <WearShapes shapes={costumeParts.backR} />
+            </g>
+            <WearShapes shapes={costumeParts.body} />
+            <g {...part("armFrontL")}>
+              <WearShapes shapes={costumeParts.frontL} />
+            </g>
+            <g {...part("armFrontR")}>
+              <WearShapes shapes={costumeParts.frontR} />
+            </g>
+          </>
+        ) : (
+          <>
+            <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} part="body" skin={skin} />
+            <g {...part("armFrontL")}>
+              <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} part="L" skin={skin} />
+            </g>
+            <g {...part("armFrontR")}>
+              <Outfit bodyWidth={bodyWidth} bodyX={bodyX} id={config.outfit} part="R" skin={skin} />
+            </g>
+          </>
+        )}
+        <rect fill={skin} height="34" rx="15" width="42" x="139" y="180" />
+        <g {...part("ears")}>
+          <ellipse cx="84" cy="139" fill={skin} rx="24" ry="29" />
+          <ellipse cx="236" cy="139" fill={skin} rx="24" ry="29" />
+        </g>
+        <g {...part("head")}>
+          <ellipse cx="160" cy="130" fill={skin} rx="76" ry="91" />
+          <ellipse cx="137" cy="92" fill="#fff" opacity=".08" rx="43" ry="28" />
+          <path d="M99 160 Q112 210 160 219 Q208 210 221 160 Q212 228 160 238 Q108 228 99 160 Z" fill={darken(skin, 12)} opacity=".16" />
+        </g>
+        <g {...part("face")}>
+          <Face blink={blink} expression={config.expression} eye={eye} skin={skin} />
+          <FacialHair hair={hair} style={config.facialHair} />
+        </g>
+        <g {...part("front")}>
+          <FrontHair hair={hair} style={config.hairstyle} />
+        </g>
+        <g {...part("eyewear")}>
+          <Eyewear style={config.eyewear} />
+        </g>
+        <g {...part("hat")}>{hat ? <WearShapes shapes={hat} /> : <Headwear id={config.headwear} outfit={outfit} />}</g>
+        {hand ? <WearShapes shapes={hand} /> : null}
+      </g>
     </svg>
   );
 }

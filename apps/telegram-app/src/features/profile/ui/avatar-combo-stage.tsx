@@ -21,11 +21,14 @@ export function AvatarComboStage({
   streak,
   userId,
   onWordPress,
+  alive = false,
 }: {
   avatar: AvatarConfig;
   streak?: number | null;
   userId?: string;
   onWordPress?: (word: string) => void;
+  /** 홈 — 아바타가 깜빡이고 손을 흔들고 두리번거린다 (GeneratedAvatar alive) */
+  alive?: boolean;
 }) {
   const language = useContentLanguage();
   const { recentWord } = useAvatarStudy();
@@ -39,7 +42,7 @@ export function AvatarComboStage({
       {active ? <span aria-hidden="true" className={styles.portal}><i /><b>✦</b><b>✦</b><b>✦</b></span> : null}
       <span className={styles.arrival}>
         <AvatarAura aura={avatar.aura} hangulWord={learned?.word}>
-          <GeneratedAvatar avatar={avatar} variant="full" />
+          <GeneratedAvatar alive={alive} avatar={avatar} variant="full" />
         </AvatarAura>
         <AvatarPet pet={avatar.pet} streak={streak} />
       </span>

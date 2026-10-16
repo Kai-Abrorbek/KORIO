@@ -170,7 +170,7 @@ function UserArtwork({ user, onPress, onWordPress }: { user: HomeUser; onPress: 
       {avatar && isScene(avatar.scene) ? <SceneBackdrop scene={avatar.scene} living /> : null}
       {avatar ? (
         <span className={styles.generatedArtwork}>
-          <AvatarComboStage avatar={avatar} onWordPress={onWordPress} streak={user.streak} userId={user.id} />
+          <AvatarComboStage alive avatar={avatar} onWordPress={onWordPress} streak={user.streak} userId={user.id} />
         </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
