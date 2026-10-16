@@ -124,7 +124,8 @@ export function LevelUpScreen() {
 
   useTelegramBackOverride(finish);
 
-  useEffect(() => {
+  // 그리기 전에 첫 장면을 맞춘다 (안 그러면 한 프레임 동안 로켓이 맨 위·불꽃이 다 켜진 채 보인다)
+  useLayoutEffect(() => {
     if (!payload) return;
     const audio = createCinemaAudio();
     audio.preload();
@@ -222,6 +223,7 @@ export function LevelUpScreen() {
       frame = requestAnimationFrame(tick);
     };
 
+    apply(reduce ? CINEMA.reveal : 0);
     void audio.playFrom(reduce ? CINEMA.reveal : 0);
     frame = requestAnimationFrame(tick);
     return () => {
