@@ -1,0 +1,301 @@
+/* 레벨업 연출 — 화면 전체. 움직임은 rAF 가 transform·opacity 만 바꾼다 (레이아웃은 고정) */
+.stage {
+  background: #140f3a;
+  color: #ffffff;
+  inset: 0;
+  overflow: hidden;
+  position: fixed;
+  touch-action: none;
+  user-select: none;
+  z-index: 60;
+}
+
+.dusk,
+.space,
+.flash {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+.dusk {
+  background: linear-gradient(180deg, #2a1e6b 0%, #4b37a8 46%, #8a5fd0 74%, #f2a6c8 100%);
+}
+
+.space {
+  background: radial-gradient(120% 70% at 50% 30%, #2a2172 0%, #120d36 55%, #07061a 100%);
+  opacity: 0;
+}
+
+.flash {
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #e9e4ff 45%, #b7aeff 100%);
+  opacity: 0;
+}
+
+.stars {
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  will-change: transform;
+}
+
+.warp {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(233, 228, 255, 0.95) 100%);
+  border-radius: 2px;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 2px;
+  will-change: transform, opacity;
+}
+
+.layer {
+  pointer-events: none;
+  position: absolute;
+  will-change: transform;
+}
+
+.layer > svg {
+  display: block;
+}
+
+.fill {
+  height: 100%;
+  inset: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.groundFill {
+  background: #1c1648;
+  height: 120vh;
+  margin-top: -2px;
+}
+
+.flame {
+  position: absolute;
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+
+/* 비행 중 노즐 아래 빛 꼬리 */
+.trail {
+  background: linear-gradient(180deg, rgba(255, 212, 92, 0.95) 0%, rgba(255, 122, 69, 0.55) 30%, rgba(255, 179, 218, 0.25) 62%, rgba(255, 179, 218, 0) 100%);
+  border-radius: 999px;
+  filter: blur(2px);
+  position: absolute;
+  transform-origin: 50% 0;
+  will-change: transform, opacity;
+}
+
+.window {
+  background: #bfe5ff;
+  border-radius: 50%;
+  overflow: hidden;
+  position: absolute;
+}
+
+.window > svg {
+  display: block;
+  height: 112%;
+  margin: -2% 0 0 -6%;
+  width: 112%;
+}
+
+.jamo,
+.puff {
+  font-weight: 900;
+  left: 0;
+  line-height: 1;
+  pointer-events: none;
+  position: absolute;
+  text-shadow: 0 0 10px rgba(255, 212, 92, 0.55);
+  top: 0;
+  will-change: transform, opacity;
+}
+
+.puff {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(233, 228, 255, 0.55) 55%, rgba(233, 228, 255, 0) 72%);
+  border-radius: 50%;
+}
+
+.planet {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  transform: translateY(-120vh);
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.planetNumber {
+  color: #ffffff;
+  font-weight: 900;
+  left: 50%;
+  line-height: 1;
+  position: absolute;
+  text-shadow: 0 4px 0 #554cb5, 0 0 24px rgba(255, 255, 255, 0.35);
+  top: 50%;
+  transform: translate(-50%, -54%);
+}
+
+.flag {
+  position: absolute;
+}
+
+.flag b {
+  color: #7a4c00;
+  font-weight: 900;
+  line-height: 1;
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+
+.lander {
+  position: absolute;
+}
+
+.lander > svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.countBox {
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 15%;
+}
+
+.count {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  will-change: transform, opacity;
+}
+
+.count strong {
+  color: #ffffff;
+  font-size: min(29vw, 132px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-shadow: 0 6px 0 #554cb5, 0 0 34px rgba(183, 174, 255, 0.65);
+}
+
+.count span {
+  color: #e9e4ff;
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+.chip {
+  background: rgba(255, 255, 255, 0.14);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  left: 50%;
+  max-width: calc(100% - 48px);
+  opacity: 0;
+  padding: 9px 16px;
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 7%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.reveal {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  left: 24px;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 24px;
+  text-align: center;
+}
+
+.reveal small {
+  background: rgba(255, 212, 92, 0.16);
+  border: 1.5px solid rgba(255, 212, 92, 0.5);
+  border-radius: 999px;
+  color: #ffd45c;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 6px 12px;
+}
+
+.reveal h1 {
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 2px 0 0;
+}
+
+.reveal p {
+  color: #d9d3ff;
+  display: -webkit-box;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.skip {
+  background: rgba(255, 255, 255, 0.14);
+  border: 0;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 14px;
+  position: absolute;
+  right: 16px;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  transition: opacity 0.25s ease;
+}
+
+/* 확인 버튼은 화면 아래 고정 + 안전 영역 */
+.footer {
+  bottom: 0;
+  left: 0;
+  padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 18px);
+  position: absolute;
+  right: 0;
+  transition: opacity 0.4s ease;
+}
+
+.continue {
+  background: #ffd45c;
+  border: 0;
+  border-bottom: 5px solid #e2a83a;
+  border-radius: 16px;
+  color: #3a2700;
+  font-size: 17px;
+  font-weight: 900;
+  min-height: 56px;
+  width: 100%;
+}
+
+.continue:active {
+  border-bottom-width: 2px;
+  transform: translateY(3px);
+}

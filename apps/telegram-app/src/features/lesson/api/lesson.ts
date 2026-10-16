@@ -1,3 +1,4 @@
+import type { SectionUpResult } from "../../level-up/model/level-up";
 import type {
   AnswerGradeResult,
   CompleteLessonResult,
@@ -41,6 +42,8 @@ export function completeJumpTest(
   heartLimit: number;
   passed: boolean;
   section?: number;
+  /** 합격으로 섹션을 넘었으면 — 바로 레벨업 연출 (옛 서버는 안 보낸다) */
+  sectionUp?: SectionUpResult | null;
   unit?: number;
   wrongCount: number;
 }> {

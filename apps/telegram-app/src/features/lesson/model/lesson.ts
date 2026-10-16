@@ -1,3 +1,4 @@
+import type { SectionUpResult } from "../../level-up/model/level-up";
 export type QuestionType =
   | "sentence_builder"
   | "translate_builder"
@@ -113,6 +114,8 @@ export interface CompleteLessonResult {
   success: boolean;
   totalXP: number;
   unitCompleted: { score: number; section: number; unit: number } | null;
+  /** 이 레슨으로 섹션을 다 끝냈으면 — 축하 화면들 뒤에 레벨업 연출 (옛 서버는 안 보낸다) */
+  sectionUp?: SectionUpResult | null;
   xpEarned: number;
 }
 

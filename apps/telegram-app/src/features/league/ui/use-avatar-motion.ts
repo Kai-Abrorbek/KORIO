@@ -91,11 +91,14 @@ export function useAvatarMotion({
   enabled,
   expression,
   parts,
+  forceGreet = false,
 }: {
   body: MotionBody;
   enabled: boolean;
   expression?: string;
   parts: AvatarPartRefs;
+  /** 쿨다운과 상관없이 나타나자마자 손을 흔든다 (레벨업 연출의 착륙) */
+  forceGreet?: boolean;
 }) {
   const [blink, setBlink] = useState(false);
   const blinkable = canBlink(expression);
@@ -157,7 +160,7 @@ export function useAvatarMotion({
     };
 
     // 홈에 들어오면 한 번 손 인사 (30초 안에 또 오면 생략)
-    if (Date.now() - lastGreetAt > GREET_COOLDOWN_MS) {
+    if (forceGreet || Date.now() - lastGreetAt > GREET_COOLDOWN_MS) {
       later(GREET_DELAY_MS, () => {
         if (!visible()) return;
         lastGreetAt = Date.now();
@@ -172,7 +175,7 @@ export function useAvatarMotion({
       running.forEach((animation) => animation.cancel());
       setBlink(false);
     };
-  }, [enabled, blinkable, bodyX, bodyWidth, outfit, costume, hand, parts]);
+  }, [enabled, blinkable, bodyX, bodyWidth, outfit, costume, hand, parts, forceGreet]);
 
   return enabled && blink;
 }

@@ -59,6 +59,7 @@ import { FeedbackBar, LessonHeader, QuitLessonModal, ReviewIntro } from "./lesso
 import { LessonSpeechProvider } from "./questions/shared";
 import styles from "./lesson.module.css";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
+import { payloadFromSectionUp, queueLevelUp, setLevelUp } from "../../level-up/model/level-up";
 import {
   newComboTracker,
   refundComboTracker,
@@ -704,6 +705,12 @@ export function LessonScreen() {
       if (isJump) {
         if (!jumpAttemptId.current) throw new Error("JUMP_ATTEMPT_REQUIRED");
         const result = await completeJumpTest(request, jumpAttemptId.current, [...allWrongIds.current]);
+        // 합격으로 섹션을 넘었으면 결과 화면 대신 바로 레벨업 연출 → 로드맵 (앱과 같다)
+        if (result.passed && result.sectionUp) {
+          setLevelUp(payloadFromSectionUp(result.sectionUp, "jump", backToLearning(category)));
+          router.replace("/level-up");
+          return;
+        }
         const query = new URLSearchParams({
           category: category ?? "",
           lessons: String(result.completed ?? 0),
@@ -772,6 +779,20 @@ export function LessonScreen() {
           heartsOut: heartsOut ? "1" : "",
           hearts: String(heartLimit),
         });
+        // 합격해서 다음 급이 열렸으면 레벨업 연출을 먼저, 끝나면 시험 결과(보석·XP) 화면 (앱과 같다)
+        if (result.passed && result.nextLevel) {
+          setLevelUp({
+            kind: "level",
+            to: result.nextLevel,
+            from: result.level,
+            title: result.nextLevelMeta?.title ?? null,
+            description: result.nextLevelMeta?.description ?? null,
+            via: "exam",
+            next: `/level-exam-result?${query.toString()}`,
+          });
+          router.replace("/level-up");
+          return;
+        }
         router.replace(`/level-exam-result?${query.toString()}`);
         return;
       }
@@ -903,6 +924,8 @@ export function LessonScreen() {
       //   오늘의 첫 레슨 → 연속 학습 / 유닛 완료 → 스코어 상승 / 상자 → 상자 열기
       // "오늘 처음인가"·"유닛을 끝냈나" 판정은 서버가 한다 (클라가 세면 또 축하한다)
       const gemsBefore = result.gems - (result.chest?.gems ?? 0) - (result.streakChest?.gems ?? 0);
+      // 섹션을 다 끝냈으면 축하 화면들(도장·스코어·상자)을 다 보고 로드맵에 돌아왔을 때 레벨업 연출
+      if (result.sectionUp) queueLevelUp(payloadFromSectionUp(result.sectionUp, "lesson"));
       routeComplete({
         accuracy,
         category: category ?? undefined,

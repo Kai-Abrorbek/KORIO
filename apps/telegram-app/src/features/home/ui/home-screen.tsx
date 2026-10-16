@@ -48,6 +48,7 @@ import {
   XpBoostBanner,
 } from "../../retention/ui/home-retention";
 import { energySpendsSettled } from "../../energy/energy-sync";
+import { setLevelUp, takeQueuedLevelUp } from "../../level-up/model/level-up";
 
 interface QuickAccessItem {
   color: string;
@@ -208,6 +209,14 @@ export function HomeScreen() {
       setRetention((current) => (current ? fn(current) : current)),
     [],
   );
+
+  // 섹션을 끝낸 축하 화면들을 지나 홈으로 왔으면 여기서 레벨업 연출 (로드맵과 같다)
+  useEffect(() => {
+    const queued = takeQueuedLevelUp();
+    if (!queued) return;
+    setLevelUp(queued);
+    router.push("/level-up");
+  }, [router]);
 
   useEffect(() => {
     if (!authenticatedUser) return;

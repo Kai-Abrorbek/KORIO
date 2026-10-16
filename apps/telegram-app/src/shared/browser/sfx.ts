@@ -34,18 +34,6 @@ const requests = new Map<SfxKey, number>();
 let revision = 0;
 let feedbackRequest = 0;
 let listening = false;
-let buttonInteraction: { handled: boolean } | null = null;
-
-/** Use when a control consumes a click without activating, e.g. after dragging. */
-export function suppressDefaultButtonSound() {
-  if (buttonInteraction) buttonInteraction.handled = true;
-}
-
-/** Recording starts in a click handler: cancel its deferred tap before opening the mic. */
-export function stopSfxForRecording() {
-  suppressDefaultButtonSound();
-  stopSfx();
-}
 
 /** 설정 변경은 진행 중인 효과음과 아직 디코딩 중인 재생 요청을 함께 취소한다. */
 export function stopSfx() {
@@ -117,58 +105,8 @@ export function preloadSfx(...keys: SfxKey[]) {
   for (const key of keys.length ? keys : (["click"] as SfxKey[])) void load(key, ctx);
 }
 
-/** One root listener also covers auth, nested icons, links, portals and keyboard activation. */
-export function installButtonSounds() {
-  preloadSfx("click", "select");
-  const pending = new Map<MouseEvent, { handled: boolean; timer: ReturnType<typeof setTimeout> }>();
-  const finishClick = (event: MouseEvent) => {
-    const interaction = pending.get(event);
-    if (!interaction) return;
-    pending.delete(event);
-    clearTimeout(interaction.timer);
-    const currentInteraction = buttonInteraction;
-    buttonInteraction = null;
-    if (!interaction.handled) playSfx("click");
-    buttonInteraction = currentInteraction === interaction ? null : currentInteraction;
-  };
-  const captureClick = (event: MouseEvent) => {
-    // A click is emitted after an actual activation, unlike pointerdown while scrolling.
-    if (!event.isTrusted || event.button !== 0 || !(event.target instanceof Element)) return;
-    const input = event.target.closest('input, textarea, select, [contenteditable="true"], [role="slider"], [role="textbox"]');
-    if (input && !input.matches('input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"]')) return;
-    const control = event.target.closest(
-      'button, a[href], [role="button"], [role="link"], [role="switch"], [role="checkbox"], [role="radio"], [role="tab"], [role="menuitem"], input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"]',
-    );
-    if (!control || control.matches(":disabled") || control.closest('[disabled], [aria-disabled="true"], [inert]')) return;
-
-    const interaction = { handled: false, timer: setTimeout(() => finishClick(event), 0) };
-    pending.set(event, interaction);
-    buttonInteraction = interaction;
-    const saved = readSettings();
-    if (saved.uiSoundsEnabled !== false && !sessionMuted(Boolean(saved.startMuted)) && (saved.keyVolume ?? 1) > 0) {
-      // Keep resume inside the gesture; the fallback runs after React's event handlers.
-      const ctx = audioContext();
-      if (ctx?.state === "suspended") void ctx.resume().catch(() => undefined);
-    }
-  };
-  document.addEventListener("click", captureClick, true);
-  // React handlers run before the window bubble listener. For stopped propagation,
-  // the timer is the fallback; a microtask can run before React in real browsers.
-  window.addEventListener("click", finishClick);
-  return () => {
-    document.removeEventListener("click", captureClick, true);
-    window.removeEventListener("click", finishClick);
-    for (const interaction of pending.values()) {
-      clearTimeout(interaction.timer);
-      if (buttonInteraction === interaction) buttonInteraction = null;
-    }
-    pending.clear();
-  };
-}
-
 export function playSfx(key: SfxKey, options?: SfxOptions) {
   if (typeof window === "undefined") return;
-  if (buttonInteraction) buttonInteraction.handled = true;
   listenForPreferences();
   const respect = options?.respectSoundSettings !== false;
   const saved = readSettings();
@@ -228,4 +166,23 @@ export function playSfx(key: SfxKey, options?: SfxOptions) {
       // 효과음 실패로 앱 흐름을 막지 않는다
     }
   })();
+}
+
+/**
+ * 레벨업 연출처럼 여러 소리를 시각에 맞춰 겹쳐 트는 곳이 같은 오디오 컨텍스트를 쓰게 한다
+ * (iOS·텔레그램 웹뷰는 사용자가 한 번 만진 컨텍스트만 소리를 낸다).
+ */
+export function sfxAudioContext() {
+  if (typeof window === "undefined") return null;
+  listenForPreferences();
+  return audioContext();
+}
+
+/** 지금 효과음 볼륨 — 효과음을 껐거나 음소거면 0 */
+export function sfxVolumeNow() {
+  if (typeof window === "undefined") return 0;
+  const saved = readSettings();
+  if (saved.uiSoundsEnabled === false) return 0;
+  if (sessionMuted(Boolean(saved.startMuted))) return 0;
+  return Math.min(1, Math.max(0, saved.sfxVolume ?? 1));
 }

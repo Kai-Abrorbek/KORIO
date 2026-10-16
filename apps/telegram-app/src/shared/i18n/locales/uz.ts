@@ -3317,4 +3317,22 @@ export default {
       FREEZE_MAX: "Tiklash qalamlari allaqachon to'la.",
     },
   },
+  // 레벨업 연출 (한글 로켓) — 섹션·급이 열린 순간
+  levelUp: {
+    introSection: "{{n}}-bo'lim tugadi!",
+    introJump: "Sinovdan o'tdingiz!",
+    introLevel: "{{n}}-daraja imtihoni topshirildi!",
+    go: "Ketdik!",
+    kickerSection: "Yangi bo'lim ochildi",
+    kickerLevel: "Yangi daraja ochildi",
+    kickerCourse: "Kurs yakunlandi",
+    titleSection: "{{n}}-bo'lim",
+    titleLevel: "{{n}}-daraja",
+    titleCourse: "Barcha bo'limlar tugadi!",
+    bodySection: "Sizni yangi so'zlar va iboralar kutmoqda.",
+    bodyLevel: "Sizni yanada yuqori bosqichdagi koreys tili kutmoqda.",
+    bodyCourse: "Yangi bo'limlar tez orada ochiladi. Hozircha takrorlab mustahkamlang.",
+    skip: "O'tkazib yuborish",
+    continue: "Davom etish",
+  },
 };

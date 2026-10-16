@@ -8,6 +8,7 @@ import { useEnergyGuard } from "../../energy/energy-gate";
 import { energySpendsSettled } from "../../energy/energy-sync";
 import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { setLevelUp, takeQueuedLevelUp } from "../../level-up/model/level-up";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { claimStudyPathChests } from "../../study-path/api/study-path";
 import { getRoadmap, getRoadmapScore } from "../api/roadmap";
@@ -66,6 +67,14 @@ export function RoadmapScreen() {
 
   // 앱처럼 로드맵의 뒤로가기는 홈으로 (코스 선택 화면을 거쳐 들어왔어도)
   useTelegramBackOverride(() => router.replace("/home"));
+
+  // 섹션을 다 끝내고 축하 화면들(도장·스코어·상자)을 지나 돌아왔으면 레벨업 연출 (앱과 같다)
+  useEffect(() => {
+    const queued = takeQueuedLevelUp();
+    if (!queued) return;
+    setLevelUp(queued);
+    router.push("/level-up");
+  }, [router]);
 
   // 헤더의 보석·에너지·스트릭을 서버 값으로 맞춘다 (레슨을 끝내고 돌아오면 바뀌어 있다)
   useEffect(() => {

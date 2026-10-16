@@ -4,8 +4,8 @@ import type { AvatarConfig } from "../model/league";
 import { costumeShapes, handShapes, hatShapes, setHaloShapes, splitArms, type WShape } from "../../../shared/model/avatar-wearables";
 import { partStyle, useAvatarMotion, type AvatarPart } from "./use-avatar-motion";
 
-/** 입는 꾸미기 도형 → SVG (모바일은 같은 도형을 react-native-svg 로 그린다) */
-function WearShapes({ shapes }: { shapes: WShape[] }) {
+/** 입는 꾸미기 도형 → SVG (모바일은 같은 도형을 react-native-svg 로 그린다). 레벨업 연출도 이걸로 그린다 */
+export function WearShapes({ shapes }: { shapes: WShape[] }) {
   return (
     <>
       {shapes.map((shape, index) => {
@@ -196,7 +196,7 @@ export function getAvatarHeaderContentColor(avatar?: Partial<AvatarConfig> | nul
   return background === "background_navy" || background === "background_plum" ? "#FFFFFF" : "#25252F";
 }
 
-export function GeneratedAvatar({ avatar, variant = "head", showBackground = false, alive = false }: {
+export function GeneratedAvatar({ avatar, variant = "head", showBackground = false, alive = false, greet = false }: {
   avatar?: Partial<AvatarConfig> | null;
   variant?: "full" | "head";
   showBackground?: boolean;
@@ -205,6 +205,8 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
    * 동작은 shared/model/avatar-motion 표대로 (앱 AvatarPreview alive 와 같다)
    */
   alive?: boolean;
+  /** alive 일 때 쿨다운과 상관없이 나타나자마자 손을 흔든다 (레벨업 연출의 착륙) */
+  greet?: boolean;
 }) {
   const config = { ...DEFAULTS, ...avatar };
   const gradientId = `avatarBackground${useId().replaceAll(":", "")}`;
@@ -229,7 +231,7 @@ export function GeneratedAvatar({ avatar, variant = "head", showBackground = fal
   const motionOn = alive && variant === "full";
   const motionBody = { bodyX, bodyWidth, outfit: config.outfit, costume: config.costume, hand: config.hand };
   const partRefs = useRef<Partial<Record<AvatarPart, SVGGElement | null>>>({});
-  const blink = useAvatarMotion({ body: motionBody, enabled: motionOn, expression: config.expression, parts: partRefs });
+  const blink = useAvatarMotion({ body: motionBody, enabled: motionOn, expression: config.expression, parts: partRefs, forceGreet: greet });
   const part = (key: AvatarPart) =>
     motionOn
       ? {
