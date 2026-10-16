@@ -22,6 +22,7 @@ import Sparkles from "@/components/chest-reward/Sparkles";
 import GemsPile from "@/components/chest-reward/GemsPile";
 import GemCounter from "@/components/chest-reward/GemCounter";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import { useSound } from "@/hooks/useSound";
 
 const GRADE_TITLE: Record<string, string> = {
   wood: "chestReward.woodChest",
@@ -34,6 +35,7 @@ export default function ChestRewardScreen() {
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const { play } = useSound();
   const params = useLocalSearchParams<{
     grade?: string;
     gems?: string;
@@ -93,6 +95,7 @@ export default function ChestRewardScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
 
     if (next < reward.tapsRequired) {
+      play("click");
       // 그냥 흔들기
       chestRef.current?.shake(next);
       setTapCount(next);
@@ -100,6 +103,7 @@ export default function ChestRewardScreen() {
       // 마지막! 오픈
       setTapCount(next);
       setPhase("opening");
+      play(grade === "wood" ? "chestOpen" : "chestOpenRare");
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
         () => {},
       );

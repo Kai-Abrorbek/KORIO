@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSound } from "@/hooks/useSound";
 import CheckButton from "../CheckButton";
 import BlankSentence from "../BlankSentence";
 import {
@@ -50,6 +51,7 @@ export default function FillInBlank({
   const compact = height < 720;
   const s = styles(theme, insets.bottom);
   const { speak, stop, isSpeaking } = useSpeech();
+  const { play } = useSound();
   const locked = answerState !== "idle";
   const instruction = question.question?.trim() || t("lesson.fillBlank");
 
@@ -110,6 +112,7 @@ export default function FillInBlank({
   /** 선택지 탭: 이미 쓰인 값이면 회수, 아니면 활성 빈칸에 채운다 */
   const pickOption = (opt: number) => {
     if (locked) return;
+    play("select");
     setPicks((prev) => {
       const used = prev.indexOf(opt);
       if (used !== -1) {
@@ -131,6 +134,7 @@ export default function FillInBlank({
 
   const clearBlank = (index: number) => {
     if (locked) return;
+    play("select");
     setActiveIndex(index);
     setPicks((prev) => {
       if (prev[index] === null) return prev;

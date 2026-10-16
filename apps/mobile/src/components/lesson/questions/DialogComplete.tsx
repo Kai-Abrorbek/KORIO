@@ -12,6 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState, DialogLine, LessonQuestion } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSound } from "@/hooks/useSound";
 import CheckButton from "../CheckButton";
 import { shuffle } from "@/utils/shuffle";
 
@@ -47,6 +48,7 @@ export default function DialogComplete({
   );
   const [speakingLine, setSpeakingLine] = useState<number | null>(null);
   const { speak, isSpeaking } = useSpeech();
+  const { play } = useSound();
 
   const playLine = (line: DialogLine, index: number) => {
     setSpeakingLine(index);
@@ -188,7 +190,11 @@ export default function DialogComplete({
                   isCorrect && s.optionCorrect,
                   isWrong && s.optionWrong,
                 ]}
-                onPress={() => answerState === "idle" && setSelected(option)}
+                onPress={() => {
+                  if (answerState !== "idle") return;
+                  play("select");
+                  setSelected(option);
+                }}
               >
                 <View
                   style={[

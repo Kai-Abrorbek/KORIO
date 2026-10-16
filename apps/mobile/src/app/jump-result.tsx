@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useSound } from "@/hooks/useSound";
 import { ThemeColors } from "@/constants/theme";
 import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 import { backToRoadmap } from "@/store/settings.store";
@@ -60,6 +61,12 @@ export default function JumpResultScreen() {
     }>();
 
   const isPass = passed === "1";
+  const { play } = useSound();
+  useEffect(() => {
+    if (!isPass) return;
+    const timer = setTimeout(() => play("levelUp"), 160);
+    return () => clearTimeout(timer);
+  }, [isPass, play]);
   const isSectionJump = target === "section";
   const skipped = Number(lessons ?? 0);
 

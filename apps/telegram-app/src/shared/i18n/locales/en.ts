@@ -1043,7 +1043,9 @@ export default {
     sound: {
       muteNow: "Mute now",
       muteNowDesc: "Silent for this session only",
-      mutedHint: "Muted — setting previews still play.",
+      mutedHint: "While muted, speech and enabled effects can still be previewed in settings.",
+      uiSounds: "App sound effects",
+      uiSoundsDesc: "Button, answer, and reward sounds. Set separately from lesson speech.",
       volumeSection: "Volume",
       speech: "Speech",
       sfx: "Sound effects",

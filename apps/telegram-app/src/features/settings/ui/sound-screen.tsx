@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
-import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
+import { playSfx, preloadSfx, stopSfx } from "../../../shared/browser/sfx";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useSoundPreferences } from "../model/preferences";
@@ -32,15 +33,15 @@ function Icon({ background, color, name }: { background: string; color: string; 
   return <i className={styles.iconSquare} style={{ backgroundColor: background, color }}><MobileIcon name={name} size={20} /></i>;
 }
 
-function Switch({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
-  return <button aria-checked={value} className={`${styles.toggle} ${value ? styles.toggleOn : ""}`} onClick={() => {
+function Switch({ label, value, onChange }: { label: string; value: boolean; onChange: (value: boolean) => void }) {
+  return <button aria-checked={value} aria-label={label} className={`${styles.toggle} ${value ? styles.toggleOn : ""}`} onClick={() => {
     window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
     onChange(!value);
   }} role="switch" type="button"><i /></button>;
 }
 
 function ToggleRow({ icon, color, background, label, description, value, onChange }: { icon: IoniconName; color: string; background: string; label: string; description: string; value: boolean; onChange: (value: boolean) => void }) {
-  return <div className={styles.row}><Icon background={background} color={color} name={icon} /><span className={styles.rowText}><b>{label}</b><small>{description}</small></span><Switch onChange={onChange} value={value} /></div>;
+  return <div className={styles.row}><Icon background={background} color={color} name={icon} /><span className={styles.rowText}><b>{label}</b><small>{description}</small></span><Switch label={label} onChange={onChange} value={value} /></div>;
 }
 
 function SliderRow({ icon, color, background, label, badge, value, min = 0, max = 1, step = .05, onChange, onCommit }: { icon: IoniconName; color: string; background: string; label: string; badge: string; value: number; min?: number; max?: number; step?: number; onChange: (value: number) => void; onCommit?: (value: number) => void }) {
@@ -65,14 +66,14 @@ export function SoundScreen() {
   useEffect(() => {
     if (!ready || initialMuteApplied.current) return;
     initialMuteApplied.current = true;
-    const initialMuted =
-      window.sessionStorage.getItem("korio-muted") === "true" ||
-      sound.startMuted;
+    const savedMute = window.sessionStorage.getItem("korio-muted");
+    const initialMuted = savedMute === null ? sound.startMuted : savedMute === "true";
     setMutedState(initialMuted);
     window.sessionStorage.setItem("korio-muted", String(initialMuted));
   }, [ready, sound.startMuted]);
 
   const setMuted = (value: boolean) => {
+    if (value) stopSfx();
     setMutedState(value);
     window.sessionStorage.setItem("korio-muted", String(value));
   };
@@ -107,6 +108,7 @@ export function SoundScreen() {
     <header className={styles.header}><button aria-label="Orqaga" onClick={() => goBack(router)} type="button"><MobileIcon name="chevron-back" size={28} /></button><h1>Ovoz va effektlar</h1></header>
     <div className={styles.scroll}>
       <Card top><ToggleRow background="#FFE0EC" color="#FF7AAD" description="Faqat shu seans uchun ovozsiz" icon={muted ? "volume-mute" : "volume-high"} label="Ovozni o‘chirish" onChange={setMuted} value={muted} /></Card>
+      <Card><ToggleRow background="#D7F5E5" color="#1DBB7F" description={uzt("settings.sound.uiSoundsDesc")} icon="musical-notes" label={uzt("settings.sound.uiSounds")} onChange={(uiSoundsEnabled) => { if (!uiSoundsEnabled) stopSfx(); patch({ uiSoundsEnabled }); }} value={sound.uiSoundsEnabled} /></Card>
       <h2>Ovoz balandligi</h2>
       <Card muted={muted}>
         <SliderRow background="#D5F0F5" badge={percent(sound.speechVolume)} color="#45B7D1" icon="mic" label="Nutq" onChange={(speechVolume) => patch({ speechVolume })} onCommit={(value) => value > 0 && preview(sound.speechVoice, sound.speechRate, value)} value={sound.speechVolume} />
@@ -115,7 +117,7 @@ export function SoundScreen() {
         <i className={styles.divider} />
         <SliderRow background="#FFF4D6" badge={percent(sound.keyVolume)} color="#F4B860" icon="keypad" label="Tugma ovozi" onChange={(keyVolume) => patch({ keyVolume })} onCommit={(value) => { if (value > 0) playSfx("click", { respectSoundSettings: false, volume: value }); }} value={sound.keyVolume} />
       </Card>
-      {muted ? <p className={styles.mutedHint}>Ovoz o‘chirilgan, lekin sozlamadagi namunalar ijro etiladi.</p> : null}
+      {muted ? <p className={styles.mutedHint}>{uzt("settings.sound.mutedHint")}</p> : null}
       <h2>Nutq</h2>
       <Card>
         <button className={styles.actionRow} onClick={openVoices} type="button"><Icon background="#FFE0EC" color="#E85D97" name="people" /><span className={styles.rowText}><b>Ovoz</b><small>Koreyscha so‘zlovchini tanlang</small></span><em>{selectedVoiceLabel}<MobileIcon name="chevron-forward" size={18} /></em></button>

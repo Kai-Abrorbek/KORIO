@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
@@ -71,6 +72,7 @@ export function Listening({ answerState, onAnswer, onSkip, question }: QuestionP
             key={option}
             onClick={() => {
               if (locked) return;
+              playSfx("select");
               haptic();
               setSelected((current) => (current === option ? null : option));
             }}

@@ -14,6 +14,7 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { ThemeColors } from "@/constants/theme";
 import { AnswerState } from "@/types/lesson";
+import { useSound } from "@/hooks/useSound";
 
 export interface ChipLayout {
   x: number;
@@ -66,6 +67,7 @@ function AnswerChip({
   answerState,
   large = false,
 }: Props) {
+  const { play } = useSound();
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -148,6 +150,7 @@ function AnswerChip({
             dropY >= layout.y &&
             dropY <= layout.y + layout.height
           ) {
+            play("select");
             onSwap(item.id, id);
             return;
           }
@@ -156,8 +159,18 @@ function AnswerChip({
     }
 
     // 2) bank ↔ placed 전환
-    if (isPlaced && dy > 50) onDragToZone(item.id, "bank");
-    else if (!isPlaced && dy < -50) onDragToZone(item.id, "placed");
+    if (isPlaced && dy > 50) {
+      play("select");
+      onDragToZone(item.id, "bank");
+    } else if (!isPlaced && dy < -50) {
+      play("select");
+      onDragToZone(item.id, "placed");
+    }
+  };
+
+  const handleTap = () => {
+    play("select");
+    onTap(item.id);
   };
 
   const pan = Gesture.Pan()
@@ -184,7 +197,9 @@ function AnswerChip({
 
   const tap = Gesture.Tap()
     .enabled(answerState === "idle")
-    .onEnd(() => runOnJS(onTap)(item.id));
+    .onEnd((_event, success) => {
+      if (success) runOnJS(handleTap)();
+    });
 
   const composed = Gesture.Simultaneous(tap, pan);
 

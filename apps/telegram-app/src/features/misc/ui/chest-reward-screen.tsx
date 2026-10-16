@@ -69,7 +69,7 @@ export function ChestRewardScreen() {
   const [ready, setReady] = useState(false);
   const [shaking, setShaking] = useState(false);
 
-  useEffect(() => preloadSfx(), []);
+  useEffect(() => preloadSfx("click", "chest-open", "chest-open-rare"), []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setReady(true), 200);
@@ -82,12 +82,14 @@ export function ChestRewardScreen() {
     const next = tapCount + 1;
     setTapCount(next);
     if (next < 3) {
+      playSfx("click");
       setShaking(false);
       window.requestAnimationFrame(() => setShaking(true));
       window.setTimeout(() => setShaking(false), 430);
       return;
     }
     setPhase("opening");
+    playSfx(grade === "wood" ? "chest-open" : "chest-open-rare");
     window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
     window.setTimeout(() => setPhase("revealed"), 1450);
   };

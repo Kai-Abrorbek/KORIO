@@ -1048,7 +1048,9 @@ export default {
     sound: {
       muteNow: "Ovozni o'chirish",
       muteNowDesc: "Faqat shu seans uchun ovozsiz",
-      mutedHint: "Ovoz o'chirilgan, lekin sozlamadagi namunalar ijro etiladi.",
+      mutedHint: "Ovoz o'chirilgan bo'lsa ham, sozlamada nutq va yoqilgan effektlarni tinglash mumkin.",
+      uiSounds: "Ilova effektlari",
+      uiSoundsDesc: "Tugmalar, javoblar va mukofot tovushlari. Darsdagi nutqdan alohida sozlanadi.",
       volumeSection: "Ovoz balandligi",
       speech: "Nutq",
       sfx: "Effektlar",

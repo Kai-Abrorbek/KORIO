@@ -44,6 +44,7 @@ interface VoiceListState {
 }
 
 const DEFAULTS: SoundPrefs = {
+  uiSoundsEnabled: true,
   speechVolume: 1,
   sfxVolume: 1,
   keyVolume: 1,
@@ -105,6 +106,8 @@ function ToggleRow({
         {desc ? <Text style={s.rowDesc}>{desc}</Text> : null}
       </View>
       <Switch
+        accessibilityLabel={label}
+        accessibilityHint={desc}
         value={value}
         onValueChange={(v) => {
           Haptics.selectionAsync();
@@ -308,6 +311,20 @@ export default function SoundSettings() {
             desc={t("settings.sound.muteNowDesc")}
             value={muted}
             onValueChange={setMuted}
+            theme={theme}
+            s={s}
+          />
+        </View>
+
+        <View style={s.card}>
+          <ToggleRow
+            icon="musical-notes"
+            color="#1DBB7F"
+            bg="#D7F5E5"
+            label={t("settings.sound.uiSounds")}
+            desc={t("settings.sound.uiSoundsDesc")}
+            value={sound.uiSoundsEnabled !== false}
+            onValueChange={(uiSoundsEnabled) => setSound({ uiSoundsEnabled })}
             theme={theme}
             s={s}
           />

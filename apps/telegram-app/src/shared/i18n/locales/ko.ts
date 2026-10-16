@@ -1041,7 +1041,9 @@ export default {
     sound: {
       muteNow: "지금 소리 끄기",
       muteNowDesc: "이번 실행 동안만 음소거해요",
-      mutedHint: "음소거 중이에요. 설정 미리듣기는 재생돼요.",
+      mutedHint: "음소거 중에도 음성과 켜진 효과음은 설정에서 미리 들을 수 있어요.",
+      uiSounds: "앱 효과음",
+      uiSoundsDesc: "버튼, 정답·오답, 보상 소리예요. 학습 음성과는 별도로 설정해요.",
       volumeSection: "볼륨",
       speech: "음성",
       sfx: "효과음",

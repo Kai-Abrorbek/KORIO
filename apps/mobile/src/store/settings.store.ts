@@ -126,6 +126,8 @@ export interface NotificationPrefs {
 }
 
 export interface SoundPrefs {
+  /** 버튼·정답·오답·보상 효과음. 학습 음성(TTS)은 별도로 조절한다. */
+  uiSoundsEnabled: boolean;
   /** 0~1. 문제를 읽어주는 TTS */
   speechVolume: number;
   /** 0~1. 정답·콤보 같은 효과음 */
@@ -226,6 +228,7 @@ export const useSettingsStore = create<SettingsState>()(
         events: true,
       },
       sound: {
+        uiSoundsEnabled: true,
         speechVolume: 1,
         sfxVolume: 1,
         keyVolume: 1,
@@ -309,6 +312,10 @@ export const useSettingsStore = create<SettingsState>()(
           state.wordStudyAutoPlay = true;
         }
 
+        // 기존 사용자는 새 UI 효과음 스위치를 기본으로 켠다. 기존 음소거·볼륨은 유지한다.
+        if (state?.sound && typeof state.sound.uiSoundsEnabled !== "boolean") {
+          state.sound.uiSoundsEnabled = true;
+        }
         // 이 설정이 생기기 전에 저장된 데이터에는 음성 이름이 없다.
         if (state?.sound && !state.sound.speechVoice) {
           state.sound.speechVoice = DEFAULT_SPEECH_VOICE;

@@ -24,6 +24,7 @@ import {
   type SpeechController,
 } from "@/hooks/useSpeech";
 import { listeningScript } from "@/utils/listening";
+import { useSound } from "@/hooks/useSound";
 import { shuffle } from "@/utils/shuffle";
 import CheckButton from "../CheckButton";
 
@@ -55,6 +56,7 @@ export default function Listening({
   const { t } = useTranslation();
   const s = styles(theme);
   const { speak, speakSlow, speakAuto, isSpeaking } = speech;
+  const { play } = useSound();
   const auto = useRef(false);
   const [selected, setSelected] = useState<string | null>(null);
   const locked = answerState !== "idle";
@@ -93,6 +95,7 @@ export default function Listening({
 
   const select = (opt: string) => {
     if (locked) return;
+    play("select");
     void Haptics.selectionAsync();
     setSelected((prev) => (prev === opt ? null : opt));
   };

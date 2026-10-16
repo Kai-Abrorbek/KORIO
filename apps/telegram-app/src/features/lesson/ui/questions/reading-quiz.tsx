@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
@@ -61,6 +62,7 @@ export function ReadingQuiz({ answerState, onAnswer, question }: QuestionProps) 
             key={option}
             onClick={() => {
               if (locked) return;
+              playSfx("select");
               haptic();
               setSelected((current) => (current === option ? null : option));
             }}

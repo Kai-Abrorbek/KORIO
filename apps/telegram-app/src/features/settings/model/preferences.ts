@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { SOUND_PREFERENCES_EVENT } from "../../../shared/browser/sfx";
 
 export interface NotificationPreferences {
   daily: boolean;
@@ -22,6 +23,7 @@ export interface SoundPreferences {
   speechVoice: string;
   speechVolume: number;
   startMuted: boolean;
+  uiSoundsEnabled: boolean;
 }
 
 export const DEFAULT_NOTIFICATIONS: NotificationPreferences = {
@@ -44,6 +46,7 @@ export const DEFAULT_SOUND: SoundPreferences = {
   keyHaptics: true,
   rewardHaptics: true,
   startMuted: false,
+  uiSoundsEnabled: true,
 };
 
 export const SOUND_STORAGE_KEY = "korio-sound-settings";
@@ -74,6 +77,7 @@ function usePreferences<T extends object>(key: string, defaults: T) {
       setValue((current) => {
         const updated = { ...current, ...next };
         window.localStorage.setItem(key, JSON.stringify(updated));
+        if (key === SOUND_STORAGE_KEY) window.dispatchEvent(new Event(SOUND_PREFERENCES_EVENT));
         return updated;
       });
     },
@@ -82,6 +86,7 @@ function usePreferences<T extends object>(key: string, defaults: T) {
 
   const reset = useCallback(() => {
     window.localStorage.setItem(key, JSON.stringify(defaults));
+    if (key === SOUND_STORAGE_KEY) window.dispatchEvent(new Event(SOUND_PREFERENCES_EVENT));
     setValue(defaults);
   }, [defaults, key]);
 

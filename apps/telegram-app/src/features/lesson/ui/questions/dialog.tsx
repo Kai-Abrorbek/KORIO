@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
@@ -108,7 +109,11 @@ export function DialogComplete({ answerState, onAnswer, question }: QuestionProp
             <button
               className={`${styles.option} ${isSelected ? styles.optionSelected : ""} ${correct ? styles.optionCorrect : ""} ${wrong ? styles.optionWrong : ""}`}
               key={`${option}-${index}`}
-              onClick={() => !locked && setSelected(option)}
+              onClick={() => {
+                if (locked) return;
+                playSfx("select");
+                setSelected(option);
+              }}
               type="button"
             >
               <span className={styles.optionIndex}>{index + 1}</span>

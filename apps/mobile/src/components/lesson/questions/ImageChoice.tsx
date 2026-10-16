@@ -6,6 +6,7 @@ import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState, ImageChoiceOption } from "@/types/lesson";
 import { useMemo, useState } from "react";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSound } from "@/hooks/useSound";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CheckButton from "../CheckButton";
 import { shuffle } from "@/utils/shuffle";
@@ -28,6 +29,7 @@ export default function ImageChoice({
   const s = getStyles(theme, insets.bottom);
   const [selected, setSelected] = useState<string | null>(null);
   const { speak } = useSpeech();
+  const { play } = useSound();
 
   // 시드는 정답을 첫 칸에 적어 둔다(사람이 읽고 검수하기 좋게). 그대로 내보내면
   // 두 번째 풀 때부터 내용이 아니라 자리로 답을 외운다. question.id 로 고정해서
@@ -49,6 +51,7 @@ export default function ImageChoice({
 
   const handleSelect = (text: string) => {
     if (answerState !== "idle") return;
+    play("select");
     setSelected(text);
     speak(text);
   };

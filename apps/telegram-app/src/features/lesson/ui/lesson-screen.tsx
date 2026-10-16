@@ -58,7 +58,7 @@ import { QuestionCard } from "./question-card";
 import { FeedbackBar, LessonHeader, QuitLessonModal, ReviewIntro } from "./lesson-chrome";
 import { LessonSpeechProvider } from "./questions/shared";
 import styles from "./lesson.module.css";
-import { playSfx } from "../../../shared/browser/sfx";
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import {
   newComboTracker,
   refundComboTracker,
@@ -227,6 +227,8 @@ export function LessonScreen() {
   const [legendCurrentIndex, setLegendCurrentIndex] = useState(0);
   /** 본편이 끝나고 복습 전에 한 번 보여 주는 안내 (앱의 reviewIntro 단계) */
   const [reviewIntro, setReviewIntro] = useState(false);
+
+  useEffect(() => preloadSfx("click", "select", "correct", "correct-alt", "wrong", "combo", "combo-big", "lesson-complete", "level-up"), []);
 
   const startTime = useRef(Date.now());
   const shownAt = useRef(Date.now());
@@ -542,10 +544,17 @@ export function LessonScreen() {
         });
       }
       const nextCombo = combo + 1;
+      if (!isOnboardingLevelTest) {
+        const sound = nextCombo === 7 || nextCombo === 10 ? "combo-big"
+          : nextCombo === 3 || nextCombo === 5 ? "combo"
+          : nextCombo % 2 === 0 ? "correct-alt" : "correct";
+        playSfx(sound);
+      }
       setCombo(nextCombo);
       setAnswerState("correct");
       spendEnergy(current.question.id, nextCombo);
     } else {
+      if (!isOnboardingLevelTest) playSfx("wrong");
       setCombo(0);
       // 틀려도 문제당 1 (앱과 같다)
       spendEnergy(current.question.id, null);

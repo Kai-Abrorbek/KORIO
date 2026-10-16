@@ -1,10 +1,11 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Share } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter, useLocalSearchParams, type Href } from "expo-router";
 import { viaStreakChest } from "@/utils/streak-chest-route";
 import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
+import { useSound } from "@/hooks/useSound";
 import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
 import { ReferralApi } from "@/services/referral.service";
@@ -19,6 +20,9 @@ export default function LessonCompleteScreen() {
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
+  const { play } = useSound();
+
+  useEffect(() => { play("lessonComplete"); }, [play]);
 
   const params = useLocalSearchParams<{
     xp?: string;

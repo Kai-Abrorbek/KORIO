@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import styles from "./celebration-screen.module.css";
 
 export function ScoreUpScreen() {
@@ -12,6 +13,13 @@ export function ScoreUpScreen() {
   const score = Math.max(0, Number(params.get("score")) || 0);
   const unit = params.get("unit") ?? "";
   const category = params.get("category");
+
+  useEffect(() => {
+    preloadSfx("level-up", "chest-open", "chest-open-rare");
+    // 숫자가 뒤집히기 시작하는 CSS animation-delay(.52s)에 맞춘다.
+    const timer = window.setTimeout(() => playSfx("level-up"), 520);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // 이 레슨으로 노드도 끝났으면 스코어 축하 다음에 상자를 연다
   const goOn = () => {

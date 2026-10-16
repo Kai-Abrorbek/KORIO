@@ -11,6 +11,8 @@ import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { darken } from "@/utils/color";
+import { useEffect } from "react";
+import { useSound } from "@/hooks/useSound";
 
 const PASS_COLOR = "#1D9E75";
 const MISS_COLOR = "#776ee2";
@@ -46,6 +48,8 @@ export default function LevelExamResultScreen() {
   }>();
 
   const passed = params.passed === "1";
+  const { play } = useSound();
+  useEffect(() => { if (passed) play("levelUp"); }, [passed, play]);
   const heartsOut = !passed && params.heartsOut === "1";
   const hearts = Number(params.hearts) || 5;
   const correct = Number(params.correct ?? 0);

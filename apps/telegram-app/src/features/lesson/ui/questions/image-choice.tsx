@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
@@ -29,6 +30,7 @@ export function ImageChoice({ answerState, onAnswer, question }: QuestionProps) 
 
   const pick = (text: string) => {
     if (judged) return;
+    playSfx("select");
     setSelected(text);
     speak(text);
   };

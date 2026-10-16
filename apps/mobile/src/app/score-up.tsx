@@ -18,6 +18,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { useSound } from "@/hooks/useSound";
 import type { ThemeColors } from "@/constants/theme";
 import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 
@@ -37,6 +38,12 @@ export default function ScoreUpScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
+  const { play } = useSound();
+
+  useEffect(() => {
+    const timer = setTimeout(() => play("levelUp"), 520);
+    return () => clearTimeout(timer);
+  }, [play]);
 
   const params = useLocalSearchParams<{
     score?: string;

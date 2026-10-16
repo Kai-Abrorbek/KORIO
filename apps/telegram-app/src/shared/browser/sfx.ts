@@ -1,11 +1,12 @@
 "use client";
 
-/**
- * 모바일 hooks/useSound 와 같은 효과음 두 개.
- * click = 자판(버튼) 소리 → keyVolume, combo = 효과음 → sfxVolume.
- * 세션 음소거(korio-muted) / 무음으로 시작(startMuted) 을 존중한다.
- */
-export type SfxKey = "click" | "combo";
+/** 모바일과 같은 UI 효과음. 학습용 TTS 설정과는 독립적이다. */
+export type SfxKey =
+  | "click" | "select" | "correct" | "correct-alt" | "wrong"
+  | "combo" | "combo-big" | "lesson-complete"
+  | "chest-open" | "chest-open-rare" | "level-up";
+
+export const SOUND_PREFERENCES_EVENT = "korio-sound-settings-changed";
 
 export interface SfxOptions {
   respectSoundSettings?: boolean;
@@ -13,13 +14,44 @@ export interface SfxOptions {
 }
 
 const SOURCES: Record<SfxKey, string> = {
-  click: "/sounds/click.mp3",
-  combo: "/sounds/combo.mp3",
+  click: "/sounds/click.wav",
+  select: "/sounds/select.wav",
+  correct: "/sounds/correct.wav",
+  "correct-alt": "/sounds/correct-alt.wav",
+  wrong: "/sounds/wrong.wav",
+  combo: "/sounds/combo.wav",
+  "combo-big": "/sounds/combo-big.wav",
+  "lesson-complete": "/sounds/lesson-complete.wav",
+  "chest-open": "/sounds/chest-open.wav",
+  "chest-open-rare": "/sounds/chest-open-rare.wav",
+  "level-up": "/sounds/level-up.wav",
 };
 
 let context: AudioContext | null = null;
 const buffers = new Map<SfxKey, Promise<AudioBuffer | null>>();
 const active = new Map<SfxKey, AudioBufferSourceNode>();
+const requests = new Map<SfxKey, number>();
+let revision = 0;
+let feedbackRequest = 0;
+let listening = false;
+
+/** 설정 변경은 진행 중인 효과음과 아직 디코딩 중인 재생 요청을 함께 취소한다. */
+export function stopSfx() {
+  revision += 1;
+  for (const source of active.values()) {
+    try { source.stop(); } catch { /* 이미 끝난 소스 */ }
+  }
+  active.clear();
+}
+
+function listenForPreferences() {
+  if (listening) return;
+  listening = true;
+  window.addEventListener(SOUND_PREFERENCES_EVENT, stopSfx);
+  window.addEventListener("storage", (event) => {
+    if (event.key === "korio-sound-settings" || event.key === "korio-muted" || event.key === null) stopSfx();
+  });
+}
 
 function audioContext() {
   if (context) return context;
@@ -47,7 +79,7 @@ function load(key: SfxKey, ctx: AudioContext) {
   return pending;
 }
 
-function readSettings(): { keyVolume?: number; sfxVolume?: number; startMuted?: boolean } {
+function readSettings(): { keyVolume?: number; sfxVolume?: number; startMuted?: boolean; uiSoundsEnabled?: boolean } {
   try {
     return JSON.parse(window.localStorage.getItem("korio-sound-settings") ?? "{}");
   } catch {
@@ -67,6 +99,7 @@ function sessionMuted(startMuted: boolean) {
 /** 첫 터치 전에 미리 받아 두면 첫 클릭이 늦게 울리지 않는다 */
 export function preloadSfx(...keys: SfxKey[]) {
   if (typeof window === "undefined") return;
+  listenForPreferences();
   const ctx = audioContext();
   if (!ctx) return;
   for (const key of keys.length ? keys : (["click"] as SfxKey[])) void load(key, ctx);
@@ -74,10 +107,13 @@ export function preloadSfx(...keys: SfxKey[]) {
 
 export function playSfx(key: SfxKey, options?: SfxOptions) {
   if (typeof window === "undefined") return;
+  listenForPreferences();
   const respect = options?.respectSoundSettings !== false;
   const saved = readSettings();
+  // 미리 듣기도 사용자가 명시적으로 끈 UI 효과음을 다시 켜지 않는다.
+  if (saved.uiSoundsEnabled === false) return;
   if (respect && sessionMuted(Boolean(saved.startMuted))) return;
-  const configured = key === "click" ? saved.keyVolume : saved.sfxVolume;
+  const configured = key === "click" || key === "select" ? saved.keyVolume : saved.sfxVolume;
   const volume = Math.min(1, Math.max(0, options?.volume ?? configured ?? 1));
   if (volume <= 0) return;
 
@@ -85,12 +121,28 @@ export function playSfx(key: SfxKey, options?: SfxOptions) {
   if (!ctx) return;
   // 사용자 제스처 안에서 resume 해야 iOS/텔레그램 웹뷰가 소리를 낸다
   const resumed = ctx.state === "suspended" ? ctx.resume().catch(() => undefined) : undefined;
+  const startedRevision = revision;
+  const request = (requests.get(key) ?? 0) + 1;
+  requests.set(key, request);
+  const feedback = key !== "click" && key !== "select";
+  const currentFeedbackRequest = feedback ? ++feedbackRequest : feedbackRequest;
+  if (feedback) {
+    // 정답·오답·축하 연출은 한 번에 하나만 들려준다.
+    for (const [playingKey, source] of active) {
+      if (playingKey === "click" || playingKey === "select") continue;
+      try { source.stop(); } catch { /* 이미 끝난 소스 */ }
+      active.delete(playingKey);
+    }
+  }
 
   void (async () => {
     try {
       await resumed;
       const buffer = await load(key, ctx);
-      if (!buffer) return;
+      if (!buffer || startedRevision !== revision || requests.get(key) !== request) return;
+      if (feedback && currentFeedbackRequest !== feedbackRequest) return;
+      const current = readSettings();
+      if (current.uiSoundsEnabled === false || (respect && sessionMuted(Boolean(current.startMuted)))) return;
       // 같은 소리를 연타하면 이전 것을 끊고 처음부터 (모바일 seekTo(0) 과 같게)
       try {
         active.get(key)?.stop();
@@ -105,6 +157,8 @@ export function playSfx(key: SfxKey, options?: SfxOptions) {
       gain.connect(ctx.destination);
       source.onended = () => {
         if (active.get(key) === source) active.delete(key);
+        source.disconnect();
+        gain.disconnect();
       };
       active.set(key, source);
       source.start();

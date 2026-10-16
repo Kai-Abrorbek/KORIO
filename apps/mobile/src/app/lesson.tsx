@@ -16,6 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSound } from "@/hooks/useSound";
 import { ThemeColors } from "@/constants/theme";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -174,6 +175,7 @@ export default function LessonScreen() {
   const contentLang = useContentLang();
   const theme = useTheme();
   const lessonSpeech = useSpeech();
+  const { play } = useSound();
   const prewarmSpeech = lessonSpeech.prewarm;
   const s = getStyles(theme);
   const router = useRouter();
@@ -836,6 +838,11 @@ export default function LessonScreen() {
     totalCount.current += 1;
     recordAnswer(question, isCorrect);
     if (isLevelExam) examAnsweredIds.current.add(question.id);
+    const nextCombo = combo + 1;
+    play(!isCorrect ? "wrong"
+      : [3, 5].includes(nextCombo) ? "combo"
+      : [7, 10].includes(nextCombo) ? "comboBig"
+      : nextCombo % 2 === 0 ? "correctAlt" : "correct");
 
     // ── 에너지 ── 본풀이 문제는 **맞든 틀리든** 한 문제당 1.
     // 같은 문제를 다시 묻는 건 공짜다: 레슨 뒤 오답 복습 라운드(phase "review"),
@@ -908,7 +915,6 @@ export default function LessonScreen() {
         finalWrongIds.current.delete(question.id);
       }
 
-      const nextCombo = combo + 1;
       setCombo(nextCombo);
 
       if (!uniqueCorrect.current.has(question.id)) {

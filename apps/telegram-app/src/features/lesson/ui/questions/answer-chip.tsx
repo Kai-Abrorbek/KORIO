@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import type { AnswerState } from "../../model/lesson";
 import { shuffle } from "./shared";
@@ -53,13 +54,14 @@ export function AnswerChip({ answerState, item, large = false, onDragToZone, onS
         .map((element) => (element as HTMLElement).closest?.<HTMLElement>("[data-chip-zone='placed']"))
         .find((element) => element && element.dataset.chipId !== item.id);
       if (target?.dataset.chipId) {
+        playSfx("select");
         onSwap(item.id, target.dataset.chipId);
         return;
       }
     }
     // 2) 뱅크 ↔ 답
-    if (placed && dy > ZONE_DISTANCE) onDragToZone(item.id, "bank");
-    else if (!placed && dy < -ZONE_DISTANCE) onDragToZone(item.id, "placed");
+    if (placed && dy > ZONE_DISTANCE) { playSfx("select"); onDragToZone(item.id, "bank"); }
+    else if (!placed && dy < -ZONE_DISTANCE) { playSfx("select"); onDragToZone(item.id, "placed"); }
     void dx;
   };
 
@@ -112,6 +114,7 @@ export function AnswerChip({ answerState, item, large = false, onDragToZone, onS
       disabled={locked}
       onClick={() => {
         if (suppressClick.current || locked) return;
+        playSfx("select");
         onTap(item.id);
       }}
       onPointerCancel={onPointerCancel}

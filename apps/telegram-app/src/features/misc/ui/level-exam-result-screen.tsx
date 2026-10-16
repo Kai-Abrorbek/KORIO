@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 
 import { uzt } from "../../../shared/i18n/uz-text";
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { WEAK_AREA_LABELS } from "../model/misc";
 import styles from "./celebration-screen.module.css";
@@ -13,6 +14,12 @@ export function LevelExamResultScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const passed = params.get("passed") === "1";
+  useEffect(() => {
+    if (!passed) return;
+    preloadSfx("level-up");
+    const timer = window.setTimeout(() => playSfx("level-up"), 0);
+    return () => window.clearTimeout(timer);
+  }, [passed]);
   // 기회(하트)를 다 써서 중간에 끝났는지 — 앱 LevelExamResultScreen 과 같은 문구
   const heartsOut = !passed && params.get("heartsOut") === "1";
   const hearts = Number(params.get("hearts")) || 5;

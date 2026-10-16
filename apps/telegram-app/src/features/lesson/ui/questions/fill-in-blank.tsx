@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { playSfx } from "../../../../shared/browser/sfx";
 
 import { MobileIcon } from "../../../../shared/ui/mobile-icon";
 import { CheckButton } from "../lesson-chrome";
@@ -50,6 +51,7 @@ export function FillInBlank({ answerState, onAnswer, question }: QuestionProps) 
 
   const pickOption = (option: number) => {
     if (locked) return;
+    playSfx("select");
     const used = picks.indexOf(option);
     if (used !== -1) {
       const next = [...picks];
@@ -69,6 +71,7 @@ export function FillInBlank({ answerState, onAnswer, question }: QuestionProps) 
 
   const clearBlank = (index: number) => {
     if (locked) return;
+    playSfx("select");
     setActiveIndex(index);
     setPicks((current) => {
       if (current[index] === null) return current;

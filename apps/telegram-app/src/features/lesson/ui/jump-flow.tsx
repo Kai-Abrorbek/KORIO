@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, type CSSProperties } from "react";
 
 import { HomeIcon } from "../../home/ui/home-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { backToLearning } from "../model/lesson";
 import styles from "./lesson.module.css";
 
@@ -132,6 +133,12 @@ export function JumpResultScreen() {
   const params = useSearchParams();
   const category = params.get("category");
   const passed = params.get("passed") === "1";
+  useEffect(() => {
+    if (!passed) return;
+    preloadSfx("level-up");
+    const timer = window.setTimeout(() => playSfx("level-up"), 160);
+    return () => window.clearTimeout(timer);
+  }, [passed]);
   const section = params.get("section") ?? "";
   const unit = params.get("unit") ?? "";
   const sectionJump = params.get("target") === "section";

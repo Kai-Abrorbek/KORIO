@@ -14,6 +14,7 @@ import * as Haptics from "expo-haptics";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
 import { useSpeech } from "@/hooks/useSpeech";
+import { useSound } from "@/hooks/useSound";
 import { shuffle } from "@/utils/shuffle";
 
 interface Props {
@@ -34,6 +35,7 @@ export default function ReadingQuiz({
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
   const { speak, isSpeaking } = useSpeech();
+  const { play } = useSound();
   const [selected, setSelected] = useState<string | null>(null);
   const locked = answerState !== "idle";
 
@@ -50,6 +52,7 @@ export default function ReadingQuiz({
 
   const select = (opt: string) => {
     if (locked) return;
+    play("select");
     Haptics.selectionAsync();
     setSelected((prev) => (prev === opt ? null : opt));
   };

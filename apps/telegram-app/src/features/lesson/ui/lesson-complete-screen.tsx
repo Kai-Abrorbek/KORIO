@@ -45,7 +45,13 @@ export function LessonCompleteScreen() {
   const params = useSearchParams();
   const { request } = useTelegramAuth();
   const sharing = useRef(false);
-  useEffect(() => preloadSfx(), []);
+  const celebrate = params.get("exam") !== "1" || params.get("passed") !== "0";
+  useEffect(() => {
+    preloadSfx("click", "lesson-complete");
+    if (!celebrate) return;
+    const timer = window.setTimeout(() => playSfx("lesson-complete"), 0);
+    return () => window.clearTimeout(timer);
+  }, [celebrate]);
   const xp = Math.max(0, Number(params.get("xp")) || 0);
   const accuracy = Math.max(0, Number(params.get("accuracy")) || 0);
   const category = params.get("category");
