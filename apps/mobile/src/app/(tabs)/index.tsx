@@ -2,10 +2,10 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   StyleSheet,
   Dimensions,
 } from "react-native";
+import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";

@@ -3,11 +3,10 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  Pressable,
   ActivityIndicator,
   BackHandler,
-  TouchableOpacity,
 } from "react-native";
+import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "@/hooks/useTheme";
