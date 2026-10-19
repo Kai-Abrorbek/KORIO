@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,19 +8,35 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
   Easing,
-  FadeIn,
   interpolate,
+  runOnJS,
+  useAnimatedReaction,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
   withSequence,
-  withSpring,
   withTiming,
+  type SharedValue,
 } from "react-native-reanimated";
 import Svg, { Circle, Defs, RadialGradient, Stop } from "react-native-svg";
+import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
+import { cinemaAt, shakeAt } from "@/components/cinema/cinema";
+import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import Confetti from "@/components/lesson-complete/Confetti";
+import {
+  IGNITE_SPARKS,
+  IGNITE_TRACK,
+  RELAY,
+  dotLit,
+  hopAt,
+  relayTimeline,
+  riseAt,
+  type StreakSound,
+} from "@/components/streak-day/streakRelayCinematic";
 
 /**
  * 불꽃 원본.
@@ -33,15 +49,51 @@ import type { ThemeColors } from "@/constants/theme";
 import FlameIcon from "../../assets/images/streak-flame.svg";
 
 const EMBERS = 14;
+const DOT = 42;
+
+const STREAK_SOURCES: Record<StreakSound, number> = {
+  catch: require("../../assets/sounds/streak/catch.mp3"),
+  today: require("../../assets/sounds/streak/today.mp3"),
+  rise: require("../../assets/sounds/streak/rise.mp3"),
+  ignite: require("../../assets/sounds/streak/ignite.mp3"),
+  count: require("../../assets/sounds/streak/count.mp3"),
+  fireworks: require("../../assets/sounds/streak/fireworks.mp3"),
+  voDay: require("../../assets/sounds/streak/vo-day.mp3"),
+  vo7: require("../../assets/sounds/streak/vo-7.mp3"),
+  vo30: require("../../assets/sounds/streak/vo-30.mp3"),
+  vo100: require("../../assets/sounds/streak/vo-100.mp3"),
+  vo365: require("../../assets/sounds/streak/vo-365.mp3"),
+  voRecord: require("../../assets/sounds/streak/vo-record.mp3"),
+};
+
+/** 목소리가 효과음에 묻히지 않게 */
+const STREAK_GAIN: Partial<Record<StreakSound, number>> = {
+  catch: 0.55,
+  today: 0.75,
+  rise: 0.6,
+  ignite: 0.9,
+  count: 0.55,
+  fireworks: 0.6,
+};
+
+interface Geometry {
+  /** 요일 줄 (컨테이너 기준 px) */
+  rowX: number;
+  rowY: number;
+  rowW: number;
+  /** 불씨 자리 (불꽃 밑동) */
+  baseX: number;
+  baseY: number;
+}
 
 /**
- * 오늘의 첫 레슨을 끝냈을 때 뜨는 연속 학습 축하.
+ * 오늘의 첫 레슨을 끝냈을 때 뜨는 연속 학습 축하 — "불씨 릴레이" (streakRelayCinematic).
  *
  * "오늘 처음인가" 는 서버가 판정한다(completeLesson 의 dailyStreak). 클라가
  * 세면 앱을 껐다 켜거나 두 기기에서 풀 때 또 축하한다.
  *
- * 요일 줄은 **오늘부터 앞으로 6일**을 보여준다. 지나간 날을 되짚는 게 아니라
- * "내일도 와라" 를 말하는 자리라서다. 그래서 오늘만 체크가 켜진다.
+ * 요일 줄은 서버가 준 7일 창이다. 공부한 날들이 차례로 불 붙고, 불이 오늘 칸으로 건너가
+ * 오늘이 켜지면 그 불덩이가 위로 솟아 큰 불꽃을 붙인다. 화면을 누르면 끝 장면으로.
  */
 export default function StreakDayScreen() {
   const { t } = useTranslation();
@@ -114,16 +166,42 @@ export default function StreakDayScreen() {
     });
   }, [params.week]);
 
-  // ── 애니메이션 ──
+  // ── 불씨 릴레이 시계 ──
+  const tl = useMemo(() => relayTimeline(days, streak), [days, streak]);
+  const ignite = tl.ignite;
+  const { clock, run } = useCinemaClock(tl.end);
+  const audio = useCinemaAudio(STREAK_SOURCES, STREAK_GAIN);
+  const reducedMotion = useReducedMotion();
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const [confetti, setConfetti] = useState(false);
+
+  // 불덩이가 요일 줄에서 불씨까지 날아가려면 두 자리를 재야 한다
+  const containerRef = useRef<View>(null);
+  const rowRef = useRef<View>(null);
+  const flameRef = useRef<View>(null);
+  const [geo, setGeo] = useState<Geometry | null>(null);
+  const measure = useCallback(() => {
+    const container = containerRef.current;
+    const row = rowRef.current;
+    const flameBox = flameRef.current;
+    if (!container || !row || !flameBox) return;
+    container.measureInWindow((cx, cy) => {
+      row.measureInWindow((rx, ry, rw) => {
+        flameBox.measureInWindow((fx, fy, fw, fh) => {
+          setGeo({ rowX: rx - cx, rowY: ry - cy, rowW: rw, baseX: fx - cx + fw / 2, baseY: fy - cy + fh - 30 });
+        });
+      });
+    });
+  }, []);
+
+  // ── 살아 있는 불 ──
   //
   // 불은 **한 가지 주기로 움직이면 기계처럼 보인다.** 그래서 서로 배수가 아닌
   // 주기를 겹쳐 둔다 — 셋이 같은 자리로 돌아오는 데 한참 걸려서 반복이 안 보인다.
-  const flame = useSharedValue(0); // 등장
   const lick = useSharedValue(0); // 위로 날름 (세로로 늘고 가로로 좁아진다)
   const sway = useSharedValue(0); // 밑동을 축으로 좌우로 휜다
   const flicker = useSharedValue(0); // 밝기 떨림
   const glow = useSharedValue(0);
-  const num = useSharedValue(0);
 
   /** 끝없이 왕복 */
   const pulse = (up: number, down: number, delay = 0) =>
@@ -140,20 +218,61 @@ export default function StreakDayScreen() {
     );
 
   useEffect(() => {
-    // 불꽃이 아래에서 툭 튀어오른다
-    flame.value = withDelay(
-      120,
-      withSpring(1, { damping: 11, stiffness: 130 }),
-    );
-    // 숫자는 불꽃이 자리잡은 뒤 한 박자 늦게
-    num.value = withDelay(420, withSpring(1, { damping: 9, stiffness: 170 }));
-    // 뒤 광채는 끊임없이 부푼다 — 불이 살아 있는 느낌
     glow.value = pulse(1400, 1700);
-    // 불꽃 자체의 움직임. 셋 다 주기가 다르다
-    lick.value = pulse(760, 820, 620);
-    sway.value = pulse(1230, 1180, 900);
-    flicker.value = pulse(190, 230, 620);
+    lick.value = pulse(760, 820);
+    sway.value = pulse(1230, 1180, 280);
+    flicker.value = pulse(190, 230);
+
+    // 동작 줄이기면 불이 붙은 끝 장면부터 (목소리는 들려준다)
+    const from = reducedMotion ? tl.end : 0;
+    run(from);
+    audio.playFrom(reducedMotion ? ignite + 520 : 0, tl.cues);
+    const at = (ms: number, fn: () => void) => {
+      if (ms >= from) timers.current.push(setTimeout(fn, ms - from));
+    };
+    // 지난 날 불 붙는 소리 — 점점 높게
+    for (const c of tl.catches) {
+      at(c.t, () => {
+        audio.play("catch", { rate: c.rate });
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      });
+    }
+    at(tl.today, () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    });
+    at(ignite, () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+    });
+    at(ignite + 420, () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    });
+    if (tl.milestone) {
+      if (reducedMotion) setConfetti(true);
+      else at(ignite + 650, () => setConfetti(true));
+    }
+    const list = timers.current;
+    return () => list.forEach(clearTimeout);
+    // 한 번만 — 들어온 순간의 창으로 돈다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /** 화면을 누르면 끝 장면으로 (남은 효과음은 끊는다) */
+  const skip = useCallback(() => {
+    if (clock.value >= tl.end) return;
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+    audio.stop();
+    run(tl.end);
+    if (tl.milestone) setConfetti(true);
+  }, [audio, clock, run, tl]);
+
+  // 기념일 폭죽은 건너뛰어도 한 번은 터진다
+  useAnimatedReaction(
+    () => clock.value >= ignite + 650,
+    (now, previous) => {
+      if (now && !previous && tl.milestone) runOnJS(setConfetti)(true);
+    },
+  );
 
   /**
    * 불꽃.
@@ -166,29 +285,67 @@ export default function StreakDayScreen() {
    * 아니라 "날름거린다" 로 읽힌다.
    */
   const flameStyle = useAnimatedStyle(() => {
-    const enter = flame.value;
+    const enter = cinemaAt(IGNITE_TRACK.flame, clock.value - ignite);
     return {
-      opacity: enter * (0.92 + flicker.value * 0.08),
+      opacity: Math.min(1, enter * 3) * (0.92 + flicker.value * 0.08),
       transform: [
-        { translateY: interpolate(enter, [0, 1], [70, 0]) },
         { translateX: interpolate(sway.value, [0, 1], [-3, 3]) },
         { rotate: `${interpolate(sway.value, [0, 1], [-2.4, 2.4])}deg` },
-        { scaleX: enter * interpolate(lick.value, [0, 1], [1.03, 0.96]) },
-        { scaleY: enter * interpolate(lick.value, [0, 1], [0.97, 1.09]) },
+        { scaleX: Math.max(0.001, enter) * interpolate(lick.value, [0, 1], [1.03, 0.96]) },
+        { scaleY: Math.max(0.001, enter) * interpolate(lick.value, [0, 1], [0.97, 1.09]) },
       ],
     };
   });
 
-  // 광채는 불꽃의 떨림을 같이 받는다 — 따로 놀면 두 개의 물체로 보인다
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: 0.14 + glow.value * 0.24 + flicker.value * 0.06,
-    transform: [{ scale: 0.88 + glow.value * 0.2 }],
-  }));
+  // 광채는 불꽃의 떨림을 같이 받는다 — 따로 놀면 두 개의 물체로 보인다. 점화 순간 확 부푼다
+  const glowStyle = useAnimatedStyle(() => {
+    const rel = clock.value - ignite;
+    const lit = Math.min(1, cinemaAt(IGNITE_TRACK.flame, rel));
+    const boost = cinemaAt(IGNITE_TRACK.glowBoost, rel);
+    return {
+      opacity: (0.14 + glow.value * 0.24 + flicker.value * 0.06) * lit + boost * 0.5,
+      transform: [{ scale: 0.88 + glow.value * 0.2 + boost * 0.35 }],
+    };
+  });
 
-  const numStyle = useAnimatedStyle(() => ({
-    opacity: num.value,
-    transform: [{ scale: 0.5 + num.value * 0.5 }],
+  // 불 붙기 전 불씨 — 숨 쉬듯
+  const emberStyle = useAnimatedStyle(() => {
+    const e = cinemaAt(IGNITE_TRACK.ember, clock.value - ignite);
+    return {
+      opacity: e * (0.7 + 0.3 * Math.sin(clock.value / 260)),
+      transform: [{ scale: (0.85 + 0.15 * Math.sin(clock.value / 260)) * (0.4 + 0.6 * e) }],
+    };
+  });
+
+  // 숫자: 어제 값이 위로 빠지고 오늘 값이 아래서 튀어 오른다
+  const prevStyle = useAnimatedStyle(() => {
+    const p = cinemaAt(IGNITE_TRACK.prevOut, clock.value - ignite);
+    const lit = Math.min(1, cinemaAt(IGNITE_TRACK.flame, clock.value - ignite) * 3);
+    return { opacity: lit * (1 - p), transform: [{ translateY: -40 * p }, { scale: 1 - 0.2 * p }] };
+  });
+  const nextStyle = useAnimatedStyle(() => {
+    const n = cinemaAt(IGNITE_TRACK.nextIn, clock.value - ignite);
+    return { opacity: Math.min(1, n * 1.5), transform: [{ translateY: 46 * (1 - n) }, { scale: 0.6 + 0.4 * n }] };
+  });
+
+  const textStyle = useAnimatedStyle(() => {
+    const x = cinemaAt(IGNITE_TRACK.text, clock.value - ignite);
+    return { opacity: x, transform: [{ translateY: 12 * (1 - x) }] };
+  });
+  const badgeStyle = useAnimatedStyle(() => {
+    const b = cinemaAt(IGNITE_TRACK.badge, clock.value - ignite);
+    return { opacity: Math.min(1, b), transform: [{ scale: Math.max(0.001, b) }] };
+  });
+  const warmStyle = useAnimatedStyle(() => ({
+    opacity: cinemaAt(IGNITE_TRACK.warm, clock.value - ignite),
   }));
+  const embersStyle = useAnimatedStyle(() => ({
+    opacity: cinemaAt(IGNITE_TRACK.embers, clock.value - ignite),
+  }));
+  const shakeStyle = useAnimatedStyle(() => {
+    const k = shakeAt(clock.value, ignite, 380, tl.milestone ? 12 : 7);
+    return { transform: [{ translateX: k.x }, { translateY: k.y }] };
+  });
 
   const onContinue = () => {
     // 연속 보상 상자가 있으면 원래 가려던 곳 앞에 끼운다 (utils/streak-chest-route)
@@ -260,66 +417,100 @@ export default function StreakDayScreen() {
   };
 
   return (
-    <View style={s.container}>
-      {/* 불티 — 위로 흩어져 올라간다 */}
-      {Array.from({ length: EMBERS }).map((_, i) => (
-        <Ember key={i} index={i} />
-      ))}
+    <View
+      style={s.container}
+      ref={containerRef}
+      collapsable={false}
+      onLayout={() => setTimeout(measure, 0)}
+    >
+      {/* 불티 — 불이 붙은 뒤 위로 흩어져 올라간다 */}
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, embersStyle]}>
+        {Array.from({ length: EMBERS }).map((_, i) => (
+          <Ember key={i} index={i} />
+        ))}
+      </Animated.View>
 
-      <View style={s.content}>
-        <View style={s.flameArea}>
-          {/* 광채. 단색 원을 깔면 주황색 접시가 되지 별빛처럼 안 보인다 */}
-          <Animated.View style={[s.glow, glowStyle]} pointerEvents="none">
-            <Svg width="100%" height="100%" viewBox="0 0 100 100">
-              <Defs>
-                <RadialGradient id="streakGlow" cx="50%" cy="50%" r="50%">
-                  <Stop offset="0%" stopColor="#FFC93C" stopOpacity="1" />
-                  <Stop offset="45%" stopColor="#FF9600" stopOpacity="0.5" />
-                  <Stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
-                </RadialGradient>
-              </Defs>
-              <Circle cx="50" cy="50" r="50" fill="url(#streakGlow)" />
-            </Svg>
-          </Animated.View>
+      {/* 점화 순간 화면이 따뜻하게 번쩍 */}
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, s.warm, warmStyle]} />
 
-          <Animated.View style={[s.flame, flameStyle]}>
-            <FlameIcon width={220} height={240} />
-          </Animated.View>
+      {/* 화면을 누르면 끝 장면으로 */}
+      <Pressable onPress={skip} sound={false} style={s.content}>
+        <Animated.View style={[s.contentInner, shakeStyle]}>
+          <View style={s.flameArea} ref={flameRef} collapsable={false}>
+            {/* 광채. 단색 원을 깔면 주황색 접시가 되지 별빛처럼 안 보인다 */}
+            <Animated.View style={[s.glow, glowStyle]} pointerEvents="none">
+              <Svg width="100%" height="100%" viewBox="0 0 100 100">
+                <Defs>
+                  <RadialGradient id="streakGlow" cx="50%" cy="50%" r="50%">
+                    <Stop offset="0%" stopColor="#FFC93C" stopOpacity="1" />
+                    <Stop offset="45%" stopColor="#FF9600" stopOpacity="0.5" />
+                    <Stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
+                  </RadialGradient>
+                </Defs>
+                <Circle cx="50" cy="50" r="50" fill="url(#streakGlow)" />
+              </Svg>
+            </Animated.View>
 
-          {/* 숫자는 불꽃 **밖**에 둔다. 안에 두면 날름거릴 때 같이 떨려서
-              읽히지가 않는다 — 불은 움직이고 숫자는 가만히 있어야 한다 */}
-          <Animated.Text style={[s.streakNum, numStyle]}>
-            {streak}
-          </Animated.Text>
-        </View>
+            {/* 불 붙기 전 불씨 */}
+            <Animated.View style={[s.ember, emberStyle]} pointerEvents="none">
+              <Svg width="100%" height="100%" viewBox="0 0 100 100">
+                <Defs>
+                  <RadialGradient id="streakEmber" cx="50%" cy="50%" r="50%">
+                    <Stop offset="0%" stopColor="#FFF3B0" stopOpacity="1" />
+                    <Stop offset="40%" stopColor="#FF9600" stopOpacity="0.9" />
+                    <Stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
+                  </RadialGradient>
+                </Defs>
+                <Circle cx="50" cy="50" r="50" fill="url(#streakEmber)" />
+              </Svg>
+            </Animated.View>
 
-        <Animated.Text
-          entering={FadeIn.delay(620).duration(320)}
-          style={s.title}
-        >
-          {t("streakDay.title")}
-        </Animated.Text>
-        <Animated.Text
-          entering={FadeIn.delay(760).duration(320)}
-          style={s.subtitle}
-        >
-          {t("streakDay.subtitle")}
-        </Animated.Text>
+            <Animated.View style={[s.flame, flameStyle]}>
+              <FlameIcon width={220} height={240} />
+            </Animated.View>
 
-        <View style={s.week}>
-          {days.map((d, i) => (
-            <DayDot
-              key={d.label + i}
-              label={d.label}
-              done={d.done}
-              isToday={d.isToday}
-              delay={900 + i * 70}
-              s={s}
-              theme={theme}
-            />
-          ))}
-        </View>
-      </View>
+            {/* 점화 순간 사방으로 튀는 불티 */}
+            {IGNITE_SPARKS.map((spark, i) => (
+              <IgniteSpark key={i} spark={spark} clock={clock} ignite={ignite} />
+            ))}
+
+            {/* 숫자는 불꽃 **밖**에 둔다. 안에 두면 날름거릴 때 같이 떨려서
+                읽히지가 않는다 — 불은 움직이고 숫자는 가만히 있어야 한다 */}
+            <Animated.Text style={[s.streakNum, prevStyle]}>{streak - 1}</Animated.Text>
+            <Animated.Text style={[s.streakNum, nextStyle]}>{streak}</Animated.Text>
+          </View>
+
+          {tl.milestone ? (
+            <Animated.View style={[s.badge, badgeStyle]}>
+              <Text style={s.badgeText} numberOfLines={1}>
+                {t("streakDay.milestone", { n: streak })}
+              </Text>
+            </Animated.View>
+          ) : null}
+
+          <Animated.Text style={[s.title, textStyle]}>{t("streakDay.title")}</Animated.Text>
+          <Animated.Text style={[s.subtitle, textStyle]}>{t("streakDay.subtitle")}</Animated.Text>
+
+          <View style={s.week} ref={rowRef} collapsable={false}>
+            {days.map((d, i) => (
+              <DayDot
+                key={d.label + i}
+                label={d.label}
+                isToday={d.isToday}
+                popAt={RELAY.dotsIn + i * RELAY.dotGap}
+                litAt={tl.litAt[i] ?? -1}
+                clock={clock}
+                s={s}
+              />
+            ))}
+          </View>
+        </Animated.View>
+      </Pressable>
+
+      {/* 오늘 칸으로 건너오는 불 · 불씨까지 솟는 불덩이 */}
+      {geo ? <RelayFire geo={geo} tl={tl} clock={clock} count={days.length} /> : null}
+
+      {confetti ? <Confetti /> : null}
 
       <View style={[s.footer, { paddingBottom: insets.bottom + 16 }]}>
         <Pressable
@@ -337,57 +528,147 @@ export default function StreakDayScreen() {
   );
 }
 
-/** 요일 동그라미 — 하나씩 순서대로 톡톡 나타난다 */
+/** 요일 동그라미 — 톡톡 나타났다가, 차례가 오면 불이 붙는다 */
 function DayDot({
   label,
-  done,
   isToday,
-  delay,
+  popAt,
+  litAt,
+  clock,
   s,
-  theme,
 }: {
   label: string;
-  done: boolean;
   /** 오늘 칸은 테두리로 짚어 준다 — 창 어디쯤 와 있는지 한눈에 보이게 */
   isToday: boolean;
-  delay: number;
+  popAt: number;
+  litAt: number;
+  clock: SharedValue<number>;
   s: ReturnType<typeof styles>;
-  theme: ThemeColors;
 }) {
-  const pop = useSharedValue(0);
-  useEffect(() => {
-    pop.value = withDelay(
-      delay,
-      withSpring(1, { damping: 10, stiffness: 200 }),
+  const popStyle = useAnimatedStyle(() => {
+    const p = cinemaAt(
+      [
+        { t: popAt, v: 0 },
+        { t: popAt + 260, v: 1, e: "back" },
+      ],
+      clock.value,
     );
-  }, [delay]);
-
-  const style = useAnimatedStyle(() => ({
-    opacity: pop.value,
-    transform: [{ scale: 0.4 + pop.value * 0.6 }],
-  }));
+    return { opacity: Math.min(1, p), transform: [{ scale: 0.4 + p * 0.6 }] };
+  });
+  const litStyle = useAnimatedStyle(() => {
+    const l = dotLit(clock.value, litAt);
+    return { opacity: l.on, transform: [{ scale: l.scale }] };
+  });
+  // 오늘 칸이 켜질 때 퍼지는 고리
+  const ringStyle = useAnimatedStyle(() => {
+    if (!isToday || litAt < 0) return { opacity: 0 };
+    const p = Math.min(1, Math.max(0, (clock.value - litAt) / 520));
+    return { opacity: p <= 0 || p >= 1 ? 0 : 0.8 * (1 - p), transform: [{ scale: 1 + 1.1 * p }] };
+  });
+  const labelStyle = useAnimatedStyle(() => ({ opacity: dotLit(clock.value, litAt).on }));
 
   return (
     <View style={s.dayCol}>
-      <Animated.View
-        style={[
-          s.dayDot,
-          done && s.dayDotDone,
-          isToday && !done && s.dayDotToday,
-          style,
-        ]}
-      >
-        {done && <Ionicons name="checkmark" size={20} color="#fff" />}
+      <Animated.View style={[s.dayDot, isToday && s.dayDotToday, popStyle]}>
+        <Animated.View style={[s.dayRing, ringStyle]} pointerEvents="none" />
+        <Animated.View style={[s.dayLit, litStyle]}>
+          <Ionicons name="checkmark" size={20} color="#fff" />
+        </Animated.View>
       </Animated.View>
-      <Text
-        style={[
-          s.dayLabel,
-          done && s.dayLabelDone,
-          isToday && s.dayLabelToday,
-        ]}
-      >
-        {label}
-      </Text>
+      <View>
+        <Text style={[s.dayLabel, isToday && s.dayLabelToday]}>{label}</Text>
+        <Animated.Text style={[s.dayLabel, s.dayLabelDone, s.dayLabelOver, labelStyle]}>
+          {label}
+        </Animated.Text>
+      </View>
+    </View>
+  );
+}
+
+/** 점화 순간 불티 한 알 */
+function IgniteSpark({
+  spark,
+  clock,
+  ignite,
+}: {
+  spark: (typeof IGNITE_SPARKS)[number];
+  clock: SharedValue<number>;
+  ignite: number;
+}) {
+  const style = useAnimatedStyle(() => {
+    const p = cinemaAt(IGNITE_TRACK.sparks, clock.value - ignite);
+    return {
+      opacity: p <= 0 || p >= 1 ? 0 : 1 - p * p,
+      transform: [
+        { translateX: Math.cos(spark.angle) * spark.dist * p },
+        // 위로 조금 더 — 불은 솟는다
+        { translateY: Math.sin(spark.angle) * spark.dist * p - 40 * p },
+        { scale: 1 - 0.5 * p },
+      ],
+    };
+  });
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        stylesStatic.spark,
+        {
+          width: spark.size,
+          height: spark.size,
+          borderRadius: spark.size / 2,
+          backgroundColor: spark.gold ? "#FFC93C" : "#FF7A00",
+        },
+        style,
+      ]}
+    />
+  );
+}
+
+/** 요일 줄 안에서 오늘로 건너오는 불, 그리고 불씨까지 솟는 불덩이 */
+function RelayFire({
+  geo,
+  tl,
+  clock,
+  count,
+}: {
+  geo: Geometry;
+  tl: ReturnType<typeof relayTimeline>;
+  clock: SharedValue<number>;
+  count: number;
+}) {
+  const col = geo.rowW / count;
+  const cx = (i: number) => geo.rowX + (i + 0.5) * col;
+  const dotY = geo.rowY + DOT / 2;
+  const fromX = tl.hopFrom >= 0 ? cx(tl.hopFrom) : cx(tl.todayIndex);
+  const todayX = cx(tl.todayIndex);
+
+  const hopStyle = useAnimatedStyle(() => {
+    const h = hopAt(clock.value, tl.hopStart, RELAY.hop, fromX, todayX);
+    return { opacity: h.opacity, transform: [{ translateX: h.x - 9 }, { translateY: dotY + h.y - 9 }] };
+  });
+  const riseStyle = useAnimatedStyle(() => {
+    const r = riseAt(clock.value, tl.rise, RELAY.rise, todayX, dotY, geo.baseX, geo.baseY);
+    return {
+      opacity: r.opacity,
+      transform: [{ translateX: r.x - 14 }, { translateY: r.y - 14 }, { scale: r.scale }],
+    };
+  });
+
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <Animated.View style={[stylesStatic.hop, hopStyle]} />
+      <Animated.View style={[stylesStatic.fireball, riseStyle]}>
+        <Svg width={28} height={28} viewBox="0 0 100 100">
+          <Defs>
+            <RadialGradient id="fireball" cx="50%" cy="45%" r="50%">
+              <Stop offset="0%" stopColor="#FFFBEA" stopOpacity="1" />
+              <Stop offset="45%" stopColor="#FFC93C" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="50" cy="50" r="50" fill="url(#fireball)" />
+        </Svg>
+      </Animated.View>
     </View>
   );
 }
@@ -404,7 +685,7 @@ function Ember({ index }: { index: number }) {
       index * 180,
       withRepeat(withTiming(1, { duration: dur, easing: Easing.linear }), -1),
     );
-  }, [index, dur]);
+  }, [index, dur, p]);
 
   const style = useAnimatedStyle(() => ({
     opacity: interpolate(p.value, [0, 0.15, 0.75, 1], [0, 0.9, 0.5, 0]),
@@ -439,15 +720,36 @@ function Ember({ index }: { index: number }) {
   );
 }
 
+const stylesStatic = StyleSheet.create({
+  spark: { position: "absolute", top: "50%", left: "50%" },
+  hop: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#FFC93C",
+    shadowColor: "#FF9600",
+    shadowOpacity: 0.9,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
+  },
+  fireball: { position: "absolute", left: 0, top: 0, width: 28, height: 28 },
+});
+
 const styles = (theme: ThemeColors) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: theme.bg },
-    content: {
+    content: { flex: 1 },
+    contentInner: {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
       paddingHorizontal: 24,
     },
+    warm: { backgroundColor: "#FF9600" },
     flameArea: {
       alignItems: "center",
       justifyContent: "center",
@@ -457,6 +759,12 @@ const styles = (theme: ThemeColors) =>
       position: "absolute",
       width: 340,
       height: 340,
+    },
+    ember: {
+      position: "absolute",
+      bottom: 6,
+      width: 70,
+      height: 70,
     },
     // 불은 밑동을 축으로 움직인다. 가운데를 축으로 두면 공중으로 떠오른다
     flame: { transformOrigin: "bottom center" },
@@ -474,6 +782,16 @@ const styles = (theme: ThemeColors) =>
       textShadowOffset: { width: 0, height: 3 },
       textShadowRadius: 8,
     },
+    badge: {
+      marginBottom: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: "#FFD45C",
+      borderBottomWidth: 3,
+      borderBottomColor: "#E2A83A",
+    },
+    badgeText: { fontSize: 15, fontWeight: "900", color: "#7A4C00" },
     title: {
       fontSize: 30,
       fontWeight: "900",
@@ -497,18 +815,34 @@ const styles = (theme: ThemeColors) =>
     },
     dayCol: { alignItems: "center", gap: 7, flex: 1 },
     dayDot: {
-      width: 42,
-      height: 42,
+      width: DOT,
+      height: DOT,
       borderRadius: 999,
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.border,
     },
-    dayDotDone: { backgroundColor: "#FF9600" },
     dayDotToday: { borderWidth: 2.5, borderColor: "#FF9600" },
+    dayLit: {
+      ...StyleSheet.absoluteFill,
+      borderRadius: 999,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#FF9600",
+    },
+    dayRing: {
+      position: "absolute",
+      width: DOT,
+      height: DOT,
+      borderRadius: 999,
+      borderWidth: 3,
+      borderColor: "#FFC93C",
+    },
     dayLabel: { fontSize: 13, fontWeight: "800", color: theme.textSecondary },
     dayLabelDone: { color: "#FF9600" },
     dayLabelToday: { color: "#FF9600" },
+    // 불이 붙으면 주황 글씨가 위에 겹쳐 나타난다
+    dayLabelOver: { position: "absolute", left: 0, top: 0 },
     footer: { paddingHorizontal: 20, paddingTop: 8 },
     cta: { height: 62 },
     ctaPressed: { transform: [{ translateY: 3 }] },

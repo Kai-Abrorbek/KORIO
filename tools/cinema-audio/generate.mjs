@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스.
+ * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스 · 연속 학습일.
  * (레벨업 로켓 소리는 tools/levelup-audio 가 따로 만든다)
  *
  * 만든 mp3 는 두 앱에 똑같이 들어간다 —
@@ -62,6 +62,20 @@ const CATALOG = {
     { file: "slot-stop.mp3", sfx: `One slot machine reel stopping: a firm mechanical clunk with a tiny bell tick. ${NO_VOICE}`, duration: 0.5 },
     { file: "jackpot.mp3", sfx: "A slot machine jackpot win in a cheerful arcade: ringing bells, cascading coins and a short triumphant fanfare. No voice.", duration: 2.5 },
     { file: "vo-jackpot.mp3", voice: "[shouting] [excited] 잭팟!" },
+  ],
+  streak: [
+    { file: "catch.mp3", sfx: `A small flame catching: a short soft fwump with a tiny crackle, like a candle being lit. ${NO_VOICE}`, duration: 0.5 },
+    { file: "today.mp3", sfx: `A torch lighting up with a bright magical whoosh-pop and sparkle. ${NO_VOICE}`, duration: 0.8 },
+    { file: "rise.mp3", sfx: `A small fireball flying upward: a rising airy whoosh with crackles. ${NO_VOICE}`, duration: 0.7 },
+    { file: "ignite.mp3", sfx: `A big bonfire bursting into flame: a deep satisfying whoomph and roar with crackling sparks. ${NO_VOICE}`, duration: 1.6 },
+    { file: "count.mp3", sfx: `A score counter flipping to the next number: a quick mechanical flip ending in a solid thunk. ${NO_VOICE}`, duration: 0.6 },
+    { file: "fireworks.mp3", sfx: "Festive fireworks in a cheerful mobile game: two bright pops with crackling sparkle tails. No voice.", duration: 2.2 },
+    { file: "vo-day.mp3", voice: "[excited] 오늘도 불태웠어요!" },
+    { file: "vo-7.mp3", voice: "[excited] 일주일 연속!" },
+    { file: "vo-30.mp3", voice: "[shouting] [excited] 30일 연속!" },
+    { file: "vo-100.mp3", voice: "[shouting] [excited] 100일 연속! 대단해요!" },
+    { file: "vo-365.mp3", voice: "[shouting] [excited] 1년 연속! 전설이에요!" },
+    { file: "vo-record.mp3", voice: "[shouting] [excited] 대기록이에요!" },
   ],
 };
 
