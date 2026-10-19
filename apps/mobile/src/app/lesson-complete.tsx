@@ -1,28 +1,63 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, StyleSheet, Share } from "react-native";
+import { View, StyleSheet, Share, useWindowDimensions } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useRouter, useLocalSearchParams, type Href } from "expo-router";
+import Animated, {
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useReducedMotion,
+} from "react-native-reanimated";
 import { viaStreakChest } from "@/utils/streak-chest-route";
 import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
-import { useSound } from "@/hooks/useSound";
 import { backToRoadmap } from "@/store/settings.store";
-import { ThemeColors } from "@/constants/theme";
+import { ThemeColors, themes } from "@/constants/theme";
 import { ReferralApi } from "@/services/referral.service";
 import { reportQuestEvent } from "@/features/retention/questActions";
-import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
+import { Pressable } from "@/components/ui/Pressables";
+import { cinemaAt, shakeAt } from "@/components/cinema/cinema";
+import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
 import Confetti from "@/components/lesson-complete/Confetti";
 import StatCard from "@/components/lesson-complete/StatCard";
+import StampCinema from "@/components/lesson-complete/StampCinema";
 import LessonCompleteActions from "@/components/lesson-complete/LessonCompleteActions";
+import {
+  STAMP_CINEMA,
+  STAMP_SHAKE,
+  STAMP_TRACK,
+  stampSoundCues,
+  stampTier,
+  type StampSound,
+} from "@/components/lesson-complete/lessonStampCinematic";
+
+const STAMP_SOURCES: Record<StampSound, number> = {
+  whoosh: require("../../assets/sounds/lesson/stamp-whoosh.mp3"),
+  thump: require("../../assets/sounds/lesson/stamp-thump.mp3"),
+  fanfare: require("../../assets/sounds/lesson-complete.wav"),
+  sparkle: require("../../assets/sounds/lesson/sparkle.mp3"),
+  statPop: require("../../assets/sounds/lesson/stat-pop.mp3"),
+  voPerfect: require("../../assets/sounds/lesson/vo-perfect.mp3"),
+  voGreat: require("../../assets/sounds/lesson/vo-great.mp3"),
+  voGood: require("../../assets/sounds/lesson/vo-good.mp3"),
+};
+
+/** 목소리가 효과음에 묻히지 않게 */
+const STAMP_GAIN: Partial<Record<StampSound, number>> = {
+  whoosh: 0.6,
+  thump: 1,
+  fanfare: 0.55,
+  sparkle: 0.7,
+  statPop: 0.6,
+};
 
 export default function LessonCompleteScreen() {
   const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { play } = useSound();
-
-  useEffect(() => { play("lessonComplete"); }, [play]);
+  const { width: screenW, height: screenH } = useWindowDimensions();
+  const reducedMotion = useReducedMotion();
 
   const params = useLocalSearchParams<{
     xp?: string;
@@ -54,8 +89,78 @@ export default function LessonCompleteScreen() {
   const accuracy = Number(params.accuracy ?? 0);
   const time = params.time ?? "0:00";
 
-  // 순차 애니: 현재 몇 번째 카드까지 진행
-  const [activeIdx, setActiveIdx] = useState(0);
+  // ── "참 잘했어요 도장" 연출 (lessonStampCinematic) ──
+  const tier = stampTier(accuracy);
+  // 작은 안드로이드(360×640)에서도 기록 카드·버튼까지 한 화면에
+  const stageSize = Math.min(screenW * 0.66, screenH * 0.36, 270);
+  const isDark = theme.bg === themes.dark.bg;
+  const { clock, run } = useCinemaClock(STAMP_CINEMA.end);
+  const audio = useCinemaAudio(STAMP_SOURCES, STAMP_GAIN);
+  const haptics = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // 순차 애니: 현재 몇 번째 카드까지 진행 (-1 = 도장이 아직 안 끝남)
+  const [activeIdx, setActiveIdx] = useState(-1);
+  const [burst, setBurst] = useState(false);
+
+  useEffect(() => {
+    // 동작 줄이기면 도장이 찍힌 뒤부터 (소리는 쾅부터)
+    const from = reducedMotion ? STAMP_CINEMA.end : 0;
+    run(from);
+    audio.playFrom(reducedMotion ? STAMP_CINEMA.impact : 0, stampSoundCues(tier));
+    if (!reducedMotion) {
+      haptics.current = [
+        setTimeout(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+        }, STAMP_CINEMA.impact),
+        setTimeout(() => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        }, 1450),
+      ];
+    }
+    return () => haptics.current.forEach(clearTimeout);
+    // 한 번만 — 들어온 순간의 결과로 돈다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 쾅 다음에 꽃가루 (80% 이상), 기록 카드는 도장이 날아간 뒤부터
+  useAnimatedReaction(
+    () => clock.value >= STAMP_CINEMA.impact + 120,
+    (now, previous) => {
+      if (now && !previous && tier !== "good") runOnJS(setBurst)(true);
+    },
+  );
+  useAnimatedReaction(
+    () => clock.value >= STAMP_CINEMA.stats,
+    (now, previous) => {
+      if (now && !previous) runOnJS(setActiveIdx)(0);
+    },
+  );
+
+  // 기록 카드가 하나 찍힐 때마다 톡
+  useEffect(() => {
+    if (activeIdx >= 0 && activeIdx <= 2) audio.play("statPop", { rate: 1 + activeIdx * 0.08 });
+  }, [activeIdx, audio]);
+
+  /** 도장을 누르면 끝 장면으로 (남은 효과음은 끊는다) */
+  const skip = useCallback(() => {
+    if (clock.value >= STAMP_CINEMA.stats) return;
+    haptics.current.forEach(clearTimeout);
+    audio.stop();
+    run(STAMP_CINEMA.end);
+  }, [audio, clock, run]);
+
+  const shakeStyle = useAnimatedStyle(() => {
+    const s = shakeAt(clock.value, STAMP_CINEMA.impact, 380, STAMP_SHAKE[tier]);
+    return { transform: [{ translateX: s.x }, { translateY: s.y }] };
+  });
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: cinemaAt(STAMP_TRACK.titleOpacity, clock.value),
+    transform: [{ scale: cinemaAt(STAMP_TRACK.titleScale, clock.value) }],
+  }));
+  const captionStyle = useAnimatedStyle(() => {
+    const c = cinemaAt(STAMP_TRACK.caption, clock.value);
+    return { opacity: c, transform: [{ translateY: (1 - c) * 10 }] };
+  });
 
   /**
    * 결과 공유.
@@ -192,14 +297,29 @@ export default function LessonCompleteScreen() {
 
   return (
     <View style={styles.container}>
-      <Confetti />
+      {burst ? <Confetti /> : null}
 
-      <View style={styles.content}>
-        <View style={styles.mascotWrap}>
-          <CelebrationMascot size={200} style={"spin"} />
-        </View>
+      <Animated.View style={[styles.content, shakeStyle]}>
+        <Animated.Text style={[styles.title, titleStyle]}>
+          {t("lessonComplete.title")}
+        </Animated.Text>
 
-        <Text style={styles.title}>{t("lessonComplete.title")}</Text>
+        {/* 도장 무대 — 누르면 건너뛴다 */}
+        <Pressable onPress={skip} sound={false} style={styles.stage}>
+          <StampCinema
+            clock={clock}
+            tier={tier}
+            size={stageSize}
+            ink={isDark ? "#9D8DFF" : "#5B4DD4"}
+            paper={theme.surface}
+            grid={isDark ? "#33333D" : "#F0EEFA"}
+            border={theme.border}
+          />
+        </Pressable>
+
+        <Animated.Text style={[styles.caption, captionStyle]} numberOfLines={2}>
+          {t(`lessonComplete.stamp.${tier}`)}
+        </Animated.Text>
 
         <View style={styles.statsRow}>
           <StatCard
@@ -230,7 +350,7 @@ export default function LessonCompleteScreen() {
             color="#1FA9F7"
           />
         </View>
-      </View>
+      </Animated.View>
 
       <LessonCompleteActions showShare onShare={onShare} onClaim={onContinue} />
     </View>
@@ -242,25 +362,30 @@ const getStyles = (theme: ThemeColors) =>
     container: { flex: 1, backgroundColor: theme.bg, marginBottom: 30 },
     content: {
       flex: 1,
-      paddingTop: 80,
+      paddingTop: 64,
       paddingHorizontal: 16,
       alignItems: "center",
-    },
-    mascotWrap: {
-      height: 240,
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 24,
     },
     title: {
       fontSize: 32,
       fontWeight: "900",
       color: "#FFCC00",
       letterSpacing: -0.5,
-      marginBottom: 36,
+      marginBottom: 28,
       textShadowColor: "rgba(255,204,0,0.25)",
       textShadowOffset: { width: 0, height: 3 },
       textShadowRadius: 8,
+    },
+    // 도장은 무대 위에서 내려오고 하늘몬은 오른쪽으로 삐져나온다 — 잘리지 않게
+    stage: { overflow: "visible", zIndex: 2 },
+    caption: {
+      marginTop: 18,
+      fontSize: 15,
+      fontWeight: "800",
+      lineHeight: 21,
+      color: theme.textSecondary,
+      textAlign: "center",
+      paddingHorizontal: 12,
     },
     // 카드를 아래로 — content가 flex라 statsRow에 marginTop auto로 밀기
     statsRow: {

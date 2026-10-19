@@ -1,6 +1,7 @@
 import { forwardRef, useImperativeHandle, useState, useEffect } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import Svg, { Path } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,6 +14,7 @@ import Animated, {
   interpolate,
   runOnJS,
 } from "react-native-reanimated";
+import { starPath } from "@/components/cinema/cinema";
 
 type Grade = "wood" | "silver" | "gold";
 
@@ -55,6 +57,8 @@ const CHEST_W = 200,
   BASE_H = 90;
 const RAY_COUNT = 12;
 const PARTICLE_COUNT = 16;
+/** 틈새 빛줄기 각도 */
+const LEAKS = [-62, -34, -12, 12, 34, 62];
 
 export interface ChestHandle {
   dropIn: () => void;
@@ -78,6 +82,10 @@ const Chest = forwardRef<ChestHandle, { grade?: Grade }>(
 
     const lockScale = useSharedValue(1);
     const lockOpacity = useSharedValue(1);
+
+    // 탭할수록 뚜껑 틈으로 새어 나오는 빛 (0~1)
+    const seam = useSharedValue(0);
+    const seamLevel = useSharedValue(0);
 
     // 연출 레이어
     const idleGlow = useSharedValue(0.35); // 대기 시 은은한 글로우 (기대감)
@@ -143,9 +151,20 @@ const Chest = forwardRef<ChestHandle, { grade?: Grade }>(
           withTiming(0.8, { duration: 100 }),
           withTiming(0.4, { duration: 300 }),
         );
+        // 틈새 빛 — 번쩍했다가 한 단계 더 밝은 채로 남는다
+        seamLevel.value = Math.min(1, intensity * 0.45);
+        seam.value = withSequence(
+          withTiming(Math.min(1, seamLevel.value + 0.35), { duration: 80 }),
+          withTiming(seamLevel.value, { duration: 320 }),
+        );
       },
 
       open: (onDone: () => void) => {
+        // 틈새 빛이 가득 찼다가 뚜껑이 날아가면 사라진다
+        seam.value = withSequence(
+          withTiming(1, { duration: 120 }),
+          withDelay(160, withTiming(0, { duration: 260 })),
+        );
         // 살짝 눌렀다가 빵!
         containerScaleY.value = withSequence(
           withTiming(0.85, { duration: 120 }),
@@ -236,6 +255,14 @@ const Chest = forwardRef<ChestHandle, { grade?: Grade }>(
         { translateY: lidY.value },
         { rotate: `${lidRotate.value}deg` },
       ],
+    }));
+    const seamStyle = useAnimatedStyle(() => ({
+      opacity: seam.value,
+      transform: [{ scaleX: 0.7 + 0.3 * seam.value }],
+    }));
+    const leakStyle = useAnimatedStyle(() => ({
+      opacity: seam.value * 0.85,
+      transform: [{ scaleY: 0.4 + 0.6 * seam.value }],
     }));
     const lockStyle = useAnimatedStyle(() => ({
       opacity: lockOpacity.value,
@@ -330,6 +357,26 @@ const Chest = forwardRef<ChestHandle, { grade?: Grade }>(
             </View>
           </View>
 
+          {/* 틈새로 새어 나오는 빛 — 뚜껑 뒤에서 위로 부채꼴 */}
+          <Animated.View style={[styles.leaks, leakStyle]} pointerEvents="none">
+            {LEAKS.map((deg) => (
+              <View
+                key={deg}
+                style={[styles.leakWrap, { transform: [{ rotate: `${deg}deg` }] }]}
+              >
+                <LinearGradient
+                  colors={["transparent", G.glowStrong, "#FFFFFF"]}
+                  locations={[0, 0.7, 1]}
+                  style={styles.leak}
+                />
+              </View>
+            ))}
+          </Animated.View>
+          <Animated.View
+            pointerEvents="none"
+            style={[styles.seam, { backgroundColor: G.glow, shadowColor: G.glowStrong }, seamStyle]}
+          />
+
           {/* 뚜껑 */}
           <Animated.View style={[styles.lid, lidStyle]}>
             <View style={[styles.lidFrame, { backgroundColor: G.frame }]}>
@@ -357,42 +404,50 @@ const Chest = forwardRef<ChestHandle, { grade?: Grade }>(
         {/* 보석 파티클 (앞) */}
         {bursting &&
           Array.from({ length: PARTICLE_COUNT }).map((_, i) => (
-            <Sparkle key={i} index={i} />
+            <Sparkle key={i} index={i} color={G.glowStrong} />
           ))}
       </View>
     );
   },
 );
 
-// 개별 보석/반짝이 파티클
-function Sparkle({ index }: { index: number }) {
+// 반짝이 파티클 — 그린 별 (금 · 흰 · 등급 빛 · 보석 파랑)
+const SPARK_STAR = starPath(50, 50, 48, 18, 4);
+
+function Sparkle({ index, color }: { index: number; color: string }) {
   const p = useSharedValue(0);
-  const angle =
-    ((Math.PI * 2) / PARTICLE_COUNT) * index + (Math.random() - 0.5) * 0.5;
-  const dist = 110 + Math.random() * 90;
-  const emoji = ["💎", "✨", "⭐", "💫"][index % 4];
+  const [shape] = useState(() => ({
+    angle: ((Math.PI * 2) / PARTICLE_COUNT) * index + (Math.random() - 0.5) * 0.5,
+    dist: 110 + Math.random() * 90,
+    duration: 850 + Math.random() * 300,
+    size: 16 + (index % 3) * 7,
+  }));
+  const fill = ["#FFD45C", "#FFFFFF", color, "#5CD0F0"][index % 4];
 
   useEffect(() => {
     p.value = withDelay(
       300,
-      withTiming(1, {
-        duration: 850 + Math.random() * 300,
-        easing: Easing.out(Easing.quad),
-      }),
+      withTiming(1, { duration: shape.duration, easing: Easing.out(Easing.quad) }),
     );
   }, []);
 
   const style = useAnimatedStyle(() => ({
     opacity: interpolate(p.value, [0, 0.15, 0.7, 1], [0, 1, 1, 0]),
     transform: [
-      { translateX: Math.cos(angle) * dist * p.value },
-      { translateY: (Math.sin(angle) * dist - 60) * p.value }, // 위로 편향
+      { translateX: Math.cos(shape.angle) * shape.dist * p.value },
+      { translateY: (Math.sin(shape.angle) * shape.dist - 60) * p.value }, // 위로 편향
       { scale: interpolate(p.value, [0, 0.3, 1], [0.2, 1.1, 0.5]) },
       { rotate: `${p.value * (index % 2 ? 360 : -360)}deg` },
     ],
   }));
 
-  return <Animated.Text style={[styles.sparkle, style]}>{emoji}</Animated.Text>;
+  return (
+    <Animated.View style={[styles.sparkle, { width: shape.size, height: shape.size }, style]}>
+      <Svg width={shape.size} height={shape.size} viewBox="0 0 100 100">
+        <Path d={SPARK_STAR} fill={fill} />
+      </Svg>
+    </Animated.View>
+  );
 }
 
 Chest.displayName = "Chest";
@@ -432,7 +487,36 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     backgroundColor: "#fff",
   },
-  sparkle: { position: "absolute", fontSize: 26 },
+  sparkle: { position: "absolute" },
+  seam: {
+    position: "absolute",
+    top: LID_H - 12,
+    left: 10,
+    right: 10,
+    height: 9,
+    borderRadius: 5,
+    shadowOpacity: 1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
+  },
+  leaks: {
+    position: "absolute",
+    top: LID_H - 8,
+    left: CHEST_W / 2,
+    width: 0,
+    height: 0,
+    alignItems: "center",
+  },
+  leakWrap: {
+    position: "absolute",
+    bottom: 0,
+    left: -7,
+    width: 14,
+    height: 120,
+    transformOrigin: "50% 100%",
+  },
+  leak: { flex: 1, borderRadius: 7 },
 
   container: { width: CHEST_W, height: CHEST_H + 14, alignItems: "center" },
   shadow: {

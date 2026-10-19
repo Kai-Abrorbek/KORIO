@@ -1208,6 +1208,12 @@ export default {
     speed: "스피드",
     totalXp: "총 XP",
     claim: "XP 받기",
+    /** 도장 글씨(한국어 그대로)의 뜻 — 정답률 100% / 80% 이상 / 그 아래 */
+    stamp: {
+      perfect: "모두 맞혔어요! 완벽해요",
+      great: "거의 다 맞혔어요",
+      good: "끝까지 해냈어요",
+    },
     labels: {
       perfect: "완벽해요",
       excellent: "훌륭해요",

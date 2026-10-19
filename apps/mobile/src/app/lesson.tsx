@@ -54,6 +54,7 @@ import LegendHeader from "@/components/lesson/LegendHeader";
 import EnergyBonusPopup from "@/components/lesson/EnergyBonusPopup";
 import LightningStrike from "@/components/lesson/LightningStrike";
 import EnergySurge from "@/components/lesson/EnergySurge";
+import EnergyJackpot from "@/components/lesson/EnergyJackpot";
 import { ENERGY_MAX } from "@/constants/energy";
 import { gradeAnswer, gradeTypedAnswerExactly } from "@/utils/answer-check";
 import { shuffleGrammarQuestions } from "@/utils/shuffle";
@@ -336,7 +337,7 @@ export default function LessonScreen() {
   const [bonusAmount, setBonusAmount] = useState(0);
   const [showLightning, setShowLightning] = useState(false);
   /** 콤보 보상 연출 — 번개 / 에너지 코어 중 매번 랜덤 */
-  const [bonusVariant, setBonusVariant] = useState<"lightning" | "surge">(
+  const [bonusVariant, setBonusVariant] = useState<"lightning" | "surge" | "jackpot">(
     "lightning",
   );
   // 연속 정답 보너스 — 언제 줄지 (레슨당 2~3번, utils/combo-bonus.ts)
@@ -832,8 +833,9 @@ export default function LessonScreen() {
         gems: bonusRes.gems,
       } as any);
       setBonusAmount(bonusRes.bonusGranted);
-      // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로
-      const variant = Math.random() < 0.5 ? "lightning" : "surge";
+      // 같은 연출만 반복되면 금방 질린다 — 셋 중 하나를 랜덤으로
+      const roll = Math.random();
+      const variant = roll < 1 / 3 ? "lightning" : roll < 2 / 3 ? "surge" : "jackpot";
       setBonusVariant(variant);
       setShowLightning(variant === "lightning");
       setShowBonus(true);
@@ -1628,6 +1630,15 @@ export default function LessonScreen() {
             }}
           />
         </>
+      ) : bonusVariant === "jackpot" ? (
+        <EnergyJackpot
+          visible={showBonus}
+          amount={bonusAmount}
+          onDone={() => {
+            setShowBonus(false);
+            if (leaveAfterBonus.current) goHome();
+          }}
+        />
       ) : (
         <EnergySurge
           visible={showBonus}

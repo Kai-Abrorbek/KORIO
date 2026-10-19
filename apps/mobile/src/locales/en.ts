@@ -1210,6 +1210,12 @@ export default {
     accuracy: "Accuracy",
     speed: "Speed",
     claim: "Claim XP",
+    /** 도장 글씨(한국어 그대로)의 뜻 — 정답률 100% / 80% 이상 / 그 아래 */
+    stamp: {
+      perfect: "“Very well done!” — every answer right",
+      great: "“Well done!” — almost all correct",
+      good: "“Good work!” — you saw it through",
+    },
     labels: {
       perfect: "Perfect",
       excellent: "Excellent",

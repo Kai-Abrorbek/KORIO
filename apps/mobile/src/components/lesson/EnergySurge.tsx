@@ -24,6 +24,8 @@ import Svg, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "@/utils/haptics";
+import { useCinemaAudio } from "@/components/cinema/useCinema";
+import { surgeCues, type EnergySound } from "./energyCinematic";
 
 /**
  * 콤보 에너지 보상 연출 — "에너지 코어".
@@ -32,7 +34,9 @@ import * as Haptics from "@/utils/haptics";
  *   1) 화면 가장자리에서 불꽃 조각들이 소용돌이치며 가운데로 빨려 든다
  *   2) 가운데서 빛나는 코어가 튀어나오고, 충격파 링 두 겹이 퍼진다
  *   3) 뒤에선 빛줄기가 천천히 돌고, 코어 안 배터리가 차오르며 +N 이 올라간다
- *   4) 코어가 줄어들며 헤더의 에너지 배지 쪽으로 날아가 흡수된다
+ *   4) 코어가 줄어들며 헤더의 에너지 배지 쪽으로 날아가 흡수된다 — 빛 꼬리를 끌며
+ *
+ * 소리: 빨려 듦(gather) → 코어 터짐(corePop) + 화면 쿵 → 충전(charge) → 흡수(collect)
  *
  * pointerEvents="none" — 연출 중에도 다음 버튼을 누를 수 있다.
  */
@@ -71,6 +75,21 @@ interface SparkDef {
 }
 
 const SPARK_COLORS = ["#FFFFFF", "#FFE066", "#C9C3FF", "#FFD23F"];
+
+type SurgeSound = Extract<EnergySound, "gather" | "corePop" | "charge" | "collect">;
+const SOURCES: Record<SurgeSound, number> = {
+  gather: require("../../../assets/sounds/energy/gather.mp3"),
+  corePop: require("../../../assets/sounds/energy/core-pop.mp3"),
+  charge: require("../../../assets/sounds/energy/charge.mp3"),
+  collect: require("../../../assets/sounds/energy/collect.mp3"),
+};
+const GAIN: Partial<Record<SurgeSound, number>> = { gather: 0.7, charge: 0.6, collect: 0.8 };
+const CUES = surgeCues(T_POP, T_FILL, T_COLLECT + D_COLLECT) as { t: number; sound: SurgeSound }[];
+
+/** 흡수될 때 뒤따르는 빛 꼬리 수 */
+const TRAIL = 4;
+/** 코어가 터질 때 흔들림 (px) */
+const QUAKE = 10;
 
 const SPARKS: SparkDef[] = Array.from({ length: 18 }).map((_, i) => ({
   angle: (i / 18) * Math.PI * 2 + (i % 2 ? 0.18 : -0.12),
@@ -167,6 +186,8 @@ export default function EnergySurge({
   const fill = useSharedValue(0);
   const title = useSharedValue(0);
   const collect = useSharedValue(0);
+  const quake = useSharedValue(0);
+  const audio = useCinemaAudio(SOURCES, GAIN);
 
   // 헤더 오른쪽 에너지 배지 쪽 (화면 가운데 기준 좌표)
   const targetX = W / 2 - 52;
@@ -192,7 +213,9 @@ export default function EnergySurge({
     fill.value = 0;
     title.value = 0;
     collect.value = 0;
+    quake.value = 0;
     setDisplay(0);
+    audio.playFrom(0, CUES);
 
     dim.value = withSequence(
       withTiming(0.55, { duration: 220 }),
@@ -222,6 +245,7 @@ export default function EnergySurge({
       T_FILL,
       withTiming(1, { duration: 640, easing: Easing.out(Easing.cubic) }),
     );
+    quake.value = withDelay(T_POP, withTiming(1, { duration: 420, easing: Easing.linear }));
     title.value = withDelay(
       T_POP + 220,
       withSpring(1, { damping: 11, stiffness: 160 }),
@@ -285,6 +309,18 @@ export default function EnergySurge({
   }, [visible, amount]);
 
   const dimStyle = useAnimatedStyle(() => ({ opacity: dim.value }));
+  // 코어가 터질 때 화면이 쿵 — 잦아드는 흔들림
+  const quakeStyle = useAnimatedStyle(() => {
+    const q = quake.value;
+    if (q <= 0 || q >= 1) return { transform: [{ translateX: 0 }, { translateY: 0 }] };
+    const a = QUAKE * (1 - q) * (1 - q);
+    return {
+      transform: [
+        { translateX: a * Math.sin(q * 38) },
+        { translateY: a * 0.7 * Math.cos(q * 28) },
+      ],
+    };
+  });
 
   const ring1Style = useRingStyle(ring1, 2.7);
   const ring2Style = useRingStyle(ring2, 3.4);
@@ -330,7 +366,17 @@ export default function EnergySurge({
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <Animated.View style={[StyleSheet.absoluteFill, styles.dim, dimStyle]} />
 
-      <View style={styles.center}>
+      <Animated.View style={[styles.center, quakeStyle]}>
+        {/* 흡수될 때 뒤따르는 빛 꼬리 */}
+        {Array.from({ length: TRAIL }, (_, i) => (
+          <TrailDot
+            key={`trail${i}`}
+            index={i}
+            collect={collect}
+            targetX={targetX}
+            targetY={targetY}
+          />
+        ))}
         {SPARKS.map((p, i) => (
           <Spark key={i} p={p} gather={gather} />
         ))}
@@ -407,13 +453,58 @@ export default function EnergySurge({
             {subtitle ?? t("lesson.energySurgeSub")}
           </Text>
         </Animated.View>
-      </View>
+      </Animated.View>
     </View>
+  );
+}
+
+/** 빛 꼬리 한 알 — 코어보다 조금씩 늦게 같은 길을 따라간다 */
+function TrailDot({
+  index,
+  collect,
+  targetX,
+  targetY,
+}: {
+  index: number;
+  collect: SharedValue<number>;
+  targetX: number;
+  targetY: number;
+}) {
+  const lag = (index + 1) * 0.11;
+  const style = useAnimatedStyle(() => {
+    const c = Math.min(1, Math.max(0, (collect.value - lag) / (1 - lag)));
+    const live = collect.value > 0.02 && c < 1;
+    return {
+      opacity: live ? 0.75 * (1 - index / TRAIL) : 0,
+      transform: [
+        { translateX: c * targetX },
+        { translateY: c * targetY },
+        { scale: 1 - 0.6 * c },
+      ],
+    };
+  });
+  const size = 46 - index * 8;
+  return (
+    <Animated.View
+      style={[
+        styles.trail,
+        { width: size, height: size, borderRadius: size / 2 },
+        style,
+      ]}
+    />
   );
 }
 
 const styles = StyleSheet.create({
   dim: { backgroundColor: "#140F33" },
+  trail: {
+    position: "absolute",
+    backgroundColor: "#FFE066",
+    shadowColor: "#FFD23F",
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+  },
   center: {
     position: "absolute",
     top: 0,

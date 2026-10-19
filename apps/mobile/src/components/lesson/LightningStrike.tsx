@@ -1,175 +1,98 @@
 import { useEffect } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import Svg, { Path, Defs, LinearGradient, Stop } from "react-native-svg";
 import * as Haptics from "@/utils/haptics";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSequence,
-  withTiming,
-  withDelay,
-  runOnJS,
-  Easing,
-} from "react-native-reanimated";
-
-const { width: W, height: H } = Dimensions.get("window");
-const AProps = Animated.createAnimatedComponent(Path);
+import Animated, { useAnimatedStyle, useReducedMotion } from "react-native-reanimated";
+import { cinemaAt } from "@/components/cinema/cinema";
+import { useCinemaClock } from "@/components/cinema/useCinema";
+import { LIGHTNING, LIGHTNING_TRACK } from "./energyCinematic";
 
 interface Props {
   visible: boolean;
   onDone?: () => void;
 }
 
-// 아래(중앙)에서 위로 솟는 지그재그 메인 볼트 + 가지
-const MAIN_BOLT = `M${W / 2 - 6} ${H} L${W / 2 + 26} ${H * 0.72} L${W / 2 - 14} ${H * 0.6} L${W / 2 + 30} ${H * 0.4} L${W / 2 - 10} ${H * 0.26} L${W / 2 + 18} ${H * 0.08}`;
-const BRANCH_1 = `M${W / 2 - 14} ${H * 0.6} L${W / 2 - 60} ${H * 0.52} L${W / 2 - 40} ${H * 0.42}`;
-const BRANCH_2 = `M${W / 2 + 30} ${H * 0.4} L${W / 2 + 74} ${H * 0.34} L${W / 2 + 54} ${H * 0.24}`;
+/**
+ * 번개 — 하늘에서 내리꽂혀 화면 가운데 배터리(EnergyBonusPopup) 머리에 닿는다.
+ * 위에서 아래로 순식간에 그어지고, 두어 번 깜빡인 뒤 은은하게 남았다가 배터리와 같이 사라진다.
+ * 소리는 배터리 쪽이 시간표대로 낸다 (energyCinematic LIGHTNING_CUES).
+ */
+export default function LightningStrike({ visible }: Props) {
+  const { width: W, height: H } = useWindowDimensions();
+  const { clock, run } = useCinemaClock(LIGHTNING.end);
+  const reducedMotion = useReducedMotion();
 
-export default function LightningStrike({ visible, onDone }: Props) {
-  const flash = useSharedValue(0);
-  const bolt = useSharedValue(0);
+  // 배터리 머리 (EnergyBonusPopup 이 화면 가운데에 있다)
+  const hitY = H / 2 - 62;
+  const cx = W / 2;
+  const main = `M${cx + 14} -10 L${cx - 22} ${hitY * 0.2} L${cx + 18} ${hitY * 0.36} L${cx - 26} ${hitY * 0.56} L${cx + 14} ${hitY * 0.74} L${cx - 8} ${hitY * 0.88} L${cx} ${hitY}`;
+  const branch1 = `M${cx - 22} ${hitY * 0.2} L${cx - 70} ${hitY * 0.3} L${cx - 58} ${hitY * 0.42} L${cx - 96} ${hitY * 0.5}`;
+  const branch2 = `M${cx - 26} ${hitY * 0.56} L${cx + 40} ${hitY * 0.62} L${cx + 30} ${hitY * 0.7} L${cx + 78} ${hitY * 0.76}`;
+  const branch3 = `M${cx + 18} ${hitY * 0.36} L${cx + 60} ${hitY * 0.4} L${cx + 84} ${hitY * 0.32}`;
 
   useEffect(() => {
     if (!visible) return;
-
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(
-      () => {},
-    );
-    setTimeout(
-      () =>
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {}),
-      70,
-    );
-
-    flash.value = withSequence(
-      withTiming(0.9, { duration: 60 }),
-      withTiming(0.15, { duration: 50 }),
-      withTiming(0.8, { duration: 45 }),
-      withTiming(0, { duration: 260, easing: Easing.out(Easing.quad) }),
-    );
-
-    bolt.value = withSequence(
-      withTiming(1, { duration: 60 }),
-      withTiming(0.4, { duration: 60 }),
-      withTiming(1, { duration: 50 }),
-      withTiming(0.7, { duration: 60 }),
-      withTiming(1, { duration: 50 }),
-      // 은은하게 배경으로 유지 (배터리 뜨는 동안)
-      withTiming(0.45, { duration: 300 }),
-      withDelay(2400, withTiming(0, { duration: 500 })), // 배터리랑 같이 사라짐 (배터리 유지 2.9초에 맞춤)
-    );
-
-    // ✅ onDone을 타이머로 확실하게 (애니 콜백 대신)
-    // const timer = setTimeout(() => {
-    //   onDone?.();
-    // }, 3000);
-
-    // return () => clearTimeout(timer);
+    run(reducedMotion ? 700 : 0);
+    if (reducedMotion) return;
+    const timers = [
+      setTimeout(() => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+      }, LIGHTNING.strike),
+      setTimeout(() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+      }, LIGHTNING.strike + 100),
+    ];
+    return () => timers.forEach(clearTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
-  const flashStyle = useAnimatedStyle(() => ({ opacity: flash.value }));
-  const boltStyle = useAnimatedStyle(() => ({ opacity: bolt.value }));
+  const flashStyle = useAnimatedStyle(() => ({ opacity: cinemaAt(LIGHTNING_TRACK.flash, clock.value) }));
+  const boltStyle = useAnimatedStyle(() => ({ opacity: cinemaAt(LIGHTNING_TRACK.bolt, clock.value) }));
+  // 위에서 아래로 그어진다 — 잘라 보이는 높이를 늘린다
+  const drawStyle = useAnimatedStyle(() => ({
+    height: Math.max(0.001, cinemaAt(LIGHTNING_TRACK.boltDraw, clock.value)) * (hitY + 14),
+  }));
 
   if (!visible) return null;
 
+  const layers: { d: string; w: number; color: string; o?: number }[] = [];
+  for (const [d, scale] of [
+    [main, 1],
+    [branch1, 0.6],
+    [branch2, 0.6],
+    [branch3, 0.5],
+  ] as const) {
+    layers.push({ d, w: 18 * scale, color: "#FFC107", o: 0.3 });
+    layers.push({ d, w: 7 * scale, color: "url(#boltGlow)" });
+    layers.push({ d, w: 2.6 * scale, color: "#FFFFFF" });
+  }
+
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {/* 화면 번쩍 (노란빛) */}
-      <Animated.View
-        style={[StyleSheet.absoluteFill, styles.flash, flashStyle]}
-      />
+      {/* 화면 번쩍 (노란빛, 두 번) */}
+      <Animated.View style={[StyleSheet.absoluteFill, styles.flash, flashStyle]} />
 
       {/* 번개 줄기 */}
-      <Animated.View style={[StyleSheet.absoluteFill, boltStyle]}>
-        <Svg width={W} height={H}>
+      <Animated.View style={[styles.clip, { width: W }, boltStyle, drawStyle]}>
+        <Svg width={W} height={hitY + 14}>
           <Defs>
-            <LinearGradient id="glow" x1="0" y1="1" x2="0" y2="0">
-              <Stop offset="0" stopColor="#FFD93B" stopOpacity="1" />
-              <Stop offset="1" stopColor="#FFF3B0" stopOpacity="1" />
+            <LinearGradient id="boltGlow" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="#FFF3B0" stopOpacity="1" />
+              <Stop offset="1" stopColor="#FFD93B" stopOpacity="1" />
             </LinearGradient>
           </Defs>
-
-          {/* 글로우(굵고 흐린 노랑) - 메인 */}
-          <Path
-            d={MAIN_BOLT}
-            stroke="#FFC107"
-            strokeWidth={16}
-            strokeOpacity={0.35}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* 가지 글로우 */}
-          <Path
-            d={BRANCH_1}
-            stroke="#FFC107"
-            strokeWidth={10}
-            strokeOpacity={0.3}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d={BRANCH_2}
-            stroke="#FFC107"
-            strokeWidth={10}
-            strokeOpacity={0.3}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* 노란 중간층 - 메인 */}
-          <Path
-            d={MAIN_BOLT}
-            stroke="url(#glow)"
-            strokeWidth={7}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d={BRANCH_1}
-            stroke="url(#glow)"
-            strokeWidth={4.5}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d={BRANCH_2}
-            stroke="url(#glow)"
-            strokeWidth={4.5}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-
-          {/* 흰 코어 - 메인 */}
-          <Path
-            d={MAIN_BOLT}
-            stroke="#FFFFFF"
-            strokeWidth={2.5}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d={BRANCH_1}
-            stroke="#FFFFFF"
-            strokeWidth={1.5}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <Path
-            d={BRANCH_2}
-            stroke="#FFFFFF"
-            strokeWidth={1.5}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          {layers.map((layer, i) => (
+            <Path
+              key={i}
+              d={layer.d}
+              stroke={layer.color}
+              strokeWidth={layer.w}
+              strokeOpacity={layer.o ?? 1}
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
         </Svg>
       </Animated.View>
     </View>
@@ -178,4 +101,5 @@ export default function LightningStrike({ visible, onDone }: Props) {
 
 const styles = StyleSheet.create({
   flash: { backgroundColor: "#FFEB3B" },
+  clip: { position: "absolute", left: 0, top: 0, overflow: "hidden" },
 });
