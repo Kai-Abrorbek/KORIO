@@ -1,0 +1,692 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T22:34:00.564Z",
+  "title": "Design System: KORIO",
+  "extensions": {
+    "colorMeta": {
+      "haneulmon-violet": {
+        "role": "primary",
+        "displayName": "Haneulmon Violet",
+        "canonical": "#776EE2",
+        "oklch": "oklch(60.4% 0.170 283.5)",
+        "tonalRamp": [
+          "#0B002E",
+          "#24016B",
+          "#3D2797",
+          "#594CBD",
+          "#786FE3",
+          "#9A97FE",
+          "#C1C3FE",
+          "#ECEDFF"
+        ]
+      },
+      "violet-deep": {
+        "role": "primary",
+        "displayName": "Violet Deep",
+        "canonical": "#5B4DD4",
+        "oklch": "oklch(51.5% 0.199 281.5)",
+        "tonalRamp": [
+          "#0A002F",
+          "#22016D",
+          "#3B1CA6",
+          "#5546CC",
+          "#736BF4",
+          "#9798FE",
+          "#BFC3FF",
+          "#EBEDFE"
+        ]
+      },
+      "violet-glow": {
+        "role": "primary",
+        "displayName": "Violet Glow",
+        "canonical": "#9D8DFF",
+        "oklch": "oklch(70.7% 0.163 287.9)",
+        "tonalRamp": [
+          "#0D002C",
+          "#280168",
+          "#432791",
+          "#604BB6",
+          "#806EDD",
+          "#A193FE",
+          "#C6C1FE",
+          "#EDECFF"
+        ]
+      },
+      "violet-mist": {
+        "role": "primary",
+        "displayName": "Violet Mist",
+        "canonical": "#C4BEF0",
+        "oklch": "oklch(82.3% 0.070 290.3)",
+        "tonalRamp": [
+          "#0D0326",
+          "#251D44",
+          "#423B64",
+          "#615A86",
+          "#827BAA",
+          "#A49ECE",
+          "#C8C2F4",
+          "#EEECFE"
+        ]
+      },
+      "blush-pink": {
+        "role": "secondary",
+        "displayName": "Blush Pink",
+        "canonical": "#E5379B",
+        "oklch": "oklch(63.1% 0.226 350.6)",
+        "tonalRamp": [
+          "#1D000F",
+          "#48002C",
+          "#79004D",
+          "#AD0370",
+          "#DC2D94",
+          "#FF63B6",
+          "#FEADD2",
+          "#FEE7F1"
+        ]
+      },
+      "correct-green": {
+        "role": "tertiary",
+        "displayName": "Correct Green",
+        "canonical": "#58CC02",
+        "oklch": "oklch(74.8% 0.229 137.6)",
+        "tonalRamp": [
+          "#020F00",
+          "#0E2D00",
+          "#1E4F01",
+          "#2F7300",
+          "#419A04",
+          "#53C201",
+          "#76E93E",
+          "#CFFFBE"
+        ]
+      },
+      "correct-green-depth": {
+        "role": "tertiary",
+        "displayName": "Correct Green Depth",
+        "canonical": "#58A700",
+        "oklch": "oklch(65.2% 0.189 134.7)",
+        "tonalRamp": [
+          "#040F00",
+          "#132C01",
+          "#264E01",
+          "#3A7200",
+          "#509803",
+          "#6DBD2E",
+          "#91E35A",
+          "#D1FFB7"
+        ]
+      },
+      "correct-wash": {
+        "role": "tertiary",
+        "displayName": "Correct Wash",
+        "canonical": "#D7FFB8",
+        "oklch": "oklch(95.5% 0.101 132.0)",
+        "tonalRamp": [
+          "#050F00",
+          "#172C00",
+          "#2D4C05",
+          "#4B6D2C",
+          "#6B8F4D",
+          "#8DB36F",
+          "#B1D792",
+          "#D6FDB7"
+        ]
+      },
+      "wrong-red": {
+        "role": "tertiary",
+        "displayName": "Wrong Red",
+        "canonical": "#FF4B4B",
+        "oklch": "oklch(67.1% 0.217 25.2)",
+        "tonalRamp": [
+          "#1F0001",
+          "#4D0006",
+          "#800110",
+          "#B7031C",
+          "#E83137",
+          "#FF736C",
+          "#FFB3AB",
+          "#FFE9E6"
+        ]
+      },
+      "wrong-red-depth": {
+        "role": "tertiary",
+        "displayName": "Wrong Red Depth",
+        "canonical": "#D33B3B",
+        "oklch": "oklch(58.0% 0.189 25.3)",
+        "tonalRamp": [
+          "#1F0001",
+          "#4D0006",
+          "#800110",
+          "#B41521",
+          "#DD4543",
+          "#FE736C",
+          "#FEB3AC",
+          "#FEE9E7"
+        ]
+      },
+      "wrong-wash": {
+        "role": "tertiary",
+        "displayName": "Wrong Wash",
+        "canonical": "#FFDFE0",
+        "oklch": "oklch(93.0% 0.035 15.7)",
+        "tonalRamp": [
+          "#170506",
+          "#341E1F",
+          "#533A3C",
+          "#74595A",
+          "#977A7B",
+          "#BA9D9E",
+          "#DFC0C1",
+          "#FEE9E9"
+        ]
+      },
+      "hint-amber": {
+        "role": "tertiary",
+        "displayName": "Hint Amber",
+        "canonical": "#F5A623",
+        "oklch": "oklch(78.4% 0.159 73.0)",
+        "tonalRamp": [
+          "#130900",
+          "#352000",
+          "#5B3A00",
+          "#855601",
+          "#B07402",
+          "#DE9305",
+          "#FFBA5A",
+          "#FFEBD3"
+        ]
+      },
+      "hint-wash": {
+        "role": "tertiary",
+        "displayName": "Hint Wash",
+        "canonical": "#FFF1C7",
+        "oklch": "oklch(95.9% 0.056 91.8)",
+        "tonalRamp": [
+          "#100B00",
+          "#2F2400",
+          "#4D411C",
+          "#6D603B",
+          "#8E825B",
+          "#B2A47D",
+          "#D6C9A0",
+          "#FCEEC4"
+        ]
+      },
+      "social-sky": {
+        "role": "tertiary",
+        "displayName": "Social Sky",
+        "canonical": "#1CB0F6",
+        "oklch": "oklch(71.8% 0.151 237.1)",
+        "tonalRamp": [
+          "#000D17",
+          "#00283D",
+          "#034767",
+          "#016996",
+          "#078CC6",
+          "#1EB1F7",
+          "#8DD3FF",
+          "#DEF2FF"
+        ]
+      },
+      "social-sky-depth": {
+        "role": "tertiary",
+        "displayName": "Social Sky Depth",
+        "canonical": "#1899D6",
+        "oklch": "oklch(64.8% 0.136 236.9)",
+        "tonalRamp": [
+          "#000D17",
+          "#00293D",
+          "#014768",
+          "#056995",
+          "#038CC7",
+          "#3CB0EF",
+          "#8DD3FF",
+          "#DFF2FE"
+        ]
+      },
+      "streak-orange": {
+        "role": "tertiary",
+        "displayName": "Streak Orange",
+        "canonical": "#FF7A00",
+        "oklch": "oklch(72.3% 0.190 50.5)",
+        "tonalRamp": [
+          "#180600",
+          "#3F1900",
+          "#692F02",
+          "#984703",
+          "#CA6005",
+          "#FE7A07",
+          "#FEB78E",
+          "#FFEADE"
+        ]
+      },
+      "streak-orange-depth": {
+        "role": "tertiary",
+        "displayName": "Streak Orange Depth",
+        "canonical": "#D45F00",
+        "oklch": "oklch(62.1% 0.169 48.2)",
+        "tonalRamp": [
+          "#180500",
+          "#3F1801",
+          "#6C2D00",
+          "#9B4402",
+          "#CE5C01",
+          "#F77F37",
+          "#FFB690",
+          "#FFEADF"
+        ]
+      },
+      "crown-gold": {
+        "role": "tertiary",
+        "displayName": "Crown Gold",
+        "canonical": "#FFD900",
+        "oklch": "oklch(89.1% 0.183 96.2)",
+        "tonalRamp": [
+          "#0F0B00",
+          "#2D2501",
+          "#4E4101",
+          "#726000",
+          "#988107",
+          "#C0A407",
+          "#EAC705",
+          "#FFEFAF"
+        ]
+      },
+      "crown-gold-depth": {
+        "role": "tertiary",
+        "displayName": "Crown Gold Depth",
+        "canonical": "#E5AE00",
+        "oklch": "oklch(78.0% 0.160 85.6)",
+        "tonalRamp": [
+          "#110A00",
+          "#312300",
+          "#543E03",
+          "#7B5C03",
+          "#A37B02",
+          "#CE9C00",
+          "#F8C02F",
+          "#FFEDC6"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#1A1A2E",
+        "oklch": "oklch(22.8% 0.038 282.9)",
+        "tonalRamp": [
+          "#09081B",
+          "#222337",
+          "#3F4056",
+          "#5E5F77",
+          "#7F8099",
+          "#A1A2BD",
+          "#C5C7E2",
+          "#ECEDFF"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "canonical": "#55555F",
+        "oklch": "oklch(45.3% 0.016 285.7)",
+        "tonalRamp": [
+          "#0A0A12",
+          "#24242D",
+          "#41414A",
+          "#60606A",
+          "#81818C",
+          "#A4A4AF",
+          "#C8C8D4",
+          "#EDEDF9"
+        ]
+      },
+      "lavender-line": {
+        "role": "neutral",
+        "displayName": "Lavender Line",
+        "canonical": "#ECEAF6",
+        "oklch": "oklch(94.2% 0.016 293.7)",
+        "tonalRamp": [
+          "#0B0A11",
+          "#25242C",
+          "#42404A",
+          "#61606A",
+          "#82818B",
+          "#A5A3AE",
+          "#C9C7D3",
+          "#EFEDF9"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#252525",
+          "#424242",
+          "#616161",
+          "#828282",
+          "#A5A5A5",
+          "#C9C9C9",
+          "#EEEEEE"
+        ]
+      },
+      "disabled-gray": {
+        "role": "neutral",
+        "displayName": "Disabled Gray",
+        "canonical": "#D1D1D6",
+        "oklch": "oklch(86.2% 0.007 286.3)",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#252528",
+          "#414146",
+          "#616165",
+          "#828286",
+          "#A4A4A9",
+          "#C8C8CD",
+          "#EEEEF3"
+        ]
+      },
+      "disabled-gray-depth": {
+        "role": "neutral",
+        "displayName": "Disabled Gray Depth",
+        "canonical": "#B5B5BA",
+        "oklch": "oklch(77.5% 0.007 286.2)",
+        "tonalRamp": [
+          "#0B0B0E",
+          "#252528",
+          "#414146",
+          "#616165",
+          "#828286",
+          "#A4A4A9",
+          "#C8C8CE",
+          "#EEEEF3"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#15151D",
+        "oklch": "oklch(20.0% 0.016 284.9)",
+        "tonalRamp": [
+          "#0A0A12",
+          "#24242D",
+          "#41414A",
+          "#60606A",
+          "#81818C",
+          "#A4A4AF",
+          "#C8C8D3",
+          "#EDEDF9"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night Surface",
+        "canonical": "#25252E",
+        "oklch": "oklch(26.8% 0.017 285.2)",
+        "tonalRamp": [
+          "#0A0A12",
+          "#24242D",
+          "#41414B",
+          "#60606B",
+          "#81818C",
+          "#A4A4AF",
+          "#C8C8D4",
+          "#EDEDFA"
+        ]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "#3A3A44",
+        "oklch": "oklch(35.2% 0.017 285.5)",
+        "tonalRamp": [
+          "#0A0A12",
+          "#24242D",
+          "#41414B",
+          "#60606B",
+          "#81818D",
+          "#A4A4B0",
+          "#C8C8D4",
+          "#EDEDFA"
+        ]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Night Muted",
+        "canonical": "#A6A6B3",
+        "oklch": "oklch(72.9% 0.019 285.9)",
+        "tonalRamp": [
+          "#0A0A13",
+          "#24242E",
+          "#41414C",
+          "#60606C",
+          "#81818D",
+          "#A4A4B1",
+          "#C8C8D5",
+          "#EDEDFB"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Level-up numbers, streak counts, result screens; 32–48px only for studied Hangul and celebrations."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Feedback titles and screen hero titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Button labels, card titles, usernames."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Answer chips, prompts, list rows."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Supporting lines, metadata, explanations."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Chips, badges, pills, counters."
+      },
+      "tab-label": {
+        "displayName": "Tab Label",
+        "purpose": "Bottom tab labels only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-lift",
+        "value": "0 2px 8px rgba(26,26,46,0.05)",
+        "purpose": "Standard cards, always with a 1px Lavender Line border. RN: shadowColor #1A1A2E, opacity 0.05, radius 8, elevation 2."
+      },
+      {
+        "name": "node-ground",
+        "value": "0 7px 8px rgba(0,0,0,0.12)",
+        "purpose": "Under roadmap lesson nodes."
+      },
+      {
+        "name": "node-glow",
+        "value": "0 0 13px <node colour at 70%>",
+        "purpose": "Halo around the current lesson node, in the unit colour."
+      },
+      {
+        "name": "press-slab",
+        "value": "border-bottom 3–5px in the darker same-hue tone",
+        "purpose": "Physical depth under every pressable element (not a shadow)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press-in",
+        "value": "60ms timing",
+        "purpose": "Face sinks by slab depth."
+      },
+      {
+        "name": "press-out",
+        "value": "90ms timing",
+        "purpose": "Face returns."
+      },
+      {
+        "name": "pop-spring",
+        "value": "spring damping 8–9",
+        "purpose": "Badges, rewards and popups popping in."
+      },
+      {
+        "name": "settle-spring",
+        "value": "spring damping 18, stiffness 220",
+        "purpose": "Calm return to rest."
+      },
+      {
+        "name": "fade",
+        "value": "200ms",
+        "purpose": "State colour interpolation and fades."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "telegram-content-max",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Full-width green continue CTA with a 4px darker slab; the face sinks on press.",
+      "html": "<button class=\"ds-btn-primary\">CONTINUE</button>",
+      "css": ".ds-btn-primary { font-family: -apple-system, Roboto, system-ui, sans-serif; width: 280px; background: #58CC02; color: #fff; border: none; border-bottom: 4px solid #58A700; border-radius: 14px; padding: 16px 24px; font-size: 16px; font-weight: 800; letter-spacing: 0.3px; cursor: pointer; transition: transform 60ms ease-out, border-bottom-width 60ms ease-out; } .ds-btn-primary:hover { filter: brightness(1.04); } .ds-btn-primary:active { transform: translateY(4px); border-bottom-width: 0; margin-bottom: 4px; } .ds-btn-primary:focus-visible { outline: 3px solid #9D8DFF; outline-offset: 3px; }"
+    },
+    {
+      "name": "Check Button",
+      "kind": "button",
+      "refersTo": "button-check",
+      "description": "Lesson Check button: 54px violet face on a 4px darker layer; turns green or red after grading.",
+      "html": "<div class=\"ds-check\"><button class=\"ds-check-face\">CHECK</button></div>",
+      "css": ".ds-check { width: 300px; height: 58px; border-radius: 16px; background: #4F46BA; } .ds-check-face { font-family: -apple-system, Roboto, system-ui, sans-serif; display: block; width: 100%; height: 54px; border: none; border-radius: 16px; background: #776EE2; color: #fff; font-size: 17px; font-weight: 800; cursor: pointer; transition: transform 90ms ease-out; } .ds-check-face:active { transform: translateY(4px); transition-duration: 60ms; } .ds-check-face:focus-visible { outline: 3px solid #9D8DFF; outline-offset: 3px; }"
+    },
+    {
+      "name": "Check Button (disabled)",
+      "kind": "button",
+      "refersTo": "button-check-disabled",
+      "description": "Before an answer is chosen: lavender face, slate label, no depth.",
+      "html": "<button class=\"ds-check-off\" disabled>CHECK</button>",
+      "css": ".ds-check-off { font-family: -apple-system, Roboto, system-ui, sans-serif; width: 300px; height: 54px; border: none; border-radius: 16px; background: #ECEAF6; color: #55555F; font-size: 17px; font-weight: 800; }"
+    },
+    {
+      "name": "Answer Chip",
+      "kind": "chip",
+      "refersTo": "answer-chip",
+      "description": "Selectable answer with a 1.5px border and 3px slab; interpolates to green or red when graded.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\">학교</button><button class=\"ds-chip ds-chip-ok\">병원</button><button class=\"ds-chip ds-chip-bad\">경찰서</button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; flex-wrap: wrap; } .ds-chip { font-family: -apple-system, Roboto, system-ui, sans-serif; background: #fff; color: #1A1A2E; border: 1.5px solid #ECEAF6; border-bottom-width: 3px; border-radius: 12px; padding: 10px 16px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 200ms, border-color 200ms, color 200ms, transform 60ms; } .ds-chip:hover { border-color: #C4BEF0; } .ds-chip:active { transform: translateY(2px); } .ds-chip:focus-visible { outline: 3px solid #9D8DFF; outline-offset: 2px; } .ds-chip-ok { background: #D7F5E3; border-color: #58CC02; color: #1CB454; } .ds-chip-bad { background: #FFEBEB; border-color: #FF4B4B; color: #FF4B4B; }"
+    },
+    {
+      "name": "Goal Chip",
+      "kind": "chip",
+      "refersTo": "chip-goal",
+      "description": "Daily goal / streak chip in Streak Orange with its own 3px slab.",
+      "html": "<span class=\"ds-goal\">🔥 10 XP / 20 XP</span>",
+      "css": ".ds-goal { font-family: -apple-system, Roboto, system-ui, sans-serif; display: inline-flex; align-items: center; gap: 6px; background: #FF7A00; color: #fff; border-bottom: 3px solid #D45F00; border-radius: 12px; padding: 7px 12px; font-size: 12.5px; font-weight: 900; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Quiet container: 20px radius, hairline lavender border, barely-there lift, no slab.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Bugungi maqsad</div><div class=\"ds-card-body\">3 ta dars · 15 daqiqa</div></div>",
+      "css": ".ds-card { font-family: -apple-system, Roboto, system-ui, sans-serif; width: 300px; background: #fff; border: 1px solid #ECEAF6; border-radius: 20px; padding: 16px; box-shadow: 0 2px 8px rgba(26,26,46,0.05); } .ds-card-title { font-size: 17px; font-weight: 800; color: #1A1A2E; } .ds-card-body { margin-top: 4px; font-size: 13px; font-weight: 700; color: #55555F; }"
+    },
+    {
+      "name": "Feedback Bar",
+      "kind": "custom",
+      "refersTo": "correct-wash",
+      "description": "Post-answer sheet: tinted wash, heavy accent headline, slab button in the matching tone.",
+      "html": "<div class=\"ds-fb\"><div class=\"ds-fb-title\">Zo'r!</div><div class=\"ds-fb-ans\">학교에 가요.</div><button class=\"ds-fb-btn\">DAVOM ETISH</button></div>",
+      "css": ".ds-fb { font-family: -apple-system, Roboto, system-ui, sans-serif; width: 320px; background: #D7FFB8; border-radius: 21px; padding: 18px; } .ds-fb-title { font-size: 24px; font-weight: 900; color: #58A700; } .ds-fb-ans { margin: 6px 0 14px; font-size: 18px; font-weight: 700; color: #58A700; } .ds-fb-btn { width: 100%; border: none; border-bottom: 4px solid #46A302; border-radius: 16px; background: #58CC02; color: #fff; padding: 14px; font: inherit; font-size: 18px; font-weight: 900; cursor: pointer; } .ds-fb-btn:active { transform: translateY(4px); border-bottom-width: 0; margin-bottom: 4px; } .ds-fb-btn:focus-visible { outline: 3px solid #58A700; outline-offset: 2px; }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "Floating bottom tabs: violet active, violet-mist inactive, 11px/600 labels.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab ds-on\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path fill=\"currentColor\" d=\"M12 3 2 12h3v8h5v-6h4v6h5v-8h3z\"/></svg>Home</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path fill=\"currentColor\" d=\"M5 20V10h3v10zm5.5 0V4h3v16zM16 20v-7h3v7z\"/></svg>Stats</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path fill=\"currentColor\" d=\"M7 3h10v2h4v3a5 5 0 0 1-4.6 5 5 5 0 0 1-3.4 2.9V18h3v3H8v-3h3v-2.1A5 5 0 0 1 7.6 13 5 5 0 0 1 3 8V5h4zm0 4H5v1a3 3 0 0 0 2 2.8zm10 0v3.8A3 3 0 0 0 19 8V7z\"/></svg>League</a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\"><path fill=\"currentColor\" d=\"M12 2a7 7 0 0 0-4 12.7V22l4-2 4 2v-7.3A7 7 0 0 0 12 2z\"/></svg>Premium</a></nav>",
+      "css": ".ds-tabs { font-family: -apple-system, Roboto, system-ui, sans-serif; display: flex; width: 360px; height: 60px; padding-top: 8px; background: #fff; border-top: 1px solid #ECEAF6; } .ds-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; color: #C4BEF0; text-decoration: none; font-size: 11px; font-weight: 600; } .ds-tab:hover { color: #9D8DFF; } .ds-tab:focus-visible { outline: 2px solid #776EE2; outline-offset: 2px; border-radius: 8px; } .ds-on { color: #776EE2; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Squishy Arcade",
+    "overview": "KORIO should feel like a small arcade machine you hold in your hand. Every tappable thing has a thick, darker slab underneath it. When you press it, the face drops into that slab and you hear a click. Correct answers burst green, wrong ones go red, and the purple, one-eyed mascot 하늘몬 (Haneulmon) cheers or sulks along with you. Learning Korean should feel like playing, not studying a textbook.\n\nScreens are dense with small, heavy type, chunky pills and bright semantic color. They sit on a calm white (or near-black) ground, so the colour comes from rewards and states, not backgrounds. Haneulmon Violet is the brand: it lives in the mascot, the tab bar, the primary lesson actions and the hero gradients. The bright green/red/blue/gold game palette is borrowed from the genre, and it only works because the violet and the mascot keep saying \"this is KORIO\".\n\nThe same world runs in two shells. The Expo app (`apps/mobile`) is the source of truth. The Telegram Mini App (`apps/telegram-app`) mirrors its theme tokens in CSS. The admin console is a separate operations surface and is not covered here.",
+    "keyCharacteristics": [
+      "Pressable things have physical depth: a darker bottom slab (3–5px) and a face that sinks on press.",
+      "Type is heavy: 800–900 weight is the default for anything that matters, at compact sizes (11–17px).",
+      "White or night ground with colour carried by state, rewards and the violet brand.",
+      "A 3D clay-rendered mascot (Haneulmon) and Hangul glyphs as recurring characters.",
+      "Every press makes a sound; motion is quick (55–90ms press) and springy (damping 8–9 pops)."
+    ],
+    "rules": [
+      {
+        "name": "The Violet Signature Rule",
+        "body": "Every screen shows Haneulmon Violet somewhere it matters (tab bar, primary action, header accent, or the mascot). The green/red/blue/gold palette is genre vocabulary; on its own it reads as someone else's app.",
+        "section": "colors"
+      },
+      {
+        "name": "The Meaning-Only Rule",
+        "body": "Green, red, amber, sky, orange and gold always mean something (correct, wrong, hint, social, streak, reward). Don't use them as decoration or to make a section \"pop\".",
+        "section": "colors"
+      },
+      {
+        "name": "The Slab Is Darker Rule",
+        "body": "A pressable colour's slab is the same hue, darker: the listed `-depth` token, or `darken(color, 40)` from `utils/color.ts` for unit colours. Never a grey or black slab under a coloured face.",
+        "section": "colors"
+      },
+      {
+        "name": "The Heavy-By-Default Rule",
+        "body": "Anything the learner is meant to act on or read as a value is 800–900. Use 600–700 only for secondary lines. Regular weights (400–500) are essentially absent; don't introduce them for UI text.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hangul Is the Hero Rule",
+        "body": "On study and game screens, the Korean being learned is the largest thing on screen (40–48px Hangul), with the learner's language underneath in a smaller size. Never show romanization in place of Hangul.",
+        "section": "typography"
+      },
+      {
+        "name": "The Long-String Rule",
+        "body": "Labels must survive Uzbek and Russian, which run 30–60% longer than English. Allow two lines on buttons and chips (`numberOfLines={2}`, `flexShrink: 1`) instead of shrinking the type.",
+        "section": "typography"
+      },
+      {
+        "name": "The Press-Sinks Rule",
+        "body": "The face moves down by exactly the slab depth on press-in (60ms) and springs back on release (90ms). Pressed buttons don't change colour or fade; they sink.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Quiet Card Rule",
+        "body": "Cards don't get slabs. Slabs mean \"press me\". A card that is not itself a button stays flat, with a hairline border and the barely-there card lift.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** give every pressable element a same-hue darker slab (3–5px, usually 4px) and sink the face by that depth on press.",
+      "**Do** route every touchable through `@/components/ui/Pressables` so it gets the click sound.",
+      "**Do** take surface, text and border colours from `useTheme()` (`bg`, `surface`, `text`, `textSecondary`, `border`) so dark mode keeps working. Use the semantic tokens above for state colours.",
+      "**Do** keep Haneulmon Violet visible on every screen, and let the mascot carry emotion at moments of success, failure and celebration.",
+      "**Do** set UI text at 800–900 weight and let long Uzbek/Russian labels wrap to two lines.",
+      "**Do** keep motion short: 55–90ms for presses, springs with damping 8–9 for pop-ins, 200ms for fades."
+    ],
+    "donts": [
+      "**Don't** let a screen look like a Duolingo clone. The green CTA and game palette are shared genre language, so violet, Haneulmon and Hangul must make each screen recognisably KORIO.",
+      "**Don't** put a slab under a card or any element that isn't pressable.",
+      "**Don't** use green, red, amber, sky, orange or gold as decoration; each one carries a meaning.",
+      "**Don't** introduce a custom web font or a light (400) UI weight in the app.",
+      "**Don't** hard-code `#FFFFFF` / `#1A1A2E` for surfaces and text in new code; they break in dark theme."
+    ]
+  }
+}
