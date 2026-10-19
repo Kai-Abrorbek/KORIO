@@ -1142,10 +1142,10 @@
 .completeContent > h1 { color: #ffcc00; font-size: 32px; font-weight: 900; letter-spacing: -0.5px; margin: 0 0 36px; text-shadow: 0 3px 8px rgb(255 204 0 / 25%); }
 .completeStats { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); margin-top: auto; width: 100%; }
 .completeStats article { background: #fff; border: 2px solid currentColor; border-radius: 14px; display: flex; flex-direction: column; overflow: hidden; }
-.completeStats article:nth-child(1) { color: #ffcc00; }
-.completeStats article:nth-child(2) { color: #58cc02; }
-.completeStats article:nth-child(3) { color: #1fa9f7; }
-.completeStats strong { background: currentColor; color: #fff; font-size: 13px; font-weight: 800; padding: 6px 2px; text-align: center; }
+.completeStats article:nth-child(1) { --stat: #ffcc00; color: #ffcc00; }
+.completeStats article:nth-child(2) { --stat: #58cc02; color: #58cc02; }
+.completeStats article:nth-child(3) { --stat: #1fa9f7; color: #1fa9f7; }
+.completeStats strong { background: var(--stat); color: #fff; font-size: 13px; font-weight: 800; padding: 6px 2px; text-align: center; }
 .completeStats article > div { align-items: center; display: flex; gap: 6px; justify-content: center; min-height: 56px; padding: 10px 2px; }
 .completeStats b { font-size: 22px; font-weight: 900; }
 .completeActions { align-items: center; display: flex; gap: 12px; padding: 14px 16px max(28px, var(--korio-bottom)); }
@@ -1190,6 +1190,16 @@
 .examActions { display: flex; flex-direction: column; gap: 10px; }
 .examPassAction { background: #1d9e75; border: 0; border-bottom: 5px solid #16785a; border-radius: 18px; color: #fff; font-size: 17px; font-weight: 900; min-height: 56px; }
 
+/* ── "참 잘했어요 도장" (앱 lesson-complete) — 움직임은 rAF 가 style 을 직접 바꾼다 ── */
+.stampContent > h1 { margin-bottom: 28px; }
+/* 도장은 무대 위에서 내려오고 하늘몬은 오른쪽으로 삐져나온다 — 잘리지 않게 */
+.stampStage { cursor: pointer; overflow: visible; position: relative; z-index: 2; -webkit-tap-highlight-color: transparent; }
+.stampCaption { color: var(--muted); font-size: 15px; font-weight: 800; line-height: 21px; margin: 18px 0 0; padding: 0 12px; text-align: center; }
+.completeStats .statWaiting { opacity: 0; transform: scale(0); }
+.completeStats .statStamped { animation: statStamp .42s both; }
+/* 도장 찍듯: 크게 왔다가 탁 박힘 */
+@keyframes statStamp { 0% { transform: scale(0); } 31% { animation-timing-function: cubic-bezier(.2, .9, .3, 1); transform: scale(1.25); } 100% { transform: scale(1); } }
+
 @media (max-height: 680px) {
   .questionCard { padding-top: 13px; }
   .questionCard h1 { margin-bottom: 13px; }
@@ -1201,21 +1211,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .questionStage, .confetti i, .lessonLoader, .matchWrong { animation-duration: 1ms; }
+  .questionStage, .confetti i, .lessonLoader, .matchWrong, .completeStats .statStamped { animation-duration: 1ms; }
   .progressTrack span, .legendFill { transition: none; }
 }
-
-/* ── 4연속 정답 에너지 보너스 (앱 EnergyBonusPopup) ── */
-.energyBonus { align-items: center; animation: bonus-life 3.6s ease both; display: flex; inset: 0; justify-content: center; pointer-events: none; position: fixed; z-index: 120; }
-.energyBonus i { border-radius: calc(var(--bonus-size) * .3); height: var(--bonus-size); position: absolute; transform: translate(var(--bonus-x), var(--bonus-y)) rotate(var(--bonus-rot)); width: var(--bonus-size); animation: bonus-burst .5s cubic-bezier(.34,1.56,.64,1) both; }
-.bonusBattery { align-items: center; background: #ffc107; border-radius: 24px; display: flex; height: 96px; justify-content: center; position: relative; width: 150px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
-.bonusBattery em { background: #fff; border-radius: 11px; height: 52px; left: 18px; opacity: .45; position: absolute; top: 22px; width: 22px; }
-.bonusBattery b { color: #fff; font-size: 48px; font-weight: 900; letter-spacing: -1px; }
-.bonusCap { background: #ffc107; border-radius: 3px 7px 7px 3px; height: 36px; margin-left: 4px; width: 13px; animation: bonus-pop .45s cubic-bezier(.34,1.56,.64,1) both; }
-/* 3.6초 — 나타남 0.2초 · 머묾 2.9초 · 사라짐 0.5초 (예전 2.6초는 너무 빨리 지나갔다) */
-@keyframes bonus-life { 0% { opacity: 0; } 6% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes bonus-burst { from { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(.4); } }
-@keyframes bonus-pop { from { transform: scale(.5); } }
 
 /*
  * 레슨 화면 = 높이 고정 세로 칸. 헤더 아래 문제 영역만 스크롤하고, 각 문제의

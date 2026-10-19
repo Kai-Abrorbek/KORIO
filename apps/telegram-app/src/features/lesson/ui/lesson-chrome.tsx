@@ -94,7 +94,7 @@ export function LessonHeader({
         ) : isSuper ? (
           <span className={styles.superBadge}><b>SUPER</b></span>
         ) : (
-          <span className={styles.energyBadge} key={energy}>
+          <span className={styles.energyBadge} data-cinema-target="energy" key={energy}>
             <i><MobileIcon family="material-community" name="lightning-bolt" size={14} /></i>
             <b data-no-translate>{energy}</b>
           </span>

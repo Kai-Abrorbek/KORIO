@@ -1194,6 +1194,12 @@ export default {
     accuracy: "Aniqlik",
     speed: "Tezlik",
     claim: "XP olish",
+    /** 도장 글씨(한국어 그대로)의 뜻 — 정답률 100% / 80% 이상 / 그 아래 */
+    stamp: {
+      perfect: "«Juda yaxshi!» — hammasi to'g'ri",
+      great: "«Yaxshi!» — deyarli hammasi to'g'ri",
+      good: "«Barakalla!» — darsni oxirigacha qildingiz",
+    },
     labels: {
       perfect: "Zo'r",
       excellent: "Ajoyib",

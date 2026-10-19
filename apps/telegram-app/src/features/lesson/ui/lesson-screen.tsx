@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -35,6 +35,8 @@ import {
   resolveMistakes,
 } from "../api/lesson";
 import { openEnergyModal } from "../../energy/energy-gate";
+import { EnergyJackpot } from "../../energy/energy-jackpot";
+import { EnergyLightning } from "../../energy/energy-lightning";
 import { EnergySurge } from "../../energy/energy-surge";
 import { energySpendsSettled, trackEnergySpend } from "../../energy/energy-sync";
 import { rt } from "../../retention/model/retention";
@@ -265,10 +267,16 @@ export function LessonScreen() {
   // 연속 정답 보너스 — 언제 줄지 (레슨당 2~3번, model/combo-bonus.ts — 앱과 같은 규칙)
   const comboTracker = useRef(newComboTracker());
   const [bonusAmount, setBonusAmount] = useState<number | null>(null);
-  /** 콤보 보상 연출 — 번개(배터리) / 에너지 코어 중 매번 랜덤 */
-  const [bonusVariant, setBonusVariant] = useState<"battery" | "surge">("battery");
+  /** 콤보 보상 연출 — 번개 / 에너지 코어 / 잭팟 중 매번 랜덤 (앱과 같다) */
+  const [bonusVariant, setBonusVariant] = useState<"lightning" | "surge" | "jackpot">("lightning");
   /** 에너지 벌기 판 — 연출이 끝나면 레슨을 나간다 */
   const leaveAfterBonus = useRef(false);
+  const finishBonus = useCallback(() => {
+    setBonusAmount(null);
+    if (!leaveAfterBonus.current) return;
+    if (window.history.length > 1) router.back();
+    else router.replace("/home");
+  }, [router]);
 
   // 끝내지 않고 나갈 때 — 서버에 못 닿은 차감을 다시 보낸다 (앱 retryFailedSpends 와 같다).
   // 안 그러면 실패한 만큼은 영영 안 깎여서, 나갔다 오면 그만큼 "다시 차" 있다
@@ -623,15 +631,11 @@ export function LessonScreen() {
           }
           // 서버 값에서 아직 안 깎인 몫만 빼서 보여준다
           updateUser({ energy: Math.max(0, bonus.energy - spentSoFar), gems: bonus.gems });
-          // 같은 연출만 반복되면 금방 질린다 — 둘 중 하나를 랜덤으로 (앱과 같다)
-          const variant = Math.random() < 0.5 ? "battery" : "surge";
-          setBonusVariant(variant);
+          // 같은 연출만 반복되면 금방 질린다 — 셋 중 하나를 랜덤으로 (앱과 같다).
+          // 연출이 끝나면 각자 onDone 으로 닫는다
+          const roll = Math.random();
+          setBonusVariant(roll < 1 / 3 ? "lightning" : roll < 2 / 3 ? "surge" : "jackpot");
           setBonusAmount(bonus.bonusGranted);
-          if (variant === "battery") {
-            window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
-            // 연출(bonus-life 3.6s)이 끝까지 보이게 — 예전엔 2.2초에 잘랐다
-            window.setTimeout(() => setBonusAmount(null), 3600);
-          }
         })
         .catch(() => {
           comboTracker.current = refundComboTracker(comboTracker.current);
@@ -1111,41 +1115,19 @@ export function LessonScreen() {
       </section>
 
       {checking ? <div className={styles.checkingToast}>Javob tekshirilmoqda...</div> : null}
-      {/* 4연속 정답 보너스 — 앱 EnergyBonusPopup (배터리 + 파티클) */}
+      {/* 4연속 정답 보너스 — 앱과 같은 세 연출 (번개 · 코어 · 잭팟) */}
+      {bonusAmount && bonusVariant === "lightning" ? (
+        <EnergyLightning amount={bonusAmount} onDone={finishBonus} />
+      ) : null}
       {bonusAmount && bonusVariant === "surge" ? (
         <EnergySurge
           amount={bonusAmount}
-          onDone={() => {
-            setBonusAmount(null);
-            if (leaveAfterBonus.current) {
-              if (window.history.length > 1) router.back();
-              else router.replace("/home");
-            }
-          }}
+          onDone={finishBonus}
           subtitle={isEarnEnergy ? rt("earn.surgeSub") : undefined}
         />
       ) : null}
-      {bonusAmount && bonusVariant === "battery" ? (
-        <div aria-live="polite" className={styles.energyBonus}>
-          {Array.from({ length: 10 }, (_, index) => {
-            const angle = (index / 10) * Math.PI * 2;
-            const distance = 90 + (index % 3) * 22;
-            return (
-              <i
-                key={index}
-                style={{
-                  "--bonus-rot": `${(index % 2 === 0 ? 1 : -1) * (20 + index * 8)}deg`,
-                  "--bonus-size": `${14 + (index % 3) * 8}px`,
-                  "--bonus-x": `${Math.cos(angle) * distance}px`,
-                  "--bonus-y": `${Math.sin(angle) * distance}px`,
-                  background: index % 2 === 0 ? "#FFE88A" : "#FFD93B",
-                } as CSSProperties}
-              />
-            );
-          })}
-          <span className={styles.bonusBattery}><em /><b data-no-translate>+{bonusAmount}</b></span>
-          <span className={styles.bonusCap} />
-        </div>
+      {bonusAmount && bonusVariant === "jackpot" ? (
+        <EnergyJackpot amount={bonusAmount} onDone={finishBonus} />
       ) : null}
       {answerState !== "idle" && !isOnboardingLevelTest && !hidesFeedbackBar ? (
         <FeedbackBar

@@ -40,7 +40,7 @@ import {
   puffAt,
   warpY,
 } from "../../../shared/model/level-up-cinematic";
-import { createCinemaAudio } from "../../../shared/browser/cinema-audio";
+import { LEVEL_UP_AUDIO, createCinemaAudio } from "../../../shared/browser/cinema-audio";
 import { useAppLanguage } from "../../../shared/i18n/language-context";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
@@ -127,7 +127,7 @@ export function LevelUpScreen() {
   // 그리기 전에 첫 장면을 맞춘다 (안 그러면 한 프레임 동안 로켓이 맨 위·불꽃이 다 켜진 채 보인다)
   useLayoutEffect(() => {
     if (!payload) return;
-    const audio = createCinemaAudio();
+    const audio = createCinemaAudio(LEVEL_UP_AUDIO);
     audio.preload();
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     let start = performance.now() - (reduce ? CINEMA.reveal : 0);

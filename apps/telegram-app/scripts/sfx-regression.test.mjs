@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { setImmediate, setTimeout as waitTimers } from "node:timers/promises";
 import { test } from "node:test";
+import { register } from "node:module";
 
 // Small browser/Web Audio doubles exercise the real delegated listener and async
 // decoder without adding a DOM or audio dependency to the shipped application.
@@ -258,4 +259,154 @@ test("changing preferences cancels an audio decode that has not finished", async
   f.release();
   await setImmediate();
   assert.deepEqual(f.started, []);
+});
+
+// ── 연출 소리 (shared/browser/cinema-audio) ──
+// cinema-audio.ts 는 확장자 없이 import 한다. ?cinema= 로 불러온 모듈 그래프만 .ts 를 붙이고
+// 같은 query 를 이어 준다 — 테스트마다 새 sfx 모듈(새 오디오 컨텍스트)을 쓰게.
+register(
+  `data:text/javascript,${encodeURIComponent(`
+    export async function resolve(specifier, context, next) {
+      const parent = context.parentURL ?? "";
+      if (specifier.startsWith(".") && parent.includes("?cinema=")) {
+        const file = /[.][cm]?[jt]sx?$/.test(specifier) ? specifier : specifier + ".ts";
+        return next(file + parent.slice(parent.indexOf("?")), context);
+      }
+      return next(specifier, context);
+    }
+  `)}`,
+);
+
+let cinemaFixtureId = 0;
+
+async function cinemaFixture() {
+  const started = [];
+  const stopped = [];
+  const storage = new Map();
+  const session = new Map();
+  const host = new EventTarget();
+  const pendingDecodes = [];
+  let deferDecode = false;
+  const ctx = {
+    state: "running",
+    currentTime: 0,
+    destination: {},
+    resume() { this.state = "running"; return Promise.resolve(); },
+    async decodeAudioData(data) {
+      if (deferDecode) await new Promise((resolve) => { pendingDecodes.push(resolve); });
+      return { key: new TextDecoder().decode(data) };
+    },
+    createGain() { return { gain: { value: 1 }, connect() {}, disconnect() {} }; },
+    createBufferSource() {
+      return {
+        buffer: null,
+        gain: null,
+        playbackRate: { value: 1 },
+        connect(gain) { this.gain = gain; },
+        disconnect() {},
+        start(at) { started.push({ key: this.buffer.key, at, rate: this.playbackRate.value, volume: this.gain.gain.value }); },
+        stop() { stopped.push(this.buffer.key); },
+      };
+    },
+  };
+  globalThis.window = Object.assign(host, {
+    AudioContext: function AudioContextDouble() { return ctx; },
+    localStorage: { getItem: (key) => storage.get(key) ?? null },
+    sessionStorage: { getItem: (key) => session.get(key) ?? null },
+  });
+  globalThis.fetch = async (url) => ({
+    ok: true,
+    arrayBuffer: async () => new TextEncoder().encode(url.match(/\/([^/]+)\.(?:mp3|wav)$/)[1]).buffer,
+  });
+  const id = ++cinemaFixtureId;
+  const { createCinemaAudio } = await import(`../src/shared/browser/cinema-audio.ts?cinema=${id}`);
+  const { SOUND_PREFERENCES_EVENT } = await import(`../src/shared/browser/sfx.ts?cinema=${id}`);
+  const audio = createCinemaAudio({
+    sources: { whoosh: "/sounds/lesson/stamp-whoosh.mp3", thump: "/sounds/lesson/stamp-thump.mp3", rattle: "/sounds/chest/rattle.mp3" },
+    gains: { whoosh: 0.5 },
+    cues: [{ t: 250, sound: "whoosh" }, { t: 930, sound: "thump" }],
+  });
+  return {
+    audio, ctx, started, stopped,
+    save(value) { storage.set("korio-sound-settings", JSON.stringify(value)); },
+    mute(value) { session.set("korio-muted", String(value)); },
+    defer() { deferDecode = true; },
+    get decoding() { return pendingDecodes.length; },
+    release() { pendingDecodes.splice(0).forEach((resolve) => resolve()); },
+    changed() { host.dispatchEvent(new Event(SOUND_PREFERENCES_EVENT)); },
+  };
+}
+
+const settle = async () => {
+  for (let i = 0; i < 5; i++) await setImmediate();
+};
+
+test("cinema cues follow the timetable, the effects volume and each sound's gain", async () => {
+  const f = await cinemaFixture();
+  f.save({ sfxVolume: 0.8 });
+  await f.audio.playFrom(0);
+  await settle();
+  assert.deepEqual(f.started, [
+    { key: "stamp-whoosh", at: 0.25, rate: 1, volume: 0.4 },
+    { key: "stamp-thump", at: 0.93, rate: 1, volume: 0.8 },
+  ]);
+  // 건너뛰기·동작 줄이기 — 그 시각 이전 큐는 건너뛴다
+  f.started.length = 0;
+  await f.audio.playFrom(950);
+  await settle();
+  assert.deepEqual(f.started, []);
+});
+
+test("cinema sounds stay silent when effects are off or the session is muted", async () => {
+  const f = await cinemaFixture();
+  f.save({ uiSoundsEnabled: false });
+  await f.audio.playFrom(0);
+  f.audio.play("rattle");
+  await settle();
+  f.save({});
+  f.mute(true);
+  await f.audio.playFrom(0);
+  f.audio.play("rattle");
+  await settle();
+  assert.deepEqual(f.started, []);
+});
+
+test("skipping before a cue finishes decoding keeps that cue from sounding later", async () => {
+  const f = await cinemaFixture();
+  f.defer();
+  await f.audio.playFrom(0);
+  await settle();
+  assert.equal(f.decoding, 2, "both cues are still decoding when the user skips");
+  f.audio.stop();
+  f.release();
+  await settle();
+  assert.deepEqual(f.started, []);
+});
+
+test("a tap sound plays now with its own pitch", async () => {
+  const f = await cinemaFixture();
+  f.ctx.currentTime = 2;
+  f.audio.play("rattle", { rate: 1.3 });
+  await settle();
+  assert.deepEqual(f.started, [{ key: "rattle", at: 2, rate: 1.3, volume: 1 }]);
+});
+
+test("closing an effect lets a started sound ring but drops cues still to come", async () => {
+  const f = await cinemaFixture();
+  await f.audio.playFrom(0);
+  await settle();
+  f.ctx.currentTime = 0.5;
+  f.audio.release();
+  assert.deepEqual(f.stopped, ["stamp-thump"], "only the cue after now is cut");
+  f.audio.play("rattle");
+  await settle();
+  assert.equal(f.started.length, 2, "a released player schedules nothing new");
+});
+
+test("changing sound preferences stops cinema sounds at once", async () => {
+  const f = await cinemaFixture();
+  await f.audio.playFrom(0);
+  await settle();
+  f.changed();
+  assert.deepEqual(f.stopped, ["stamp-whoosh", "stamp-thump"]);
 });
