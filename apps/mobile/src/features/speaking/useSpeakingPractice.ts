@@ -513,8 +513,9 @@ export function useSpeakingPractice(packCode: string) {
           setError("micError");
           changePhase("idle");
         }, 2000);
-      } else {
-        // start() 가 false 면 훅이 이미 onError 로 이유를 알려줬다
+      } else if (run === recordGenRef.current && phaseRef.current === "starting") {
+        // false 는 이유를 onError 로 알렸거나 일부러 취소된 것이다 (utils/speech-capture —
+        // 이유 없는 조용한 실패는 없다). 더 새 시도가 이어받았으면 그쪽 상태를 덮지 않는다
         changePhase("idle");
       }
     } catch (error) {

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
 import { activateRecordingAudio } from "@/utils/audio-session";
 import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
+import { createSpeechCapture } from "@/utils/speech-capture";
 import {
   TARGET_SAMPLE_RATE,
   concatInt16,
@@ -62,14 +63,6 @@ export function useSpeechRecorder({
   const chunks = useRef<Int16Array[]>([]);
   const sourceRate = useRef(TARGET_SAMPLE_RATE);
   const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const active = useRef(false);
-  const starting = useRef(false);
-  const startRequest = useRef(0);
-  const captureRelease = useRef<(() => void) | null>(null);
-  const releaseCapture = useCallback(() => {
-    captureRelease.current?.();
-    captureRelease.current = null;
-  }, []);
   const voiceStarted = useRef(false);
   const lastVoiceAt = useRef(0);
   const silenceFinishQueued = useRef(false);
@@ -94,7 +87,7 @@ export function useSpeechRecorder({
     channels: 1,
     encoding: "int16",
     onBuffer: (buffer) => {
-      if (!active.current) return;
+      if (!capture.active) return;
       sourceRate.current = buffer.sampleRate || TARGET_SAMPLE_RATE;
 
       // 네이티브 버퍼가 재사용될 수 있으니 복사해서 들고 있는다
@@ -122,6 +115,26 @@ export function useSpeechRecorder({
     },
   });
 
+  /**
+   * 마이크 열기·닫기 순서는 utils/speech-capture 가 맡는다. 겹친 시작은 합류하고,
+   * 기다리는 단계마다 시간 제한이 있어 "시작 중" 에 영영 갇히지 않는다.
+   */
+  const streamRef = useRef(stream);
+  streamRef.current = stream;
+  const capture = useMemo(
+    () =>
+      createSpeechCapture({
+        requestPermission: () => requestRecordingPermissionsAsync(),
+        activateAudio: () => activateRecordingAudio(),
+        startStream: async () => {
+          await streamRef.current?.start();
+        },
+        stopStream: () => streamRef.current?.stop(),
+        holdCapture: holdUiSoundsForCapture,
+      }),
+    [],
+  );
+
   const clearTimer = () => {
     if (autoStop.current) {
       clearTimeout(autoStop.current);
@@ -130,21 +143,11 @@ export function useSpeechRecorder({
   };
 
   const finish = useCallback(() => {
-    startRequest.current += 1;
-    if (!active.current) {
-      releaseCapture();
-      return;
-    }
-    active.current = false;
     clearTimer();
+    // 실제로 녹음 중이 아니었으면 할 일이 없다 (진행 중인 시작은 물러진다)
+    if (!capture.finish()) return;
     setIsRecording(false);
     silenceFinishQueued.current = false;
-    try {
-      stream?.stop();
-    } catch {
-      // 이미 멈춘 경우
-    }
-    releaseCapture();
 
     const merged = concatInt16(chunks.current);
     chunks.current = [];
@@ -163,70 +166,54 @@ export function useSpeechRecorder({
     const trimmed = trimSilence(resampled, TARGET_SAMPLE_RATE);
     const payload = trimmed.length >= MIN_SAMPLES ? trimmed : resampled;
     onResultRef.current(encodeWav(payload, TARGET_SAMPLE_RATE));
-  }, [stream, releaseCapture]);
+  }, [capture]);
   finishRef.current = finish;
 
+  /**
+   * 마이크를 연다. true = 녹음 시작 (또는 이미 녹음 중).
+   * false 는 둘 중 하나다 — 이유를 onError 로 알렸거나, 누군가 일부러 취소했다.
+   * 이유 없이 조용히 false 가 나오는 길은 없다.
+   */
   const start = useCallback(async () => {
-    if (active.current || starting.current) return false;
-    starting.current = true;
-    const request = ++startRequest.current;
-    try {
-      if (!stream) {
-        onErrorRef.current?.("unsupported");
-        return false;
-      }
-      const permission = await requestRecordingPermissionsAsync();
-      if (request !== startRequest.current) return false;
-      if (!permission.granted) {
-        onErrorRef.current?.("permission");
-        return false;
-      }
-
+    if (!stream) {
+      onErrorRef.current?.("unsupported");
+      return false;
+    }
+    const wasActive = capture.active;
+    if (!wasActive) {
       chunks.current = [];
       sourceRate.current = TARGET_SAMPLE_RATE;
       voiceStarted.current = false;
       lastVoiceAt.current = 0;
       silenceFinishQueued.current = false;
-      captureRelease.current = holdUiSoundsForCapture();
-      await activateRecordingAudio();
-      if (request !== startRequest.current) return false;
-      active.current = true;
-      await stream.start();
-      if (request !== startRequest.current) {
-        stream.stop();
-        return false;
-      }
-      setIsRecording(true);
-      autoStop.current = setTimeout(finish, maxSeconds * 1000);
-      return true;
-    } catch {
-      active.current = false;
-      releaseCapture();
-      if (request === startRequest.current) onErrorRef.current?.("mic");
-      return false;
-    } finally {
-      starting.current = false;
     }
-  }, [finish, maxSeconds, stream, releaseCapture]);
+    const result = await capture.start();
+    if (!result.ok) {
+      if (result.reason !== "cancelled") {
+        onErrorRef.current?.(result.reason === "permission" ? "permission" : "mic");
+      }
+      return false;
+    }
+    if (!wasActive) {
+      setIsRecording(true);
+      clearTimer();
+      autoStop.current = setTimeout(() => finishRef.current(), maxSeconds * 1000);
+    }
+    return true;
+  }, [capture, maxSeconds, stream]);
 
-  /** 결과를 버리고 즉시 중단 (화면 이탈 등) */
+  /** 결과를 버리고 즉시 중단 (화면 이탈 등) — 진행 중인 시작도 무른다 */
   const cancel = useCallback(() => {
-    startRequest.current += 1;
-    releaseCapture();
-    if (!active.current) return;
-    active.current = false;
+    const wasActive = capture.active;
+    capture.cancel();
     clearTimer();
+    if (!wasActive) return;
     setIsRecording(false);
     chunks.current = [];
     voiceStarted.current = false;
     lastVoiceAt.current = 0;
     silenceFinishQueued.current = false;
-    try {
-      stream?.stop();
-    } catch {
-      // 무시
-    }
-  }, [stream, releaseCapture]);
+  }, [capture]);
 
   useEffect(() => cancel, [cancel]);
 

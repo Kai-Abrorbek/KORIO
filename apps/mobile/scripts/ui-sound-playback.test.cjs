@@ -232,11 +232,19 @@ for (const [file, name] of [
       const states = [];
       let stops = 0;
       let firstStart = true;
+      let nativeStarts = 0;
+      let maxNativeStarts = 0;
       const stream = {
         start: async () => {
-          if (phase === "native stream" && firstStart) {
-            entered.resolve();
-            await ready.promise;
+          nativeStarts++;
+          maxNativeStarts = Math.max(maxNativeStarts, nativeStarts);
+          try {
+            if (phase === "native stream" && firstStart) {
+              entered.resolve();
+              await ready.promise;
+            }
+          } finally {
+            nativeStarts--;
           }
         },
         stop: () => {
@@ -247,6 +255,7 @@ for (const [file, name] of [
         react: {
           useRef: (current) => ({ current }),
           useCallback: (callback) => callback,
+          useMemo: (factory) => factory(),
           useState: (initial) => [initial, (next) => states.push(next)],
           useEffect: () => {},
         },
@@ -263,6 +272,7 @@ for (const [file, name] of [
           },
         },
         "@/utils/ui-sound-capture": capture,
+        "@/utils/speech-capture": loadSource("speech-capture.ts"),
         "@/utils/wav": {
           TARGET_SAMPLE_RATE: 16000,
           concatInt16: () => new Int16Array(),
@@ -278,6 +288,25 @@ for (const [file, name] of [
       assert.equal(capture.isUiSoundCaptureActive(), true);
       recorder.stop();
       assert.equal(capture.isUiSoundCaptureActive(), false);
+      if (name === "useSpeechRecorder") {
+        // 2026-10-20: 진행 중인 시작이 있을 때 다시 누르면 예전엔 조용히 false 였다 —
+        // 자동으로 열리던 마이크와 탭이 겹치면 둘 다 죽어 "눌러도 아무 반응이 없다" 였다.
+        // 이제 새 시작은 앞 시도가 끝나기를 기다렸다가 연다 (겹치지 않고, 버려지지도 않는다).
+        const again = recorder.start();
+        ready.resolve();
+        assert.equal(await starting, false);
+        assert.equal(
+          states.includes(true),
+          false,
+          "a cancelled start cannot resurrect recording",
+        );
+        assert.equal(await again, true, "the next start opens after the stopped one settles");
+        assert.equal(maxNativeStarts, 1, "native starts never overlap");
+        recorder.stop();
+        assert.equal(capture.isUiSoundCaptureActive(), false);
+        assert.ok(stops > 0);
+        return;
+      }
       assert.equal(
         await recorder.start(),
         false,
