@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { getContentLang } from "../../../shared/i18n/content-language";
+import { gameRequestPath, type GameSession } from "./game-session";
 
 export interface GameWord {
   id: string;
@@ -16,11 +17,14 @@ export interface GameWord {
   difficulty?: number;
 }
 
-export function useGameWords(count = 40, maxLen = 5) {
+export function useGameWords(count = 40, maxLen = 5, session?: GameSession) {
   const { request, user } = useTelegramAuth();
+  const requestRef = useRef(request);
+  requestRef.current = request;
+  const legacyRequest = session ? null : request;
   // Unported games must not start consuming English merely because the pool API
   // now supports it. Each game opts in with an explicit session when migrated.
-  const unavailable = user?.learnCourse === "en";
+  const unavailable = !session && user?.learnCourse === "en";
   const [words, setWords] = useState<GameWord[] | null>(null);
   const [failed, setFailed] = useState(false);
   const generation = useRef(0);
@@ -33,7 +37,9 @@ export function useGameWords(count = 40, maxLen = 5) {
       setFailed(true);
       return;
     }
-    void request<{ words: GameWord[] }>(`/words/game-pool?count=${count}&maxLen=${maxLen}`)
+    const path = `/words/game-pool?count=${count}&maxLen=${maxLen}`;
+    const requester = legacyRequest ?? requestRef.current;
+    void requester<{ words: GameWord[] }>(session ? gameRequestPath(path, session) : path)
       .then((response) => {
         if (current !== generation.current) return;
         if ((response.words?.length ?? 0) < Math.min(4, count)) setFailed(true);
@@ -42,7 +48,7 @@ export function useGameWords(count = 40, maxLen = 5) {
       .catch(() => {
         if (current === generation.current) setFailed(true);
       });
-  }, [count, maxLen, request, unavailable]);
+  }, [count, maxLen, legacyRequest, session, unavailable]);
 
   useEffect(() => {
     load();

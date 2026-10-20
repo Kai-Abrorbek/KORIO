@@ -1,9 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useSearchParams } from "next/navigation";
 
+import { matchingPool } from "../../../../../../shared/word-games";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
-import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
+import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { createGameSession } from "../model/game-session";
+import { useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./memory-game-screen.module.css";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
@@ -51,7 +55,7 @@ function WordCard({ card, fontSize, matchedTrigger, onClick, size }: {
       type="button"
     >
       <span className={styles.cover}>?</span>
-      <span className={card.type === "ko" ? styles.wordKo : styles.wordUz}>{card.display}</span>
+      <span className={card.type === "ko" ? styles.wordKo : styles.wordUz} data-no-translate>{card.display}</span>
     </button>
   );
 }
@@ -191,10 +195,13 @@ function MemoryBoard({ level, onComplete, words }: {
 }
 
 export function MemoryGameScreen() {
-  const { words: pool, loading, failed, reload } = useGameWords(40, 4);
+  const { user } = useTelegramAuth();
+  const searchParams = useSearchParams();
+  const [session] = useState(() => createGameSession(searchParams.get("targetLanguage"), user?.learnCourse));
+  const { words: pool, loading, failed, reload } = useGameWords(40, 4, session);
   const words = useMemo(
-    () => (pool ?? []).map((word) => ({ ko: word.ko, uz: meaningOfGameWord(word) })),
-    [pool],
+    () => matchingPool([], pool ?? [], session.lang, session.targetLanguage).map((word) => ({ ko: word.ko, uz: word.native })),
+    [pool, session],
   );
   const [level, setLevel] = useState(1);
   const [phase, setPhase] = useState<"playing" | "win" | "lose">("playing");
@@ -230,7 +237,7 @@ export function MemoryGameScreen() {
       <main className={styles.memoryPage}>
         <button aria-label="Yopish" className={styles.close} onClick={exit} type="button"><MobileIcon name="close" size={28} /></button>
         <div className={styles.gate}>
-          {loading ? <i /> : failed ? <><p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p><button onClick={reload} type="button">Qayta urinish</button></> : null}
+          {loading ? <i /> : <><p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p><button onClick={reload} type="button">Qayta urinish</button></>}
         </div>
       </main>
     );

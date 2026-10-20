@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
@@ -11,23 +10,28 @@ import { WORD_MEMORY_LEVELS } from "@/types/word-memory";
 import WordMemoryGame from "@/components/hangul/games/WordMemoryGame";
 import { useGameWords } from "@/features/games/useGameWords";
 import { GameWordsGate } from "@/features/games/GameWordsGate";
-import { meaningOfWord } from "@/services/game-words.service";
-import { useContentLang } from "@/store/settings.store";
+import { useGameSession } from "@/features/games/useGameSession";
+import { matchingPool } from "../../../../shared/word-games";
 
 export default function MemoryGameScreen() {
-  const router = useRouter();
   const theme = useTheme();
   const { t } = useTranslation();
   const s = styles(theme);
+  const session = useGameSession();
 
   // 제일 큰 레벨이 15쌍이라 넉넉히 받아둔다. 레벨을 올릴 때마다 다시
   // 부르면 카드가 바뀌어서 "외운 걸 다시 못 찾는" 이상한 판이 된다
-  const { words: pool, loading, failed, reload } = useGameWords(40, 4);
-  const contentLang = useContentLang();
-  const pairs = (pool ?? []).map((w) => ({
-    ko: w.ko,
-    uz: meaningOfWord(w, contentLang),
-  }));
+  const { words: pool, loading, failed, reload } = useGameWords(40, 4, session);
+  const pairs = useMemo(
+    () =>
+      matchingPool(
+        [],
+        pool ?? [],
+        session.contentLanguage,
+        session.language,
+      ).map((pair) => ({ ko: pair.ko, uz: pair.native })),
+    [pool, session],
+  );
 
   const [level, setLevel] = useState(1);
   const [phase, setPhase] = useState<"playing" | "win" | "lose">("playing");
@@ -35,7 +39,7 @@ export default function MemoryGameScreen() {
   const [stars, setStars] = useState(0);
   // 챌린지 점수: 깬 레벨 수 + 모은 별. 레벨만 세면 1판에 1~5 라 XP 폭이 너무 좁다
   const [challengeScore, setChallengeScore] = useState(0);
-  const { isChallenge, finish } = useLeagueChallenge();
+  const { finish } = useLeagueChallenge();
 
   const restart = (lv: number) => {
     setLevel(lv);
@@ -75,7 +79,11 @@ export default function MemoryGameScreen() {
         <TouchableOpacity onPress={goHome} style={s.close} hitSlop={8}>
           <Ionicons name="close" size={28} color={theme.text} />
         </TouchableOpacity>
-        <GameWordsGate loading={loading} failed={failed} onRetry={reload}>
+        <GameWordsGate
+          loading={loading}
+          failed={failed || pairs.length < maxPairs}
+          onRetry={reload}
+        >
           {null}
         </GameWordsGate>
       </View>

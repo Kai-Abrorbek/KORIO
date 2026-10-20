@@ -76,5 +76,5 @@ export function isWordGameAvailable(
   id: string,
   language: GameLanguage,
 ): boolean {
-  return language === "ko" || id === "matchGame";
+  return language === "ko" || id === "matchGame" || id === "wordMemory";
 }
