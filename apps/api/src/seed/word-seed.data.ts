@@ -60,6 +60,17 @@ import {
   S5_UNIT9_WORDS,
 } from './data/vocabulary/section5';
 import {
+  S6_UNIT1_WORDS,
+  S6_UNIT2_WORDS,
+  S6_UNIT3_WORDS,
+  S6_UNIT4_WORDS,
+  S6_UNIT5_WORDS,
+  S6_UNIT6_WORDS,
+  S6_UNIT7_WORDS,
+  S6_UNIT8_WORDS,
+  S6_UNIT9_WORDS,
+} from './data/vocabulary/section6';
+import {
   WordPartOfSpeech,
   type WordLanguage,
 } from '../words/schemas/word.schema';
@@ -118,6 +129,16 @@ const WORD_SOURCES: WordSeedSource[] = [
   { section: 5, unit: 7, words: S5_UNIT7_WORDS },
   { section: 5, unit: 8, words: S5_UNIT8_WORDS },
   { section: 5, unit: 9, words: S5_UNIT9_WORDS },
+
+  { section: 6, unit: 1, words: S6_UNIT1_WORDS },
+  { section: 6, unit: 2, words: S6_UNIT2_WORDS },
+  { section: 6, unit: 3, words: S6_UNIT3_WORDS },
+  { section: 6, unit: 4, words: S6_UNIT4_WORDS },
+  { section: 6, unit: 5, words: S6_UNIT5_WORDS },
+  { section: 6, unit: 6, words: S6_UNIT6_WORDS },
+  { section: 6, unit: 7, words: S6_UNIT7_WORDS },
+  { section: 6, unit: 8, words: S6_UNIT8_WORDS },
+  { section: 6, unit: 9, words: S6_UNIT9_WORDS },
 ];
 
 export interface NormalizedWordSeed {

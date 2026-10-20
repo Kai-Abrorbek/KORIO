@@ -6945,3 +6945,4084 @@ export const EN_S1_UNIT4_NODE3 = {
     },
   ],
 };
+// ─────────────────────────────────────────────────────────────
+// Section 1 · Unit 4 · Node 4
+// 4.4 Speaking and writing
+//
+// LessonCategory:
+// VOCABULARY / GRAMMAR / EXPRESSION / CONVERSATION / LISTENING / TOPIK
+//
+// Coverage
+// - shops:
+//   pharmacy
+//   department store
+//   electronics shop
+//   bookshop
+//
+// - customer language:
+//   Excuse me. Do you have a/any ...?
+//   How much is this ...?
+//   How much are these ...?
+//   OK. I'll take it.
+//   OK. I'll take them.
+//
+// - shop assistant language:
+//   Can I help you?
+//   Yes, it's over there.
+//   Yes, they're over there.
+//   Is that everything?
+//
+// - customer responses:
+//   Yes, please. I need ...
+//   No, thanks. Just looking.
+//   Yes, thank you.
+//   No, I need ... too.
+//
+// - prices:
+//   dollar / pound / pence / euro
+//   one-number prices
+//   two-number prices
+//
+// - informal email:
+//   full stop (.)
+//   question mark (?)
+//   comma (,)
+//   apostrophe (')
+//   exclamation mark (!)
+//
+// - punctuation rules:
+//   . end of sentence
+//   ? end of question
+//   , before but
+//   ' missing letters in contractions
+//   ! strong feelings
+//
+// - informal email structure:
+//   Hi/Hello + name
+//   How are you?
+//   Thanks for your email.
+//   Can't wait to see you.
+//   Thanks,
+//   Love,
+//
+// - email travel functions:
+//   ask for an address
+//   ask how to get somewhere
+//   ask about transport
+//   ask ticket price
+//   give phone number
+//   say arrival day/time
+//
+// 4 lessons × 20 = 80 questions
+// ─────────────────────────────────────────────────────────────
+
+export const EN_S1_UNIT4_NODE4_WORDS = [
+  {
+    code: 'en-shop-pharmacy',
+    english: 'pharmacy',
+    senseKey: 'shop-medicines',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '약국',
+      'dorixona',
+      'a shop where you can buy medicines',
+      'аптека',
+    ),
+    examples: [
+      {
+        english: 'The pharmacy is near the station.',
+        translations: L(
+          '약국은 역 근처에 있어요.',
+          'Dorixona vokzal yaqinida.',
+          'The pharmacy is near the station.',
+          'Аптека находится рядом со станцией.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈfɑːməsi/',
+      ttsText: 'pharmacy',
+    },
+    media: {
+      emoji: '💊',
+      imageUrl: '',
+      imageAlt: L('약국', 'dorixona', 'a pharmacy', 'аптека'),
+    },
+    tags: ['shops'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-shop-department-store',
+    english: 'department store',
+    senseKey: 'large-shop-many-departments',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '백화점',
+      'univermag',
+      'a large shop with different sections selling many kinds of things',
+      'универмаг',
+    ),
+    examples: [
+      {
+        english: 'The department store has clothes and bags.',
+        translations: L(
+          '그 백화점에는 옷과 가방이 있어요.',
+          'Univermagda kiyimlar va sumkalar bor.',
+          'The department store has clothes and bags.',
+          'В универмаге есть одежда и сумки.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/dɪˈpɑːtmənt stɔː/',
+      ttsText: 'department store',
+    },
+    media: {
+      emoji: '🏬',
+      imageUrl: '',
+      imageAlt: L('백화점', 'univermag', 'a department store', 'универмаг'),
+    },
+    tags: ['shops'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-shop-electronics-shop',
+    english: 'electronics shop',
+    senseKey: 'shop-electronic-devices',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '전자제품 가게',
+      'elektronika do‘koni',
+      'a shop that sells electronic devices',
+      'магазин электроники',
+    ),
+    examples: [
+      {
+        english: 'I need a charger from the electronics shop.',
+        translations: L(
+          '전자제품 가게에서 충전기가 필요해요.',
+          'Menga elektronika do‘konidan zaryadlovchi kerak.',
+          'I need a charger from the electronics shop.',
+          'Мне нужно зарядное устройство из магазина электроники.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪˌlekˈtrɒnɪks ʃɒp/',
+      ttsText: 'electronics shop',
+    },
+    media: {
+      emoji: '💻',
+      imageUrl: '',
+      imageAlt: L(
+        '전자제품 가게',
+        'elektronika do‘koni',
+        'an electronics shop',
+        'магазин электроники',
+      ),
+    },
+    tags: ['shops'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-shop-bookshop',
+    english: 'bookshop',
+    senseKey: 'shop-books',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '서점',
+      'kitob do‘koni',
+      'a shop that sells books',
+      'книжный магазин',
+    ),
+    examples: [
+      {
+        english: 'There is a bookshop near my office.',
+        translations: L(
+          '제 사무실 근처에 서점이 있어요.',
+          'Ofisim yaqinida kitob do‘koni bor.',
+          'There is a bookshop near my office.',
+          'Рядом с моим офисом есть книжный магазин.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbʊkʃɒp/',
+      ttsText: 'bookshop',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: '',
+      imageAlt: L('서점', 'kitob do‘koni', 'a bookshop', 'книжный магазин'),
+    },
+    tags: ['shops'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-shopping-price',
+    english: 'price',
+    senseKey: 'money-cost',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('가격', 'narx', 'the amount of money something costs', 'цена'),
+    examples: [
+      {
+        english: 'What is the price?',
+        translations: L(
+          '가격이 얼마예요?',
+          'Narxi qancha?',
+          'What is the price?',
+          'Какая цена?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/praɪs/',
+      ttsText: 'price',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: '',
+      imageAlt: L('가격표', 'narx yorlig‘i', 'a price tag', 'ценник'),
+    },
+    tags: ['shopping', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-money-pound',
+    english: 'pound',
+    senseKey: 'british-currency-unit',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('파운드', 'funt', 'a unit of British money', 'фунт'),
+    examples: [
+      {
+        english: 'It’s twenty pounds.',
+        translations: L(
+          '20파운드예요.',
+          'Yigirma funt.',
+          'It’s twenty pounds.',
+          'Это двадцать фунтов.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/paʊnd/',
+      ttsText: 'pound',
+    },
+    media: {
+      emoji: '💷',
+      imageUrl: '',
+      imageAlt: L('파운드 화폐', 'funt', 'British pounds', 'британские фунты'),
+    },
+    tags: ['money', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-money-pence',
+    english: 'pence',
+    senseKey: 'british-small-currency-unit',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '펜스',
+      'pens',
+      'the plural form used for British pennies as an amount of money',
+      'пенсы',
+    ),
+    examples: [
+      {
+        english: 'It’s eighty pence.',
+        translations: L(
+          '80펜스예요.',
+          'Sakson pens.',
+          'It’s eighty pence.',
+          'Это восемьдесят пенсов.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/pens/',
+      ttsText: 'pence',
+    },
+    media: {
+      emoji: '🪙',
+      imageUrl: '',
+      imageAlt: L('동전', 'tanga', 'coins', 'монеты'),
+    },
+    tags: ['money', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-money-dollar',
+    english: 'dollar',
+    senseKey: 'dollar-currency-unit',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '달러',
+      'dollar',
+      'a unit of money used in several countries',
+      'доллар',
+    ),
+    examples: [
+      {
+        english: 'It’s thirty dollars.',
+        translations: L(
+          '30달러예요.',
+          'O‘ttiz dollar.',
+          'It’s thirty dollars.',
+          'Это тридцать долларов.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈdɒlə/',
+      ttsText: 'dollar',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: '',
+      imageAlt: L('달러 지폐', 'dollar', 'dollars', 'доллары'),
+    },
+    tags: ['money', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-money-euro',
+    english: 'euro',
+    senseKey: 'european-currency-unit',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '유로',
+      'yevro',
+      'a unit of money used in many European countries',
+      'евро',
+    ),
+    examples: [
+      {
+        english: 'The bag is forty euros.',
+        translations: L(
+          '그 가방은 40유로예요.',
+          'Sumka qirq yevro.',
+          'The bag is forty euros.',
+          'Сумка стоит сорок евро.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈjʊərəʊ/',
+      ttsText: 'euro',
+    },
+    media: {
+      emoji: '💶',
+      imageUrl: '',
+      imageAlt: L('유로 화폐', 'yevro', 'euros', 'евро'),
+    },
+    tags: ['money', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+];
+
+export const EN_S1_UNIT4_NODE4_QUESTIONS = {
+  // ===========================================================
+  // Lesson 1 · In a shop
+  // ===========================================================
+
+  en_s1u4_n4_001_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Pharmacy.',
+    audioText: 'Pharmacy.',
+    answerTranslation: L('약국.', 'Dorixona.', 'Pharmacy.', 'Аптека.'),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['shops', 'pharmacy'],
+  },
+
+  en_s1u4_n4_002_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '약을 사는 가게를 고르세요.',
+      'Dori sotib olinadigan do‘konni tanlang.',
+      'Choose the shop where you buy medicine.',
+      'Выберите магазин, где покупают лекарства.',
+    ),
+    sentenceTemplate: 'I need some vitamins. I need a ___.',
+    blankAnswers: ['pharmacy'],
+    options: ['pharmacy', 'bookshop', 'electronics shop', 'station'],
+    answer: 'pharmacy',
+    answerTranslation: L(
+      '비타민이 필요해서 약국에 가야 해요.',
+      'Menga vitaminlar kerak, shuning uchun dorixona kerak.',
+      'I need some vitamins, so I need a pharmacy.',
+      'Мне нужны витамины, поэтому нужна аптека.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['shops', 'pharmacy'],
+  },
+
+  en_s1u4_n4_003_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Electronics shop.',
+    audioText: 'Electronics shop.',
+    answerTranslation: L(
+      '전자제품 가게.',
+      'Elektronika do‘koni.',
+      'Electronics shop.',
+      'Магазин электроники.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['shops', 'electronics-shop'],
+  },
+
+  en_s1u4_n4_004_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'I need a new tablet. Let’s go to the ___.',
+    blankAnswers: ['electronics shop'],
+    options: ['electronics shop', 'pharmacy', 'bookshop', 'bus station'],
+    answer: 'electronics shop',
+    answerTranslation: L(
+      '새 태블릿이 필요해요. 전자제품 가게에 가요.',
+      'Menga yangi planshet kerak. Elektronika do‘koniga boramiz.',
+      'I need a new tablet. Let’s go to the electronics shop.',
+      'Мне нужен новый планшет. Пойдём в магазин электроники.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['shops', 'electronics-shop'],
+  },
+
+  en_s1u4_n4_005_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Excuse me. Do you have any umbrellas?',
+    audioText: 'Excuse me. Do you have any umbrellas?',
+    answerTranslation: L(
+      '실례합니다. 우산이 있나요?',
+      'Kechirasiz. Soyabonlaringiz bormi?',
+      'Excuse me. Do you have any umbrellas?',
+      'Извините. У вас есть зонты?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'customer'],
+  },
+
+  en_s1u4_n4_006_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['Excuse', 'me', 'Do', 'you', 'have', 'any', 'umbrellas', 'has'],
+    answer: 'Excuse me Do you have any umbrellas',
+    audioText: 'Excuse me. Do you have any umbrellas?',
+    answerTranslation: L(
+      '실례합니다. 우산이 있나요?',
+      'Kechirasiz. Soyabonlaringiz bormi?',
+      'Excuse me. Do you have any umbrellas?',
+      'Извините. У вас есть зонты?',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['shop-language', 'customer'],
+  },
+
+  en_s1u4_n4_007_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Yes, they’re over there.',
+    audioText: 'Yes, they’re over there.',
+    answerTranslation: L(
+      '네, 저쪽에 있어요.',
+      'Ha, ular ana u yerda.',
+      'Yes, they’re over there.',
+      'Да, они вон там.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'plural'],
+  },
+
+  en_s1u4_n4_008_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      { speaker: 'user', text: 'Excuse me. Do you have any pens?' },
+    ],
+    options: [
+      'Yes, they’re over there.',
+      'Yes, it’s over there.',
+      'No, I’m a pen.',
+      'They has over there.',
+    ],
+    answer: 'Yes, they’re over there.',
+    answerTranslation: L(
+      '네, 저쪽에 있어요.',
+      'Ha, ular ana u yerda.',
+      'Yes, they’re over there.',
+      'Да, они вон там.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'plural'],
+  },
+
+  en_s1u4_n4_009_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Excuse me. Do you have a dictionary?',
+    audioText: 'Excuse me. Do you have a dictionary?',
+    answerTranslation: L(
+      '실례합니다. 사전이 있나요?',
+      'Kechirasiz. Lug‘atingiz bormi?',
+      'Excuse me. Do you have a dictionary?',
+      'Извините. У вас есть словарь?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'singular'],
+  },
+
+  en_s1u4_n4_010_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'Do you have ___ English dictionary?',
+    blankAnswers: ['an'],
+    options: ['an', 'any', 'some', 'are'],
+    answer: 'an',
+    answerTranslation: L(
+      '영어 사전이 있나요?',
+      'Inglizcha lug‘atingiz bormi?',
+      'Do you have an English dictionary?',
+      'У вас есть английский словарь?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['shop-language', 'a-an'],
+  },
+
+  en_s1u4_n4_011_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Can I help you?',
+    audioText: 'Can I help you?',
+    answerTranslation: L(
+      '도와드릴까요?',
+      'Sizga yordam bera olamanmi?',
+      'Can I help you?',
+      'Могу я вам помочь?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'shop-assistant'],
+  },
+
+  en_s1u4_n4_012_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Can I help you?',
+    options: ['Yes', 'please', 'I', 'need', 'a', 'notepad', 'take'],
+    answer: 'Yes please I need a notepad',
+    answerTranslation: L(
+      '네. 메모장이 필요해요.',
+      'Ha, iltimos. Menga bloknot kerak.',
+      'Yes, please. I need a notepad.',
+      'Да, пожалуйста. Мне нужен блокнот.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'need'],
+  },
+
+  en_s1u4_n4_013_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'No, thanks. Just looking.',
+    audioText: 'No, thanks. Just looking.',
+    answerTranslation: L(
+      '아니요, 괜찮아요. 그냥 보고 있어요.',
+      'Yo‘q, rahmat. Shunchaki ko‘ryapman.',
+      'No, thanks. Just looking.',
+      'Нет, спасибо. Я просто смотрю.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'just-looking'],
+  },
+
+  en_s1u4_n4_014_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'Can I help you?' }],
+    options: [
+      'No, thanks. Just looking.',
+      'No, I’m not help.',
+      'No, I look a thanks.',
+      'No, it isn’t.',
+    ],
+    answer: 'No, thanks. Just looking.',
+    answerTranslation: L(
+      '아니요, 괜찮아요. 그냥 보고 있어요.',
+      'Yo‘q, rahmat. Shunchaki ko‘ryapman.',
+      'No, thanks. Just looking.',
+      'Нет, спасибо. Я просто смотрю.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'just-looking'],
+  },
+
+  en_s1u4_n4_015_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Is that everything?',
+    audioText: 'Is that everything?',
+    answerTranslation: L(
+      '그게 전부인가요?',
+      'Hammasi shumi?',
+      'Is that everything?',
+      'Это всё?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'shop-assistant'],
+  },
+
+  en_s1u4_n4_016_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Is that everything?',
+    options: ['No', 'I', 'need', 'two', 'pens', 'too', 'take'],
+    answer: 'No I need two pens too',
+    answerTranslation: L(
+      '아니요. 펜 두 자루도 필요해요.',
+      'Yo‘q. Menga yana ikkita ruchka kerak.',
+      'No, I need two pens too.',
+      'Нет. Мне ещё нужны две ручки.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'too'],
+  },
+
+  en_s1u4_n4_017_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Yes, thank you.',
+    audioText: 'Yes, thank you.',
+    answerTranslation: L(
+      '네, 감사합니다.',
+      'Ha, rahmat.',
+      'Yes, thank you.',
+      'Да, спасибо.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language'],
+  },
+
+  en_s1u4_n4_018_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['Excuse', 'me', 'Do', 'you', 'have', 'any', 'notepads', 'is'],
+    answer: 'Excuse me Do you have any notepads',
+    answerTranslation: L(
+      '실례합니다. 메모장이 있나요?',
+      'Kechirasiz. Bloknotlaringiz bormi?',
+      'Excuse me. Do you have any notepads?',
+      'Извините. У вас есть блокноты?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'builder'],
+  },
+
+  en_s1u4_n4_019_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I need a notebook and three pens.',
+    audioText: 'I need a notebook and three pens.',
+    answerTranslation: L(
+      '노트 한 권과 펜 세 자루가 필요해요.',
+      'Menga bitta daftar va uchta ruchka kerak.',
+      'I need a notebook and three pens.',
+      'Мне нужны тетрадь и три ручки.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'need'],
+  },
+
+  en_s1u4_n4_020_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      { speaker: 'npc', text: 'Can I help you?' },
+      { speaker: 'user', text: 'Yes, please. I need a notebook.' },
+      { speaker: 'npc', text: 'Is that everything?' },
+    ],
+    options: [
+      'No, I need three pens too.',
+      'No, three pens are me.',
+      'No, I am three pens.',
+      'No, they doesn’t.',
+    ],
+    answer: 'No, I need three pens too.',
+    answerTranslation: L(
+      '아니요. 펜 세 자루도 필요해요.',
+      'Yo‘q. Menga yana uchta ruchka kerak.',
+      'No, I need three pens too.',
+      'Нет. Мне ещё нужны три ручки.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'complete-dialog'],
+  },
+
+  // ===========================================================
+  // Lesson 2 · Prices and buying
+  // ===========================================================
+
+  en_s1u4_n4_021_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'How much is this tablet?',
+    audioText: 'How much is this tablet?',
+    answerTranslation: L(
+      '이 태블릿은 얼마예요?',
+      'Bu planshet qancha turadi?',
+      'How much is this tablet?',
+      'Сколько стоит этот планшет?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['prices', 'singular'],
+  },
+
+  en_s1u4_n4_022_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'How much ___ this tablet?',
+    blankAnswers: ['is'],
+    options: ['is', 'are', 'do', 'does'],
+    answer: 'is',
+    answerTranslation: L(
+      '이 태블릿은 얼마예요?',
+      'Bu planshet qancha turadi?',
+      'How much is this tablet?',
+      'Сколько стоит этот планшет?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['prices', 'singular'],
+  },
+
+  en_s1u4_n4_023_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'How much are these pens?',
+    audioText: 'How much are these pens?',
+    answerTranslation: L(
+      '이 펜들은 얼마예요?',
+      'Bu ruchkalar qancha turadi?',
+      'How much are these pens?',
+      'Сколько стоят эти ручки?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['prices', 'plural'],
+  },
+
+  en_s1u4_n4_024_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'How much ___ these pens?',
+    blankAnswers: ['are'],
+    options: ['are', 'is', 'do', 'has'],
+    answer: 'are',
+    answerTranslation: L(
+      '이 펜들은 얼마예요?',
+      'Bu ruchkalar qancha turadi?',
+      'How much are these pens?',
+      'Сколько стоят эти ручки?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['prices', 'plural'],
+  },
+
+  en_s1u4_n4_025_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s twenty dollars.',
+    audioText: 'It’s twenty dollars.',
+    answerTranslation: L(
+      '20달러예요.',
+      'Yigirma dollar.',
+      'It’s twenty dollars.',
+      'Это двадцать долларов.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'one-number'],
+  },
+
+  en_s1u4_n4_026_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '들은 가격을 고르세요.',
+      'Eshitilgan narxni tanlang.',
+      'Choose the price you hear.',
+      'Выберите услышанную цену.',
+    ),
+    sentenceTemplate: 'It’s twenty dollars. → $___',
+    blankAnswers: ['20'],
+    options: ['20', '12', '2.20', '22.20'],
+    answer: '20',
+    answerTranslation: L('20달러', '20 dollar', '$20', '20 долларов'),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'one-number'],
+  },
+
+  en_s1u4_n4_027_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s forty-five pounds.',
+    audioText: 'It’s forty-five pounds.',
+    answerTranslation: L(
+      '45파운드예요.',
+      'Qirq besh funt.',
+      'It’s forty-five pounds.',
+      'Это сорок пять фунтов.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'pounds'],
+  },
+
+  en_s1u4_n4_028_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['It’s', 'forty-five', 'pounds', 'fifteen', 'euros'],
+    answer: 'It’s forty-five pounds',
+    audioText: 'It’s forty-five pounds.',
+    answerTranslation: L(
+      '45파운드예요.',
+      'Qirq besh funt.',
+      'It’s forty-five pounds.',
+      'Это сорок пять фунтов.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'pounds'],
+  },
+
+  en_s1u4_n4_029_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s ninety pence.',
+    audioText: 'It’s ninety pence.',
+    answerTranslation: L(
+      '90펜스예요.',
+      'To‘qson pens.',
+      'It’s ninety pence.',
+      'Это девяносто пенсов.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'pence'],
+  },
+
+  en_s1u4_n4_030_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      'pence 가격을 완성하세요.',
+      'Pence narxini to‘ldiring.',
+      'Complete the price in pence.',
+      'Дополните цену в пенсах.',
+    ),
+    sentenceTemplate: '90p = ninety ___.',
+    blankAnswers: ['pence'],
+    options: ['pence', 'pounds', 'euros', 'dollars'],
+    answer: 'pence',
+    answerTranslation: L(
+      '90펜스',
+      '90 pens',
+      'ninety pence',
+      'девяносто пенсов',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['prices', 'pence'],
+  },
+
+  en_s1u4_n4_031_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s twelve euros fifty.',
+    audioText: 'It’s twelve euros fifty.',
+    answerTranslation: L(
+      '12유로 50센트예요.',
+      'O‘n ikki yevro ellik.',
+      'It’s twelve euros fifty.',
+      'Это двенадцать евро пятьдесят.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'two-numbers'],
+  },
+
+  en_s1u4_n4_032_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '들은 가격을 고르세요.',
+      'Eshitilgan narxni tanlang.',
+      'Choose the price you hear.',
+      'Выберите услышанную цену.',
+    ),
+    sentenceTemplate: 'twelve euros fifty → €___',
+    blankAnswers: ['12.50'],
+    options: ['12.50', '12.05', '50.12', '125.00'],
+    answer: '12.50',
+    answerTranslation: L(
+      '12유로 50센트',
+      '12,50 yevro',
+      '€12.50',
+      '12,50 евро',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'two-numbers'],
+  },
+
+  en_s1u4_n4_033_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'They’re nine pounds ninety-nine.',
+    audioText: 'They’re nine pounds ninety-nine.',
+    answerTranslation: L(
+      '9파운드 99펜스예요.',
+      'To‘qqiz funt to‘qson to‘qqiz.',
+      'They’re nine pounds ninety-nine.',
+      'Они стоят девять фунтов девяносто девять.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['prices', 'two-numbers'],
+  },
+
+  en_s1u4_n4_034_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'user', text: 'How much are these notebooks?' }],
+    options: [
+      'They’re nine pounds ninety-nine.',
+      'It’s nine pounds ninety-nine.',
+      'They nine pounds are.',
+      'They does nine pounds.',
+    ],
+    answer: 'They’re nine pounds ninety-nine.',
+    answerTranslation: L(
+      '9파운드 99펜스예요.',
+      'To‘qqiz funt to‘qson to‘qqiz.',
+      'They’re nine pounds ninety-nine.',
+      'Они стоят девять фунтов девяносто девять.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['prices', 'plural'],
+  },
+
+  en_s1u4_n4_035_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'OK. I’ll take it.',
+    audioText: 'OK. I’ll take it.',
+    answerTranslation: L(
+      '좋아요. 이걸 살게요.',
+      'Mayli. Buni olaman.',
+      'OK. I’ll take it.',
+      'Хорошо. Я возьму это.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'buy'],
+  },
+
+  en_s1u4_n4_036_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'This umbrella is fifteen dollars.',
+    options: ['OK', 'I’ll', 'take', 'it', 'them', 'how'],
+    answer: 'OK I’ll take it',
+    answerTranslation: L(
+      '좋아요. 이걸 살게요.',
+      'Mayli. Buni olaman.',
+      'OK. I’ll take it.',
+      'Хорошо. Я возьму это.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'it'],
+  },
+
+  en_s1u4_n4_037_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'OK. I’ll take them.',
+    audioText: 'OK. I’ll take them.',
+    answerTranslation: L(
+      '좋아요. 그것들을 살게요.',
+      'Mayli. Ularni olaman.',
+      'OK. I’ll take them.',
+      'Хорошо. Я возьму их.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['shop-language', 'them'],
+  },
+
+  en_s1u4_n4_038_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '여러 물건을 살 때 알맞은 대명사를 고르세요.',
+      'Bir nechta buyumni olayotganda to‘g‘ri olmoshni tanlang.',
+      'Choose the pronoun for buying several things.',
+      'Выберите местоимение для нескольких предметов.',
+    ),
+    sentenceTemplate: 'These pens are cheap. I’ll take ___.',
+    blankAnswers: ['them'],
+    options: ['them', 'it', 'he', 'she'],
+    answer: 'them',
+    answerTranslation: L(
+      '이 펜들은 싸요. 그것들을 살게요.',
+      'Bu ruchkalar arzon. Ularni olaman.',
+      'These pens are cheap. I’ll take them.',
+      'Эти ручки дешёвые. Я возьму их.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['shop-language', 'them'],
+  },
+
+  en_s1u4_n4_039_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'How much are these wallets, please?',
+    audioText: 'How much are these wallets, please?',
+    answerTranslation: L(
+      '이 지갑들은 얼마예요?',
+      'Bu hamyonlar qancha turadi?',
+      'How much are these wallets, please?',
+      'Сколько стоят эти кошельки?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['prices', 'shopping'],
+  },
+
+  en_s1u4_n4_040_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      { speaker: 'user', text: 'How much are these wallets, please?' },
+      { speaker: 'npc', text: 'They’re twenty euros.' },
+    ],
+    options: [
+      'OK. I’ll take them.',
+      'OK. I’ll take it.',
+      'OK. I take they.',
+      'OK. They’ll take me.',
+    ],
+    answer: 'OK. I’ll take them.',
+    answerTranslation: L(
+      '좋아요. 그것들을 살게요.',
+      'Mayli. Ularni olaman.',
+      'OK. I’ll take them.',
+      'Хорошо. Я возьму их.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['prices', 'buy', 'final'],
+  },
+
+  // ===========================================================
+  // Lesson 3 · Basic punctuation
+  // ===========================================================
+
+  en_s1u4_n4_041_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Full stop.',
+    audioText: 'Full stop.',
+    answerTranslation: L('마침표.', 'Nuqta.', 'Full stop.', 'Точка.'),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'full-stop'],
+  },
+
+  en_s1u4_n4_042_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '평서문의 끝에 오는 문장부호를 고르세요.',
+      'Oddiy gap oxiridagi tinish belgisini tanlang.',
+      'Choose the punctuation mark at the end of a sentence.',
+      'Выберите знак препинания в конце предложения.',
+    ),
+    sentenceTemplate: 'I’m in Berlin___',
+    blankAnswers: ['.'],
+    options: ['.', '?', '!', ','],
+    answer: '.',
+    answerTranslation: L(
+      'I’m in Berlin.',
+      'I’m in Berlin.',
+      'I’m in Berlin.',
+      'I’m in Berlin.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'full-stop'],
+  },
+
+  en_s1u4_n4_043_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Question mark.',
+    audioText: 'Question mark.',
+    answerTranslation: L(
+      '물음표.',
+      'So‘roq belgisi.',
+      'Question mark.',
+      'Вопросительный знак.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'question-mark'],
+  },
+
+  en_s1u4_n4_044_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '질문의 끝에 오는 문장부호를 고르세요.',
+      'Savol oxiridagi tinish belgisini tanlang.',
+      'Choose the punctuation mark at the end of a question.',
+      'Выберите знак препинания в конце вопроса.',
+    ),
+    sentenceTemplate: 'How are you___',
+    blankAnswers: ['?'],
+    options: ['?', '.', ',', '!'],
+    answer: '?',
+    answerTranslation: L(
+      'How are you?',
+      'How are you?',
+      'How are you?',
+      'How are you?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'question-mark'],
+  },
+
+  en_s1u4_n4_045_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Comma.',
+    audioText: 'Comma.',
+    answerTranslation: L('쉼표.', 'Vergul.', 'Comma.', 'Запятая.'),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'comma'],
+  },
+
+  en_s1u4_n4_046_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      'but 앞에 들어갈 문장부호를 고르세요.',
+      'but oldidan keladigan tinish belgisini tanlang.',
+      'Choose the punctuation mark before but.',
+      'Выберите знак препинания перед but.',
+    ),
+    sentenceTemplate: 'It’s cold___ but I like the city.',
+    blankAnswers: [','],
+    options: [',', '?', '!', "'"],
+    answer: ',',
+    answerTranslation: L(
+      '춥지만 저는 이 도시가 좋아요.',
+      'Havo sovuq, lekin menga shahar yoqadi.',
+      'It’s cold, but I like the city.',
+      'Холодно, но мне нравится город.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'comma', 'but'],
+  },
+
+  en_s1u4_n4_047_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Apostrophe.',
+    audioText: 'Apostrophe.',
+    answerTranslation: L(
+      '아포스트로피.',
+      'Apostrof.',
+      'Apostrophe.',
+      'Апостроф.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'apostrophe'],
+  },
+
+  en_s1u4_n4_048_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '축약형에서 빠진 글자를 표시하는 기호를 고르세요.',
+      'Qisqartmada tushib qolgan harfni ko‘rsatuvchi belgini tanlang.',
+      'Choose the mark used where letters are missing in a contraction.',
+      'Выберите знак, обозначающий пропущенные буквы в сокращении.',
+    ),
+    sentenceTemplate: 'I am → I___m',
+    blankAnswers: ["'"],
+    options: ["'", ',', '.', '?'],
+    answer: "'",
+    answerTranslation: L(
+      'I am → I’m',
+      'I am → I’m',
+      'I am → I’m',
+      'I am → I’m',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'apostrophe'],
+  },
+
+  en_s1u4_n4_049_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Exclamation mark.',
+    audioText: 'Exclamation mark.',
+    answerTranslation: L(
+      '느낌표.',
+      'Undov belgisi.',
+      'Exclamation mark.',
+      'Восклицательный знак.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'exclamation-mark'],
+  },
+
+  en_s1u4_n4_050_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '강한 감정을 나타내는 문장부호를 고르세요.',
+      'Kuchli hissiyotni bildiradigan tinish belgisini tanlang.',
+      'Choose the punctuation mark used for strong feelings.',
+      'Выберите знак препинания для сильных эмоций.',
+    ),
+    sentenceTemplate: 'Great___',
+    blankAnswers: ['!'],
+    options: ['!', '.', '?', ','],
+    answer: '!',
+    answerTranslation: L('좋아요!', 'Ajoyib!', 'Great!', 'Отлично!'),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'exclamation-mark'],
+  },
+
+  en_s1u4_n4_051_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I’m in Prague now.',
+    audioText: 'I’m in Prague now.',
+    answerTranslation: L(
+      '저는 지금 프라하에 있어요.',
+      'Men hozir Pragada.',
+      'I’m in Prague now.',
+      'Я сейчас в Праге.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'contractions'],
+  },
+
+  en_s1u4_n4_052_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '올바른 축약형을 고르세요.',
+      'To‘g‘ri qisqartmani tanlang.',
+      'Choose the correct contraction.',
+      'Выберите правильное сокращение.',
+    ),
+    sentenceTemplate: 'I am in Prague. → ___ in Prague.',
+    blankAnswers: ['I’m'],
+    options: ['I’m', 'Im', "I's", 'I’ve'],
+    answer: 'I’m',
+    answerTranslation: L(
+      '저는 프라하에 있어요.',
+      'Men Pragada.',
+      'I’m in Prague.',
+      'Я в Праге.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'apostrophe'],
+  },
+
+  en_s1u4_n4_053_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s cold, but the city is beautiful.',
+    audioText: 'It’s cold, but the city is beautiful.',
+    answerTranslation: L(
+      '춥지만 도시는 아름다워요.',
+      'Havo sovuq, lekin shahar chiroyli.',
+      'It’s cold, but the city is beautiful.',
+      'Холодно, но город красивый.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'comma', 'but'],
+  },
+
+  en_s1u4_n4_054_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['It’s', 'cold', 'but', 'the', 'city', 'is', 'beautiful', 'and'],
+    answer: 'It’s cold but the city is beautiful',
+    audioText: 'It’s cold, but the city is beautiful.',
+    answerTranslation: L(
+      '춥지만 도시는 아름다워요.',
+      'Havo sovuq, lekin shahar chiroyli.',
+      'It’s cold, but the city is beautiful.',
+      'Холодно, но город красивый.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['punctuation', 'but'],
+  },
+
+  en_s1u4_n4_055_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What’s your phone number?',
+    audioText: 'What’s your phone number?',
+    answerTranslation: L(
+      '전화번호가 뭐예요?',
+      'Telefon raqamingiz nima?',
+      'What’s your phone number?',
+      'Какой у вас номер телефона?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'question-mark'],
+  },
+
+  en_s1u4_n4_056_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '문장 끝에 맞는 문장부호를 고르세요.',
+      'Gap oxiriga mos tinish belgisini tanlang.',
+      'Choose the correct punctuation at the end.',
+      'Выберите правильный знак в конце.',
+    ),
+    sentenceTemplate: 'What’s your phone number___',
+    blankAnswers: ['?'],
+    options: ['?', '.', '!', ','],
+    answer: '?',
+    answerTranslation: L(
+      '전화번호가 뭐예요?',
+      'Telefon raqamingiz nima?',
+      'What’s your phone number?',
+      'Какой у вас номер телефона?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'question-mark'],
+  },
+
+  en_s1u4_n4_057_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I can’t wait to see you!',
+    audioText: 'I can’t wait to see you!',
+    answerTranslation: L(
+      '빨리 만나고 싶어요!',
+      'Sizni ko‘rishni sabrsizlik bilan kutyapman!',
+      'I can’t wait to see you!',
+      'Не могу дождаться встречи!',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'apostrophe', 'exclamation-mark'],
+  },
+
+  en_s1u4_n4_058_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      'can not의 축약형을 완성하세요.',
+      'can not qisqartmasini to‘ldiring.',
+      'Complete the contraction of cannot.',
+      'Дополните сокращение cannot.',
+    ),
+    sentenceTemplate: 'can not → can___t',
+    blankAnswers: ["'"],
+    options: ["'", '.', ',', '?'],
+    answer: "'",
+    answerTranslation: L(
+      'cannot → can’t',
+      'cannot → can’t',
+      'cannot → can’t',
+      'cannot → can’t',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'apostrophe'],
+  },
+
+  en_s1u4_n4_059_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Hi, Mina. How are you?',
+    audioText: 'Hi, Mina. How are you?',
+    answerTranslation: L(
+      '안녕, Mina. 잘 지내?',
+      'Salom, Mina. Qalaysan?',
+      'Hi, Mina. How are you?',
+      'Привет, Мина. Как дела?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'punctuation'],
+  },
+
+  en_s1u4_n4_060_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: L(
+      '올바른 문장부호가 사용된 문장을 고르세요.',
+      'Tinish belgilari to‘g‘ri qo‘yilgan gapni tanlang.',
+      'Choose the sentence with correct punctuation.',
+      'Выберите предложение с правильной пунктуацией.',
+    ),
+    dialogLines: [{ speaker: 'npc', text: 'Which sentence is correct?' }],
+    options: [
+      'Hi, Leo. How are you?',
+      'Hi Leo? How are you.',
+      'Hi Leo! How are you.',
+      'Hi. Leo, How are you!',
+    ],
+    answer: 'Hi, Leo. How are you?',
+    answerTranslation: L(
+      'Hi, Leo. How are you?',
+      'Hi, Leo. How are you?',
+      'Hi, Leo. How are you?',
+      'Hi, Leo. How are you?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['punctuation', 'email'],
+  },
+
+  // ===========================================================
+  // Lesson 4 · An informal email
+  // ===========================================================
+
+  en_s1u4_n4_061_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Hi, Amir.',
+    audioText: 'Hi, Amir.',
+    answerTranslation: L(
+      '안녕, Amir.',
+      'Salom, Amir.',
+      'Hi, Amir.',
+      'Привет, Амир.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'opening'],
+  },
+
+  en_s1u4_n4_062_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '친구에게 보내는 이메일의 자연스러운 시작을 고르세요.',
+      'Do‘stga yozilgan emailning tabiiy boshlanishini tanlang.',
+      'Choose a natural opening for an informal email.',
+      'Выберите естественное начало неформального письма.',
+    ),
+    sentenceTemplate: '___ Amir,',
+    blankAnswers: ['Hi'],
+    options: ['Hi', 'Dear Sir', 'Attention', 'Shop'],
+    answer: 'Hi',
+    answerTranslation: L(
+      '안녕, Amir.',
+      'Salom, Amir.',
+      'Hi, Amir.',
+      'Привет, Амир.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'opening'],
+  },
+
+  en_s1u4_n4_063_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Thanks for your email.',
+    audioText: 'Thanks for your email.',
+    answerTranslation: L(
+      '이메일 고마워.',
+      'Emailing uchun rahmat.',
+      'Thanks for your email.',
+      'Спасибо за твоё письмо.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'opening'],
+  },
+
+  en_s1u4_n4_064_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Hi! How are you?',
+    options: ['I’m', 'fine', 'thanks', 'Thanks', 'for', 'your', 'email'],
+    answer: 'I’m fine thanks',
+    answerTranslation: L(
+      '잘 지내, 고마워.',
+      'Yaxshiman, rahmat.',
+      'I’m fine, thanks.',
+      'У меня всё хорошо, спасибо.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'reply'],
+  },
+
+  en_s1u4_n4_065_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I arrive on Friday at six thirty.',
+    audioText: 'I arrive on Friday at six thirty.',
+    answerTranslation: L(
+      '저는 금요일 6시 30분에 도착해요.',
+      'Men juma kuni soat olti yarimda yetib kelaman.',
+      'I arrive on Friday at six thirty.',
+      'Я приезжаю в пятницу в шесть тридцать.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'arrival'],
+  },
+
+  en_s1u4_n4_066_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['I', 'arrive', 'on', 'Friday', 'at', 'six', 'thirty', 'does'],
+    answer: 'I arrive on Friday at six thirty',
+    answerTranslation: L(
+      '저는 금요일 6시 30분에 도착해요.',
+      'Men juma kuni soat olti yarimda yetib kelaman.',
+      'I arrive on Friday at six thirty.',
+      'Я приезжаю в пятницу в шесть тридцать.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'arrival'],
+  },
+
+  en_s1u4_n4_067_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What’s your address?',
+    audioText: 'What’s your address?',
+    answerTranslation: L(
+      '주소가 뭐예요?',
+      'Manzilingiz nima?',
+      'What’s your address?',
+      'Какой у тебя адрес?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'address'],
+  },
+
+  en_s1u4_n4_068_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'What’s your ___?',
+    blankAnswers: ['address'],
+    options: ['address', 'price', 'shop', 'pence'],
+    answer: 'address',
+    answerTranslation: L(
+      '주소가 뭐예요?',
+      'Manzilingiz nima?',
+      'What’s your address?',
+      'Какой у тебя адрес?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'address'],
+  },
+
+  en_s1u4_n4_069_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Does the bus go near your house?',
+    audioText: 'Does the bus go near your house?',
+    answerTranslation: L(
+      '버스가 네 집 근처까지 가?',
+      'Avtobus uyingiz yaqiniga boradimi?',
+      'Does the bus go near your house?',
+      'Автобус идёт рядом с твоим домом?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'transport'],
+  },
+
+  en_s1u4_n4_070_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['Does', 'the', 'bus', 'go', 'near', 'your', 'house', 'goes'],
+    answer: 'Does the bus go near your house',
+    audioText: 'Does the bus go near your house?',
+    answerTranslation: L(
+      '버스가 네 집 근처까지 가?',
+      'Avtobus uyingiz yaqiniga boradimi?',
+      'Does the bus go near your house?',
+      'Автобус идёт рядом с твоим домом?',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['email', 'transport'],
+  },
+
+  en_s1u4_n4_071_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'How much is a bus ticket?',
+    audioText: 'How much is a bus ticket?',
+    answerTranslation: L(
+      '버스표는 얼마야?',
+      'Avtobus chiptasi qancha?',
+      'How much is a bus ticket?',
+      'Сколько стоит билет на автобус?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'ticket', 'price'],
+  },
+
+  en_s1u4_n4_072_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'How much ___ a bus ticket?',
+    blankAnswers: ['is'],
+    options: ['is', 'are', 'do', 'does'],
+    answer: 'is',
+    answerTranslation: L(
+      '버스표는 얼마예요?',
+      'Avtobus chiptasi qancha?',
+      'How much is a bus ticket?',
+      'Сколько стоит билет на автобус?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'price'],
+  },
+
+  en_s1u4_n4_073_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'My phone number is 0715 284 963.',
+    audioText:
+      'My phone number is zero seven one five, two eight four, nine six three.',
+    answerTranslation: L(
+      '제 전화번호는 0715 284 963이에요.',
+      'Telefon raqamim 0715 284 963.',
+      'My phone number is 0715 284 963.',
+      'Мой номер телефона 0715 284 963.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'phone-number'],
+  },
+
+  en_s1u4_n4_074_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      { speaker: 'user', text: 'I arrive on Friday evening.' },
+      { speaker: 'user', text: 'What’s your address?' },
+    ],
+    options: [
+      'My address is 18 Green Street.',
+      'My address eighteen is street.',
+      'I address is Friday.',
+      'My street does eighteen.',
+    ],
+    answer: 'My address is 18 Green Street.',
+    answerTranslation: L(
+      '제 주소는 Green Street 18번지예요.',
+      'Mening manzilim Green Street 18.',
+      'My address is 18 Green Street.',
+      'Мой адрес — 18 Green Street.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'address'],
+  },
+
+  en_s1u4_n4_075_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Call me when you get to the station.',
+    audioText: 'Call me when you get to the station.',
+    answerTranslation: L(
+      '역에 도착하면 전화해.',
+      'Vokzalga yetib kelganingizda menga qo‘ng‘iroq qiling.',
+      'Call me when you get to the station.',
+      'Позвони мне, когда доберёшься до станции.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'travel'],
+  },
+
+  en_s1u4_n4_076_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['Call', 'me', 'when', 'you', 'get', 'to', 'the', 'station'],
+    answer: 'Call me when you get to the station',
+    answerTranslation: L(
+      '역에 도착하면 전화해.',
+      'Vokzalga yetib kelganingizda menga qo‘ng‘iroq qiling.',
+      'Call me when you get to the station.',
+      'Позвони мне, когда доберёшься до станции.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'travel'],
+  },
+
+  en_s1u4_n4_077_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Can’t wait to see you!',
+    audioText: 'Can’t wait to see you!',
+    answerTranslation: L(
+      '빨리 만나고 싶어!',
+      'Sizni ko‘rishni sabrsizlik bilan kutyapman!',
+      'Can’t wait to see you!',
+      'Не могу дождаться встречи!',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'ending'],
+  },
+
+  en_s1u4_n4_078_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '친구에게 보내는 이메일의 자연스러운 마무리를 고르세요.',
+      'Do‘stga yozilgan emailning tabiiy yakunini tanlang.',
+      'Choose a natural ending for an informal email.',
+      'Выберите естественное завершение неформального письма.',
+    ),
+    sentenceTemplate: '___ to see you!',
+    blankAnswers: ['Can’t wait'],
+    options: ['Can’t wait', 'Can I help', 'How much', 'Is that everything'],
+    answer: 'Can’t wait',
+    answerTranslation: L(
+      '빨리 만나고 싶어!',
+      'Sizni ko‘rishni sabrsizlik bilan kutyapman!',
+      'Can’t wait to see you!',
+      'Не могу дождаться встречи!',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'ending'],
+  },
+
+  en_s1u4_n4_079_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer:
+      'Hi, Mina. How are you? I arrive on Saturday at four. Does the bus go near your house? What’s your address? Can’t wait to see you!',
+    audioText:
+      'Hi, Mina. How are you? I arrive on Saturday at four. Does the bus go near your house? What’s your address? Can’t wait to see you!',
+    answerTranslation: L(
+      '안녕, Mina. 잘 지내? 나는 토요일 4시에 도착해. 버스가 네 집 근처까지 가? 주소가 뭐야? 빨리 만나고 싶어!',
+      'Salom, Mina. Qalaysan? Men shanba kuni soat to‘rtda yetib kelaman. Avtobus uying yaqiniga boradimi? Manziling nima? Seni ko‘rishni sabrsizlik bilan kutyapman!',
+      'Hi, Mina. How are you? I arrive on Saturday at four. Does the bus go near your house? What’s your address? Can’t wait to see you!',
+      'Привет, Мина. Как дела? Я приезжаю в субботу в четыре. Автобус идёт рядом с твоим домом? Какой у тебя адрес? Не могу дождаться встречи!',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'complete-email'],
+  },
+
+  en_s1u4_n4_080_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: L(
+      '이메일의 마지막 부분으로 가장 자연스러운 것을 고르세요.',
+      'Emailning oxiri uchun eng tabiiy variantni tanlang.',
+      'Choose the most natural ending for the email.',
+      'Выберите наиболее естественное завершение письма.',
+    ),
+    dialogLines: [
+      {
+        speaker: 'user',
+        text: 'Hi, Leo. Thanks for your email. I arrive on Thursday evening. My phone number is 0742 615 830.',
+      },
+    ],
+    options: [
+      'Can’t wait to see you! Love, Hana',
+      'Can I help you? Is that everything?',
+      'How much are these? I’ll take them.',
+      'Do you have any umbrellas? Yes, please.',
+    ],
+    answer: 'Can’t wait to see you! Love, Hana',
+    answerTranslation: L(
+      '빨리 만나고 싶어! 사랑을 담아, Hana',
+      'Seni ko‘rishni sabrsizlik bilan kutyapman! Sevgilar bilan, Hana',
+      'Can’t wait to see you! Love, Hana',
+      'Не могу дождаться встречи! С любовью, Хана',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['email', 'ending', 'final'],
+  },
+};
+
+export const EN_S1_UNIT4_NODE4 = {
+  title: L(
+    '가게와 이메일',
+    'Do‘kon va email',
+    'Shopping and emails',
+    'Магазин и электронные письма',
+  ),
+  section: 1,
+  unit: 4,
+  order: 4,
+  isActive: true,
+
+  lessons: [
+    {
+      title: L(
+        '가게에서 물건 찾기',
+        'Do‘konda buyum so‘rash',
+        'In a shop',
+        'В магазине',
+      ),
+      description: L(
+        '가게 종류를 익히고 Do you have...?, Can I help you?, Is that everything? 같은 표현으로 물건을 찾고 요청해요.',
+        'Do‘kon turlarini o‘rganib, Do you have...?, Can I help you? va Is that everything? kabi iboralar bilan buyum so‘raysiz.',
+        'Learn common shops and use Do you have...?, Can I help you? and Is that everything? to ask for things.',
+        'Учимся называть магазины и использовать Do you have...?, Can I help you? и Is that everything?.',
+      ),
+      category: LessonCategory.CONVERSATION,
+      level: LV,
+      order: 1,
+      questions: [
+        'en_s1u4_n4_001_speaking',
+        'en_s1u4_n4_002_fill_in_blank',
+        'en_s1u4_n4_003_speaking',
+        'en_s1u4_n4_004_fill_in_blank',
+        'en_s1u4_n4_005_speaking',
+        'en_s1u4_n4_006_word_arrange',
+        'en_s1u4_n4_007_speaking',
+        'en_s1u4_n4_008_dialog_complete',
+        'en_s1u4_n4_009_speaking',
+        'en_s1u4_n4_010_fill_in_blank',
+        'en_s1u4_n4_011_speaking',
+        'en_s1u4_n4_012_reply_builder',
+        'en_s1u4_n4_013_speaking',
+        'en_s1u4_n4_014_dialog_complete',
+        'en_s1u4_n4_015_speaking',
+        'en_s1u4_n4_016_reply_builder',
+        'en_s1u4_n4_017_speaking',
+        'en_s1u4_n4_018_translate_builder',
+        'en_s1u4_n4_019_speaking',
+        'en_s1u4_n4_020_dialog_complete',
+      ],
+    },
+
+    {
+      title: L(
+        '가격 묻고 구매하기',
+        'Narx so‘rash va xarid qilish',
+        'Prices and buying',
+        'Цены и покупки',
+      ),
+      description: L(
+        'How much is/are...?로 가격을 묻고 한 숫자·두 숫자로 들리는 가격을 구별한 뒤 I’ll take it/them으로 구매 의사를 말해요.',
+        'How much is/are...? bilan narx so‘rab, bir va ikki sonli narxlarni tinglab farqlaysiz hamda I’ll take it/them bilan xarid qilasiz.',
+        'Ask prices with How much is/are...?, understand one- and two-number prices and use I’ll take it/them.',
+        'Спрашиваем цену с How much is/are...?, различаем цены из одного и двух чисел и используем I’ll take it/them.',
+      ),
+      category: LessonCategory.LISTENING,
+      level: LV,
+      order: 2,
+      questions: [
+        'en_s1u4_n4_021_speaking',
+        'en_s1u4_n4_022_fill_in_blank',
+        'en_s1u4_n4_023_speaking',
+        'en_s1u4_n4_024_fill_in_blank',
+        'en_s1u4_n4_025_speaking',
+        'en_s1u4_n4_026_fill_in_blank',
+        'en_s1u4_n4_027_speaking',
+        'en_s1u4_n4_028_word_arrange',
+        'en_s1u4_n4_029_speaking',
+        'en_s1u4_n4_030_fill_in_blank',
+        'en_s1u4_n4_031_speaking',
+        'en_s1u4_n4_032_fill_in_blank',
+        'en_s1u4_n4_033_speaking',
+        'en_s1u4_n4_034_dialog_complete',
+        'en_s1u4_n4_035_speaking',
+        'en_s1u4_n4_036_reply_builder',
+        'en_s1u4_n4_037_speaking',
+        'en_s1u4_n4_038_fill_in_blank',
+        'en_s1u4_n4_039_speaking',
+        'en_s1u4_n4_040_dialog_complete',
+      ],
+    },
+
+    {
+      title: L(
+        '기본 문장부호',
+        'Asosiy tinish belgilari',
+        'Basic punctuation',
+        'Основная пунктуация',
+      ),
+      description: L(
+        '마침표, 물음표, 쉼표, 아포스트로피, 느낌표의 역할을 익히고 이메일 문장을 올바르게 구분해요.',
+        'Nuqta, so‘roq belgisi, vergul, apostrof va undov belgisining vazifasini o‘rganib, email gaplarini to‘g‘ri yozasiz.',
+        'Learn how to use full stops, question marks, commas, apostrophes and exclamation marks in an informal email.',
+        'Учимся использовать точки, вопросительные знаки, запятые, апострофы и восклицательные знаки.',
+      ),
+      category: LessonCategory.EXPRESSION,
+      level: LV,
+      order: 3,
+      questions: [
+        'en_s1u4_n4_041_speaking',
+        'en_s1u4_n4_042_fill_in_blank',
+        'en_s1u4_n4_043_speaking',
+        'en_s1u4_n4_044_fill_in_blank',
+        'en_s1u4_n4_045_speaking',
+        'en_s1u4_n4_046_fill_in_blank',
+        'en_s1u4_n4_047_speaking',
+        'en_s1u4_n4_048_fill_in_blank',
+        'en_s1u4_n4_049_speaking',
+        'en_s1u4_n4_050_fill_in_blank',
+        'en_s1u4_n4_051_speaking',
+        'en_s1u4_n4_052_fill_in_blank',
+        'en_s1u4_n4_053_speaking',
+        'en_s1u4_n4_054_word_arrange',
+        'en_s1u4_n4_055_speaking',
+        'en_s1u4_n4_056_fill_in_blank',
+        'en_s1u4_n4_057_speaking',
+        'en_s1u4_n4_058_fill_in_blank',
+        'en_s1u4_n4_059_speaking',
+        'en_s1u4_n4_060_dialog_complete',
+      ],
+    },
+
+    {
+      title: L(
+        '친구에게 이메일 쓰기',
+        'Do‘stga email yozish',
+        'An informal email',
+        'Неформальное письмо',
+      ),
+      description: L(
+        '친구에게 인사하고 도착 시간·주소·교통·표 가격·전화번호를 묻고 알려 준 뒤 자연스럽게 이메일을 마무리해요.',
+        'Do‘stingiz bilan salomlashib, yetib kelish vaqti, manzil, transport, chipta narxi va telefon raqami haqida so‘raysiz va emailni tabiiy yakunlaysiz.',
+        'Write an informal email with a greeting, arrival information, travel questions, contact details and a natural ending.',
+        'Пишем неформальное письмо с приветствием, временем прибытия, вопросами о дороге, контактами и естественным завершением.',
+      ),
+      category: LessonCategory.EXPRESSION,
+      level: LV,
+      order: 4,
+      questions: [
+        'en_s1u4_n4_061_speaking',
+        'en_s1u4_n4_062_fill_in_blank',
+        'en_s1u4_n4_063_speaking',
+        'en_s1u4_n4_064_reply_builder',
+        'en_s1u4_n4_065_speaking',
+        'en_s1u4_n4_066_translate_builder',
+        'en_s1u4_n4_067_speaking',
+        'en_s1u4_n4_068_fill_in_blank',
+        'en_s1u4_n4_069_speaking',
+        'en_s1u4_n4_070_word_arrange',
+        'en_s1u4_n4_071_speaking',
+        'en_s1u4_n4_072_fill_in_blank',
+        'en_s1u4_n4_073_speaking',
+        'en_s1u4_n4_074_dialog_complete',
+        'en_s1u4_n4_075_speaking',
+        'en_s1u4_n4_076_translate_builder',
+        'en_s1u4_n4_077_speaking',
+        'en_s1u4_n4_078_fill_in_blank',
+        'en_s1u4_n4_079_speaking',
+        'en_s1u4_n4_080_dialog_complete',
+      ],
+    },
+  ],
+};
+
+// ─────────────────────────────────────────────────────────────
+// Section 1 · Unit 4 · Node 5
+// 4.5 Video + Review
+//
+// 실제 source:
+// - Coursebook 4.5 Video: A day in the life of a journalist
+// - Workbook: Review Units 3 and 4
+//
+// LessonCategory:
+// VOCABULARY / GRAMMAR / EXPRESSION
+// CONVERSATION / LISTENING / TOPIK
+//
+// Coverage
+// - verb phrases:
+//   cook dinner
+//   listen to the news
+//   write a story
+//   play the guitar
+//   go by bike
+//   have breakfast
+//
+// - daily routine listening:
+//   get up
+//   check emails
+//   read the news
+//   have breakfast
+//   start work
+//   work at home
+//   write a story
+//   go home
+//   listen to an interview
+//   watch TV
+//
+// - routine questions:
+//   Do you ...?
+//   What time do you ...?
+//   What do you ...?
+//   What transport do you ...?
+//   Where do you ...?
+//
+// - report another person's routine
+//
+// Review Units 3–4:
+// - have got
+// - possessive 's
+// - adjective opposites
+// - family
+// - present simple positive / negative
+// - do / does / don't / doesn't
+// - transport
+// - shop functional language
+//
+// 4 lessons × 20 = 80
+// ─────────────────────────────────────────────────────────────
+
+export const EN_S1_UNIT4_NODE5_WORDS = [
+  {
+    code: 'en-routine-cook-dinner',
+    english: 'cook dinner',
+    senseKey: 'prepare-evening-meal',
+    partOfSpeech: WordPartOfSpeech.PHRASE,
+    meaning: L(
+      '저녁을 요리하다',
+      'kechki ovqat tayyorlamoq',
+      'to prepare the evening meal',
+      'готовить ужин',
+    ),
+    examples: [
+      {
+        english: 'I cook dinner at home.',
+        translations: L(
+          '저는 집에서 저녁을 요리해요.',
+          'Men uyda kechki ovqat tayyorlayman.',
+          'I cook dinner at home.',
+          'Я готовлю ужин дома.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kʊk ˈdɪnə/',
+      ttsText: 'cook dinner',
+    },
+    media: {
+      emoji: '🍳',
+      imageUrl: '',
+      imageAlt: L(
+        '저녁을 요리하는 사람',
+        'kechki ovqat tayyorlayotgan odam',
+        'a person cooking dinner',
+        'человек готовит ужин',
+      ),
+    },
+    tags: ['daily-routine', 'verb-phrases'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-routine-listen-to-news',
+    english: 'listen to the news',
+    senseKey: 'listen-news-programme',
+    partOfSpeech: WordPartOfSpeech.PHRASE,
+    meaning: L(
+      '뉴스를 듣다',
+      'yangiliklarni tinglamoq',
+      'to listen to a news programme',
+      'слушать новости',
+    ),
+    examples: [
+      {
+        english: 'We listen to the news in the morning.',
+        translations: L(
+          '우리는 아침에 뉴스를 들어요.',
+          'Biz ertalab yangiliklarni tinglaymiz.',
+          'We listen to the news in the morning.',
+          'Мы слушаем новости утром.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈlɪsn tə ðə njuːz/',
+      ttsText: 'listen to the news',
+    },
+    media: {
+      emoji: '🎧',
+      imageUrl: '',
+      imageAlt: L(
+        '뉴스를 듣는 사람',
+        'yangiliklarni tinglayotgan odam',
+        'a person listening to the news',
+        'человек слушает новости',
+      ),
+    },
+    tags: ['daily-routine', 'verb-phrases'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-routine-write-story',
+    english: 'write a story',
+    senseKey: 'create-written-story',
+    partOfSpeech: WordPartOfSpeech.PHRASE,
+    meaning: L(
+      '글·이야기를 쓰다',
+      'hikoya yozmoq',
+      'to write a story or article',
+      'писать историю',
+    ),
+    examples: [
+      {
+        english: 'She writes a story at home.',
+        translations: L(
+          '그녀는 집에서 글을 써요.',
+          'U uyda hikoya yozadi.',
+          'She writes a story at home.',
+          'Она пишет историю дома.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/raɪt ə ˈstɔːri/',
+      ttsText: 'write a story',
+    },
+    media: {
+      emoji: '✍️',
+      imageUrl: '',
+      imageAlt: L(
+        '글을 쓰는 사람',
+        'hikoya yozayotgan odam',
+        'a person writing a story',
+        'человек пишет историю',
+      ),
+    },
+    tags: ['daily-routine', 'verb-phrases'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-routine-play-guitar',
+    english: 'play the guitar',
+    senseKey: 'play-guitar-instrument',
+    partOfSpeech: WordPartOfSpeech.PHRASE,
+    meaning: L(
+      '기타를 치다',
+      'gitara chalmoq',
+      'to make music with a guitar',
+      'играть на гитаре',
+    ),
+    examples: [
+      {
+        english: 'He plays the guitar in the evening.',
+        translations: L(
+          '그는 저녁에 기타를 쳐요.',
+          'U kechqurun gitara chaladi.',
+          'He plays the guitar in the evening.',
+          'Он играет на гитаре вечером.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/pleɪ ðə ɡɪˈtɑː/',
+      ttsText: 'play the guitar',
+    },
+    media: {
+      emoji: '🎸',
+      imageUrl: '',
+      imageAlt: L(
+        '기타를 연주하는 사람',
+        'gitara chalayotgan odam',
+        'a person playing the guitar',
+        'человек играет на гитаре',
+      ),
+    },
+    tags: ['daily-routine', 'free-time', 'verb-phrases'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-transport-go-by-bike',
+    english: 'go by bike',
+    senseKey: 'travel-by-bicycle',
+    partOfSpeech: WordPartOfSpeech.PHRASE,
+    meaning: L(
+      '자전거로 가다',
+      'velosipedda bormoq',
+      'to travel somewhere by bicycle',
+      'ехать на велосипеде',
+    ),
+    examples: [
+      {
+        english: 'I go to work by bike.',
+        translations: L(
+          '저는 자전거로 출근해요.',
+          'Men ishga velosipedda boraman.',
+          'I go to work by bike.',
+          'Я езжу на работу на велосипеде.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡəʊ baɪ baɪk/',
+      ttsText: 'go by bike',
+    },
+    media: {
+      emoji: '🚲',
+      imageUrl: '',
+      imageAlt: L(
+        '자전거로 이동하는 사람',
+        'velosipedda ketayotgan odam',
+        'a person travelling by bike',
+        'человек едет на велосипеде',
+      ),
+    },
+    tags: ['transport', 'verb-phrases'],
+    difficulty: 1,
+    isCore: true,
+  },
+];
+
+export const EN_S1_UNIT4_NODE5_QUESTIONS = {
+  // ===========================================================
+  // Lesson 1 · A journalist's day
+  // ===========================================================
+
+  en_s1u4_n5_001_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Cook dinner.',
+    audioText: 'Cook dinner.',
+    answerTranslation: L(
+      '저녁을 요리하다.',
+      'Kechki ovqat tayyorlamoq.',
+      'Cook dinner.',
+      'Готовить ужин.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_002_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: '___ dinner',
+    blankAnswers: ['cook'],
+    options: ['cook', 'listen', 'write', 'play'],
+    answer: 'cook',
+    answerTranslation: L(
+      '저녁을 요리하다',
+      'kechki ovqat tayyorlamoq',
+      'cook dinner',
+      'готовить ужин',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_003_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Listen to the news.',
+    audioText: 'Listen to the news.',
+    answerTranslation: L(
+      '뉴스를 듣다.',
+      'Yangiliklarni tinglamoq.',
+      'Listen to the news.',
+      'Слушать новости.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_004_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['listen', 'to', 'the', 'news', 'story', 'play'],
+    answer: 'listen to the news',
+    audioText: 'Listen to the news.',
+    answerTranslation: L(
+      '뉴스를 듣다.',
+      'Yangiliklarni tinglamoq.',
+      'Listen to the news.',
+      'Слушать новости.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_005_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Write a story.',
+    audioText: 'Write a story.',
+    answerTranslation: L(
+      '글을 쓰다.',
+      'Hikoya yozmoq.',
+      'Write a story.',
+      'Писать историю.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_006_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: '___ a story',
+    blankAnswers: ['write'],
+    options: ['write', 'listen', 'cook', 'go'],
+    answer: 'write',
+    answerTranslation: L(
+      '글을 쓰다',
+      'hikoya yozmoq',
+      'write a story',
+      'писать историю',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_007_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Play the guitar.',
+    audioText: 'Play the guitar.',
+    answerTranslation: L(
+      '기타를 치다.',
+      'Gitara chalmoq.',
+      'Play the guitar.',
+      'Играть на гитаре.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'verb-phrases'],
+  },
+
+  en_s1u4_n5_008_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['She', 'plays', 'the', 'guitar', 'in', 'the', 'evening', 'play'],
+    answer: 'She plays the guitar in the evening',
+    answerTranslation: L(
+      '그녀는 저녁에 기타를 쳐요.',
+      'U kechqurun gitara chaladi.',
+      'She plays the guitar in the evening.',
+      'Она играет на гитаре вечером.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'free-time'],
+  },
+
+  en_s1u4_n5_009_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Go by bike.',
+    audioText: 'Go by bike.',
+    answerTranslation: L(
+      '자전거로 가다.',
+      'Velosipedda bormoq.',
+      'Go by bike.',
+      'Ехать на велосипеде.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'transport'],
+  },
+
+  en_s1u4_n5_010_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'I go to work ___ bike.',
+    blankAnswers: ['by'],
+    options: ['by', 'in', 'at', 'for'],
+    answer: 'by',
+    answerTranslation: L(
+      '저는 자전거로 출근해요.',
+      'Men ishga velosipedda boraman.',
+      'I go to work by bike.',
+      'Я езжу на работу на велосипеде.',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['video', 'transport'],
+  },
+
+  en_s1u4_n5_011_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'The journalist gets up at six o’clock.',
+    audioText: 'The journalist gets up at six o’clock.',
+    answerTranslation: L(
+      '그 기자는 6시에 일어나요.',
+      'Jurnalist soat oltida turadi.',
+      'The journalist gets up at six o’clock.',
+      'Журналист встаёт в шесть часов.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'routine'],
+  },
+
+  en_s1u4_n5_012_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: L(
+      '영상의 하루 일과와 맞는 문장을 고르세요.',
+      'Videodagi kun tartibiga mos gapni tanlang.',
+      'Choose the sentence that matches the routine in the video.',
+      'Выберите предложение, соответствующее распорядку в видео.',
+    ),
+    dialogLines: [
+      { speaker: 'npc', text: 'What does the journalist do after getting up?' },
+    ],
+    options: [
+      'She checks her emails and reads the news.',
+      'She goes to bed again.',
+      'She cooks dinner immediately.',
+      'She goes shopping.',
+    ],
+    answer: 'She checks her emails and reads the news.',
+    answerTranslation: L(
+      '이메일을 확인하고 뉴스를 읽어요.',
+      'U elektron pochtasini tekshiradi va yangiliklarni o‘qiydi.',
+      'She checks her emails and reads the news.',
+      'Она проверяет почту и читает новости.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'detail'],
+  },
+
+  en_s1u4_n5_013_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'She has breakfast and starts work.',
+    audioText: 'She has breakfast and starts work.',
+    answerTranslation: L(
+      '그녀는 아침을 먹고 일을 시작해요.',
+      'U nonushta qiladi va ishni boshlaydi.',
+      'She has breakfast and starts work.',
+      'Она завтракает и начинает работу.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'routine'],
+  },
+
+  en_s1u4_n5_014_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'She works at ___.',
+    blankAnswers: ['home'],
+    options: ['home', 'school', 'hospital', 'station'],
+    answer: 'home',
+    answerTranslation: L(
+      '그녀는 집에서 일해요.',
+      'U uyda ishlaydi.',
+      'She works at home.',
+      'Она работает дома.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'detail'],
+  },
+
+  en_s1u4_n5_015_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'She writes a story.',
+    audioText: 'She writes a story.',
+    answerTranslation: L(
+      '그녀는 글을 써요.',
+      'U hikoya yozadi.',
+      'She writes a story.',
+      'Она пишет историю.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'routine'],
+  },
+
+  en_s1u4_n5_016_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['She', 'writes', 'a', 'story', 'at', 'home', 'write'],
+    answer: 'She writes a story at home',
+    audioText: 'She writes a story at home.',
+    answerTranslation: L(
+      '그녀는 집에서 글을 써요.',
+      'U uyda hikoya yozadi.',
+      'She writes a story at home.',
+      'Она пишет историю дома.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'routine'],
+  },
+
+  en_s1u4_n5_017_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'In the evening, she plays the guitar and watches TV.',
+    audioText: 'In the evening, she plays the guitar and watches TV.',
+    answerTranslation: L(
+      '저녁에는 기타를 치고 TV를 봐요.',
+      'Kechqurun u gitara chaladi va televizor ko‘radi.',
+      'In the evening, she plays the guitar and watches TV.',
+      'Вечером она играет на гитаре и смотрит телевизор.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'evening'],
+  },
+
+  en_s1u4_n5_018_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'In the evening, she ___ TV.',
+    blankAnswers: ['watches'],
+    options: ['watches', 'watch', 'listens', 'writes'],
+    answer: 'watches',
+    answerTranslation: L(
+      '저녁에 TV를 봐요.',
+      'Kechqurun u televizor ko‘radi.',
+      'She watches TV in the evening.',
+      'Вечером она смотрит телевизор.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'present-simple'],
+  },
+
+  en_s1u4_n5_019_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer:
+      'She gets up early, checks her emails, works at home and writes stories.',
+    audioText:
+      'She gets up early, checks her emails, works at home and writes stories.',
+    answerTranslation: L(
+      '그녀는 일찍 일어나 이메일을 확인하고 집에서 일하며 글을 써요.',
+      'U erta turadi, elektron pochtasini tekshiradi, uyda ishlaydi va hikoyalar yozadi.',
+      'She gets up early, checks her emails, works at home and writes stories.',
+      'Она рано встаёт, проверяет почту, работает дома и пишет истории.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'summary'],
+  },
+
+  en_s1u4_n5_020_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: L(
+      '영상 내용의 요약으로 가장 알맞은 것을 고르세요.',
+      'Video mazmunining eng to‘g‘ri qisqa xulosasini tanlang.',
+      'Choose the best summary of the video routine.',
+      'Выберите лучшее краткое описание распорядка из видео.',
+    ),
+    dialogLines: [{ speaker: 'npc', text: 'What is the video mainly about?' }],
+    options: [
+      'A journalist’s working day and evening routine.',
+      'A family shopping for clothes.',
+      'A student travelling on holiday.',
+      'A restaurant menu.',
+    ],
+    answer: 'A journalist’s working day and evening routine.',
+    answerTranslation: L(
+      '기자의 업무와 저녁 일과.',
+      'Jurnalistning ish kuni va kechki tartibi.',
+      'A journalist’s working day and evening routine.',
+      'Рабочий день и вечерний распорядок журналиста.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['video', 'gist'],
+  },
+
+  // ===========================================================
+  // Lesson 2 · Ask about daily routines
+  // ===========================================================
+
+  en_s1u4_n5_021_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Do you cook dinner?',
+    audioText: 'Do you cook dinner?',
+    answerTranslation: L(
+      '저녁을 요리해요?',
+      'Kechki ovqat tayyorlaysizmi?',
+      'Do you cook dinner?',
+      'Вы готовите ужин?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'do'],
+  },
+
+  en_s1u4_n5_022_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: '___ you cook dinner?',
+    blankAnswers: ['Do'],
+    options: ['Do', 'Does', 'Are', 'Have'],
+    answer: 'Do',
+    answerTranslation: L(
+      '저녁을 요리해요?',
+      'Kechki ovqat tayyorlaysizmi?',
+      'Do you cook dinner?',
+      'Вы готовите ужин?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['routine-questions', 'do'],
+  },
+
+  en_s1u4_n5_023_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What time do you get up?',
+    audioText: 'What time do you get up?',
+    answerTranslation: L(
+      '몇 시에 일어나요?',
+      'Soat nechada turasiz?',
+      'What time do you get up?',
+      'Во сколько вы встаёте?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'what-time'],
+  },
+
+  en_s1u4_n5_024_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['What', 'time', 'do', 'you', 'get', 'up', 'does'],
+    answer: 'What time do you get up',
+    audioText: 'What time do you get up?',
+    answerTranslation: L(
+      '몇 시에 일어나요?',
+      'Soat nechada turasiz?',
+      'What time do you get up?',
+      'Во сколько вы встаёте?',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['routine-questions', 'what-time'],
+  },
+
+  en_s1u4_n5_025_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What do you have for breakfast?',
+    audioText: 'What do you have for breakfast?',
+    answerTranslation: L(
+      '아침으로 뭘 먹어요?',
+      'Nonushtaga nima yeysiz?',
+      'What do you have for breakfast?',
+      'Что вы едите на завтрак?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'what'],
+  },
+
+  en_s1u4_n5_026_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['What', 'do', 'you', 'have', 'for', 'breakfast', 'does', 'has'],
+    answer: 'What do you have for breakfast',
+    answerTranslation: L(
+      '아침으로 뭘 먹어요?',
+      'Nonushtaga nima yeysiz?',
+      'What do you have for breakfast?',
+      'Что вы едите на завтрак?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'what'],
+  },
+
+  en_s1u4_n5_027_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What transport do you use?',
+    audioText: 'What transport do you use?',
+    answerTranslation: L(
+      '어떤 교통수단을 이용해요?',
+      'Qaysi transportdan foydalanasiz?',
+      'What transport do you use?',
+      'Каким транспортом вы пользуетесь?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'transport'],
+  },
+
+  en_s1u4_n5_028_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'What transport do you ___?',
+    blankAnswers: ['use'],
+    options: ['use', 'uses', 'using', 'used'],
+    answer: 'use',
+    answerTranslation: L(
+      '어떤 교통수단을 이용해요?',
+      'Qaysi transportdan foydalanasiz?',
+      'What transport do you use?',
+      'Каким транспортом вы пользуетесь?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['routine-questions', 'transport'],
+  },
+
+  en_s1u4_n5_029_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Where do you work?',
+    audioText: 'Where do you work?',
+    answerTranslation: L(
+      '어디에서 일해요?',
+      'Qayerda ishlaysiz?',
+      'Where do you work?',
+      'Где вы работаете?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'where'],
+  },
+
+  en_s1u4_n5_030_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Where do you work?',
+    options: ['I', 'work', 'at', 'home', 'works', 'does', 'do'],
+    answer: 'I work at home',
+    answerTranslation: L(
+      '저는 집에서 일해요.',
+      'Men uyda ishlayman.',
+      'I work at home.',
+      'Я работаю дома.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'where'],
+  },
+
+  en_s1u4_n5_031_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What time do you start work?',
+    audioText: 'What time do you start work?',
+    answerTranslation: L(
+      '몇 시에 일을 시작해요?',
+      'Soat nechada ish boshlaysiz?',
+      'What time do you start work?',
+      'Во сколько вы начинаете работу?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'start-work'],
+  },
+
+  en_s1u4_n5_032_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'What time do you start work?' }],
+    options: [
+      'I start work at nine.',
+      'I starts work at nine.',
+      'I do start works at nine.',
+      'I am start work nine.',
+    ],
+    answer: 'I start work at nine.',
+    answerTranslation: L(
+      '저는 9시에 일을 시작해요.',
+      'Men ishni soat to‘qqizda boshlayman.',
+      'I start work at nine.',
+      'Я начинаю работу в девять.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'answer'],
+  },
+
+  en_s1u4_n5_033_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What time do you finish work?',
+    audioText: 'What time do you finish work?',
+    answerTranslation: L(
+      '몇 시에 일을 끝내요?',
+      'Soat nechada ishni tugatasiz?',
+      'What time do you finish work?',
+      'Во сколько вы заканчиваете работу?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'finish-work'],
+  },
+
+  en_s1u4_n5_034_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'What time ___ you finish work?',
+    blankAnswers: ['do'],
+    options: ['do', 'does', 'are', 'is'],
+    answer: 'do',
+    answerTranslation: L(
+      '몇 시에 일을 끝내요?',
+      'Soat nechada ishni tugatasiz?',
+      'What time do you finish work?',
+      'Во сколько вы заканчиваете работу?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['routine-questions', 'do'],
+  },
+
+  en_s1u4_n5_035_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'What do you watch in the evening?',
+    audioText: 'What do you watch in the evening?',
+    answerTranslation: L(
+      '저녁에 뭘 봐요?',
+      'Kechqurun nima tomosha qilasiz?',
+      'What do you watch in the evening?',
+      'Что вы смотрите вечером?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'watch'],
+  },
+
+  en_s1u4_n5_036_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['What', 'do', 'you', 'watch', 'in', 'the', 'evening', 'watches'],
+    answer: 'What do you watch in the evening',
+    answerTranslation: L(
+      '저녁에 뭘 봐요?',
+      'Kechqurun nima tomosha qilasiz?',
+      'What do you watch in the evening?',
+      'Что вы смотрите вечером?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'watch'],
+  },
+
+  en_s1u4_n5_037_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Do you go out at the weekend?',
+    audioText: 'Do you go out at the weekend?',
+    answerTranslation: L(
+      '주말에 외출해요?',
+      'Dam olish kunlari tashqariga chiqasizmi?',
+      'Do you go out at the weekend?',
+      'Вы куда-нибудь выходите на выходных?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'go-out'],
+  },
+
+  en_s1u4_n5_038_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Do you go out at the weekend?',
+    options: ['Yes', 'I', 'do', 'with', 'friends', 'does', 'goes'],
+    answer: 'Yes I do with friends',
+    answerTranslation: L(
+      '네. 친구들과 외출해요.',
+      'Ha. Do‘stlar bilan chiqaman.',
+      'Yes, I do. With friends.',
+      'Да. С друзьями.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-questions', 'reply'],
+  },
+
+  en_s1u4_n5_039_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer:
+      'My friend gets up at seven, works at home and finishes work at six.',
+    audioText:
+      'My friend gets up at seven, works at home and finishes work at six.',
+    answerTranslation: L(
+      '제 친구는 7시에 일어나 집에서 일하고 6시에 일을 끝내요.',
+      'Do‘stim soat yettida turadi, uyda ishlaydi va ishni oltida tugatadi.',
+      'My friend gets up at seven, works at home and finishes work at six.',
+      'Мой друг встаёт в семь, работает дома и заканчивает работу в шесть.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-survey', 'report'],
+  },
+
+  en_s1u4_n5_040_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      {
+        speaker: 'npc',
+        text: 'What did you learn about your friend’s routine?',
+      },
+    ],
+    options: [
+      'She gets up early and works at home.',
+      'She get up early and work at home.',
+      'She does gets up and works home.',
+      'She is get up early.',
+    ],
+    answer: 'She gets up early and works at home.',
+    answerTranslation: L(
+      '그녀는 일찍 일어나고 집에서 일해요.',
+      'U erta turadi va uyda ishlaydi.',
+      'She gets up early and works at home.',
+      'Она рано встаёт и работает дома.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['routine-survey', 'report'],
+  },
+
+  // ===========================================================
+  // Lesson 3 · Units 3–4 grammar review
+  // ===========================================================
+
+  en_s1u4_n5_041_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I’ve got two brothers.',
+    audioText: 'I’ve got two brothers.',
+    answerTranslation: L(
+      '저는 남자 형제가 두 명 있어요.',
+      'Mening ikkita akam yoki ukam bor.',
+      'I’ve got two brothers.',
+      'У меня два брата.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got'],
+  },
+
+  en_s1u4_n5_042_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'We ___ got a car.',
+    blankAnswers: ['haven’t'],
+    options: ['haven’t', 'hasn’t', 'don’t', 'aren’t'],
+    answer: 'haven’t',
+    answerTranslation: L(
+      '우리는 자동차가 없어요.',
+      'Bizning mashinamiz yo‘q.',
+      'We haven’t got a car.',
+      'У нас нет машины.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got'],
+  },
+
+  en_s1u4_n5_043_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Has your sister got a pet?',
+    audioText: 'Has your sister got a pet?',
+    answerTranslation: L(
+      '여자 형제에게 반려동물이 있어요?',
+      'Opangiz yoki singlingizning uy hayvoni bormi?',
+      'Has your sister got a pet?',
+      'У вашей сестры есть питомец?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got-question'],
+  },
+
+  en_s1u4_n5_044_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'Has your sister got a pet?' }],
+    options: [
+      'Yes, she has.',
+      'Yes, she have.',
+      'Yes, she does.',
+      'Yes, she is.',
+    ],
+    answer: 'Yes, she has.',
+    answerTranslation: L('네, 있어요.', 'Ha, bor.', 'Yes, she has.', 'Да.'),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got-short-answer'],
+  },
+
+  en_s1u4_n5_045_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'My friend’s brother is a teacher.',
+    audioText: 'My friend’s brother is a teacher.',
+    answerTranslation: L(
+      '제 친구의 남자 형제는 선생님이에요.',
+      'Do‘stimning akasi yoki ukasi o‘qituvchi.',
+      'My friend’s brother is a teacher.',
+      'Брат моего друга — учитель.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'possessive-s'],
+  },
+
+  en_s1u4_n5_046_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      '소유를 나타내는 올바른 표현을 고르세요.',
+      'Egalikni bildiradigan to‘g‘ri shaklni tanlang.',
+      'Choose the correct possessive form.',
+      'Выберите правильную притяжательную форму.',
+    ),
+    sentenceTemplate: 'This is my ___ car.',
+    blankAnswers: ['mother’s'],
+    options: ['mother’s', 'mothers', "mother're", 'mother'],
+    answer: 'mother’s',
+    answerTranslation: L(
+      '이것은 제 어머니의 자동차예요.',
+      'Bu onamning mashinasi.',
+      'This is my mother’s car.',
+      'Это машина моей мамы.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'possessive-s'],
+  },
+
+  en_s1u4_n5_047_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'My friends watch films at the weekend.',
+    audioText: 'My friends watch films at the weekend.',
+    answerTranslation: L(
+      '제 친구들은 주말에 영화를 봐요.',
+      'Do‘stlarim dam olish kunlari film ko‘radi.',
+      'My friends watch films at the weekend.',
+      'Мои друзья смотрят фильмы на выходных.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'present-simple-positive'],
+  },
+
+  en_s1u4_n5_048_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'She ___ in a hospital.',
+    blankAnswers: ['works'],
+    options: ['works', 'work', 'doesn’t', 'working'],
+    answer: 'works',
+    answerTranslation: L(
+      '그녀는 병원에서 일해요.',
+      'U kasalxonada ishlaydi.',
+      'She works in a hospital.',
+      'Она работает в больнице.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'present-simple-positive'],
+  },
+
+  en_s1u4_n5_049_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I don’t go to work by bus.',
+    audioText: 'I don’t go to work by bus.',
+    answerTranslation: L(
+      '저는 버스로 출근하지 않아요.',
+      'Men ishga avtobusda bormayman.',
+      'I don’t go to work by bus.',
+      'Я не езжу на работу на автобусе.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'present-simple-negative'],
+  },
+
+  en_s1u4_n5_050_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: ['I', 'don’t', 'go', 'to', 'work', 'by', 'bus', 'goes'],
+    answer: 'I don’t go to work by bus',
+    audioText: 'I don’t go to work by bus.',
+    answerTranslation: L(
+      '저는 버스로 출근하지 않아요.',
+      'Men ishga avtobusda bormayman.',
+      'I don’t go to work by bus.',
+      'Я не езжу на работу на автобусе.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'negative'],
+  },
+
+  en_s1u4_n5_051_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Does your husband work in an office?',
+    audioText: 'Does your husband work in an office?',
+    answerTranslation: L(
+      '남편은 사무실에서 일해요?',
+      'Eringiz ofisda ishlaydimi?',
+      'Does your husband work in an office?',
+      'Ваш муж работает в офисе?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'does-question'],
+  },
+
+  en_s1u4_n5_052_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: '___ your friends read comics?',
+    blankAnswers: ['Do'],
+    options: ['Do', 'Does', 'Are', 'Has'],
+    answer: 'Do',
+    answerTranslation: L(
+      '친구들은 만화책을 읽어요?',
+      'Do‘stlaringiz komiks o‘qiydimi?',
+      'Do your friends read comics?',
+      'Ваши друзья читают комиксы?',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'do-question'],
+  },
+
+  en_s1u4_n5_053_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Yes, they do.',
+    audioText: 'Yes, they do.',
+    answerTranslation: L('네, 그래요.', 'Ha.', 'Yes, they do.', 'Да.'),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'short-answer'],
+  },
+
+  en_s1u4_n5_054_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'Does Mina cycle to university?' }],
+    options: [
+      'Yes, she does.',
+      'Yes, she do.',
+      'Yes, she cycles does.',
+      'Yes, she is.',
+    ],
+    answer: 'Yes, she does.',
+    answerTranslation: L('네, 그래요.', 'Ha.', 'Yes, she does.', 'Да.'),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'short-answer'],
+  },
+
+  en_s1u4_n5_055_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'The phone is new, not old.',
+    audioText: 'The phone is new, not old.',
+    answerTranslation: L(
+      '그 휴대전화는 오래된 게 아니라 새것이에요.',
+      'Telefon eski emas, yangi.',
+      'The phone is new, not old.',
+      'Телефон новый, а не старый.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['review', 'opposites'],
+  },
+
+  en_s1u4_n5_056_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      'cheap의 반대말을 고르세요.',
+      'cheap so‘zining teskarisini tanlang.',
+      'Choose the opposite of cheap.',
+      'Выберите антоним cheap.',
+    ),
+    sentenceTemplate: 'cheap ↔ ___',
+    blankAnswers: ['expensive'],
+    options: ['expensive', 'happy', 'new', 'cold'],
+    answer: 'expensive',
+    answerTranslation: L(
+      'cheap ↔ expensive',
+      'cheap ↔ expensive',
+      'cheap ↔ expensive',
+      'cheap ↔ expensive',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['review', 'opposites'],
+  },
+
+  en_s1u4_n5_057_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'She is happy, not sad.',
+    audioText: 'She is happy, not sad.',
+    answerTranslation: L(
+      '그녀는 슬픈 게 아니라 행복해요.',
+      'U xafa emas, xursand.',
+      'She is happy, not sad.',
+      'Она счастлива, а не грустна.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['review', 'opposites'],
+  },
+
+  en_s1u4_n5_058_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: L(
+      'hot의 반대말을 고르세요.',
+      'hot so‘zining teskarisini tanlang.',
+      'Choose the opposite of hot.',
+      'Выберите антоним hot.',
+    ),
+    sentenceTemplate: 'hot ↔ ___',
+    blankAnswers: ['cold'],
+    options: ['cold', 'poor', 'young', 'small'],
+    answer: 'cold',
+    answerTranslation: L(
+      'hot ↔ cold',
+      'hot ↔ cold',
+      'hot ↔ cold',
+      'hot ↔ cold',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['review', 'opposites'],
+  },
+
+  en_s1u4_n5_059_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'My parents and my sister live near me.',
+    audioText: 'My parents and my sister live near me.',
+    answerTranslation: L(
+      '제 부모님과 여자 형제는 제 근처에 살아요.',
+      'Ota-onam va opam yoki singlim menga yaqin yashaydi.',
+      'My parents and my sister live near me.',
+      'Мои родители и сестра живут рядом со мной.',
+    ),
+    lessonCategory: LessonCategory.VOCABULARY,
+    difficulty: 1,
+    tags: ['review', 'family'],
+  },
+
+  en_s1u4_n5_060_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: [
+      'My',
+      'brother',
+      'doesn’t',
+      'drive',
+      'to',
+      'work',
+      'he',
+      'cycles',
+    ],
+    answer: 'My brother doesn’t drive to work',
+    answerTranslation: L(
+      '제 남자 형제는 운전해서 출근하지 않아요.',
+      'Akam yoki ukam ishga mashina haydab bormaydi.',
+      'My brother doesn’t drive to work.',
+      'Мой брат не ездит на работу на машине.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'present-simple-negative'],
+  },
+
+  // ===========================================================
+  // Lesson 4 · Functional language review
+  // ===========================================================
+
+  en_s1u4_n5_061_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Can I help you?',
+    audioText: 'Can I help you?',
+    answerTranslation: L(
+      '도와드릴까요?',
+      'Sizga yordam bera olamanmi?',
+      'Can I help you?',
+      'Могу я вам помочь?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_062_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Can I help you?',
+    options: ['Yes', 'do', 'you', 'have', 'any', 'bags', 'much'],
+    answer: 'Yes do you have any bags',
+    answerTranslation: L(
+      '네. 가방이 있나요?',
+      'Ha. Sumkalaringiz bormi?',
+      'Yes. Do you have any bags?',
+      'Да. У вас есть сумки?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_063_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Yes, they’re over there.',
+    audioText: 'Yes, they’re over there.',
+    answerTranslation: L(
+      '네, 저쪽에 있어요.',
+      'Ha, ular ana u yerda.',
+      'Yes, they’re over there.',
+      'Да, они вон там.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_064_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'user', text: 'Do you have any bags?' }],
+    options: [
+      'Yes, they’re over there.',
+      'Yes, it is over there.',
+      'Yes, they does.',
+      'Yes, we bag.',
+    ],
+    answer: 'Yes, they’re over there.',
+    answerTranslation: L(
+      '네, 저쪽에 있어요.',
+      'Ha, ular ana u yerda.',
+      'Yes, they’re over there.',
+      'Да, они вон там.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_065_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'How much is the small bag?',
+    audioText: 'How much is the small bag?',
+    answerTranslation: L(
+      '작은 가방은 얼마예요?',
+      'Kichik sumka qancha turadi?',
+      'How much is the small bag?',
+      'Сколько стоит маленькая сумка?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'price'],
+  },
+
+  en_s1u4_n5_066_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'How ___ is the small bag?',
+    blankAnswers: ['much'],
+    options: ['much', 'many', 'price', 'money'],
+    answer: 'much',
+    answerTranslation: L(
+      '작은 가방은 얼마예요?',
+      'Kichik sumka qancha turadi?',
+      'How much is the small bag?',
+      'Сколько стоит маленькая сумка?',
+    ),
+    lessonCategory: LessonCategory.EXPRESSION,
+    difficulty: 1,
+    tags: ['review', 'price'],
+  },
+
+  en_s1u4_n5_067_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'It’s thirty-five euros ninety-nine.',
+    audioText: 'It’s thirty-five euros ninety-nine.',
+    answerTranslation: L(
+      '35유로 99센트예요.',
+      'O‘ttiz besh yevro to‘qson to‘qqiz.',
+      'It’s thirty-five euros ninety-nine.',
+      'Это тридцать пять евро девяносто девять.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['review', 'price'],
+  },
+
+  en_s1u4_n5_068_word_arrange: {
+    type: 'word_arrange',
+    level: LV,
+    instruction: ARRANGE_INSTRUCTION,
+    options: [
+      'It’s',
+      'thirty-five',
+      'euros',
+      'ninety-nine',
+      'pounds',
+      'twenty',
+    ],
+    answer: 'It’s thirty-five euros ninety-nine',
+    audioText: 'It’s thirty-five euros ninety-nine.',
+    answerTranslation: L(
+      '35유로 99센트예요.',
+      'O‘ttiz besh yevro to‘qson to‘qqiz.',
+      'It’s thirty-five euros ninety-nine.',
+      'Это тридцать пять евро девяносто девять.',
+    ),
+    lessonCategory: LessonCategory.LISTENING,
+    difficulty: 1,
+    tags: ['review', 'price'],
+  },
+
+  en_s1u4_n5_069_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'OK. I’ll take it.',
+    audioText: 'OK. I’ll take it.',
+    answerTranslation: L(
+      '좋아요. 이걸 살게요.',
+      'Mayli. Buni olaman.',
+      'OK. I’ll take it.',
+      'Хорошо. Я возьму это.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_070_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'Is that everything?' }],
+    options: [
+      'No, I need a book too.',
+      'No, I does a book too.',
+      'No, book is everything.',
+      'No, I’m book too.',
+    ],
+    answer: 'No, I need a book too.',
+    answerTranslation: L(
+      '아니요. 책도 한 권 필요해요.',
+      'Yo‘q. Menga yana kitob kerak.',
+      'No, I need a book too.',
+      'Нет. Мне ещё нужна книга.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'shop'],
+  },
+
+  en_s1u4_n5_071_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'My sister has got a new phone.',
+    audioText: 'My sister has got a new phone.',
+    answerTranslation: L(
+      '제 여자 형제에게 새 휴대전화가 있어요.',
+      'Opam yoki singlimning yangi telefoni bor.',
+      'My sister has got a new phone.',
+      'У моей сестры новый телефон.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got'],
+  },
+
+  en_s1u4_n5_072_fill_in_blank: {
+    type: 'fill_in_blank',
+    level: LV,
+    instruction: FILL_INSTRUCTION,
+    sentenceTemplate: 'My sister ___ got a new phone.',
+    blankAnswers: ['has'],
+    options: ['has', 'have', 'does', 'is'],
+    answer: 'has',
+    answerTranslation: L(
+      '제 여자 형제에게 새 휴대전화가 있어요.',
+      'Opam yoki singlimning yangi telefoni bor.',
+      'My sister has got a new phone.',
+      'У моей сестры новый телефон.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'have-got'],
+  },
+
+  en_s1u4_n5_073_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'She doesn’t drive. She goes to work by train.',
+    audioText: 'She doesn’t drive. She goes to work by train.',
+    answerTranslation: L(
+      '그녀는 운전하지 않아요. 기차로 출근해요.',
+      'U mashina haydamaydi. Ishga poyezdda boradi.',
+      'She doesn’t drive. She goes to work by train.',
+      'Она не водит машину. Она ездит на работу на поезде.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'transport'],
+  },
+
+  en_s1u4_n5_074_translate_builder: {
+    type: 'translate_builder',
+    level: LV,
+    instruction: TRANSLATE_INSTRUCTION,
+    options: ['She', 'goes', 'to', 'work', 'by', 'train', 'go', 'doesn’t'],
+    answer: 'She goes to work by train',
+    answerTranslation: L(
+      '그녀는 기차로 출근해요.',
+      'U ishga poyezdda boradi.',
+      'She goes to work by train.',
+      'Она ездит на работу на поезде.',
+    ),
+    lessonCategory: LessonCategory.GRAMMAR,
+    difficulty: 1,
+    tags: ['review', 'transport'],
+  },
+
+  en_s1u4_n5_075_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'Does your brother get up early?',
+    audioText: 'Does your brother get up early?',
+    answerTranslation: L(
+      '남자 형제는 일찍 일어나요?',
+      'Akangiz yoki ukangiz erta turadimi?',
+      'Does your brother get up early?',
+      'Ваш брат рано встаёт?',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'routine-question'],
+  },
+
+  en_s1u4_n5_076_reply_builder: {
+    type: 'reply_builder',
+    level: LV,
+    instruction: REPLY_INSTRUCTION,
+    npcText: 'Does your brother get up early?',
+    options: ['No', 'he', 'doesn’t', 'he', 'gets', 'up', 'late'],
+    answer: 'No he doesn’t he gets up late',
+    answerTranslation: L(
+      '아니요. 그는 늦게 일어나요.',
+      'Yo‘q. U kech turadi.',
+      'No, he doesn’t. He gets up late.',
+      'Нет. Он встаёт поздно.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'routine'],
+  },
+
+  en_s1u4_n5_077_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer: 'I get up at seven, go to work by bus and finish work at six.',
+    audioText: 'I get up at seven, go to work by bus and finish work at six.',
+    answerTranslation: L(
+      '저는 7시에 일어나 버스로 출근하고 6시에 일을 끝내요.',
+      'Men soat yettida turaman, ishga avtobusda boraman va ishni oltida tugataman.',
+      'I get up at seven, go to work by bus and finish work at six.',
+      'Я встаю в семь, езжу на работу на автобусе и заканчиваю работу в шесть.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'routine'],
+  },
+
+  en_s1u4_n5_078_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [{ speaker: 'npc', text: 'Do you work at the weekend?' }],
+    options: [
+      'No, I don’t. I go out with friends.',
+      'No, I doesn’t. I goes out.',
+      'No, I’m not. I do go friends.',
+      'No, I haven’t. I go out.',
+    ],
+    answer: 'No, I don’t. I go out with friends.',
+    answerTranslation: L(
+      '아니요. 친구들과 외출해요.',
+      'Yo‘q. Do‘stlar bilan tashqariga chiqaman.',
+      'No, I don’t. I go out with friends.',
+      'Нет. Я выхожу с друзьями.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'routine'],
+  },
+
+  en_s1u4_n5_079_speaking: {
+    type: 'speaking',
+    level: LV,
+    instruction: SPEAK_INSTRUCTION,
+    answer:
+      'My parents have got a car, but they usually go to the centre by train.',
+    audioText:
+      'My parents have got a car, but they usually go to the centre by train.',
+    answerTranslation: L(
+      '부모님은 차가 있지만 보통 기차로 도심에 가요.',
+      'Ota-onamning mashinasi bor, lekin ular odatda markazga poyezdda boradi.',
+      'My parents have got a car, but they usually go to the centre by train.',
+      'У моих родителей есть машина, но обычно они ездят в центр на поезде.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'integrated'],
+  },
+
+  en_s1u4_n5_080_dialog_complete: {
+    type: 'dialog_complete',
+    level: LV,
+    instruction: DIALOG_INSTRUCTION,
+    dialogLines: [
+      { speaker: 'npc', text: 'Does your sister work in an office?' },
+      { speaker: 'user', text: 'No, she doesn’t. She works at home.' },
+      { speaker: 'npc', text: 'How does she go to meetings?' },
+    ],
+    options: [
+      'She usually goes by train.',
+      'She usually go by train.',
+      'She does usually goes train.',
+      'She usually is by train.',
+    ],
+    answer: 'She usually goes by train.',
+    answerTranslation: L(
+      '그녀는 보통 기차로 가요.',
+      'U odatda poyezdda boradi.',
+      'She usually goes by train.',
+      'Она обычно ездит на поезде.',
+    ),
+    lessonCategory: LessonCategory.CONVERSATION,
+    difficulty: 1,
+    tags: ['review', 'final'],
+  },
+};
+
+export const EN_S1_UNIT4_NODE5 = {
+  title: L(
+    '하루 일과와 Unit 4 복습',
+    'Kun tartibi va Unit 4 takrori',
+    'Daily routines and review',
+    'Распорядок дня и повторение',
+  ),
+  section: 1,
+  unit: 4,
+  order: 5,
+  isActive: true,
+
+  lessons: [
+    {
+      title: L(
+        '기자의 하루',
+        'Jurnalistning bir kuni',
+        'A journalist’s day',
+        'День журналиста',
+      ),
+      description: L(
+        'cook dinner, listen to the news, write a story, play the guitar 같은 동사구를 익히고 영상 속 기자의 하루 일과를 들어요.',
+        'cook dinner, listen to the news, write a story va play the guitar kabi fe’l birikmalarini o‘rganib, jurnalistning kun tartibini tinglaysiz.',
+        'Learn the video verb phrases and follow a journalist’s working day and evening routine.',
+        'Изучаем глагольные сочетания из видео и распорядок рабочего дня журналиста.',
+      ),
+      category: LessonCategory.LISTENING,
+      level: LV,
+      order: 1,
+      questions: [
+        'en_s1u4_n5_001_speaking',
+        'en_s1u4_n5_002_fill_in_blank',
+        'en_s1u4_n5_003_speaking',
+        'en_s1u4_n5_004_word_arrange',
+        'en_s1u4_n5_005_speaking',
+        'en_s1u4_n5_006_fill_in_blank',
+        'en_s1u4_n5_007_speaking',
+        'en_s1u4_n5_008_translate_builder',
+        'en_s1u4_n5_009_speaking',
+        'en_s1u4_n5_010_fill_in_blank',
+        'en_s1u4_n5_011_speaking',
+        'en_s1u4_n5_012_dialog_complete',
+        'en_s1u4_n5_013_speaking',
+        'en_s1u4_n5_014_fill_in_blank',
+        'en_s1u4_n5_015_speaking',
+        'en_s1u4_n5_016_word_arrange',
+        'en_s1u4_n5_017_speaking',
+        'en_s1u4_n5_018_fill_in_blank',
+        'en_s1u4_n5_019_speaking',
+        'en_s1u4_n5_020_dialog_complete',
+      ],
+    },
+
+    {
+      title: L(
+        '다른 사람의 하루 묻기',
+        'Boshqalarning kuni haqida so‘rash',
+        'Ask about daily routines',
+        'Спрашиваем о распорядке дня',
+      ),
+      description: L(
+        'Do you...?, What time do you...?, What do you...?, What transport do you...?, Where do you...?를 사용해 일상을 질문하고 답을 정리해 말해요.',
+        'Do you...?, What time do you...?, What do you...?, What transport do you...? va Where do you...? bilan kun tartibi haqida savol berib, javoblarni aytasiz.',
+        'Use the five question patterns from the video lesson to ask about another person’s daily routine and report the answers.',
+        'Используем пять типов вопросов из видео, чтобы узнать распорядок другого человека и рассказать об ответах.',
+      ),
+      category: LessonCategory.CONVERSATION,
+      level: LV,
+      order: 2,
+      questions: [
+        'en_s1u4_n5_021_speaking',
+        'en_s1u4_n5_022_fill_in_blank',
+        'en_s1u4_n5_023_speaking',
+        'en_s1u4_n5_024_word_arrange',
+        'en_s1u4_n5_025_speaking',
+        'en_s1u4_n5_026_translate_builder',
+        'en_s1u4_n5_027_speaking',
+        'en_s1u4_n5_028_fill_in_blank',
+        'en_s1u4_n5_029_speaking',
+        'en_s1u4_n5_030_reply_builder',
+        'en_s1u4_n5_031_speaking',
+        'en_s1u4_n5_032_dialog_complete',
+        'en_s1u4_n5_033_speaking',
+        'en_s1u4_n5_034_fill_in_blank',
+        'en_s1u4_n5_035_speaking',
+        'en_s1u4_n5_036_translate_builder',
+        'en_s1u4_n5_037_speaking',
+        'en_s1u4_n5_038_reply_builder',
+        'en_s1u4_n5_039_speaking',
+        'en_s1u4_n5_040_dialog_complete',
+      ],
+    },
+
+    {
+      title: L(
+        'Units 3–4 문법 복습',
+        'Units 3–4 grammatika takrori',
+        'Units 3–4 grammar review',
+        'Повторение грамматики Units 3–4',
+      ),
+      description: L(
+        'have got, 소유격 ’s, 현재시제 긍정·부정, Do/Does 질문과 짧은 대답, 반대 형용사와 가족 표현을 복습해요.',
+        'have got, egalik ’s, Present Simple tasdiq va inkor shakllari, Do/Does savollari, qisqa javoblar, qarama-qarshi sifatlar va oila so‘zlarini takrorlaysiz.',
+        'Review have got, possessive ’s, present simple forms, Do/Does questions, short answers, opposites and family vocabulary.',
+        'Повторяем have got, притяжательное ’s, Present Simple, вопросы Do/Does, краткие ответы, антонимы и лексику семьи.',
+      ),
+      category: LessonCategory.GRAMMAR,
+      level: LV,
+      order: 3,
+      questions: [
+        'en_s1u4_n5_041_speaking',
+        'en_s1u4_n5_042_fill_in_blank',
+        'en_s1u4_n5_043_speaking',
+        'en_s1u4_n5_044_dialog_complete',
+        'en_s1u4_n5_045_speaking',
+        'en_s1u4_n5_046_fill_in_blank',
+        'en_s1u4_n5_047_speaking',
+        'en_s1u4_n5_048_fill_in_blank',
+        'en_s1u4_n5_049_speaking',
+        'en_s1u4_n5_050_word_arrange',
+        'en_s1u4_n5_051_speaking',
+        'en_s1u4_n5_052_fill_in_blank',
+        'en_s1u4_n5_053_speaking',
+        'en_s1u4_n5_054_dialog_complete',
+        'en_s1u4_n5_055_speaking',
+        'en_s1u4_n5_056_fill_in_blank',
+        'en_s1u4_n5_057_speaking',
+        'en_s1u4_n5_058_fill_in_blank',
+        'en_s1u4_n5_059_speaking',
+        'en_s1u4_n5_060_translate_builder',
+      ],
+    },
+
+    {
+      title: L(
+        'Units 3–4 종합 복습',
+        'Units 3–4 umumiy takrorlash',
+        'Units 3–4 review',
+        'Повторение Units 3–4',
+      ),
+      description: L(
+        '가게에서 물건을 요청하고 가격을 묻는 표현, 교통수단, have got, 현재시제 질문과 하루 일과를 한꺼번에 다시 사용해요.',
+        'Do‘konda buyum so‘rash, narx so‘rash, transport, have got, Present Simple savollari va kun tartibini birgalikda takrorlaysiz.',
+        'Recycle shop language, prices, transport, have got, present-simple questions and daily routines.',
+        'Повторяем язык магазина, цены, транспорт, have got, вопросы Present Simple и распорядок дня.',
+      ),
+      category: LessonCategory.CONVERSATION,
+      level: LV,
+      order: 4,
+      questions: [
+        'en_s1u4_n5_061_speaking',
+        'en_s1u4_n5_062_reply_builder',
+        'en_s1u4_n5_063_speaking',
+        'en_s1u4_n5_064_dialog_complete',
+        'en_s1u4_n5_065_speaking',
+        'en_s1u4_n5_066_fill_in_blank',
+        'en_s1u4_n5_067_speaking',
+        'en_s1u4_n5_068_word_arrange',
+        'en_s1u4_n5_069_speaking',
+        'en_s1u4_n5_070_dialog_complete',
+        'en_s1u4_n5_071_speaking',
+        'en_s1u4_n5_072_fill_in_blank',
+        'en_s1u4_n5_073_speaking',
+        'en_s1u4_n5_074_translate_builder',
+        'en_s1u4_n5_075_speaking',
+        'en_s1u4_n5_076_reply_builder',
+        'en_s1u4_n5_077_speaking',
+        'en_s1u4_n5_078_dialog_complete',
+        'en_s1u4_n5_079_speaking',
+        'en_s1u4_n5_080_dialog_complete',
+      ],
+    },
+  ],
+};
