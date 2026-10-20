@@ -402,7 +402,10 @@ export default function CourseCategories() {
     progress: modeProgress,
   });
   const { lang, label } = useLocalSearchParams<{ lang?: string; label?: string }>();
-  const language = lang === "en" ? "en" : "ko";
+  // 코스 목록은 lang 을 넘긴다. 홈 등에서 lang 없이 들어오면 마지막으로 공부한 코스로 —
+  // 예전엔 무조건 한국어였다 (텔레그램 course-categories-screen 과 같은 규칙)
+  const learnCourse = useSettingsStore((st) => st.learnCourse);
+  const language = lang === "en" || lang === "ko" ? lang : learnCourse;
   const isEnglish = language === "en";
 
   const selectTopikLevel = (level: TopikLevel) => {
