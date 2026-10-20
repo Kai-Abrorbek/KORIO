@@ -109,6 +109,8 @@ export function rowEnter(index: number, t: number) {
 export const RANK_HOLD_MS = 450;
 /** 옛 자리 → 새 자리 이동 */
 export const RANK_MOVE_MS = 820;
-/** 도착 뒤 칩·흔들림이 가라앉을 때까지 */
-export const RANK_SETTLE_MS = 520;
+/** 도착 뒤 — 통 튀고, "+N 계단" 칩이 떠 있다가 사라질 때까지 (칩도 이 시계 안에서 끝나야 남지 않는다) */
+export const RANK_SETTLE_MS = 2300;
+/** "+N 계단" 칩 — 도착 기준 */
+export const RANK_GAIN_CHIP = { show: 260, hold: 1900, hide: 2200 } as const;
 export const RANK_ANIM_TOTAL_MS = RANK_HOLD_MS + RANK_MOVE_MS + RANK_SETTLE_MS;

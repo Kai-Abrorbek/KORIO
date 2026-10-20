@@ -389,7 +389,7 @@ export default function LeagueScreen() {
         <LinearGradient
           colors={["#221A5C", "#33267F", "#4B37A8"]}
           locations={[0, 0.55, 1]}
-          style={[s.stage, { paddingTop: insets.top + 10 }]}
+          style={[s.stage, { paddingTop: insets.top + 26 }]}
         >
           <View style={s.stageTop}>
             <View style={s.crystalWrap}>
@@ -730,10 +730,9 @@ const styles = (theme: ThemeColors) =>
     stageTop: { alignItems: "center", paddingHorizontal: 20 },
     crystalWrap: {
       width: 230,
-      height: 170,
+      height: 178,
       alignItems: "center",
       justifyContent: "center",
-      marginTop: -10,
     },
     crystalRing: {
       position: "absolute",

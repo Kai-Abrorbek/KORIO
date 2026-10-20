@@ -11,6 +11,7 @@ import { Pressable } from "@/components/ui/Pressables";
 import { cinemaAt, progress } from "@/components/cinema/cinema";
 import {
   RANK_ANIM_TOTAL_MS,
+  RANK_GAIN_CHIP,
   RANK_HOLD_MS,
   RANK_MOVE_MS,
 } from "./leagueCinematic";
@@ -138,9 +139,9 @@ export default function LeagueRankRow({
     const c = cinemaAt(
       [
         { t: RANK_HOLD_MS + RANK_MOVE_MS, v: 0 },
-        { t: RANK_HOLD_MS + RANK_MOVE_MS + 260, v: 1, e: "back" },
-        { t: RANK_HOLD_MS + RANK_MOVE_MS + 2200, v: 1 },
-        { t: RANK_HOLD_MS + RANK_MOVE_MS + 2500, v: 0 },
+        { t: RANK_HOLD_MS + RANK_MOVE_MS + RANK_GAIN_CHIP.show, v: 1, e: "back" },
+        { t: RANK_HOLD_MS + RANK_MOVE_MS + RANK_GAIN_CHIP.hold, v: 1 },
+        { t: RANK_HOLD_MS + RANK_MOVE_MS + RANK_GAIN_CHIP.hide, v: 0 },
       ],
       t.value,
     );
