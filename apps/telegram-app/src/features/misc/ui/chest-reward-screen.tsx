@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { Confetti } from "../../../shared/ui/confetti";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { playSfx, preloadSfx, suppressDefaultButtonSound } from "../../../shared/browser/sfx";
 import { createCinemaAudio, type CinemaAudio } from "../../../shared/browser/cinema-audio";
@@ -165,10 +166,6 @@ const Chest = forwardRef<HTMLDivElement, { grade: ChestGrade; opening: boolean; 
 
 function GemsPile() {
   return <div className={styles.gemsPile}><i className={styles.gemShadow}/>{Array.from({ length: 5 },(_,index)=><span key={index} style={{ "--i": index } as CSSProperties}><i /></span>)}</div>;
-}
-
-function Confetti() {
-  return <div className={styles.confetti} aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ "--confetti-index": index } as CSSProperties} />)}</div>;
 }
 
 /** 틈새 빛 (0~1) — seam 은 가로로, 빛줄기는 위로 자란다 (앱 Chest seamStyle·leakStyle) */

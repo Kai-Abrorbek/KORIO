@@ -1,0 +1,4 @@
+.confetti { inset: 0; pointer-events: none; position: absolute; z-index: 6; }
+.confetti i { --angle: calc(var(--confetti-index) * 20deg); animation: confettiFall 1.8s calc(var(--confetti-index) * 55ms) ease-out both; background: hsl(calc(var(--confetti-index) * 41deg) 82% 58%); height: 10px; left: calc(4% + var(--confetti-index) * 5.2%); position: absolute; top: -12px; transform: rotate(var(--angle)); width: 6px; }
+@keyframes confettiFall { to { opacity: 0; top: 60%; transform: rotate(calc(var(--angle) + 240deg)) translateX(24px); } }
+@media (prefers-reduced-motion: reduce) { .confetti { display: none; } }

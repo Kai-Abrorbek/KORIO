@@ -1936,6 +1936,8 @@ export default {
     title: "정말 멋지십니다!",
     subtitle: "연속 기록을 이어가려면\n매일 연습을 계속해 주세요",
     continue: "계속하기",
+    /** 기념일(7·30·100·365일 …) 금빛 배지 */
+    milestone: "{{n}}일 연속 달성!",
   },
   scoreUp: {
     eyebrow: "스코어 상승",

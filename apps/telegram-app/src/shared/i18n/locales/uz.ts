@@ -1946,6 +1946,8 @@ export default {
     title: "Juda zo‘r!",
     subtitle: "Ketma-ketlikni saqlash uchun\nhar kuni mashq qiling",
     continue: "Davom etish",
+    /** 기념일(7·30·100·365일 …) 금빛 배지 */
+    milestone: "{{n}} kun ketma-ket!",
   },
   scoreUp: {
     eyebrow: "DARAJA OSHDI",

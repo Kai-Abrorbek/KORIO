@@ -2196,6 +2196,8 @@ export default {
     title: "Amazing!",
     subtitle: "Keep practicing every day\nto continue your streak",
     continue: "Continue",
+    /** 기념일(7·30·100·365일 …) 금빛 배지 */
+    milestone: "{{n}}-day streak!",
   },
   scoreUp: {
     eyebrow: "SCORE UP",
