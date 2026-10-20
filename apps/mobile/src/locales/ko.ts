@@ -1741,6 +1741,10 @@ export default {
     keepXpSafe: "{{earned}} / {{required}} XP · 안전",
     keepXpDanger: "{{earned}} / {{required}} XP · 이대로면 탈락",
     you: "(나)",
+    /** 리그 목록 내 이름 옆 칩 */
+    meChip: "나",
+    /** 순위가 오른 뒤 내 줄에 뜨는 칩 */
+    rankUp: "+{{count}}계단!",
     tiers: {
       bronze: "브론즈",
       silver: "실버",

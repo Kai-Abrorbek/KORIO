@@ -1751,6 +1751,10 @@ export default {
     keepXpSafe: "{{earned}} / {{required}} XP · xavfsiz",
     keepXpDanger: "{{earned}} / {{required}} XP · tushib ketasiz",
     you: "(Siz)",
+    /** 리그 목록 내 이름 옆 칩 */
+    meChip: "Siz",
+    /** 순위가 오른 뒤 내 줄에 뜨는 칩 */
+    rankUp: "+{{count}} pog'ona!",
     tiers: {
       bronze: "Bronza",
       silver: "Kumush",
