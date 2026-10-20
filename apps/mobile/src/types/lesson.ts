@@ -26,6 +26,7 @@ export type QuestionType =
   | "verb_transform";
 
 export interface MatchingPair {
+  text?: string;
   korean: string;
   native: string;
 }
@@ -44,6 +45,9 @@ export interface ImageChoiceOption {
 }
 
 export interface LessonQuestion {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   id: string;
   type: QuestionType;
   level: string;
@@ -106,6 +110,9 @@ export interface LessonQuestion {
 }
 
 export interface LessonSession {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   /**
    * 이 판의 계측 id. 진행·완료 보고에 그대로 되돌려 보낸다.
    *

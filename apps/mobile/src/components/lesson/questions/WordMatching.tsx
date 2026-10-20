@@ -51,7 +51,7 @@ export default function WordMatching({
       pairs.map((p, i) => ({
         id: `k-${i}`,
         pairId: i,
-        text: p.korean,
+        text: p.text ?? p.korean,
         status: "idle" as PairStatus,
       })),
     ),
@@ -69,7 +69,7 @@ export default function WordMatching({
   // 짝을 맞춘 순간에 speak() 를 부르면 그때부터 음원을 받아오느라 소리가 한
   // 박자 늦게 난다. 읽을 한국어 단어는 화면 뜰 때 이미 다 아니까 미리 받아 둔다.
   useEffect(() => {
-    prewarm(pairs.map((p) => p.korean));
+    prewarm(pairs.map((p) => p.text ?? p.korean));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.id]);
 

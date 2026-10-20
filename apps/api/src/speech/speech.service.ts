@@ -28,6 +28,7 @@ import { UsersService } from '../users/users.service';
 import { SPEAKING_SENTENCE_XP } from '../lessons/economy.const';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { startOfDay } from '../common/date.util';
+import { resolveCourseScope, speechLocaleOf } from '../common/learning-course';
 import {
   UserExpressionProgress,
   UserExpressionProgressDocument,
@@ -131,6 +132,7 @@ export class SpeechService {
       reference.referenceText,
       reference.section,
       '발음 평가',
+      reference.targetLanguage,
     );
   }
 
@@ -240,6 +242,7 @@ export class SpeechService {
     referenceText: string,
     section: number | undefined,
     logLabel: string,
+    targetLanguage = 'ko',
   ): Promise<AssessResult> {
     const threshold = thresholdForSection(section);
     const stats = this.audioStats(wav);
@@ -247,7 +250,12 @@ export class SpeechService {
     // Azure의 발음 점수만으로는 다른 문장을 또렷하게 말한 경우를 충분히
     // 걸러내지 못한다. 삽입·누락을 켜고 실제 인식 문장도 별도로 비교한다.
     const azureStartedAt = Date.now();
-    const outcome = await this.recognize(wav, referenceText, true);
+    const outcome = await this.recognize(
+      wav,
+      referenceText,
+      true,
+      speechLocaleOf(targetLanguage),
+    );
     const azureMs = Date.now() - azureStartedAt;
     const scores: SpeechScores = outcome.scores ?? {
       pron: 0,
@@ -595,12 +603,17 @@ export class SpeechService {
   }
 
   /** TranslateType 마이크: 참조 문장 없이 그냥 받아쓰기 */
-  async transcribe(userId: string, wav: Buffer): Promise<TranscribeResult> {
+  async transcribe(
+    userId: string,
+    wav: Buffer,
+    targetLanguage = 'ko',
+  ): Promise<TranscribeResult> {
+    const locale = speechLocaleOf(targetLanguage);
     this.consumeRateLimit(userId);
     this.validateWav(wav);
 
     const stats = this.audioStats(wav);
-    const outcome = await this.recognize(wav);
+    const outcome = await this.recognize(wav, undefined, false, locale);
     this.logger.log(
       `받아쓰기: audio=${stats.seconds}s peak=${stats.peakPct}% ` +
         `rms=${stats.rms} text="${outcome.text}"`,
@@ -624,8 +637,9 @@ export class SpeechService {
     wav: Buffer,
     referenceText?: string,
     enableMiscue = false,
+    locale: string = SPEECH_LANGUAGE,
   ): Promise<RecognizeOutcome> {
-    const speechConfig = this.buildSpeechConfig();
+    const speechConfig = this.buildSpeechConfig(locale);
     // SDK 는 파일 오디오를 앞 5초만 한 번에 보내고 그 뒤는 실시간 2배속으로
     // 천천히 흘려보낸다 (ServiceRecognizerBase.sendAudio — 마이크 스트림을 흉내
     // 내는 기본값). 우리는 이미 다 녹음된 짧은 파일이라 기다릴 이유가 없다.
@@ -762,7 +776,9 @@ export class SpeechService {
     };
   }
 
-  private buildSpeechConfig(): sdk.SpeechConfig {
+  private buildSpeechConfig(
+    locale: string = SPEECH_LANGUAGE,
+  ): sdk.SpeechConfig {
     const key = this.configService.get<string>('AZURE_SPEECH_KEY')?.trim();
     const region = this.configService
       .get<string>('AZURE_SPEECH_REGION')
@@ -788,7 +804,7 @@ export class SpeechService {
       throw new ServiceUnavailableException('AZURE_SPEECH_NOT_CONFIGURED');
     }
 
-    config.speechRecognitionLanguage = SPEECH_LANGUAGE;
+    config.speechRecognitionLanguage = locale;
     return config;
   }
 
@@ -807,7 +823,10 @@ export class SpeechService {
     // 두 조회는 서로 기다릴 필요가 없다 — DB 가 외부(Atlas)라 왕복 한 번이 아깝다.
     // 레벨 테스트/복습처럼 레슨에 안 묶인 문제도 있어서 lesson 이 없으면 가장 관대한 기준으로 떨어진다
     const [question, lesson] = await Promise.all([
-      this.questionModel.findById(qid).select('answer audioText type').lean(),
+      this.questionModel
+        .findById(qid)
+        .select('answer audioText type courseId targetLanguage')
+        .lean(),
       this.lessonModel.findOne({ questionIds: qid }).select('section').lean(),
     ]);
     if (!question) throw new NotFoundException('QUESTION_NOT_FOUND');
@@ -817,7 +836,11 @@ export class SpeechService {
       throw new BadRequestException('QUESTION_HAS_NO_REFERENCE_TEXT');
     }
 
-    return { referenceText, section: lesson?.section };
+    return {
+      referenceText,
+      section: lesson?.section,
+      ...resolveCourseScope(question),
+    };
   }
 
   private async resolveExpression(expressionId: string) {

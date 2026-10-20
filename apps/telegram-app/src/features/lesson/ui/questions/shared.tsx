@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { useTelegramAuth } from "../../../auth/model/telegram-auth-context";
-import { useKoreanSpeech, type SpeechLanguage } from "../../../../shared/browser/use-korean-speech";
+import { useKoreanSpeech, speechLanguageOf, type SpeechLanguage } from "../../../../shared/browser/use-korean-speech";
 import type { AnswerState, LessonQuestion } from "../../model/lesson";
 
 /**
@@ -60,7 +60,7 @@ function autoPlayEnabled() {
 /** 앱 useSpeech 의 SLOW_FACTOR — 거북이 = 설정 속도 × 0.55 */
 const SLOW_FACTOR = 0.55;
 
-export function LessonSpeechProvider({ children }: { children: ReactNode }) {
+export function LessonSpeechProvider({ children, language = "ko-KR" }: { children: ReactNode; language?: string }) {
   const { request } = useTelegramAuth();
   const korean = useKoreanSpeech(request);
   const { prewarm, progress, speak, speaking, stop } = korean;
@@ -69,19 +69,19 @@ export function LessonSpeechProvider({ children }: { children: ReactNode }) {
   const speakLesson = useCallback<LessonSpeech["speak"]>(
     (text, options) =>
       speak(text, {
-        language: options?.language,
+        language: options?.language ?? speechLanguageOf(language),
         onEnd: options?.onEnd,
         rate: options?.rate ?? (options?.slow ? Math.max(0.25, (soundSettings().speechRate ?? 1) * SLOW_FACTOR) : undefined),
       }),
-    [speak],
+    [speak, language],
   );
   const speakAuto = useCallback<LessonSpeech["speakAuto"]>((text) => {
     if (!autoPlayEnabled()) return;
-    speak(text);
-  }, [speak]);
+    speak(text, { language: speechLanguageOf(language) });
+  }, [speak, language]);
   const prewarmLesson = useCallback<LessonSpeech["prewarm"]>(
-    (texts) => prewarm(texts.filter(Boolean)),
-    [prewarm],
+    (texts) => prewarm(texts.filter(Boolean), speechLanguageOf(language)),
+    [prewarm, language],
   );
   const value = useMemo<LessonSpeech>(
     () => ({

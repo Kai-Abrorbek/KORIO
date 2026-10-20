@@ -22,6 +22,12 @@ class I18nText {
 
 @Schema({ timestamps: true })
 export class Lesson {
+  @Prop({ type: String, default: 'ko-general', index: true })
+  courseId: string;
+
+  @Prop({ type: String, default: 'ko', index: true })
+  targetLanguage: string;
+
   @Prop({ index: true, unique: true, sparse: true })
   code?: string;
 

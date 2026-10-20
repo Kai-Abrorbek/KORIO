@@ -97,8 +97,10 @@ class QuestionGrading {
 
 // 단어 매칭 쌍
 class MatchingPair {
-  @Prop({ required: true }) korean: string;
+  @Prop({ default: '' }) text: string;
+  @Prop({ default: '' }) korean: string; // Legacy target-text alias.
   @Prop({ required: true }) native: string; // 유저 언어 (우즈벡어 등)
+  @Prop({ type: I18nText, required: false }) nativeI18n?: I18nText;
 }
 
 // 대화 라인
@@ -109,6 +111,12 @@ class DialogLine {
 
 @Schema({ timestamps: true })
 export class Question {
+  @Prop({ type: String, default: 'ko-general', index: true })
+  courseId: string;
+
+  @Prop({ type: String, default: 'ko', index: true })
+  targetLanguage: string;
+
   @Prop({ index: true, unique: true, sparse: true })
   code?: string;
 
@@ -190,7 +198,17 @@ export class Question {
   dialogLines: DialogLine[];
 
   // 단어 매칭 쌍 (word_matching)
-  @Prop({ type: [{ korean: String, native: String }], default: [] })
+  @Prop({
+    type: [
+      {
+        text: String,
+        korean: String,
+        native: String,
+        nativeI18n: { ko: String, uz: String, en: String, ru: String },
+      },
+    ],
+    default: [],
+  })
   pairs: MatchingPair[];
 
   // 힌트 - 유저 언어로

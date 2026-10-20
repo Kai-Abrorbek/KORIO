@@ -1,11 +1,14 @@
 import { WORD_LANGUAGES } from '../words/schemas/word.schema';
 import { buildWordSeedData } from './word-seed.data';
+import { parseSeedCourseScope } from './course-seed.options';
 
-const words = buildWordSeedData();
+const scope = parseSeedCourseScope();
+const words = buildWordSeedData(scope);
 const codes = new Set<string>();
 
 for (const word of words) {
-  if (codes.has(word.code)) throw new Error(`Duplicate word code: ${word.code}`);
+  if (codes.has(word.code))
+    throw new Error(`Duplicate word code: ${word.code}`);
   codes.add(word.code);
 
   if (word.placements.length === 0) {
@@ -20,11 +23,11 @@ for (const word of words) {
     for (const lang of WORD_LANGUAGES) {
       if (!example.translations[lang]) {
         throw new Error(
-          `${word.code} example "${example.korean}" is missing translations.${lang}`,
+          `${word.code} example "${example.text}" is missing translations.${lang}`,
         );
       }
     }
   }
 }
 
-console.log(`✅ 단어 시드 ${words.length}개 검증 완료`);
+console.log(`✅ ${scope.courseId} 단어 시드 ${words.length}개 검증 완료`);

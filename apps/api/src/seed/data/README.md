@@ -1,5 +1,10 @@
 # 시드 데이터 작성 규칙
 
+> **다국어 코스·영어 시드 등록과 안전한 실행 명령은
+> [`../MULTILINGUAL_SEEDS.md`](../MULTILINGUAL_SEEDS.md)를 먼저 읽습니다.**
+> 아래 한국어 예시는 기존 원본 호환 형식입니다. 새 언어는 `headword`와 예문 `text`를
+> 사용하며, 일반 `seed` 명령은 이제 기존 문서나 고아 문항을 자동 삭제하지 않습니다.
+
 > **어휘 트랙(섹션 6 이후 새 시드 포함)은 [`vocabulary/VOCAB_SEED_GUIDE.md`](vocabulary/VOCAB_SEED_GUIDE.md) 가 우선이다.**
 > 이 README 의 어휘 부분은 섹션 1~2 시절 규칙이라 레슨 수·`translate_builder` 말풍선 등 일부가 옛날 내용이다.
 
@@ -154,8 +159,8 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
 - 실제 반영 전 `pnpm --filter api seed:validate-expressions`, 반영할 때
   `pnpm --filter api seed:expressions`를 사용한다. 시더는 code 기준 upsert만 하며 기존
   표현과 `UserExpressionProgress`를 삭제하지 않는다.
-- 일반 `seed`의 고아 문항 정리는 `Expression.practiceQuestionIds`도 참조 목록으로
-  인정하므로 표현 연습문제가 삭제되지 않는다.
+- 일반 `seed`는 다른 언어·코스·표현 트랙의 안전을 위해 고아 문항을 자동 삭제하지
+  않는다. 퇴역 콘텐츠 삭제는 별도 검토된 작업으로 진행한다.
 
 ## Seed authoring rules for answer grading
 
@@ -740,8 +745,9 @@ pnpm --filter api seed:grammar-track       # 문법 트랙만 시딩 (code 기�
 
 시딩은 `seed` → `seed:words` → `seed:expressions` → `seed:grammar` →
 `seed:grammar-track` → `seed:recipe`.
-`seed` 는 끝에 **이번 실행이 쓰지 않은 옛 노드·레슨·문항을 지운다** — 구성을 바꿔서
-사라진 노드가 로드맵에 유령으로 남지 않게. 문법 트랙(`gt_` 접두사)은 건드리지 않는다.
+`seed`는 **선택한 코스만 upsert하며 옛 노드·레슨·문항을 자동 삭제하지 않는다.**
+사용하지 않는 콘텐츠를 숨기거나 삭제하는 작업은 다른 코스 참조를 검토한 뒤 별도로
+진행한다. 코스 선택 및 실행 명령은 [`../MULTILINGUAL_SEEDS.md`](../MULTILINGUAL_SEEDS.md)를 따른다.
 
 ## 관련 코드
 

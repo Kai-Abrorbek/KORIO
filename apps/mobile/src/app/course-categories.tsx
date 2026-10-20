@@ -242,6 +242,9 @@ function makeGo(
       conversation: "/voice-tutor",
     };
     if (SHORTCUTS[c.category]) {
+      if (c.category === "wordCard") {
+        commitLearnMode("vocabulary", undefined, language === "en" ? "en" : "ko");
+      }
       router.push(SHORTCUTS[c.category] as any);
       return;
     }
@@ -443,7 +446,7 @@ export default function CourseCategories() {
       <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
       <View style={s.grid}>
         {CATEGORIES.filter((c) =>
-          isEnglish ? c.category === "hangul" : mode === "free" || c.guided,
+          isEnglish ? ["hangul", "vocabulary", "wordCard"].includes(c.category) : mode === "free" || c.guided,
         ).map((c, i) => (
           <CategoryCard
             key={c.key}
@@ -451,10 +454,10 @@ export default function CourseCategories() {
             index={i}
             s={s}
             label={t(
-              isEnglish ? "alphabet.title" : `courses.categories.${c.key}`,
+              isEnglish && c.category === "hangul" ? "alphabet.title" : `courses.categories.${c.key}`,
             )}
             desc={t(
-              isEnglish ? "alphabet.courseIntro" : `courses.categoryDesc.${c.key}`,
+              isEnglish && c.category === "hangul" ? "alphabet.courseIntro" : `courses.categoryDesc.${c.key}`,
             )}
             onTopikPress={() => setTopikModalVisible(true)}
             requirePremium={requirePremium}

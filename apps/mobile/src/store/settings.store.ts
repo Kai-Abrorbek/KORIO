@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import type { Href } from "expo-router";
-import { isLearnCourse, type LearnCourse } from "@/constants/learnCourses";
+import { DEFAULT_LEARNING_COURSES, isLearnCourse, type LearnCourse } from "@/constants/learnCourses";
 import {
   DEFAULT_SPEECH_VOICE,
   DEFAULT_ENGLISH_SPEECH_VOICE,
@@ -85,7 +85,7 @@ export function learnModePath(
 ): Href {
   // 학습 로드 모드는 어휘 트랙 위에서만 하루치를 짜준다.
   // 문법·표현·토픽은 각자 전용 흐름이 있어 그대로 둔다.
-  if (studyMode === "guided" && mode === "vocabulary") return "/study-path";
+  if (course === "ko" && studyMode === "guided" && mode === "vocabulary") return "/study-path";
 
   switch (mode) {
     // 전용 메인 페이지가 있는 모드
@@ -182,6 +182,7 @@ interface SettingsState {
   wordStudyAutoPlay: boolean;
   /** 마지막 단어 학습 위치. null 이면 아직 시작한 적 없다 → 범위 선택부터 */
   wordStudyLast: WordStudyPosition | null;
+  wordStudyPositions: Partial<Record<string, WordStudyPosition>>;
   notifications: NotificationPrefs;
   sound: SoundPrefs;
   /** 이번 실행 동안만 음소거 (저장 안 함) */
@@ -217,6 +218,7 @@ export const useSettingsStore = create<SettingsState>()(
       topikLevel: "1",
       wordStudyAutoPlay: true,
       wordStudyLast: null,
+      wordStudyPositions: {},
       notifications: {
         master: true,
         daily: true,
@@ -249,12 +251,18 @@ export const useSettingsStore = create<SettingsState>()(
       setTheme: (theme) => set({ theme }),
       setLearningTheme: (learningTheme) => set({ learningTheme }),
       setLearnMode: (learnMode) => set({ learnMode }),
-      setLearnCourse: (learnCourse) => set({ learnCourse }),
+      setLearnCourse: (learnCourse) => set((state) => ({
+        learnCourse,
+        wordStudyLast: state.wordStudyPositions?.[DEFAULT_LEARNING_COURSES[learnCourse].courseId] ?? null,
+      })),
       setStudyMode: (studyMode) => set({ studyMode }),
       setTopikLevel: (topikLevel) => set({ topikLevel }),
       setWordStudyAutoPlay: (wordStudyAutoPlay) =>
         set({ wordStudyAutoPlay }),
-      setWordStudyLast: (wordStudyLast) => set({ wordStudyLast }),
+      setWordStudyLast: (wordStudyLast) => set((state) => ({
+        wordStudyLast,
+        wordStudyPositions: { ...state.wordStudyPositions, [DEFAULT_LEARNING_COURSES[state.learnCourse].courseId]: wordStudyLast ?? undefined },
+      })),
       setNotifications: (patch) =>
         set((s) => ({ notifications: { ...s.notifications, ...patch } })),
       setSound: (patch) => set((s) => ({ sound: { ...s.sound, ...patch } })),
@@ -302,6 +310,15 @@ export const useSettingsStore = create<SettingsState>()(
         if (state && !isLearnCourse(state.learnCourse)) {
           state.learnCourse = "ko";
         }
+        if (state) {
+          // The old unscoped bookmark was always Korean, even on alphabet users.
+          state.wordStudyPositions ??= {};
+          // persist merges new defaults first, so legacy storage also arrives as {}.
+          if (state.wordStudyLast && Object.keys(state.wordStudyPositions).length === 0) {
+            state.wordStudyPositions["ko-general"] = state.wordStudyLast;
+          }
+          state.wordStudyLast = state.wordStudyPositions[DEFAULT_LEARNING_COURSES[state.learnCourse].courseId] ?? null;
+        }
 
         // 급수는 "1"/"2" 둘뿐. 이상한 값이 저장돼 있으면 토픽 화면이 깨진다.
         if (state && state.topikLevel !== "1" && state.topikLevel !== "2") {
@@ -338,8 +355,9 @@ export const useSettingsStore = create<SettingsState>()(
 /**
  * 뜻·설명(학습 콘텐츠)에 쓸 언어를 정한다. **이 규칙은 여기 한 곳에만 둔다.**
  *
- *   UI 가 uz/ru/en → 그대로 (UI 언어 = 설명 언어)
- *   UI 가 ko       → 따로 고른 contentLanguage, 안 골랐으면 기기 언어에서 추정
+ *   한국어 학습: 기존 외국어 설명 설정을 유지한다.
+ *   다른 언어 학습 + 한국어 UI: 한국어로 설명한다.
+ *   UI 와 학습 언어가 같으면 저장된/기기 언어 중 학습 언어가 아닌 것을 쓴다.
  *
  * 선 긋기:
  *   · t() 로 그리는 글자(버튼·안내)         → UI 언어 (i18n.language)
@@ -349,21 +367,29 @@ export const useSettingsStore = create<SettingsState>()(
 export function resolveContentLanguage(
   uiLanguage: string | undefined,
   saved: ContentLanguage | null,
-): ContentLanguage {
+  targetLanguage: string = "ko",
+): ContentLanguage | "ko" {
   const base = (uiLanguage ?? "").toLowerCase().split(/[-_]/)[0];
+  if (targetLanguage !== "ko" && base === "ko") return "ko";
+  if (base === targetLanguage && targetLanguage !== "ko") {
+    if (saved && saved !== targetLanguage) return saved;
+    const detected = detectDeviceContentLanguage();
+    return detected !== targetLanguage ? detected : "uz";
+  }
   if (isContentLanguage(base)) return base;
   return saved ?? detectDeviceContentLanguage();
 }
 
 /** 컴포넌트 밖(서비스·유틸)용. 호출 시점의 값을 읽는다 */
-export const getContentLang = (): ContentLanguage => {
+export const getContentLang = (): ContentLanguage | "ko" => {
   const st = useSettingsStore.getState();
-  return resolveContentLanguage(st.language, st.contentLanguage);
+  return resolveContentLanguage(st.language, st.contentLanguage, st.learnCourse);
 };
 
 /** 컴포넌트용. 설명 언어가 바뀌면 다시 그린다 */
-export function useContentLang(): ContentLanguage {
+export function useContentLang(): ContentLanguage | "ko" {
   const ui = useSettingsStore((st) => st.language);
   const saved = useSettingsStore((st) => st.contentLanguage);
-  return resolveContentLanguage(ui, saved);
+  const course = useSettingsStore((st) => st.learnCourse);
+  return resolveContentLanguage(ui, saved, course);
 }

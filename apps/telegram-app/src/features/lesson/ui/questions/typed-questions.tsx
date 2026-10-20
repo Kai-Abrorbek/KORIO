@@ -70,7 +70,7 @@ export function TypeAnswer({ answerState, isChecking, onAnswer, question }: Ques
   return (
     <div className={q.q}>
       <h1 className={styles.title} style={{ marginBottom: 24 }}>
-        {promptText && !question.npcText ? "Bu ma‘noni koreyscha yozing" : question.question || "Bu ma‘noni koreyscha yozing"}
+        {promptText && !question.npcText ? (question.targetLanguage === "en" ? "Bu ma‘noni inglizcha yozing" : "Bu ma‘noni koreyscha yozing") : question.question || "Javobni yozing"}
       </h1>
 
       <div className={styles.npcRow} style={{ marginBottom: 32 }}>

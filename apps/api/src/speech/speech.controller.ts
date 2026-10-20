@@ -30,8 +30,15 @@ export class SpeechController {
   }
 
   @Post('transcribe')
-  transcribe(@Req() req: Request) {
-    return this.speechService.transcribe(this.userId(req), this.readAudio(req));
+  transcribe(
+    @Req() req: Request,
+    @Query('targetLanguage') targetLanguage = 'ko',
+  ) {
+    return this.speechService.transcribe(
+      this.userId(req),
+      this.readAudio(req),
+      targetLanguage,
+    );
   }
 
   @Post('assess-expression')

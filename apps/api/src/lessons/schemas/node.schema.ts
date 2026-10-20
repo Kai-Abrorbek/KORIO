@@ -13,6 +13,12 @@ class I18nText {
 
 @Schema({ timestamps: true })
 export class LessonNode {
+  @Prop({ type: String, default: 'ko-general', index: true })
+  courseId: string;
+
+  @Prop({ type: String, default: 'ko', index: true })
+  targetLanguage: string;
+
   @Prop({ index: true, unique: true, sparse: true })
   code?: string;
 
@@ -45,3 +51,4 @@ export class LessonNode {
 }
 
 export const LessonNodeSchema = SchemaFactory.createForClass(LessonNode);
+LessonNodeSchema.index({ courseId: 1, section: 1, unit: 1, order: 1 });

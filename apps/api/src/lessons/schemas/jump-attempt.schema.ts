@@ -16,6 +16,12 @@ import { Document, Types } from 'mongoose';
  */
 @Schema({ timestamps: true })
 export class JumpAttempt {
+  @Prop({ type: String, default: 'ko-general' })
+  courseId: string;
+
+  @Prop({ type: String, default: 'ko' })
+  targetLanguage: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   userId: Types.ObjectId;
 

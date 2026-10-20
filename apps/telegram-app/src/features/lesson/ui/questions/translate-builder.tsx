@@ -28,7 +28,7 @@ export function TranslateBuilder({ answerState, instanceKey, mode = "translate",
   const compact = useCompact();
   const isReply = mode === "reply";
   const sourceText = ((isReply ? question.npcText : question.sourceText || question.question) ?? "").trim();
-  const language = isReply ? "ko-KR" : speechLanguageOf(contentLanguage);
+  const language = isReply ? speechLanguageOf(question.speechLocale ?? question.targetLanguage) : speechLanguageOf(contentLanguage);
   const spokenWords = useMemo(() => sourceText.split(/\s+/u).filter(Boolean), [sourceText]);
   const activeWord = speaking && spokenWords.length > 0 && progress > 0 ? Math.min(spokenWords.length - 1, Math.floor(progress * spokenWords.length)) : -1;
   const { moveToZone, placed, swap, tap, words } = useChipWords(question.options, instanceKey);
@@ -51,7 +51,7 @@ export function TranslateBuilder({ answerState, instanceKey, mode = "translate",
   const locked = answerState !== "idle";
   return (
     <div className={`${q.q} ${styles.container}`}>
-      <h1 className={styles.title}>{isReply ? "Eshitganingizga koreyschada javob bering" : "Quyidagi gapni tarjima qiling"}</h1>
+      <h1 className={styles.title}>{isReply ? (question.targetLanguage === "en" ? "Eshitganingizga inglizchada javob bering" : "Eshitganingizga koreyschada javob bering") : "Quyidagi gapni tarjima qiling"}</h1>
 
       <div className={styles.npcRow} style={{ height: compact ? 148 : 184 }}>
         <LessonCharacter height={compact ? 122 : 160} seed={question.id} state={answerState} />

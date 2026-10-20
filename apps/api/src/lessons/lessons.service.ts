@@ -155,6 +155,15 @@ import {
 import { normalizeBuilderChips } from './chip-builder.util';
 import { DAILY_QUESTS } from '../retention/retention.config';
 import { bumpQuestCounter } from '../users/utils/quest-counter.util';
+import {
+  type CourseScope,
+  DEFAULT_COURSE_ID,
+  courseContentFilter,
+  courseProgressPath,
+  getCourseProgress,
+  resolveCourseScope,
+  speechLocaleOf,
+} from '../common/learning-course';
 
 /**
  * 에너지를 쓰는 연습 모드 — 학습 로드의 문제 레슨들.
@@ -173,7 +182,12 @@ export interface StudyCelebration {
   dailyStreak: {
     streak: number;
     longest: number;
-    week: { date: string; studied: boolean; isToday: boolean; future: boolean }[];
+    week: {
+      date: string;
+      studied: boolean;
+      isToday: boolean;
+      future: boolean;
+    }[];
   } | null;
   streakChest: { grade: string; gems: number; streak: number } | null;
   /** 상자까지 받은 뒤의 보석 — 화면이 카운터를 이 값 - 상자 보석에서 센다 */
@@ -238,9 +252,12 @@ export class LessonsService {
     // 한국어가 섞인 값은 못 쓴다 (위 HANGUL 설명). 그땐 지시문으로 되돌아가는데,
     // 그런 문항은 지시문이 대체로 구체적이라 원래 동작이 그대로 맞다.
     const meaning = this.nativeMeaning(q, lang);
-    if (meaning && !HANGUL.test(meaning)) return meaning;
+    const targetLanguage =
+      (q as { targetLanguage?: string }).targetLanguage || 'ko';
+    if (meaning && (targetLanguage !== 'ko' || !HANGUL.test(meaning)))
+      return meaning;
 
-    const sourceLang = lang === 'ko' ? 'en' : lang;
+    const sourceLang = this.nativeLanguage(lang, targetLanguage);
     return q.instruction?.[sourceLang] || q.instruction?.en || '';
   }
 
@@ -254,16 +271,27 @@ export class LessonsService {
    * grammar_blank / grammar_build 는 빈칸이 뚫린 문장이 따로 있어서 이 값이
    * 보조 설명에 가깝다. 거기까지 지우면 오히려 단서가 사라져서 그대로 둔다.
    */
-  private promptMeaning(q: { type?: string }, lang: string): string {
+  private promptMeaning(
+    q: { type?: string; targetLanguage?: string },
+    lang: string,
+  ): string {
     const meaning = this.nativeMeaning(q, lang);
-    if (q.type === QuestionType.TYPE_ANSWER && HANGUL.test(meaning)) return '';
+    if (
+      q.type === QuestionType.TYPE_ANSWER &&
+      (!q.targetLanguage || q.targetLanguage === 'ko') &&
+      HANGUL.test(meaning)
+    )
+      return '';
     return meaning;
   }
 
   /** 문항의 answerTranslation 을 학습자 언어로 (한국어 UI 면 영어로) 꺼낸다 */
   private nativeMeaning(q: unknown, lang: string): string {
-    const { answerTranslation } = (q ?? {}) as { answerTranslation?: unknown };
-    return this.extractNativeI18n(answerTranslation, lang);
+    const { answerTranslation, targetLanguage } = (q ?? {}) as {
+      answerTranslation?: unknown;
+      targetLanguage?: string;
+    };
+    return this.extractNativeI18n(answerTranslation, lang, targetLanguage);
   }
 
   private extractI18n(obj: any, lang: string): string {
@@ -271,30 +299,64 @@ export class LessonsService {
     return obj[lang] || obj['uz'] || obj['en'] || '';
   }
 
-  private extractNativeI18n(obj: any, lang: string): string {
-    const sourceLang = lang === 'ko' ? 'en' : lang;
-    return this.extractI18n(obj, sourceLang);
+  private nativeLanguage(lang: string, targetLanguage = 'ko'): string {
+    return lang === targetLanguage
+      ? targetLanguage === 'ko'
+        ? 'en'
+        : 'uz'
+      : lang;
   }
 
-  private extractNativeOptions(obj: any, lang: string): string[] {
+  private extractNativeI18n(
+    obj: unknown,
+    lang: string,
+    targetLanguage = 'ko',
+  ): string {
+    if (!obj) return '';
+    const translations = obj as Record<string, string>;
+    const sourceLang = this.nativeLanguage(lang, targetLanguage);
+    return (
+      translations[sourceLang] ||
+      ['uz', 'en', 'ko', 'ru']
+        .filter((language) => language !== targetLanguage)
+        .map((language) => translations[language])
+        .find(Boolean) ||
+      ''
+    );
+  }
+
+  private extractNativeOptions(
+    obj: unknown,
+    lang: string,
+    targetLanguage = 'ko',
+  ): string[] {
     if (!obj) return [];
-    const sourceLang = lang === 'ko' ? 'en' : lang;
-    const options = obj[sourceLang] || obj.uz || obj.en;
+    const translations = obj as Record<string, string[]>;
+    const sourceLang = this.nativeLanguage(lang, targetLanguage);
+    const options = translations[sourceLang]?.length
+      ? translations[sourceLang]
+      : ['uz', 'en', 'ko', 'ru']
+          .filter((language) => language !== targetLanguage)
+          .map((language) => translations[language])
+          .find((value) => value?.length);
     return Array.isArray(options) ? options : [];
   }
 
   private formatQuestion(q: any, lang: string) {
+    const scope = resolveCourseScope(q);
     const nativeOptions =
       q.type === 'sentence_builder'
-        ? this.extractNativeOptions(q.optionsI18n, lang)
+        ? this.extractNativeOptions(q.optionsI18n, lang, scope.targetLanguage)
         : [];
     const usesNativeBuilder = nativeOptions.length > 0;
     const nativeAnswer = usesNativeBuilder
-      ? this.extractNativeI18n(q.answerI18n, lang)
+      ? this.extractNativeI18n(q.answerI18n, lang, scope.targetLanguage)
       : '';
 
     return {
       id: q._id.toString(),
+      ...scope,
+      speechLocale: speechLocaleOf(scope.targetLanguage),
       type: q.type,
       level: q.level,
       question: this.extractI18n(q.instruction, lang),
@@ -314,7 +376,14 @@ export class LessonsService {
       sentenceTemplate: q.sentenceTemplate || '',
       blankAnswers: q.blankAnswers || [],
       dialogLines: q.dialogLines || [],
-      pairs: q.pairs || [],
+      pairs: ((q as Pick<Question, 'pairs'>).pairs || []).map((pair) => ({
+        ...pair,
+        text: pair.text || pair.korean || '',
+        korean: pair.text || pair.korean || '',
+        native:
+          this.extractNativeI18n(pair.nativeI18n, lang, scope.targetLanguage) ||
+          pair.native,
+      })),
       hint: this.extractI18n(q.hint, lang),
       explanation: this.extractI18n(q.explanation, lang),
       // 문법 빈칸·조립은 answerTranslation 을 "뜻 문장"으로 문제에 먼저 보여준다.
@@ -380,6 +449,7 @@ export class LessonsService {
       question?.answer ||
       question?.audioText ||
       (question?.blankAnswers ?? [])[0] ||
+      ((question as Partial<Question>)?.pairs ?? [])[0]?.text ||
       (question?.pairs ?? [])[0]?.korean ||
       '';
     return String(raw)
@@ -475,7 +545,11 @@ export class LessonsService {
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
 
     const questions = await this.questionModel
-      .find({ _id: { $in: lesson.questionIds }, isActive: true })
+      .find({
+        ...courseContentFilter(resolveCourseScope(lesson)),
+        _id: { $in: lesson.questionIds },
+        isActive: true,
+      })
       .lean();
 
     const questionMap = new Map(questions.map((q) => [q._id.toString(), q]));
@@ -503,6 +577,7 @@ export class LessonsService {
 
     return {
       lessonId: lesson._id.toString(),
+      ...resolveCourseScope(lesson),
       /** 이 판의 계측 id. 앱이 진행·완료 보고에 그대로 실어 보낸다 */
       attemptId,
       lessonTitle: this.extractI18n(lesson.title, lang),
@@ -523,6 +598,11 @@ export class LessonsService {
       .findById(new Types.ObjectId(lessonId))
       .lean();
     if (!lesson) throw new NotFoundException('레슨을 찾을 수 없습니다');
+    const scope = resolveCourseScope(lesson);
+    const node = await this.nodeModel.findById(lesson.nodeId).lean();
+    if (node && resolveCourseScope(node).courseId !== scope.courseId) {
+      throw new BadRequestException('COURSE_CONTENT_MISMATCH');
+    }
 
     // 진행도와 오답 노트에는 현재 레슨이 실제로 참조하는 질문 _id만 저장한다.
     // 시드 교체 전 id나 조작된 id가 들어오면 유령 오답 참조가 다시 생길 수 있다.
@@ -635,7 +715,6 @@ export class LessonsService {
     // ── 노드 완성 감지 → 상자 ──
     let chest: { grade: string; gems: number } | null = null;
 
-    const node = await this.nodeModel.findById(lesson.nodeId).lean();
     // 문법 트랙은 화면에서 레슨 하나가 노드 하나다 → 상자도 레슨마다 (아래)
     const isGrammarNode = node?.category === LessonCategory.GRAMMAR;
     if (node && node.nodeType !== 'chest' && isGrammarNode) {
@@ -739,7 +818,12 @@ export class LessonsService {
     // 순간을 아무도 알려주지 않아서, 유저는 숫자가 언제 왜 올랐는지 몰랐다.
     // 여기서 잡아 화면이 축하하게 한다.
     const unitCompleted = node
-      ? await this.checkUnitCompleted(userId, node.section, node.unit)
+      ? await this.checkUnitCompleted(
+          userId,
+          node.section,
+          node.unit,
+          resolveCourseScope(node),
+        )
       : null;
 
     // ── 섹션을 통째로 끝냈나 → 다음 섹션이 열린 순간 (앱이 레벨업 연출을 띄운다) ──
@@ -905,7 +989,12 @@ export class LessonsService {
   /** 이 노드의 섹션(같은 트랙)을 다 끝냈으면 다음 섹션. section-up.util 참고 */
   private async checkSectionUp(
     userId: string,
-    node: { section: number; category?: string | null },
+    node: {
+      section: number;
+      category?: string | null;
+      courseId?: string;
+      targetLanguage?: string;
+    },
   ): Promise<SectionUp | null> {
     const track = trackOfNode(node.category);
     if (!track) return null;
@@ -913,6 +1002,7 @@ export class LessonsService {
       isActive: true,
       nodeType: { $ne: 'chest' },
       ...trackNodeFilter(track),
+      ...courseContentFilter(resolveCourseScope(node)),
     };
     const nodes = await this.nodeModel
       .find({ ...filter, section: node.section })
@@ -939,10 +1029,17 @@ export class LessonsService {
     userId: string,
     section: number,
     unit: number,
+    scope: CourseScope = resolveCourseScope(),
   ): Promise<{ section: number; unit: number; score: number } | null> {
     const uId = new Types.ObjectId(userId);
     const unitNodes = await this.nodeModel
-      .find({ section, unit, isActive: true, nodeType: { $ne: 'chest' } })
+      .find({
+        ...courseContentFilter(scope),
+        section,
+        unit,
+        isActive: true,
+        nodeType: { $ne: 'chest' },
+      })
       .select('lessonIds')
       .lean();
     if (!unitNodes.length) return null;
@@ -958,7 +1055,7 @@ export class LessonsService {
     if (done < lessonIds.length) return null;
 
     // 스코어 계산기를 그대로 쓴다. 화면에 띄울 숫자가 헤더·드롭다운과 같아야 한다
-    const score = await this.getScore(userId);
+    const score = await this.getScore(userId, 'uz', undefined, scope);
     return { section, unit, score: score.score };
   }
 
@@ -1094,7 +1191,7 @@ export class LessonsService {
         xpEarned: 0,
         totalXP: me?.totalXP ?? 0,
         energy: energyAfter,
-      celebration,
+        celebration,
       };
     }
 
@@ -1123,7 +1220,7 @@ export class LessonsService {
         xpEarned: 0,
         totalXP: me?.totalXP ?? 0,
         energy: energyAfter,
-      celebration,
+        celebration,
       };
     }
 
@@ -1343,7 +1440,15 @@ export class LessonsService {
     userId: string,
     scope: Types.ObjectId[] | null,
     limit: number,
+    courseScope?: CourseScope,
   ): Promise<string[]> {
+    if (!scope && courseScope) {
+      const questions = await this.questionModel
+        .find(courseContentFilter(courseScope))
+        .select('_id')
+        .lean();
+      scope = questions.map((question) => question._id);
+    }
     const filter: Record<string, any> = {
       userId: new Types.ObjectId(userId),
       resolvedAt: null,
@@ -1366,7 +1471,11 @@ export class LessonsService {
   public async getLevelTestQuestions(
     self: SelfReportedLevel = SelfReportedLevel.BASIC_GREETINGS,
     lang: string = 'uz',
+    scope: CourseScope = resolveCourseScope(),
   ) {
+    if (scope.courseId !== DEFAULT_COURSE_ID) {
+      throw new BadRequestException('COURSE_MODE_UNAVAILABLE');
+    }
     const band =
       SELF_LEVEL_BAND[self] ??
       SELF_LEVEL_BAND[SelfReportedLevel.BASIC_GREETINGS];
@@ -1381,6 +1490,7 @@ export class LessonsService {
     const questions = await this.questionModel.aggregate([
       {
         $match: {
+          ...courseContentFilter(scope),
           level: { $in: levels },
           isActive: true,
           type: {
@@ -1412,17 +1522,23 @@ export class LessonsService {
      * 안 연 섹션을 열 수 있으면 점프 테스트가 무의미해진다.
      */
     viewSection?: number,
+    scope: CourseScope = resolveCourseScope(),
   ) {
     // 모든 노드 조회 (section, unit, order 순)
     const meUser = await this.userModel
       .findById(new Types.ObjectId(userId))
-      .select('legendNodes placementLevel hangulLevel hangulCompletedAt')
+      .select(
+        'legendNodes placementLevel hangulLevel hangulCompletedAt courseProgress',
+      )
       .lean();
 
-    const startSection = sectionRangeForLevel(meUser?.placementLevel ?? 1)[0];
+    const courseProgress = getCourseProgress(meUser, scope);
+    const startSection = sectionRangeForLevel(
+      courseProgress.placementLevel ?? 1,
+    )[0];
 
     const legendSet = new Set(
-      ((meUser?.legendNodes ?? []) as any[]).map((x) => x.toString()),
+      ((courseProgress.legendNodes ?? []) as any[]).map((x) => x.toString()),
     );
 
     // 카테고리 필터.
@@ -1433,7 +1549,10 @@ export class LessonsService {
     //
     // 어휘 트랙 = category 가 없는 옛 노드 + 명시적으로 vocabulary 인 노드.
     // (node.schema 주석: "미지정 = 기존 메인(어휘) 트랙")
-    const nodeFilter: Record<string, any> = { isActive: true };
+    const nodeFilter: Record<string, any> = {
+      isActive: true,
+      ...courseContentFilter(scope),
+    };
     if (category && category !== 'vocabulary') {
       nodeFilter.category = category;
     } else {
@@ -1449,7 +1568,9 @@ export class LessonsService {
       .lean();
 
     // 모든 레슨 조회
-    const lessons = await this.lessonModel.find({ isActive: true }).lean();
+    const lessons = await this.lessonModel
+      .find({ isActive: true, ...courseContentFilter(scope) })
+      .lean();
 
     // lessonId → lesson 맵
     const lessonMap = new Map(lessons.map((l) => [l._id.toString(), l]));
@@ -1530,6 +1651,7 @@ export class LessonsService {
     // 별도 화면으로 튕기지 않고 로드맵 위 첫 관문으로 보이게. 끝내야 다음이 열린다.
     // 메인(어휘) 트랙에만 넣는다. 문법 등 별도 카테고리 로드맵에는 안 넣음.
     const needsHangul =
+      scope.courseId === DEFAULT_COURSE_ID &&
       (!category || category === 'vocabulary') &&
       meUser?.hangulLevel === HangulLevel.NONE;
 
@@ -1613,7 +1735,7 @@ export class LessonsService {
       currentUnit?.sectionNumber ?? units[units.length - 1]?.sectionNumber ?? 1;
 
     const [levelStart, levelEnd] = sectionRangeForLevel(
-      meUser?.placementLevel ?? 1,
+      courseProgress.placementLevel ?? 1,
     );
     // 지나온 섹션 다시보기. 현재 섹션 이하이고 실제로 유닛이 있을 때만 받아준다
     const canView =
@@ -1644,6 +1766,7 @@ export class LessonsService {
 
     return {
       units: sectionUnits,
+      ...scope,
       score,
       // 안 받은 상자가 있으면 화면이 상자 노드를 빛나게 한다
       pendingChests: await this.chestService.pendingCount(userId),
@@ -1667,14 +1790,18 @@ export class LessonsService {
     };
   }
 
-  public async getLessons(userId: string) {
+  public async getLessons(
+    userId: string,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     const nodes = await this.nodeModel
-      .find({ isActive: true })
+      .find({ isActive: true, ...courseContentFilter(scope) })
       .sort({ section: 1, unit: 1, order: 1 })
       .lean();
 
     return nodes.map((node) => ({
       id: node._id.toString(),
+      ...scope,
       title: node.title,
       section: node.section,
       unit: node.unit,
@@ -1684,22 +1811,34 @@ export class LessonsService {
   }
 
   // 유저의 모든 틀린 문제 (중복 제거)
-  public async getMistakes(userId: string) {
+  public async getMistakes(
+    userId: string,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     // 장부에서 읽는다. UserProgress 를 훑던 시절엔 레슨을 거치지 않는 모드
     // (학습 로드의 유닛 문제 등)에서 틀린 게 오답 노트에 안 잡혔다.
-    const ids = await this.openMistakeIds(userId, null, MISTAKE_NOTE_LIMIT);
+    const ids = await this.openMistakeIds(
+      userId,
+      null,
+      MISTAKE_NOTE_LIMIT,
+      scope,
+    );
 
     if (ids.length === 0) return { count: 0, questions: [] };
 
     const questions = await this.questionModel
-      .find({ _id: { $in: ids.map((id) => new Types.ObjectId(id)) } })
-      .select('type instruction answer npcText')
+      .find({
+        ...courseContentFilter(scope),
+        _id: { $in: ids.map((id) => new Types.ObjectId(id)) },
+      })
+      .select('type instruction answer npcText courseId targetLanguage')
       .lean();
 
     return {
       count: questions.length,
       questions: questions.map((q) => ({
         id: q._id.toString(),
+        ...resolveCourseScope(q),
         type: q.type,
         instruction: q.instruction, // i18n {ko,uz,en,ru}
         answer: q.answer,
@@ -1709,7 +1848,11 @@ export class LessonsService {
   }
 
   // 유저가 배운 단어 (완료 레슨의 word_matching pairs)
-  public async getLearnedWords(userId: string) {
+  public async getLearnedWords(
+    userId: string,
+    scope: CourseScope = resolveCourseScope(),
+    lang = 'uz',
+  ) {
     // 완료한 레슨 id
     const completed = await this.userProgressModel
       .find({ userId: new Types.ObjectId(userId), isCompleted: true })
@@ -1720,7 +1863,7 @@ export class LessonsService {
 
     // 그 레슨들의 question id 모으기
     const lessons = await this.lessonModel
-      .find({ _id: { $in: lessonIds } })
+      .find({ ...courseContentFilter(scope), _id: { $in: lessonIds } })
       .select('questionIds')
       .lean();
 
@@ -1736,26 +1879,44 @@ export class LessonsService {
       .find({
         _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
         'pairs.0': { $exists: true },
+        ...courseContentFilter(scope),
       })
       .select('pairs')
       .lean();
 
-    const wordMap = new Map<string, { korean: string; native: string }>();
+    const wordMap = new Map<
+      string,
+      { text: string; korean: string; native: string }
+    >();
     questions.forEach((q) =>
-      (q.pairs ?? []).forEach((p: any) => {
-        if (p.korean && !wordMap.has(p.korean)) {
-          wordMap.set(p.korean, { korean: p.korean, native: p.native });
+      (q.pairs ?? []).forEach((p) => {
+        const text = p.text || p.korean;
+        if (text && !wordMap.has(text)) {
+          wordMap.set(text, {
+            text,
+            korean: text,
+            native:
+              this.extractNativeI18n(
+                p.nativeI18n,
+                lang,
+                scope.targetLanguage,
+              ) || p.native,
+          });
         }
       }),
     );
 
     const words = [...wordMap.values()];
-    return { count: words.length, words };
+    return { count: words.length, words, ...scope };
   }
 
   // 배운 단어로 word_matching 연습 문제 생성
-  public async getWordPracticeQuestions(userId: string) {
-    const { words } = await this.getLearnedWords(userId);
+  public async getWordPracticeQuestions(
+    userId: string,
+    scope: CourseScope = resolveCourseScope(),
+    lang = 'uz',
+  ) {
+    const { words } = await this.getLearnedWords(userId, scope, lang);
     if (words.length === 0) return { questions: [] };
 
     // 셔플
@@ -1769,6 +1930,8 @@ export class LessonsService {
       if (group.length < 2) break;
       questions.push({
         id: `wp-${i}`,
+        ...scope,
+        speechLocale: speechLocaleOf(scope.targetLanguage),
         type: 'word_matching',
         question: '', // 프론트에서 i18n 지시문 붙임
         instruction: {
@@ -1777,7 +1940,11 @@ export class LessonsService {
           en: 'Match the pairs',
           ru: 'Соедините пары',
         },
-        pairs: group.map((w) => ({ korean: w.korean, native: w.native })),
+        pairs: group.map((w) => ({
+          text: w.korean,
+          korean: w.korean,
+          native: w.native,
+        })),
       });
     }
 
@@ -1815,12 +1982,22 @@ export class LessonsService {
   }
 
   // 복습용: 틀린 문제 전체 (실제로 풀 수 있는 형태)
-  async getMistakeQuestions(userId: string, lang: string = 'uz') {
-    const ids = await this.openMistakeIds(userId, null, MISTAKE_NOTE_LIMIT);
+  async getMistakeQuestions(
+    userId: string,
+    lang: string = 'uz',
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    const ids = await this.openMistakeIds(
+      userId,
+      null,
+      MISTAKE_NOTE_LIMIT,
+      scope,
+    );
     if (ids.length === 0) return { questions: [] };
 
     const questions = await this.questionModel
       .find({
+        ...courseContentFilter(scope),
         _id: { $in: ids.map((id) => new Types.ObjectId(id)) },
         isActive: true,
       })
@@ -1835,13 +2012,14 @@ export class LessonsService {
 
     const node = await this.nodeModel
       .findById(nodeId)
-      .select('lessonIds')
+      .select('lessonIds courseId targetLanguage')
       .lean();
     if (!node || !node.lessonIds?.length) return { questions: [] };
+    const scope = resolveCourseScope(node);
 
     // 노드의 레슨들 → questionIds 모으기
     const lessons = await this.lessonModel
-      .find({ _id: { $in: node.lessonIds } })
+      .find({ ...courseContentFilter(scope), _id: { $in: node.lessonIds } })
       .select('questionIds')
       .lean();
 
@@ -1854,6 +2032,7 @@ export class LessonsService {
     // 문제 가져와서 셔플 후 limit개
     const questions = await this.questionModel
       .find({
+        ...courseContentFilter(scope),
         _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
         isActive: true,
       })
@@ -1992,19 +2171,20 @@ export class LessonsService {
     lang = 'uz',
     group = 1,
     lesson = 1,
+    scope: CourseScope = resolveCourseScope(),
   ) {
     if (kind === 'review') {
-      return this.getCatchUpReview(userId, section, unit, lang);
+      return this.getCatchUpReview(userId, section, unit, lang, scope);
     }
     if (kind === 'recap') {
-      return this.getUnitRecap(userId, section, unit, lang);
+      return this.getUnitRecap(userId, section, unit, lang, scope);
     }
     if (kind === 'final') {
-      return this.getUnitFinal(userId, section, unit, lang);
+      return this.getUnitFinal(userId, section, unit, lang, scope);
     }
 
     const track = kind === 'grammarQuiz' ? 'grammar' : 'vocabulary';
-    const all = await this.collectUnitQuestions(section, unit, track);
+    const all = await this.collectUnitQuestions(section, unit, track, scope);
     if (!all.length) return { questions: [] };
 
     // 어휘는 유닛 전체를 100문제짜리 노드로 나눠 가진다. 그 노드 몫을 먼저
@@ -2034,8 +2214,13 @@ export class LessonsService {
    * 그 급이 맡은 두 섹션 전체에서 뽑는다. 어려운 문제를 앞에 두되 어휘·문법을
    * 섞는다 — 한 영역만 나오면 실력을 확인하는 게 아니라 운을 보는 게 된다.
    */
-  async getLevelExam(sections: number[], lang = 'uz', limit = 25) {
-    const pool = await this.collectSectionQuestions(sections);
+  async getLevelExam(
+    sections: number[],
+    lang = 'uz',
+    limit = 25,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    const pool = await this.collectSectionQuestions(sections, scope);
     if (!pool.length) return { questions: [] };
 
     const hard = pool.filter(
@@ -2056,25 +2241,36 @@ export class LessonsService {
   async countExamQuestionsInRange(
     sections: number[],
     ids: string[],
+    scope: CourseScope = resolveCourseScope(),
   ): Promise<number> {
     if (!ids.length) return 0;
-    const pool = await this.collectSectionQuestions(sections);
+    const pool = await this.collectSectionQuestions(sections, scope);
     const poolSet = new Set(pool.map((q: any) => q._id.toString()));
     return ids.filter((id) => poolSet.has(id)).length;
   }
 
   /** 섹션 여러 개의 모든 문제. 유닛마다 따로 물으면 쿼리가 유닛 수만큼 늘어난다 */
-  private async collectSectionQuestions(sections: number[]) {
+  private async collectSectionQuestions(
+    sections: number[],
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     if (!sections.length) return [];
 
     const nodes = await this.nodeModel
-      .find({ section: { $in: sections }, isActive: true })
+      .find({
+        ...courseContentFilter(scope),
+        section: { $in: sections },
+        isActive: true,
+      })
       .select('lessonIds')
       .lean();
     if (!nodes.length) return [];
 
     const lessons = await this.lessonModel
-      .find({ _id: { $in: nodes.flatMap((n) => n.lessonIds ?? []) } })
+      .find({
+        ...courseContentFilter(scope),
+        _id: { $in: nodes.flatMap((n) => n.lessonIds ?? []) },
+      })
       .select('questionIds')
       .lean();
 
@@ -2086,6 +2282,7 @@ export class LessonsService {
 
     const questions = await this.questionModel
       .find({
+        ...courseContentFilter(scope),
         _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
         isActive: true,
       })
@@ -2101,9 +2298,12 @@ export class LessonsService {
    *
    * 반환 키: `${unit}:${'vocabulary'|'grammar'}`
    */
-  async countSectionQuestions(section: number): Promise<Map<string, number>> {
+  async countSectionQuestions(
+    section: number,
+    scope: CourseScope = resolveCourseScope(),
+  ): Promise<Map<string, number>> {
     const rows = await this.nodeModel.aggregate([
-      { $match: { section, isActive: true } },
+      { $match: { ...courseContentFilter(scope), section, isActive: true } },
       {
         $lookup: {
           from: 'lessons',
@@ -2155,6 +2355,7 @@ export class LessonsService {
     section: number,
     unit: number,
     track: 'vocabulary' | 'grammar',
+    scope: CourseScope = resolveCourseScope(),
   ) {
     const categoryFilter =
       track === 'grammar'
@@ -2162,6 +2363,7 @@ export class LessonsService {
         : { $ne: LessonCategory.GRAMMAR };
     const nodes = await this.nodeModel
       .find({
+        ...courseContentFilter(scope),
         section,
         unit,
         isActive: true,
@@ -2173,7 +2375,7 @@ export class LessonsService {
 
     const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
     const lessons = await this.lessonModel
-      .find({ _id: { $in: lessonIds } })
+      .find({ ...courseContentFilter(scope), _id: { $in: lessonIds } })
       .select('questionIds')
       .lean();
 
@@ -2185,6 +2387,7 @@ export class LessonsService {
 
     const questions = await this.questionModel
       .find({
+        ...courseContentFilter(scope),
         _id: { $in: [...qIds].map((id) => new Types.ObjectId(id)) },
         isActive: true,
       })
@@ -2242,6 +2445,7 @@ export class LessonsService {
     section: number,
     unit: number,
     lang: string,
+    courseScope: CourseScope,
   ) {
     const limit = STUDY_QUIZ_SIZE.review;
     const me = await this.userModel
@@ -2253,7 +2457,7 @@ export class LessonsService {
     const span =
       CATCH_UP_UNITS.find((rule) => idleDays >= rule.days)?.units ?? 1;
 
-    const scope = await this.previousUnits(section, unit, span);
+    const scope = await this.previousUnits(section, unit, span, courseScope);
     if (!scope.length) return { questions: [] };
 
     // 되돌아볼 구간의 문제를 먼저 모으고, 그 안에서 오답을 앞에 세운다
@@ -2264,6 +2468,7 @@ export class LessonsService {
           target.section,
           target.unit,
           'vocabulary',
+          courseScope,
         )),
       );
     }
@@ -2315,9 +2520,15 @@ export class LessonsService {
     section: number,
     unit: number,
     lang: string,
+    scope: CourseScope,
   ) {
     const limit = STUDY_QUIZ_SIZE.review;
-    const all = await this.collectUnitQuestions(section, unit, 'vocabulary');
+    const all = await this.collectUnitQuestions(
+      section,
+      unit,
+      'vocabulary',
+      scope,
+    );
     if (!all.length) return { questions: [] };
 
     // 1일차가 맡은 앞쪽 구간에서만 고른다 — 아직 안 본 뒤쪽을 미리 보여주지 않게
@@ -2337,11 +2548,12 @@ export class LessonsService {
     section: number,
     unit: number,
     lang: string,
+    scope: CourseScope,
   ) {
     const limit = STUDY_QUIZ_SIZE.final;
     const [vocab, grammar] = await Promise.all([
-      this.collectUnitQuestions(section, unit, 'vocabulary'),
-      this.collectUnitQuestions(section, unit, 'grammar'),
+      this.collectUnitQuestions(section, unit, 'vocabulary', scope),
+      this.collectUnitQuestions(section, unit, 'grammar', scope),
     ]);
     const pool = [...vocab, ...grammar];
     if (!pool.length) return { questions: [] };
@@ -2357,11 +2569,17 @@ export class LessonsService {
    * 섹션 첫날에서 복습이 끊기면 그 앞이 통째로 날아간 채로 진도가 나간다.
    * 이전 섹션의 마지막 유닛 번호는 알 수 없으므로 노드에서 찾는다.
    */
-  private async previousUnits(section: number, unit: number, span: number) {
+  private async previousUnits(
+    section: number,
+    unit: number,
+    span: number,
+    courseScope: CourseScope,
+  ) {
     if (span <= 0) return [];
 
     const rows = await this.nodeModel
       .find({
+        ...courseContentFilter(courseScope),
         isActive: true,
         $or: [{ section: { $lt: section } }, { section, unit: { $lt: unit } }],
       })
@@ -2400,7 +2618,12 @@ export class LessonsService {
         q.sentenceTemplate ?? '',
         (q.blankAnswers ?? []).join(','),
         (q.options ?? []).join(','),
-        (q.pairs ?? []).map((p: any) => `${p.korean}:${p.native}`).join(','),
+        (q.pairs ?? [])
+          .map(
+            (p: { text?: string; korean?: string; native?: string }) =>
+              `${p.text || p.korean}:${p.native}`,
+          )
+          .join(','),
         (q.dialogLines ?? []).map((d: any) => d.text).join(','),
       ]
         .join('|')
@@ -2455,6 +2678,7 @@ export class LessonsService {
     lang = 'uz',
     categoryValue?: string,
     limit = 25,
+    scope: CourseScope = resolveCourseScope(),
   ) {
     const category = normalizeJumpTestCategory(categoryValue);
     if (!category) {
@@ -2463,7 +2687,12 @@ export class LessonsService {
 
     // 목표 지점 "이전"의 같은 트랙 노드만 조회한다.
     const nodes = await this.nodeModel
-      .find(buildJumpNodeFilter(targetSection, targetUnit, category))
+      .find({
+        $and: [
+          buildJumpNodeFilter(targetSection, targetUnit, category),
+          courseContentFilter(scope),
+        ],
+      })
       .select('lessonIds')
       .lean();
 
@@ -2471,7 +2700,7 @@ export class LessonsService {
 
     const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
     const lessons = await this.lessonModel
-      .find({ _id: { $in: lessonIds } })
+      .find({ ...courseContentFilter(scope), _id: { $in: lessonIds } })
       .select('questionIds')
       .lean();
 
@@ -2483,12 +2712,13 @@ export class LessonsService {
 
     // 어휘 점프는 문법을 제외하고, 문법 점프는 전용 문법 유형만 포함한다.
     const questions = await this.questionModel
-      .find(
-        buildJumpQuestionFilter(
+      .find({
+        ...courseContentFilter(scope),
+        ...buildJumpQuestionFilter(
           [...qIds].map((id) => new Types.ObjectId(id)),
           category,
         ),
-      )
+      })
       .lean();
 
     // 내용 기준 중복 제거 (정답+지문+보기+대화가 같으면 하나만)
@@ -2502,7 +2732,12 @@ export class LessonsService {
         q.sentenceTemplate ?? '',
         (q.blankAnswers ?? []).join(','),
         (q.options ?? []).join(','),
-        (q.pairs ?? []).map((p: any) => `${p.korean}:${p.native}`).join(','),
+        (q.pairs ?? [])
+          .map(
+            (p: { text?: string; korean?: string; native?: string }) =>
+              `${p.text || p.korean}:${p.native}`,
+          )
+          .join(','),
         (q.dialogLines ?? []).map((d: any) => d.text).join(','),
       ];
       const key = parts.join('|').trim().toLowerCase();
@@ -2520,6 +2755,7 @@ export class LessonsService {
     // 완료 요청은 오직 이 기록을 근거로만 처리된다.
     const heartLimit = this.jumpHeartLimit(targetSection);
     const attempt = await this.jumpAttemptModel.create({
+      ...scope,
       userId: new Types.ObjectId(userId),
       section: targetSection,
       unit: targetUnit,
@@ -2591,17 +2827,20 @@ export class LessonsService {
 
     const jumpCategory =
       normalizeJumpTestCategory(attempt.category) ?? 'vocabulary';
+    const scope = resolveCourseScope(attempt);
     // 진도를 바꾸기 전에 본다 — 이 합격이 앞 섹션을 건너뛰어 새 섹션에 들어서나
     const sectionUp = await this.jumpSectionUp(
       userId,
       attempt.section,
       jumpCategory,
+      scope,
     ).catch(() => null);
     const result = await this.applyUnitJump(
       userId,
       attempt.section,
       attempt.unit,
       jumpCategory,
+      scope,
     );
     return {
       passed: true,
@@ -2623,19 +2862,23 @@ export class LessonsService {
     userId: string,
     targetSection: number,
     category: JumpTestCategory,
+    scope: CourseScope,
   ): Promise<SectionUp | null> {
     const track = category === 'grammar' ? 'grammar' : 'vocabulary';
     const me = await this.userModel
       .findById(userId)
-      .select('placementLevel')
+      .select('placementLevel courseProgress')
       .lean();
-    const startSection = sectionRangeForLevel(me?.placementLevel ?? 1)[0];
+    const startSection = sectionRangeForLevel(
+      getCourseProgress(me, scope).placementLevel ?? 1,
+    )[0];
     const nodes = await this.nodeModel
       .find({
         isActive: true,
         nodeType: { $ne: 'chest' },
         section: { $lt: targetSection },
         ...trackNodeFilter(track),
+        ...courseContentFilter(scope),
       })
       .select('section lessonIds')
       .lean();
@@ -2671,13 +2914,25 @@ export class LessonsService {
     targetSection: number,
     targetUnit: number,
     category: JumpTestCategory,
+    scope: CourseScope,
   ) {
     const nodes = await this.nodeModel
-      .find(buildJumpNodeFilter(targetSection, targetUnit, category))
+      .find({
+        $and: [
+          buildJumpNodeFilter(targetSection, targetUnit, category),
+          courseContentFilter(scope),
+        ],
+      })
       .select('lessonIds')
       .lean();
 
-    const lessonIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    const referencedIds = nodes.flatMap((n) => n.lessonIds ?? []);
+    if (!referencedIds.length) return { completed: 0 };
+    const lessons = await this.lessonModel
+      .find({ ...courseContentFilter(scope), _id: { $in: referencedIds } })
+      .select('_id')
+      .lean();
+    const lessonIds = lessons.map((lesson) => lesson._id);
     if (!lessonIds.length) return { completed: 0 };
 
     // 각 레슨을 UserProgress에 완료로 upsert (XP 0)
@@ -2710,7 +2965,12 @@ export class LessonsService {
    * 하루 노드 완료(user.completedStudyNodes). 예전에는 두 화면이 이걸 같이
    * 불러서 같은 숫자가 떴다.
    */
-  async getScore(userId: string, lang = 'uz', category?: string) {
+  async getScore(
+    userId: string,
+    lang = 'uz',
+    category?: string,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     const uId = new Types.ObjectId(userId);
 
     // 자유 학습 로드맵이 보여주는 노드와 같은 범위로 센다 (getRoadmap 과 같은 필터).
@@ -2719,6 +2979,7 @@ export class LessonsService {
     const nodeFilter: Record<string, any> = {
       isActive: true,
       nodeType: { $ne: 'chest' },
+      ...courseContentFilter(scope),
     };
     if (category && category !== 'vocabulary') {
       nodeFilter.category = category;
@@ -2757,9 +3018,11 @@ export class LessonsService {
     // 헤더는 12, 드롭다운은 0 을 보는 식이다. 세는 규칙은 한 벌이어야 한다.
     const me = await this.userModel
       .findById(uId)
-      .select('placementLevel')
+      .select('placementLevel courseProgress')
       .lean();
-    const startSection = sectionRangeForLevel(me?.placementLevel ?? 1)[0];
+    const startSection = sectionRangeForLevel(
+      getCourseProgress(me, scope).placementLevel ?? 1,
+    )[0];
 
     // 유닛 완주 판정 = 그 유닛의 모든 노드의 모든 레슨 완료
     let completedUnits = 0;
@@ -2804,11 +3067,14 @@ export class LessonsService {
     if (!node) throw new NotFoundException('노드를 찾을 수 없습니다');
 
     const uId = new Types.ObjectId(userId);
+    const scope = resolveCourseScope(node);
+    const legendPath = courseProgressPath(scope, 'legendNodes');
 
     // 이미 클리어했으면 XP 안 줌 (반복 파밍 차단)
     const already = await this.userModel.exists({
       _id: uId,
-      legendNodes: node._id,
+      [legendPath]:
+        scope.courseId === DEFAULT_COURSE_ID ? node._id : node._id.toString(),
     });
     if (already) {
       const u = await this.userModel.findById(uId).select('totalXP').lean();
@@ -2822,12 +3088,22 @@ export class LessonsService {
 
     await this.userModel.updateOne(
       { _id: uId },
-      { $addToSet: { legendNodes: node._id } },
+      {
+        $addToSet: {
+          [legendPath]:
+            scope.courseId === DEFAULT_COURSE_ID
+              ? node._id
+              : node._id.toString(),
+        },
+      },
     );
 
     // 레전드도 학습 통계에 반영 (문제 수 · 카테고리)
     const legendLessons = await this.lessonModel
-      .find({ _id: { $in: node.lessonIds ?? [] } })
+      .find({
+        ...courseContentFilter(scope),
+        _id: { $in: node.lessonIds ?? [] },
+      })
       .select('questionIds')
       .lean();
     const legendQuestionIds = legendLessons.flatMap((l) => l.questionIds ?? []);

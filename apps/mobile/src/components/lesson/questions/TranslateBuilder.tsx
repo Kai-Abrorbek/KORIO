@@ -70,7 +70,7 @@ export default function TranslateBuilder({
       ? question.npcText
       : (question.sourceText ?? "") || question.question
     )?.trim() ?? "";
-  const speechLanguage = isReply ? "ko-KR" : speechLanguageOf(contentLang);
+  const speechLanguage = isReply ? question.speechLocale ?? question.targetLanguage ?? "ko-KR" : speechLanguageOf(contentLang);
   const spokenWords = useMemo(
     () => sourceText.split(/\s+/u).filter(Boolean),
     [sourceText],

@@ -39,17 +39,19 @@ export function useContentLanguagePending() {
   const hydrated = useSettingsHydrated();
   const language = useSettingsStore((st) => st.language);
   const saved = useSettingsStore((st) => st.contentLanguage);
-  return !hydrated || (language === "ko" && saved === null);
+  const course = useSettingsStore((st) => st.learnCourse);
+  return !hydrated || (course === "ko" && language === "ko" && saved === null);
 }
 
 export default function ContentLanguagePrompt() {
   const language = useSettingsStore((st) => st.language);
   const saved = useSettingsStore((st) => st.contentLanguage);
+  const course = useSettingsStore((st) => st.learnCourse);
   const setContentLanguage = useSettingsStore((st) => st.setContentLanguage);
   const hydrated = useSettingsHydrated();
   const [visible, setVisible] = useState(false);
 
-  const needed = hydrated && language === "ko" && saved === null;
+  const needed = hydrated && course === "ko" && language === "ko" && saved === null;
 
   useEffect(() => {
     if (!needed) {

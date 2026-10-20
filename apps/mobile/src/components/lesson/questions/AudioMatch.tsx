@@ -116,7 +116,7 @@ export default function AudioMatch({
       pairs.map((p, i) => ({
         id: `a-${i}`,
         pairId: i,
-        audio: p.korean,
+        audio: p.text ?? p.korean,
         status: "idle" as PairStatus,
       })),
     ),

@@ -27,7 +27,8 @@ import {
 import { energySpendsSettled, useEnergyStore } from "@/store/energy.store";
 import { useRevealPopover } from "@/components/roadmap/useRevealPopover";
 import { useAuthStore } from "@/store/auth.store";
-import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
+import { useSettingsStore } from "@/store/settings.store";
 import { UserService } from "@/services/user.service";
 import NextSectionLocked from "@/components/roadmap/NextSectionLocked";
 import RoadmapBackdrop from "@/components/roadmap/RoadmapBackdrop";
@@ -90,10 +91,11 @@ export default function RoadmapScreen() {
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const energy = useAuthStore((s) => s.user?.energy ?? 0);
   const user = useAuthStore((s) => s.user);
+  const course = useSettingsStore((state) => state.learnCourse);
   const updateUser = useAuthStore((s) => s.updateUser);
 
   const userStats = {
-    language: KOR_FLAG,
+    language: LEARN_COURSES[course].flag,
     courseCount: (user?.courseExtraCount ?? 0) + 1, // 주 코스 포함 총 코스 수
     score: roadmap.score,
     streak: user?.streak,
@@ -183,7 +185,7 @@ export default function RoadmapScreen() {
           energy: user?.energy,
           gems: user?.gems,
           isSuper: user?.isSuper,
-          language: KOR_FLAG,
+          language: LEARN_COURSES[course].flag,
           courseCount: (user?.courseExtraCount ?? 0) + 1,
           score: data.score,
           streak: user?.streak,
@@ -206,7 +208,7 @@ export default function RoadmapScreen() {
     } finally {
       setLoading(false);
     }
-  }, [scrollToUnit, category, viewSection]);
+  }, [scrollToUnit, category, viewSection, course]);
 
   useFocusEffect(
     useCallback(() => {

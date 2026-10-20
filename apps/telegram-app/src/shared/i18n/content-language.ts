@@ -6,7 +6,7 @@ import { isAppLanguage, type AppLanguage } from "./language";
  *   UI 가 uz/ru/en → 그대로 (UI 언어 = 설명 언어)
  *   UI 가 ko       → 따로 고른 값, 안 골랐으면 기기(텔레그램) 언어에서 추정, 없으면 uz
  *
- * 한국어는 배우는 말이라 설명 언어가 될 수 없다.
+ * 한국어 학습의 기존 설명 언어 설정은 유지한다. 다른 언어 학습에서는 한국어도 설명 언어다.
  *
  * 선 긋기:
  *   · 화면 문구(버튼·안내)                → UI 언어 (카탈로그 번역)
@@ -76,8 +76,15 @@ export function saveContentLanguage(language: ContentLanguage) {
 export function resolveContentLanguage(
   uiLanguage: string | undefined,
   saved: ContentLanguage | null,
-): ContentLanguage {
+  targetLanguage: string = "ko",
+): ContentLanguage | "ko" {
   const base = (uiLanguage ?? "").toLowerCase().split(/[-_]/)[0];
+  if (targetLanguage !== "ko" && base === "ko") return "ko";
+  if (base === targetLanguage && targetLanguage !== "ko") {
+    if (saved && saved !== targetLanguage) return saved;
+    const detected = detectDeviceContentLanguage();
+    return detected !== targetLanguage ? detected : "uz";
+  }
   if (isContentLanguage(base)) return base;
   return saved ?? detectDeviceContentLanguage();
 }
@@ -86,10 +93,13 @@ export function resolveContentLanguage(
  * 컴포넌트 밖(API 모듈)용. 호출 시점의 값을 읽는다.
  * UI 언어는 LanguageProvider 가 <html data-language> 에 적어 둔 값.
  */
-export function getContentLang(): ContentLanguage {
+export function getContentLang(targetLanguage?: "ko"): ContentLanguage;
+export function getContentLang(targetLanguage: string): ContentLanguage | "ko";
+export function getContentLang(targetLanguage: string = "ko"): ContentLanguage | "ko" {
   if (typeof document === "undefined") return "uz";
   return resolveContentLanguage(
     document.documentElement.dataset.language,
     readSavedContentLanguage(),
+    targetLanguage,
   );
 }

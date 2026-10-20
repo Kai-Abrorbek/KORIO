@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 import { WordService } from "@/services/word.service";
+import { useSettingsStore } from "@/store/settings.store";
 
 /** 이만큼 쌓이면 보낸다. 카드를 빠르게 넘겨도 요청이 폭주하지 않게 */
 const BATCH_SIZE = 6;
@@ -11,6 +12,7 @@ const BATCH_SIZE = 6;
  * 화면을 벗어날 때 남은 것도 함께 보낸다 — 안 그러면 마지막 몇 장이 늘 유실된다.
  */
 export function useSeenWords() {
+  const course = useSettingsStore((state) => state.learnCourse);
   const pending = useRef<string[]>([]);
   const sent = useRef<Set<string>>(new Set());
 
@@ -18,10 +20,10 @@ export function useSeenWords() {
     const ids = pending.current;
     if (!ids.length) return;
     pending.current = [];
-    WordService.markSeen(ids).catch(() => {
+    WordService.markSeen(ids, course).catch(() => {
       // 진행도는 학습을 막을 만큼 중요하지 않다. 다음에 다시 보면 또 올라간다.
     });
-  }, []);
+  }, [course]);
 
   const markSeen = useCallback(
     (wordId?: string) => {

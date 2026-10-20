@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 
 import { AppIcon } from "./icon";
+import { useTelegramAuth } from "../../../auth/model/telegram-auth-context";
+import { LEARN_COURSES, learnCourseOf } from "../../../learning/model/learning-options";
 import styles from "./roadmap-map.module.css";
 
 /**
@@ -27,10 +29,11 @@ export function RoadmapHeader({
   streak: number;
 }) {
   const router = useRouter();
+  const { user } = useTelegramAuth();
   return (
     <header className={styles.header}>
       <button onClick={onCourse} type="button">
-        <span className={styles.flag}>🇰🇷</span>
+        <span className={styles.flag}>{LEARN_COURSES[learnCourseOf(user?.learnCourse)].flag}</span>
         <b data-no-translate>{score}</b>
         <AppIcon className={styles.caret} name="caret-down" size={12} />
       </button>

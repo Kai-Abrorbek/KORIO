@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -17,6 +18,10 @@ import {
 } from "../api/telegram-auth";
 import { apiRequest } from "../../../shared/api/client";
 import { prepareTelegramWebApp } from "../../../shared/telegram/runtime";
+import { isLearningRequest, learnCourseOf, learningScopePath } from "../../learning/model/learning-options";
+import { LearningLanguageContext } from "../../../shared/i18n/learning-language-context";
+import { resolveContentLanguage } from "../../../shared/i18n/content-language";
+import { useAppLanguage } from "../../../shared/i18n/language-context";
 
 type AuthStatus = "loading" | "authenticated" | "error";
 
@@ -61,9 +66,13 @@ function errorCode(error: unknown): string {
 }
 
 export function TelegramAuthProvider({ children }: { children: ReactNode }) {
+  const { language, savedContentLanguage } = useAppLanguage();
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [user, setUser] = useState<KorioTelegramUser | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const course = learnCourseOf(user?.learnCourse);
+  const courseRef = useRef(course);
+  courseRef.current = course;
 
   useEffect(() => {
     let active = true;
@@ -91,9 +100,34 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
   const request = useCallback(
     async <T,>(path: string, init?: RequestInit): Promise<T> => {
       if (!accessToken) throw new Error("TELEGRAM_AUTH_REQUIRED");
-      return apiRequest<T>(path, init, accessToken);
+      const scopedPath = learningScopePath(path, course);
+      // Legacy API helpers already supplied lang before they knew the target.
+      // Resolve it at the request boundary using the same frozen course snapshot.
+      const [pathname, search = ""] = scopedPath.split("?");
+      const query = new URLSearchParams(search);
+      const explanationLanguage = resolveContentLanguage(language, savedContentLanguage, query.get("targetLanguage") ?? course);
+      if (isLearningRequest(path) && query.has("lang")) {
+        query.set("lang", explanationLanguage);
+      }
+      let requestInit = init;
+      if (isLearningRequest(path) && typeof init?.body === "string") {
+        try {
+          const body: unknown = JSON.parse(init.body);
+          if (body && typeof body === "object" && "lang" in body) {
+            requestInit = { ...init, body: JSON.stringify({ ...body, lang: explanationLanguage }) };
+          }
+        } catch {
+          // Non-JSON or binary bodies are forwarded untouched.
+        }
+      }
+      const requestPath = query.size ? `${pathname}?${query.toString()}` : pathname ?? path;
+      const result = await apiRequest<T>(requestPath, requestInit, accessToken);
+      if (isLearningRequest(path) && courseRef.current !== course) {
+        throw new Error("LEARNING_COURSE_CHANGED");
+      }
+      return result;
     },
-    [accessToken],
+    [accessToken, course, language, savedContentLanguage],
   );
 
   const updateUser = useCallback((partial: Partial<KorioTelegramUser>) => {
@@ -123,7 +157,7 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <TelegramAuthContext.Provider value={value}>
-      {children}
+      <LearningLanguageContext.Provider value={course}>{children}</LearningLanguageContext.Provider>
     </TelegramAuthContext.Provider>
   );
 }

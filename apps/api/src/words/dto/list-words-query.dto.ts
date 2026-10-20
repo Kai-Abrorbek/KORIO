@@ -1,4 +1,5 @@
 import { Type } from 'class-transformer';
+import { CourseScopeQueryDto } from '../../common/dto/course-scope-query.dto';
 import {
   IsIn,
   IsInt,
@@ -8,12 +9,9 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import {
-  WORD_LANGUAGES,
-  type WordLanguage,
-} from '../schemas/word.schema';
+import { WORD_LANGUAGES, type WordLanguage } from '../schemas/word.schema';
 
-export class ListWordsQueryDto {
+export class ListWordsQueryDto extends CourseScopeQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()

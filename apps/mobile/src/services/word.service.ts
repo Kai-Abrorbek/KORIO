@@ -1,4 +1,5 @@
-import { getContentLang } from "@/store/settings.store";
+import { getContentLang, useSettingsStore } from "@/store/settings.store";
+import { learningScopePath, type LearnCourse } from "@/constants/learnCourses";
 import api, { ApiError } from "@/services/api";
 import type {
   StudyWord,
@@ -39,7 +40,7 @@ export const WordService = {
     try {
       return await api.get("/words/sections/summary");
     } catch (error) {
-      if (!(error instanceof ApiError) || error.status !== 404) throw error;
+      if (!(error instanceof ApiError) || error.status !== 404 || useSettingsStore.getState().learnCourse !== "ko") throw error;
       return discoverLegacySectionSummaries();
     }
   },
@@ -47,10 +48,11 @@ export const WordService = {
   getSectionSummary,
 
   /** 카드로 넘겨 본 단어들. 여러 장을 모아서 한 번에 보낸다 */
-  markSeen: (ids: string[]): Promise<{ seen: number }> =>
-    api.post(`/words/seen`, { ids }),
+  markSeen: (ids: string[], course = useSettingsStore.getState().learnCourse as LearnCourse): Promise<{ seen: number }> =>
+    api.post(learningScopePath(`/words/seen`, course), { ids }),
 
   getUnitWords: async (section: number, unit: number): Promise<StudyWord[]> => {
+    const course = useSettingsStore.getState().learnCourse;
     const items: StudyWord[] = [];
     let cursor: string | null = null;
 
@@ -61,8 +63,11 @@ export const WordService = {
         ? `&cursor=${encodeURIComponent(cursor)}`
         : "";
       const page: WordListResponse = await api.get<WordListResponse>(
-        `/words?section=${section}&unit=${unit}&lang=${getLang()}&limit=100${cursorQuery}`,
+        learningScopePath(`/words?section=${section}&unit=${unit}&lang=${getLang()}&limit=100${cursorQuery}`, course),
       );
+      if (useSettingsStore.getState().learnCourse !== course) {
+        throw new ApiError("LEARNING_COURSE_CHANGED", 409);
+      }
       items.push(...page.items);
       cursor = page.nextCursor;
     } while (cursor);

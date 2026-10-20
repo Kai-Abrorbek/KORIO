@@ -19,16 +19,19 @@ export interface WordPlacement {
 }
 
 export interface StudyWord {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   code: string;
   difficulty: number;
-  examples: { korean: string; translation: string }[];
+  examples: { text?: string; korean?: string; translation: string }[];
   headword: string;
   id: string;
   meaning: string;
   media: { emoji: string; imageAlt: string; imageUrl: string };
   partOfSpeech: WordPartOfSpeech;
   placement: WordPlacement | null;
-  pronunciation: { hangul: string; romanization: string; ttsText: string };
+  pronunciation: { ipa?: string; hangul: string; romanization: string; ttsText: string };
   progress: { state: "new" | "learning" | "review" | "mastered" };
   senseKey: string;
   tags: string[];

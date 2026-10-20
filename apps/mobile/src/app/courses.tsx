@@ -115,7 +115,7 @@ export default function CoursesScreen() {
     if (!target) return;
     commitStudyMode(mode);
 
-    // 영어는 먼저 글자 학습만 제공한다. 한국어 학습 로드로 보내지 않는다.
+    // 영어는 어휘·글자 코스를 고른다. 한국어 전용 학습 로드는 아직 쓰지 않는다.
     if (target.code === "en") {
       router.push({
         pathname: "/course-categories",
@@ -172,7 +172,7 @@ export default function CoursesScreen() {
               theme={theme}
               s={s}
               label={t(`courses.languages.${item.key}`)}
-              count={item.code === "en" ? t("alphabet.courseCount") : count}
+              count={item.code === "en" ? t("courses.fieldCount", { count: 3 }) : count}
               onPress={() =>
                 setPending({
                   code: item.code,

@@ -10,7 +10,7 @@ const ts = require("typescript");
 
 // Execute the production hooks with deterministic timers and hook lifecycle
 // doubles. This needs no browser/TTS service and adds no application dependency.
-function fixture() {
+function fixture(language = "ko-KR") {
   let current;
   const same = (left, right) => left?.length === right?.length && left.every((value, index) => Object.is(value, right[index]));
   class Scope {
@@ -113,7 +113,7 @@ function fixture() {
   const question = new Scope();
   let context;
   const renderProvider = () => {
-    const output = provider.render(() => shared.LessonSpeechProvider({ children: null }));
+    const output = provider.render(() => shared.LessonSpeechProvider({ children: null, language }));
     // The public context's provider is the outer JSX node.
     if (!context) {
       const original = react.useContext;
@@ -195,6 +195,18 @@ test("manual replay works without scheduling another automatic read", () => {
   assert.equal(f.spoken[1].rate, 0.55);
   f.renderProvider(); f.render(); f.flush();
   assert.equal(f.spoken.length, 2);
+});
+
+test("English lesson autoplay and replay use the target locale, not the UI language", () => {
+  const f = fixture("en-US");
+  f.render("en-1", "Hello"); f.flush();
+  assert.equal(f.spoken.length, 1);
+  assert.equal(f.spoken[0].lang, "en-US");
+  f.renderProvider().speak("Hello", { slow: true });
+  assert.equal(f.spoken[1].lang, "en-US");
+  assert.equal(f.spoken[1].rate, 0.55);
+  f.renderProvider().speak("안녕하세요", { language: "ko-KR" });
+  assert.equal(f.spoken[2].lang, "ko-KR");
 });
 
 test("autoplay off, muted sessions and zero speech volume remain silent", () => {

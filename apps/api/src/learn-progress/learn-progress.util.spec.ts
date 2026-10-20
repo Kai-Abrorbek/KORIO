@@ -188,7 +188,8 @@ describe('학습 코스', () => {
 
   it('예전 앱(코스 없음): 지금 코스에 있으면 유지, 없으면 그 모드를 가진 코스', () => {
     expect(resolveLearnCourse('expression', 'ko')).toBe('ko');
-    expect(resolveLearnCourse('vocabulary', 'en')).toBe('ko');
+    expect(resolveLearnCourse('vocabulary', 'en')).toBe('en');
+    expect(resolveLearnCourse('vocabulary', 'en', 'ko')).toBe('ko');
     expect(resolveLearnCourse('alphabet', 'ko')).toBe('en');
   });
 });

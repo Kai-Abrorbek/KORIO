@@ -15,6 +15,7 @@ import {
 import { useSettingsStore } from "@/store/settings.store";
 import { resolveSpeechVoice } from "@/utils/speech-voice";
 import { activatePlaybackAudio } from "@/utils/audio-session";
+import { DEFAULT_LEARNING_COURSES } from "@/constants/learnCourses";
 
 /** 느리게 듣기는 설정 속도에서 한 단계 더 내린다 */
 const SLOW_FACTOR = 0.55;
@@ -56,7 +57,9 @@ function releasePreloadedSource(source?: AudioSource) {
   void clearPreloadedSource(source).catch(() => undefined);
 }
 
-export function useSpeech() {
+export function useSpeech(defaultLanguage?: string) {
+  const course = useSettingsStore((state) => state.learnCourse);
+  const targetLocale = defaultLanguage ?? DEFAULT_LEARNING_COURSES[course].speechLocale;
   const player = useAudioPlayer(null, {
     updateInterval: 100,
     keepAudioSessionActive: true,
@@ -251,26 +254,26 @@ export function useSpeech() {
   );
 
   const speak = useCallback(
-    (text: string, lang: string = "ko-KR", options?: SpeechPlaybackOptions) => {
+    (text: string, lang: string = targetLocale, options?: SpeechPlaybackOptions) => {
       void run(text, lang, false, options);
     },
-    [run],
+    [run, targetLocale],
   );
 
   const speakSlow = useCallback(
-    (text: string, lang: string = "ko-KR", options?: SpeechPlaybackOptions) => {
+    (text: string, lang: string = targetLocale, options?: SpeechPlaybackOptions) => {
       void run(text, lang, true, options);
     },
-    [run],
+    [run, targetLocale],
   );
 
   /** 설정에서 자동 재생을 끄면 아무것도 하지 않는다. */
   const speakAuto = useCallback(
-    (text: string, lang: string = "ko-KR", options?: SpeechPlaybackOptions) => {
+    (text: string, lang: string = targetLocale, options?: SpeechPlaybackOptions) => {
       if (!useSettingsStore.getState().sound.autoPlay) return;
       void run(text, lang, false, options);
     },
-    [run],
+    [run, targetLocale],
   );
 
   /**
@@ -282,7 +285,7 @@ export function useSpeech() {
   const prewarm = useCallback(
     (
       texts: readonly string[],
-      lang: string = "ko-KR",
+      lang: string = targetLocale,
       options?: SpeechPlaybackOptions,
     ) => {
       if ((options?.respectSoundSettings ?? true) && useSettingsStore.getState().muted) {
@@ -302,7 +305,7 @@ export function useSpeech() {
         }
       })();
     },
-    [buildRequest, prepareSource],
+    [buildRequest, prepareSource, targetLocale],
   );
 
   const stop = useCallback(() => stopCurrent(true), [stopCurrent]);

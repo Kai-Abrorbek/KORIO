@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 import { useAppLanguage } from "../../../shared/i18n/language-context";
 import { detectDeviceContentLanguage } from "../../../shared/i18n/content-language";
 import { ContentLanguageSheet } from "./content-language-sheet";
+import { LearningLanguageContext } from "../../../shared/i18n/learning-language-context";
 
 /**
  * 한국어 UI 인데 뜻·설명 언어를 아직 안 고른 사람에게 한 번 묻는다
@@ -13,7 +14,8 @@ import { ContentLanguageSheet } from "./content-language-sheet";
  */
 export function ContentLanguagePrompt() {
   const { language, ready, savedContentLanguage, setContentLanguage } = useAppLanguage();
-  const needed = ready && language === "ko" && savedContentLanguage === null;
+  const targetLanguage = useContext(LearningLanguageContext);
+  const needed = ready && targetLanguage === "ko" && language === "ko" && savedContentLanguage === null;
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

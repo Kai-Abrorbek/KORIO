@@ -9,6 +9,11 @@ import {
 import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import {
+  courseContentFilter,
+  getCourseProgress,
+  resolveCourseScope,
+} from '../common/learning-course';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
 import { UserStats, UserStatsDocument } from './schemas/user-stats.schema';
@@ -257,7 +262,14 @@ export class UsersService {
       userId: new Types.ObjectId(userId),
       isCompleted: true,
     });
-    const currentUnitProgress = await this.calcCurrentUnitProgress(userId);
+    const courseScope = resolveCourseScope({
+      targetLanguage: courseOf(user.targetLanguage),
+    });
+    const courseProgress = getCourseProgress(user, courseScope);
+    const currentUnitProgress = await this.calcCurrentUnitProgress(
+      userId,
+      courseScope,
+    );
 
     // 스트릭은 파생 데이터 → 읽을 때 계산해야 "끊김"도 즉시 반영됨
     const streak = await this.syncStreak(userId, user.longestStreak || 0);
@@ -331,6 +343,7 @@ export class UsersService {
       learnMode: user.learnMode || 'vocabulary',
       // 지금 배우는 코스(언어). learnMode 는 이 코스 안의 모드다 — 홈 카드가 둘을 같이 보여준다
       learnCourse: courseOf(user.targetLanguage),
+      courseId: courseScope.courseId,
       // 기본은 가이드(학습 로드) 모드. 뭘 해야 할지 모르는 유저가 기본값이다
       studyMode: user.studyMode || 'guided',
       topikLevel: user.topikLevel || '1',
@@ -347,9 +360,9 @@ export class UsersService {
       joinedYear: (user as any).createdAt
         ? new Date((user as any).createdAt).getFullYear()
         : new Date().getFullYear(),
-      languageLevel: user.placementLevel || 1,
+      languageLevel: courseProgress.placementLevel || 1,
       // 급수를 직접 골랐는지. false 면 학습 로드로 들어갈 때 한 번 물어본다
-      hasPickedLevel: !!user.placementLevelSetAt,
+      hasPickedLevel: !!courseProgress.placementLevelSetAt,
       hangulLevel: user.hangulLevel,
       hangulCompletedAt: user.hangulCompletedAt,
       // 코스 깃발은 **배우는 언어**다. 예전엔 countryToFlag(user.country) 가
@@ -366,9 +379,12 @@ export class UsersService {
     };
   }
 
-  private async calcCurrentUnitProgress(userId: string): Promise<number> {
+  private async calcCurrentUnitProgress(
+    userId: string,
+    scope = resolveCourseScope(),
+  ): Promise<number> {
     const nodes = await this.nodeModel
-      .find()
+      .find({ isActive: true, ...courseContentFilter(scope) })
       .sort({ section: 1, unit: 1, order: 1 })
       .lean();
     if (!nodes.length) return 0;

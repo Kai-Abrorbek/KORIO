@@ -22,7 +22,7 @@ import Animated, {
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
 import { useAuthStore } from "@/store/auth.store";
 import { EnrolledCourse } from "@/types/user-courses";
 import { Course } from "@/types/courses";
@@ -55,14 +55,15 @@ export default function CourseDropdown({ visible, onClose, category }: Props) {
   const user = useAuthStore((st) => st.user);
 
   const studyMode = useSettingsStore((st) => st.studyMode);
+  const course = useSettingsStore((state) => state.learnCourse);
   const [sc, setSc] = useState<ScoreData>(EMPTY);
 
   // 실제 수강 중 코스 — 지금은 한국어 하나. 멀티 코스 생기면 API 목록으로 교체.
   const enrolled: EnrolledCourse[] = [
     {
-      id: "korean",
-      nameKey: "courses.languages.korean",
-      flag: KOR_FLAG,
+      id: course,
+      nameKey: `courses.languages.${LEARN_COURSES[course].key}`,
+      flag: LEARN_COURSES[course].flag,
       xp: user?.totalXP ?? 0,
     },
   ];
@@ -80,7 +81,7 @@ export default function CourseDropdown({ visible, onClose, category }: Props) {
     // 드롭다운은 어휘 스코어라 숫자가 서로 다르다. 학습 로드는 어휘 전용
     const grammar = !!category && category !== "vocabulary";
     const load =
-      studyMode === "guided" && !grammar
+      course === "ko" && studyMode === "guided" && !grammar
         ? StudyPathService.getScore()
         : LessonService.getScore(grammar ? category : undefined);
     load
@@ -91,7 +92,7 @@ export default function CourseDropdown({ visible, onClose, category }: Props) {
     return () => {
       alive = false;
     };
-  }, [visible, studyMode, category]);
+  }, [visible, studyMode, category, course]);
 
   const go = (path: string) => {
     onClose();

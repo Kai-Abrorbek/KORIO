@@ -26,6 +26,9 @@ export type QuestionType =
 export type AnswerState = "idle" | "correct" | "wrong";
 
 export interface LessonQuestion {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   acceptedAnswers?: string[];
   answer: string;
   answerTranslation?: string;
@@ -56,7 +59,7 @@ export interface LessonQuestion {
   level: string;
   npcText?: string;
   options?: string[];
-  pairs?: { korean: string; native: string }[];
+  pairs?: { text?: string; korean: string; native: string }[];
   passage?: string;
   passageTitle?: string;
   question: string;
@@ -74,6 +77,9 @@ export interface LessonQuestion {
 }
 
 export interface LessonSession {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   attemptId?: string | null;
   category: string;
   lessonId: string;

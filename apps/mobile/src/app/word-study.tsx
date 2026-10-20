@@ -53,6 +53,7 @@ import { useSeenWords } from "@/hooks/useSeenWords";
 import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
 import { isAnswerCorrect } from "@/utils/answer-check";
+import { DEFAULT_LEARNING_COURSES } from "@/constants/learnCourses";
 
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
@@ -235,11 +236,11 @@ function WordCard({
             <Text style={[styles.headword, { color: theme.text }]}>
               {word.headword}
             </Text>
-            {word.pronunciation.romanization ? (
+            {word.pronunciation.ipa || word.pronunciation.romanization ? (
               <Text
                 style={[styles.romanization, { color: theme.textSecondary }]}
               >
-                {word.pronunciation.romanization}
+                {word.pronunciation.ipa || word.pronunciation.romanization}
               </Text>
             ) : null}
           </View>
@@ -298,7 +299,7 @@ function WordCard({
             ]}
           >
             <Text style={[styles.exampleKorean, { color: theme.text }]}>
-              {example.korean}
+              {example.text ?? example.korean}
             </Text>
             <Text
               style={[
@@ -420,7 +421,7 @@ function RecallCard({
             { color: theme.textSecondary },
           ]}
         >
-          {t("wordStudy.recallInputLabel")}
+          {t("wordStudy.recallTargetLabel", { language: t(word.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") })}
         </Text>
         <View
           style={[
@@ -554,7 +555,8 @@ function RecallCard({
                       ? "wordStudy.recallCorrect"
                       : isWrong
                         ? "wordStudy.recallWrong"
-                        : "wordStudy.recallGuide",
+                      : "wordStudy.recallTargetGuide",
+                    { language: t(word.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") },
                   )}
             </Text>
             {!compact ? (
@@ -1155,6 +1157,8 @@ export default function WordStudyScreen() {
   const studyLessonCount = Math.max(1, Number(params.lessonCount) || 1);
   const { t } = useTranslation();
   const contentLang = useContentLang();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
+  const speechLocale = DEFAULT_LEARNING_COURSES[learnCourse].speechLocale;
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -1270,9 +1274,11 @@ export default function WordStudyScreen() {
     }
     // wordStudyLast 는 첫 계산에만 쓰고 이후 변화로 다시 돌지 않게 의존성에서 뺀다
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.section, params.unit]);
+  }, [params.section, params.unit, learnCourse]);
 
   useEffect(() => {
+    resumeConsumedRef.current = false;
+    resumeIndexRef.current = null;
     void loadSummaries();
   }, [loadSummaries]);
 
@@ -1281,6 +1287,7 @@ export default function WordStudyScreen() {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
     // 서비스가 설명 언어로 요청하므로 언어가 바뀌면 이 콜백을 새로 만든다.
     void activeLanguage;
+    void learnCourse;
     setWordsLoading(true);
     setLoadFailed(false);
     // 범위를 바꾸기 전에 지금까지 본 것을 넘긴다
@@ -1337,6 +1344,7 @@ export default function WordStudyScreen() {
     }
   }, [
     activeLanguage,
+    learnCourse,
     flushSeen,
     studyLesson,
     studyLessonCount,
@@ -1410,8 +1418,8 @@ export default function WordStudyScreen() {
           w.pronunciation.ttsText || w.pronunciation.hangul || w.headword,
       )
       .filter(Boolean);
-    if (upcoming.length) prewarm(upcoming, "ko-KR");
-  }, [cardIndex, words, prewarm]);
+    if (upcoming.length) prewarm(upcoming, words[cardIndex]?.speechLocale ?? speechLocale);
+  }, [cardIndex, words, prewarm, speechLocale]);
 
   useEffect(() => {
     if (
@@ -1422,11 +1430,13 @@ export default function WordStudyScreen() {
     ) {
       return;
     }
-    speak(currentSpeechText, "ko-KR");
+    speak(currentSpeechText, currentWord?.speechLocale ?? speechLocale);
     return stop;
   }, [
     currentSpeechText,
     currentWordId,
+    currentWord?.speechLocale,
+    speechLocale,
     recallWord,
     speak,
     stop,
@@ -1823,8 +1833,9 @@ export default function WordStudyScreen() {
   // 보던 지점을 저장한다. 다음 진입 때 여기서 이어간다.
   useEffect(() => {
     if (wordsLoading || words.length === 0) return;
+    if ((words[0]?.targetLanguage ?? "ko") !== useSettingsStore.getState().learnCourse) return;
     setWordStudyLast({ section, unit, cardIndex });
-  }, [cardIndex, section, unit, words.length, wordsLoading, setWordStudyLast]);
+  }, [cardIndex, section, unit, words, wordsLoading, setWordStudyLast]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
 
@@ -2063,7 +2074,7 @@ export default function WordStudyScreen() {
                           recallWord.pronunciation.ttsText ||
                             recallWord.pronunciation.hangul ||
                             recallWord.headword,
-                          "ko-KR",
+                          recallWord.speechLocale ?? speechLocale,
                         )
                       }
                     />
@@ -2079,7 +2090,7 @@ export default function WordStudyScreen() {
                           currentWord.pronunciation.ttsText ||
                             currentWord.pronunciation.hangul ||
                             currentWord.headword,
-                          "ko-KR",
+                          currentWord.speechLocale ?? speechLocale,
                         )
                       }
                     />

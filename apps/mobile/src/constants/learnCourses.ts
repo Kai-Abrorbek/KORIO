@@ -31,9 +31,31 @@ export const LEARN_COURSES: Record<LearnCourse, LearnCourseMeta> = {
       "topik",
     ],
   },
-  // 영어는 아직 글자 학습만 있다. 모드가 늘면 여기에 붙인다
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet"] },
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary"] },
 };
+
+/** UI language selection and curriculum identity are different axes. */
+export const DEFAULT_LEARNING_COURSES = {
+  ko: { courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR" },
+  en: { courseId: "en-general", targetLanguage: "en", speechLocale: "en-US" },
+} as const;
+
+export function learningScopePath(path: string, course: LearnCourse): string {
+  if (!isLearningRequest(path)) return path;
+  const [pathname, search = ""] = path.split("?");
+  const query = new URLSearchParams(search);
+  const scope = query.has("courseId")
+    ? Object.values(DEFAULT_LEARNING_COURSES).find((entry) => entry.courseId === query.get("courseId"))
+    : query.has("targetLanguage")
+      ? Object.values(DEFAULT_LEARNING_COURSES).find((entry) => entry.targetLanguage === query.get("targetLanguage"))
+      : DEFAULT_LEARNING_COURSES[course];
+  if (scope && !query.has("courseId")) query.set("courseId", scope.courseId);
+  if (scope && !query.has("targetLanguage")) query.set("targetLanguage", scope.targetLanguage);
+  return `${pathname}?${query.toString()}`;
+}
+
+export const isLearningRequest = (path: string): boolean =>
+  /^\/(words|lessons|study-path|learn-progress|speech)(?:[/?]|$)/.test(path);
 
 export const LEARN_COURSE_IDS = Object.keys(LEARN_COURSES) as LearnCourse[];
 

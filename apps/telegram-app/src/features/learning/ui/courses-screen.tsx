@@ -7,6 +7,7 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { saveLearnMode, saveStudyMode } from "../api/learning-preferences";
 import {
   guidedDestination,
+  learnCourseOf,
   type StudyMode,
 } from "../model/learning-options";
 import { HomeIcon } from "../../home/ui/home-icon";
@@ -61,13 +62,17 @@ export function CoursesScreen() {
       await saveStudyMode(request, studyMode);
       updateUser({ studyMode });
 
-      if (studyMode === "guided") {
+      if (selectedCourse.code === "ko" && studyMode === "guided") {
         const learned = await saveLearnMode(request, "vocabulary", undefined, "ko");
         updateUser({ ...learned, learnMode: "vocabulary" });
         setPending(null);
         router.push(guidedDestination(user?.hasPickedLevel));
         return;
       }
+
+      const course = learnCourseOf(selectedCourse.code);
+      const learned = await saveLearnMode(request, "vocabulary", undefined, course);
+      updateUser({ ...learned, learnMode: "vocabulary", learnCourse: course });
 
       setPending(null);
       const query = new URLSearchParams({
@@ -118,7 +123,7 @@ export function CoursesScreen() {
               </span>
               <span className={styles.languageInfo}>
                 <strong>{language.label}</strong>
-                <small>{language.endonym} · 6 ta yo&apos;nalish</small>
+                <small>{language.endonym} · {language.code === "en" ? 2 : 6} ta yo&apos;nalish</small>
               </span>
               <span
                 className={styles.languageArrow}

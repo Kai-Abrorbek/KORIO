@@ -108,7 +108,7 @@ export function TranslateType({ answerState, isChecking, onAnswer, question }: Q
         </span>
         <div className={styles.headerCopy}>
           <h1>Quyidagi gapni tarjima qiling</h1>
-          <p>Ma&apos;noni tabiiy koreyscha gap bilan ifodalang</p>
+          <p>Ma&apos;noni {question.targetLanguage === "en" ? "inglizcha" : "koreyscha"} gap bilan ifodalang</p>
         </div>
         {question.hard ? (
           <span className={styles.hardBadge}>
@@ -127,7 +127,7 @@ export function TranslateType({ answerState, isChecking, onAnswer, question }: Q
             <b>Tarjima qilinadigan gap</b>
           </span>
           <span className={styles.direction}>
-            <b>Koreyschaga</b>
+            <b>{question.targetLanguage === "en" ? "Inglizchaga" : "Koreyschaga"}</b>
             <MobileIcon name="arrow-forward" size={13} />
           </span>
         </div>
@@ -142,7 +142,7 @@ export function TranslateType({ answerState, isChecking, onAnswer, question }: Q
             <i>
               <MobileIcon name={answerState === "correct" ? "checkmark" : answerState === "wrong" ? "close" : "create-outline"} size={17} />
             </i>
-            <b>Koreyscha javobingiz</b>
+            <b>{question.targetLanguage === "en" ? "Inglizcha javobingiz" : "Koreyscha javobingiz"}</b>
           </span>
           {input && !locked ? (
             <button aria-label="Yozilgan javobni tozalash" className={styles.clear} onClick={() => setInput("")} type="button">
@@ -164,14 +164,14 @@ export function TranslateType({ answerState, isChecking, onAnswer, question }: Q
             if (voiceError) setVoiceError(null);
           }}
           onFocus={() => setFocused(true)}
-          placeholder="Koreyscha gapni kiriting"
+          placeholder={question.targetLanguage === "en" ? "Inglizcha gapni kiriting" : "Koreyscha gapni kiriting"}
           spellCheck={false}
           value={input}
         />
         <span className={styles.answerDivider} />
         <div className={styles.answerFooter}>
           <i />
-          <span>Javobni koreyscha yozing</span>
+          <span>Javobni {question.targetLanguage === "en" ? "inglizcha" : "koreyscha"} yozing</span>
           <small>{input.length}/300</small>
         </div>
       </section>

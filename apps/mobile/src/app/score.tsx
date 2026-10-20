@@ -4,7 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import ScoreDetailScreen from "@/components/score/ScoreDetailScreen";
 import { LessonService, ScoreData } from "@/services/lesson.service";
-import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
+import { useSettingsStore } from "@/store/settings.store";
 
 const EMPTY: ScoreData = {
   score: 0,
@@ -30,6 +31,7 @@ export default function Score() {
   const router = useRouter();
   const { t } = useTranslation();
   const [data, setData] = useState<ScoreData>(EMPTY);
+  const course = useSettingsStore((state) => state.learnCourse);
 
   useEffect(() => {
     let alive = true;
@@ -41,7 +43,7 @@ export default function Score() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [course]);
 
   const milestones = data.milestones.map((m, i) => ({
     score: m.score,
@@ -55,7 +57,7 @@ export default function Score() {
   return (
     <ScoreDetailScreen
       score={data.score}
-      flag={KOR_FLAG}
+      flag={LEARN_COURSES[course].flag}
       milestones={milestones}
       onClose={() => router.back()}
       onContinue={() => router.back()}

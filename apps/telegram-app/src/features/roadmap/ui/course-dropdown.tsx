@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { LEARN_COURSES, learnCourseOf } from "../../learning/model/learning-options";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { getRoadmapScore, getStudyPathScore } from "../api/roadmap";
 import type { RoadmapScoreResponse } from "../model/roadmap";
@@ -30,19 +31,20 @@ export function CourseDropdown({
   category?: string | null;
 }) {
   const router = useRouter();
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  const course = learnCourseOf(user?.learnCourse);
   const [score, setScore] = useState<RoadmapScoreResponse>(EMPTY);
 
   useEffect(() => {
     if (!visible) return;
     let alive = true;
     const grammar = !!category && category !== "vocabulary";
-    const load = studyMode === "guided" && !grammar ? getStudyPathScore(request) : getRoadmapScore(request, category);
+    const load = course === "ko" && studyMode === "guided" && !grammar ? getStudyPathScore(request) : getRoadmapScore(request, category);
     void load.then((value) => alive && setScore(value)).catch(() => undefined);
     return () => {
       alive = false;
     };
-  }, [category, request, studyMode, visible]);
+  }, [category, request, studyMode, visible, course]);
 
   if (!visible) return null;
   const go = (path: string) => {
@@ -56,8 +58,8 @@ export function CourseDropdown({
         <small className={styles.sectionLabel}>O‘rganilmoqda</small>
         <div className={styles.row}>
           <button className={styles.courseItem} onClick={onClose} type="button">
-            <span className={`${styles.iconBox} ${styles.iconBoxActive}`}><i data-no-translate>🇰🇷</i></span>
-            <b>Koreys tili</b>
+            <span className={`${styles.iconBox} ${styles.iconBoxActive}`}><i data-no-translate>{LEARN_COURSES[course].flag}</i></span>
+            <b>{course === "en" ? "Ingliz tili" : "Koreys tili"}</b>
           </button>
           <button className={styles.courseItem} onClick={() => go("/courses")} type="button">
             <span className={`${styles.iconBox} ${styles.iconBoxAdd}`}><MobileIcon name="add" size={40} /></span>

@@ -112,6 +112,9 @@ describe('LearnProgressService', () => {
       USER,
       'uz',
       undefined,
+      false,
+      undefined,
+      { courseId: 'ko-general', targetLanguage: 'ko' },
     );
   });
 
@@ -126,6 +129,9 @@ describe('LearnProgressService', () => {
       USER,
       'ru',
       'grammar',
+      false,
+      undefined,
+      { courseId: 'ko-general', targetLanguage: 'ko' },
     );
   });
 
@@ -162,13 +168,53 @@ describe('LearnProgressService', () => {
     ).resolves.toBeNull();
   });
 
-  it('코스에 없는 모드는 null (영어 코스에 어휘)', async () => {
-    const { service, lessonsService } = build({
+  it('영어 어휘 진도는 한국어 guided 상태와 무관하게 영어 로드맵으로 계산한다', async () => {
+    const { service, lessonsService, studyPathService } = build({
       ...ME,
       targetLanguage: 'english',
+      studyMode: 'guided',
     });
-    await expect(service.get(USER)).resolves.toBeNull();
+    await expect(service.get(USER)).resolves.toMatchObject({
+      course: 'en',
+      mode: 'vocabulary',
+      done: 5,
+      total: 10,
+    });
+    expect(lessonsService.getRoadmap).toHaveBeenCalledWith(
+      USER,
+      'uz',
+      undefined,
+      false,
+      undefined,
+      { courseId: 'en-general', targetLanguage: 'en' },
+    );
+    expect(studyPathService.getStudyPath).not.toHaveBeenCalled();
+    await expect(
+      service.get(USER, { course: 'en', mode: 'topik' }),
+    ).resolves.toBeNull();
+  });
+
+  it('언어와 코스 식별자가 충돌하면 다른 코스의 진도를 읽지 않는다', async () => {
+    const { service, lessonsService } = build(ME);
+    await expect(
+      service.get(USER, { courseId: 'en-general', targetLanguage: 'ko' }),
+    ).rejects.toThrow('INVALID_LEARNING_COURSE');
     expect(lessonsService.getRoadmap).not.toHaveBeenCalled();
+  });
+
+  it('명시한 courseId는 계정에 저장된 이전 언어보다 우선한다', async () => {
+    const { service, lessonsService } = build(ME);
+    await expect(
+      service.get(USER, { courseId: 'en-general' }),
+    ).resolves.toMatchObject({ course: 'en' });
+    expect(lessonsService.getRoadmap).toHaveBeenLastCalledWith(
+      USER,
+      'uz',
+      undefined,
+      false,
+      undefined,
+      { courseId: 'en-general', targetLanguage: 'en' },
+    );
   });
 
   it('계산이 터져도 홈은 안 깨진다 — null', async () => {

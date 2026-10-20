@@ -36,6 +36,9 @@ export interface WordProgress {
 }
 
 export interface StudyWord {
+  courseId?: string;
+  targetLanguage?: string;
+  speechLocale?: string;
   id: string;
   code: string;
   headword: string;
@@ -43,10 +46,12 @@ export interface StudyWord {
   partOfSpeech: WordPartOfSpeech;
   meaning: string;
   examples: Array<{
-    korean: string;
+    text?: string;
+    korean?: string;
     translation: string;
   }>;
   pronunciation: {
+    ipa?: string;
     hangul: string;
     romanization: string;
     ttsText: string;

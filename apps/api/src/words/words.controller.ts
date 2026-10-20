@@ -16,6 +16,8 @@ import { ReviewQueueQueryDto } from './dto/review-queue-query.dto';
 import { ReviewWordDto } from './dto/review-word.dto';
 import { WordLanguageQueryDto } from './dto/word-language-query.dto';
 import { WordsService } from './words.service';
+import { CourseScopeQueryDto } from '../common/dto/course-scope-query.dto';
+import { resolveCourseScope } from '../common/learning-course';
 
 @UseGuards(JwtAuthGuard)
 @Controller('words')
@@ -40,10 +42,7 @@ export class WordsController {
 
   /** 끝말잇기 힌트. 서버 사전에서 뽑아야 힌트대로 쳤을 때 통과한다 */
   @Get('chain/hints')
-  async chainHints(
-    @Query('start') start = '',
-    @Query('exclude') exclude = '',
-  ) {
+  async chainHints(@Query('start') start = '', @Query('exclude') exclude = '') {
     return this.wordsService.chainHints(
       start,
       exclude ? exclude.split(',').slice(0, 200) : [],
@@ -70,32 +69,43 @@ export class WordsController {
   @Get('sections/summary')
   async getSectionSummaries(
     @Request() req: { user: { _id: { toString(): string } } },
+    @Query() query: CourseScopeQueryDto,
   ) {
-    return this.wordsService.getSectionSummaries(req.user._id.toString());
+    return this.wordsService.getSectionSummaries(
+      req.user._id.toString(),
+      resolveCourseScope(query),
+    );
   }
 
   @Get('sections/:section/summary')
   async getSectionSummary(
     @Request() req,
     @Param('section') section: string,
+    @Query() query: CourseScopeQueryDto,
   ) {
     return this.wordsService.getSectionSummary(
       req.user._id.toString(),
       Number(section),
+      resolveCourseScope(query),
     );
   }
 
   /** 카드로 넘겨 본 단어들. 여러 장을 모아서 한 번에 보낸다 */
   @Post('seen')
-  async markSeen(@Request() req, @Body() dto: MarkSeenWordsDto) {
-    return this.wordsService.markSeen(req.user._id.toString(), dto.ids);
+  async markSeen(
+    @Request() req,
+    @Body() dto: MarkSeenWordsDto,
+    @Query() query: CourseScopeQueryDto,
+  ) {
+    return this.wordsService.markSeen(
+      req.user._id.toString(),
+      dto.ids,
+      resolveCourseScope(query),
+    );
   }
 
   @Get('review')
-  async getReviewQueue(
-    @Request() req,
-    @Query() query: ReviewQueueQueryDto,
-  ) {
+  async getReviewQueue(@Request() req, @Query() query: ReviewQueueQueryDto) {
     return this.wordsService.getReviewQueue(req.user._id.toString(), query);
   }
 
@@ -109,6 +119,7 @@ export class WordsController {
       req.user._id.toString(),
       id,
       query.lang,
+      resolveCourseScope(query),
     );
   }
 
@@ -117,16 +128,26 @@ export class WordsController {
     @Request() req,
     @Param('id') id: string,
     @Body() dto: ReviewWordDto,
+    @Query() query: CourseScopeQueryDto,
   ) {
     return this.wordsService.reviewWord(
       req.user._id.toString(),
       id,
       dto.result,
+      resolveCourseScope(query),
     );
   }
 
   @Post(':id/master')
-  async masterWord(@Request() req, @Param('id') id: string) {
-    return this.wordsService.masterWord(req.user._id.toString(), id);
+  async masterWord(
+    @Request() req,
+    @Param('id') id: string,
+    @Query() query: CourseScopeQueryDto,
+  ) {
+    return this.wordsService.masterWord(
+      req.user._id.toString(),
+      id,
+      resolveCourseScope(query),
+    );
   }
 }

@@ -49,6 +49,7 @@ export default function TypeAnswer({
   theme,
 }: Props) {
   const { t } = useTranslation();
+  const targetLabel = { language: t(question.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") };
   const contentLang = useContentLang();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.bottom);
@@ -162,8 +163,8 @@ export default function TypeAnswer({
               하라는 건지 알 수 없다. */}
           <Text style={s.title}>
             {promptText && !question.npcText
-              ? t("lesson.typeAnswerTitle")
-              : question.question || t("lesson.typeAnswerTitle")}
+              ? t("lesson.typeAnswerTargetTitle", targetLabel)
+              : question.question || t("lesson.typeAnswerTargetTitle", targetLabel)}
           </Text>
 
           {/* 캐릭터 + 말풍선. 키보드가 올라오면 캐릭터는 빠지고 말풍선만 남는다 */}

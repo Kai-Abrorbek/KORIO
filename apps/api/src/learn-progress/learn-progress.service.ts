@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import {
+  resolveCourseScope,
+  type CourseScope,
+} from '../common/learning-course';
 import { LessonsService } from '../lessons/lessons.service';
 import { StudyPathService } from '../study-path/study-path.service';
 import { ExpressionRoadmapService } from '../expressions/roadmap/expression-roadmap.service';
@@ -59,6 +63,7 @@ import {
 } from './learn-progress.util';
 
 interface Ctx {
+  courseScope: CourseScope;
   userId: string;
   oid: Types.ObjectId;
   lang: ExpressionLanguage;
@@ -70,6 +75,8 @@ interface Ctx {
 type Provider = (ctx: Ctx) => Promise<LearnMeasure | null>;
 
 export interface LearnProgressQuery {
+  courseId?: string;
+  targetLanguage?: string;
   course?: LearnCourse;
   mode?: LearnMode;
   studyMode?: StudyMode;
@@ -93,9 +100,8 @@ export interface LearnProgressQuery {
 export class LearnProgressService {
   private readonly logger = new Logger(LearnProgressService.name);
 
-  private readonly providers: Record<
-    LearnCourse,
-    Partial<Record<LearnMode, Provider>>
+  private readonly providers: Partial<
+    Record<LearnCourse, Partial<Record<LearnMode, Provider>>>
   > = {
     ko: {
       vocabulary: (ctx) =>
@@ -110,8 +116,8 @@ export class LearnProgressService {
       topik: (ctx) => this.topikExams(ctx),
       // conversation: AI 튜터와의 대화는 끝이 있는 콘텐츠가 아니라 셀 진도가 없다
     },
-    // 영어는 아직 알파벳만 있고 진도를 서버에 쌓지 않는다. 쌓기 시작하면 여기에 붙인다
-    en: {},
+    // English vocabulary uses its own free roadmap, never the Korean guided planner.
+    en: { vocabulary: (ctx) => this.roadmapSection(ctx) },
   };
 
   constructor(
@@ -152,13 +158,26 @@ export class LearnProgressService {
       .lean();
     if (!me) return null;
 
-    const course = query.course ?? courseOf(me.targetLanguage);
+    const courseScope = resolveCourseScope({
+      courseId: query.courseId,
+      targetLanguage:
+        query.targetLanguage ??
+        query.course ??
+        (query.courseId ? undefined : courseOf(me.targetLanguage)),
+    });
+    const course = courseScope.targetLanguage as LearnCourse;
+    if (query.course && query.course !== course) return null;
     const mode = query.mode ?? me.learnMode ?? 'vocabulary';
     if (!courseHasMode(course, mode)) return null;
-    const provider = this.providers[course][mode];
+    const provider =
+      this.providers[course]?.[mode] ??
+      (mode === 'vocabulary'
+        ? (ctx: Ctx) => this.roadmapSection(ctx)
+        : undefined);
     if (!provider) return null;
 
     const ctx: Ctx = {
+      courseScope,
       userId,
       oid: new Types.ObjectId(userId),
       lang: query.lang ?? 'uz',
@@ -185,6 +204,9 @@ export class LearnProgressService {
       ctx.userId,
       ctx.lang,
       category,
+      false,
+      undefined,
+      ctx.courseScope,
     );
     const { done, total } = sumRoadmapLessons(roadmap.units ?? []);
     const section = Number(roadmap.currentSection) || 1;

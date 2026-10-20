@@ -9,8 +9,9 @@ import {
   Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { CourseScopeQueryDto } from '../../common/dto/course-scope-query.dto';
 
-export class GamePoolQueryDto {
+export class GamePoolQueryDto extends CourseScopeQueryDto {
   /** 몇 개 필요한지. 게임마다 다르다 (짝맞추기 8쌍, 단어비 40개 …) */
   @IsOptional()
   @Type(() => Number)

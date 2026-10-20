@@ -19,7 +19,8 @@ import {
 } from "../../../shared/i18n/content-language";
 
 /** 설명 언어 이름도 원어로 */
-const CONTENT_NAMES: Record<ContentLanguage, string> = {
+const CONTENT_NAMES: Record<ContentLanguage | "ko", string> = {
+  ko: "한국어",
   uz: "O'zbek",
   ru: "Русский",
   en: "English",
@@ -118,7 +119,7 @@ export function LanguageScreen() {
           setContentLanguage(next);
           setSheetOpen(false);
         }}
-        value={contentLanguage}
+        value={contentLanguage === "ko" ? savedContentLanguage ?? detectDeviceContentLanguage() : contentLanguage}
         visible={sheetOpen}
       />
     </main>

@@ -1,11 +1,9 @@
 import { Type } from 'class-transformer';
+import { CourseScopeQueryDto } from '../../common/dto/course-scope-query.dto';
 import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
-import {
-  WORD_LANGUAGES,
-  type WordLanguage,
-} from '../schemas/word.schema';
+import { WORD_LANGUAGES, type WordLanguage } from '../schemas/word.schema';
 
-export class ReviewQueueQueryDto {
+export class ReviewQueueQueryDto extends CourseScopeQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()

@@ -18,6 +18,7 @@
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
     "seed:words": "ts-node -r tsconfig-paths/register src/seed/seed-words.ts",
     "seed:validate-words": "ts-node -r tsconfig-paths/register src/seed/validate-word-seed.ts",
+    "seed:validate-course": "ts-node -r tsconfig-paths/register src/seed/validate-course-seed.ts",
     "seed:expressions": "ts-node -r tsconfig-paths/register src/seed/seed-expressions.ts",
     "seed:validate-expressions": "ts-node -r tsconfig-paths/register src/seed/validate-expression-seed.ts",
     "seed:validate-section1": "ts-node -r tsconfig-paths/register src/seed/validate-section1-rules.ts",

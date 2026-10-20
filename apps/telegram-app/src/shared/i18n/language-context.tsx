@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { isAppLanguage, type AppLanguage } from "./language";
+import { LearningLanguageContext } from "./learning-language-context";
 import {
   detectDeviceLanguage,
   readSavedContentLanguage,
@@ -33,7 +34,7 @@ export interface LanguageContextValue {
   ready: boolean;
   setLanguage: (language: AppLanguage) => void;
   /** 실제로 쓸 뜻·설명 언어 (UI 가 ko 면 따로 고른 값) */
-  contentLanguage: ContentLanguage;
+  contentLanguage: ContentLanguage | "ko";
   /** 사용자가 고른 설명 언어. null = 아직 안 물어봤다 */
   savedContentLanguage: ContentLanguage | null;
   setContentLanguage: (language: ContentLanguage) => void;
@@ -234,5 +235,7 @@ export function useAppLanguage() {
 
 /** 뜻·설명 언어. 바뀌면 다시 그린다 (API 모듈은 getContentLang 을 쓴다) */
 export function useContentLanguage() {
-  return useAppLanguage().contentLanguage;
+  const { language, savedContentLanguage } = useAppLanguage();
+  const targetLanguage = useContext(LearningLanguageContext);
+  return resolveContentLanguage(language, savedContentLanguage, targetLanguage);
 }

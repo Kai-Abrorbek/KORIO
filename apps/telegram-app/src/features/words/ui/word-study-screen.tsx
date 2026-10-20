@@ -13,7 +13,8 @@ import {
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { rememberAvatarWord } from "../../profile/model/avatar-study";
 import { completeStudyNode } from "../../lesson/api/lesson";
-import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { useKoreanSpeech, speechLanguageOf } from "../../../shared/browser/use-korean-speech";
+import { DEFAULT_LEARNING_COURSES, learnCourseOf, type LearnCourse } from "../../learning/model/learning-options";
 import { useContentLanguage } from "../../../shared/i18n/language-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
@@ -85,11 +86,12 @@ function speechText(word: StudyWord): string {
   return word.pronunciation.ttsText || word.pronunciation.hangul || word.headword;
 }
 
-function readPreferences(): WordPreferences | null {
+function readPreferences(course: LearnCourse): WordPreferences | null {
   if (typeof window === "undefined") return null;
   try {
     const parsed = JSON.parse(
-      window.localStorage.getItem(SCOPE_STORAGE_KEY) ?? "null",
+      window.localStorage.getItem(`${SCOPE_STORAGE_KEY}:${DEFAULT_LEARNING_COURSES[course].courseId}`) ??
+      (course === "ko" ? window.localStorage.getItem(SCOPE_STORAGE_KEY) : null) ?? "null",
     ) as Partial<WordPreferences> | null;
     if (!parsed || !Number.isFinite(parsed.section) || !Number.isFinite(parsed.unit)) {
       return null;
@@ -101,13 +103,12 @@ function readPreferences(): WordPreferences | null {
       unit: Number(parsed.unit),
     };
   } catch {
-    window.localStorage.removeItem(SCOPE_STORAGE_KEY);
     return null;
   }
 }
 
-function savePreferences(preferences: WordPreferences) {
-  window.localStorage.setItem(SCOPE_STORAGE_KEY, JSON.stringify(preferences));
+function savePreferences(course: LearnCourse, preferences: WordPreferences) {
+  window.localStorage.setItem(`${SCOPE_STORAGE_KEY}:${DEFAULT_LEARNING_COURSES[course].courseId}`, JSON.stringify(preferences));
 }
 
 function pickRecallWordId(
@@ -233,7 +234,7 @@ function WordCard({
         <div className={styles.wordRow}>
           <div className={styles.wordHeading}>
             <h2>{word.headword}</h2>
-            {word.pronunciation.romanization ? <p>{word.pronunciation.romanization}</p> : null}
+            {word.pronunciation.ipa || word.pronunciation.romanization ? <p>{word.pronunciation.ipa || word.pronunciation.romanization}</p> : null}
           </div>
           <button
             aria-label="So'z talaffuzini tinglash"
@@ -252,7 +253,7 @@ function WordCard({
         </div>
         {example ? (
           <div className={styles.examplePanel}>
-            <b>{example.korean}</b><span>{example.translation}</span>
+            <b>{example.text ?? example.korean}</b><span>{example.translation}</span>
           </div>
         ) : (
           <div className={[styles.examplePanel, styles.exampleEmpty].join(" ")}>
@@ -323,7 +324,7 @@ function RecallCard({
           ) : null}
         </div>
         <label className={styles.recallLabel} htmlFor="word-recall-answer">
-          Koreyscha so&apos;z
+          {word.targetLanguage === "en" ? "Inglizcha so'z" : "Koreyscha so'z"}
         </label>
         <div className={styles.answerShell}>
           <input
@@ -382,7 +383,7 @@ function RecallCard({
                   ? "To'g'ri!"
                   : isWrong
                     ? "Yana bir bor eslang"
-                    : "Koreyschasini eslang"}
+                    : word.targetLanguage === "en" ? "Inglizchasini eslang" : "Koreyschasini eslang"}
             </strong>
             {!compact ? (
               <small>
@@ -685,6 +686,8 @@ export function WordStudyScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const { request, user } = useTelegramAuth();
+  const course = learnCourseOf(user?.learnCourse);
+  const speechLocale = DEFAULT_LEARNING_COURSES[course].speechLocale;
   const contentLanguage = useContentLanguage();
   const { flush: flushSeen, markSeen } = useSeenWords(request);
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
@@ -730,7 +733,7 @@ export function WordStudyScreen() {
     try {
       const result = await getWordSections(request);
       const available = result.filter((summary) => summary.words > 0);
-      const saved = readPreferences();
+      const saved = readPreferences(course);
       setSummaries(result);
       if (saved) setAutoPlay(saved.autoPlay);
 
@@ -765,9 +768,11 @@ export function WordStudyScreen() {
     } finally {
       setScopeLoading(false);
     }
-  }, [request, requestedSection, requestedUnit]);
+  }, [request, requestedSection, requestedUnit, course]);
 
   useEffect(() => {
+    resumeConsumedRef.current = false;
+    resumeIndexRef.current = null;
     void loadSummaries();
   }, [loadSummaries]);
 
@@ -875,14 +880,14 @@ export function WordStudyScreen() {
   // 모바일처럼 지금 카드부터 4장을 미리 받아 둔다 — 넘기는 즉시 소리가 나게
   useEffect(() => {
     const upcoming = words.slice(cardIndex, cardIndex + 4).map(speechText);
-    if (upcoming.length) prewarm(upcoming);
-  }, [cardIndex, prewarm, words]);
+    if (upcoming.length) prewarm(upcoming, speechLanguageOf(words[cardIndex]?.speechLocale ?? speechLocale));
+  }, [cardIndex, prewarm, words, speechLocale]);
 
   useEffect(() => {
     if (recallWord || !currentWordId || !currentSpeechText || !autoPlay) return;
-    speak(currentSpeechText);
+    speak(currentSpeechText, { language: speechLanguageOf(currentWord?.speechLocale ?? speechLocale) });
     return stop;
-  }, [autoPlay, currentSpeechText, currentWordId, recallWord, speak, stop]);
+  }, [autoPlay, currentSpeechText, currentWordId, currentWord?.speechLocale, recallWord, speak, stop, speechLocale]);
 
   const finishStudyPathUnit = useCallback(() => {
     flushSeen();
@@ -1157,7 +1162,7 @@ export function WordStudyScreen() {
   ) => {
     setScopeOpen(false);
     setAutoPlay(nextAutoPlay);
-    savePreferences({
+    savePreferences(course, {
       autoPlay: nextAutoPlay,
       cardIndex,
       section: nextSection,
@@ -1173,8 +1178,9 @@ export function WordStudyScreen() {
 
   useEffect(() => {
     if (wordsLoading || words.length === 0) return;
-    savePreferences({ autoPlay, cardIndex, section, unit });
-  }, [autoPlay, cardIndex, section, unit, words.length, wordsLoading]);
+    if ((words[0]?.targetLanguage ?? "ko") !== course) return;
+    savePreferences(course, { autoPlay, cardIndex, section, unit });
+  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
   const cardWidth =
@@ -1356,7 +1362,7 @@ export function WordStudyScreen() {
                     }}
                     onFocusChange={setKeyboardVisible}
                     onHint={showRecallHint}
-                    onSpeak={() => speak(speechText(recallWord))}
+                    onSpeak={() => speak(speechText(recallWord), { language: speechLanguageOf(recallWord.speechLocale ?? speechLocale) })}
                     onSubmit={submitRecall}
                     speaking={speaking}
                     status={recallStatus}
@@ -1366,7 +1372,7 @@ export function WordStudyScreen() {
                   <WordCard
                     index={cardIndex}
                     key={currentWord.id}
-                    onSpeak={() => speak(speechText(currentWord))}
+                    onSpeak={() => speak(speechText(currentWord), { language: speechLanguageOf(currentWord.speechLocale ?? speechLocale) })}
                     speaking={speaking}
                     word={currentWord}
                   />
@@ -1413,7 +1419,7 @@ export function WordStudyScreen() {
                 {recallWord
                   ? recallStatus === "correct"
                     ? "To'g'ri! Davom etish uchun suring"
-                    : "Koreyscha so'zni yozib tekshiring"
+                    : course === "en" ? "Inglizcha so'zni yozib tekshiring" : "Koreyscha so'zni yozib tekshiring"
                   : "Kartalarni suring"}
               </span>
               <button

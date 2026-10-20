@@ -21,6 +21,10 @@ import { GradeAnswerDto } from './dto/grade-answer.dto';
 import { AnswerGradingService } from './answer-grading.service';
 import { isStudyQuizKind } from '../study-path/study-path.types';
 import {
+  type CourseScope,
+  resolveCourseScope,
+} from '../common/learning-course';
+import {
   CompleteUnitJumpDto,
   ResolveMistakesDto,
 } from './dto/jump-complete.dto';
@@ -37,8 +41,11 @@ export class LessonsController {
   // 로드맵용 레슨 목록
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getLessons(@Request() req) {
-    return this.lessonsService.getLessons(req.user._id.toString());
+  async getLessons(@Request() req, @Query() course: Partial<CourseScope> = {}) {
+    return this.lessonsService.getLessons(
+      req.user._id.toString(),
+      resolveCourseScope(course),
+    );
   }
 
   // 레벨 테스트 문제
@@ -46,8 +53,13 @@ export class LessonsController {
   async getLevelTestQuestions(
     @Query('self') self: SelfReportedLevel,
     @Query('lang') lang: string = 'uz',
+    @Query() course: Partial<CourseScope> = {},
   ) {
-    return this.lessonsService.getLevelTestQuestions(self, lang);
+    return this.lessonsService.getLevelTestQuestions(
+      self,
+      lang,
+      resolveCourseScope(course),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
@@ -57,6 +69,7 @@ export class LessonsController {
     @Query('lang') lang: string = 'uz',
     @Query('category') category?: string,
     @Query('viewSection') viewSection?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
     // 클라가 보낸 섹션 번호는 그대로 안 믿는다 — 서비스가 "현재 섹션 이하" 인지
     // 다시 본다. 여기선 숫자 모양만 거른다
@@ -67,26 +80,47 @@ export class LessonsController {
       category,
       false,
       Number.isInteger(parsed) && parsed > 0 ? parsed : undefined,
+      resolveCourseScope(course),
     );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('mistakes')
-  async getMistakes(@Request() req) {
-    return this.lessonsService.getMistakes(req.user._id.toString());
+  async getMistakes(
+    @Request() req,
+    @Query() course: Partial<CourseScope> = {},
+  ) {
+    return this.lessonsService.getMistakes(
+      req.user._id.toString(),
+      resolveCourseScope(course),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('learned-words')
-  async getLearnedWords(@Request() req) {
-    return this.lessonsService.getLearnedWords(req.user._id.toString());
+  async getLearnedWords(
+    @Request() req,
+    @Query() course: Partial<CourseScope> = {},
+    @Query('lang') lang = 'uz',
+  ) {
+    return this.lessonsService.getLearnedWords(
+      req.user._id.toString(),
+      resolveCourseScope(course),
+      lang,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('word-practice')
-  async getWordPractice(@Request() req) {
+  async getWordPractice(
+    @Request() req,
+    @Query() course: Partial<CourseScope> = {},
+    @Query('lang') lang = 'uz',
+  ) {
     return this.lessonsService.getWordPracticeQuestions(
       req.user._id.toString(),
+      resolveCourseScope(course),
+      lang,
     );
   }
 
@@ -95,10 +129,12 @@ export class LessonsController {
   async getMistakeQuestions(
     @Request() req,
     @Query('lang') lang: string = 'uz',
+    @Query() course: Partial<CourseScope> = {},
   ) {
     return this.lessonsService.getMistakeQuestions(
       req.user._id.toString(),
       lang,
+      resolveCourseScope(course),
     );
   }
 
@@ -138,6 +174,7 @@ export class LessonsController {
     @Query('lang') lang?: string,
     @Query('group') group?: string,
     @Query('lesson') lesson?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
     const s = Number(section);
     const u = Number(unit);
@@ -158,6 +195,7 @@ export class LessonsController {
       lang ?? 'uz',
       Math.max(1, Number(group) || 1),
       Math.max(1, Number(lesson) || 1),
+      resolveCourseScope(course),
     );
   }
 
@@ -188,11 +226,13 @@ export class LessonsController {
     @Request() req,
     @Query('lang') lang?: string,
     @Query('category') category?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
     return this.lessonsService.getScore(
       req.user._id.toString(),
       lang || 'uz',
       category,
+      resolveCourseScope(course),
     );
   }
 
@@ -210,6 +250,7 @@ export class LessonsController {
     @Query('unit') unit: string,
     @Query('lang') lang = 'uz',
     @Query('category') category?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
     return this.lessonsService.getUnitJumpTest(
       req.user._id.toString(),
@@ -217,6 +258,8 @@ export class LessonsController {
       Number(unit),
       lang,
       category,
+      25,
+      resolveCourseScope(course),
     );
   }
 

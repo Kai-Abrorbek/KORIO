@@ -26,6 +26,12 @@ import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import {
+  type CourseScope,
+  DEFAULT_COURSE_ID,
+  courseContentFilter,
+  resolveCourseScope,
+} from '../common/learning-course';
+import {
   StudyCompletableKind,
   StudyDay,
   StudyNode,
@@ -73,7 +79,12 @@ export class StudyPathService {
    * 노드는 항상 같은 여섯 자리다. 다만 다룰 것이 없는 노드는 만들지 않는다 —
    * 문법 시드가 아직 없는 유닛에 빈 문법 노드를 세워두면 하루가 거기서 막힌다.
    */
-  async getStudyPath(userId: string, lang = 'uz'): Promise<StudyPathResponse> {
+  async getStudyPath(
+    userId: string,
+    lang = 'uz',
+    scope: CourseScope = resolveCourseScope(),
+  ): Promise<StudyPathResponse> {
+    this.assertCourseAvailable(scope);
     // 급수(=섹션 두 개) 전체를 한 흐름으로 본다. 섹션은 유저에게 의미 있는
     // 단위가 아니라 내부 구분일 뿐이라, 중간에 "다음 섹션 잠김" 벽이 서면
     // 순서대로 쭉 간다는 약속이 깨진다.
@@ -201,7 +212,12 @@ export class StudyPathService {
    * 여기서 세는 단위는 **완주한 '하루'** 다. 한 과가 이틀이라 유닛보다 촘촘히
    * 오르고, 그게 이 모드의 진행 감각과 맞는다.
    */
-  async getScore(userId: string, lang = 'uz') {
+  async getScore(
+    userId: string,
+    lang = 'uz',
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    this.assertCourseAvailable(scope);
     const path = await this.getStudyPath(userId, lang);
     const days = path.days ?? [];
 
@@ -210,7 +226,10 @@ export class StudyPathService {
     // 섹션별 하루 수 → 마일스톤 (자유 학습과 같은 계산기를 쓴다)
     const daysPerSection = new Map<number, number>();
     for (const day of days) {
-      daysPerSection.set(day.section, (daysPerSection.get(day.section) ?? 0) + 1);
+      daysPerSection.set(
+        day.section,
+        (daysPerSection.get(day.section) ?? 0) + 1,
+      );
     }
 
     const milestones = buildMilestones(
@@ -235,6 +254,7 @@ export class StudyPathService {
 
     const [start, end] = sectionRangeForLevel(next);
     const ready = await this.nodeModel.exists({
+      ...courseContentFilter(resolveCourseScope()),
       isActive: true,
       section: { $in: [start, end] },
     });
@@ -253,13 +273,21 @@ export class StudyPathService {
    * 콘텐츠가 없는 급은 available:false 로 내려서 화면이 잠근다. 시드가 늘면
    * 자동으로 열리도록 노드 유무로 판단한다 — 목록에 하드코딩하지 않는다.
    */
-  async getLevels(userId: string, lang = 'uz') {
+  async getLevels(
+    userId: string,
+    lang = 'uz',
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    this.assertCourseAvailable(scope);
     const [me, sections] = await Promise.all([
       this.userModel
         .findById(userId)
         .select('placementLevel studyLevelUnlocked completedLevelExams')
         .lean(),
-      this.nodeModel.distinct('section', { isActive: true }),
+      this.nodeModel.distinct('section', {
+        isActive: true,
+        ...courseContentFilter(scope),
+      }),
     ]);
 
     const ready = new Set<number>((sections as number[]) ?? []);
@@ -294,7 +322,10 @@ export class StudyPathService {
    * 급까지는 그대로 열려 있다 (진도를 빼앗지 않는다).
    */
   private unlockedLevel(me: any): number {
-    const passedTop = Math.max(0, ...((me?.completedLevelExams ?? []) as number[]));
+    const passedTop = Math.max(
+      0,
+      ...((me?.completedLevelExams ?? []) as number[]),
+    );
     return Math.min(
       MAX_PLACEMENT_LEVEL,
       Math.max(
@@ -310,10 +341,16 @@ export class StudyPathService {
    * 급수 직접 선택. 콘텐츠가 없는 급은 거부한다 — 빈 로드맵으로 보내면
    * 앱이 "준비된 학습이 없어요" 만 띄우고 유저는 이유를 모른다.
    */
-  async setLevel(userId: string, level: number) {
+  async setLevel(
+    userId: string,
+    level: number,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    this.assertCourseAvailable(scope);
     const target = clampLevel(level);
     const [start, end] = sectionRangeForLevel(target);
     const ready = (await this.nodeModel.distinct('section', {
+      ...courseContentFilter(scope),
       isActive: true,
       section: { $in: [start, end] },
     })) as number[];
@@ -346,7 +383,13 @@ export class StudyPathService {
   }
 
   /** 급수 졸업 시험 문제 */
-  async getLevelExam(userId: string, lang = 'uz', examLevel?: number) {
+  async getLevelExam(
+    userId: string,
+    lang = 'uz',
+    examLevel?: number,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    this.assertCourseAvailable(scope);
     const me = await this.userModel
       .findById(userId)
       .select('placementLevel')
@@ -372,7 +415,12 @@ export class StudyPathService {
    * 언제든 다시 볼 수 있다. dto.level 이 있으면 그 급의 시험이다 (급수 화면에서
    * 잠긴 급을 열 때).
    */
-  async completeLevelExam(userId: string, dto: CompleteLevelExamDto) {
+  async completeLevelExam(
+    userId: string,
+    dto: CompleteLevelExamDto,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    this.assertCourseAvailable(scope);
     const me = await this.userModel
       .findById(userId)
       .select('placementLevel studyLevelUnlocked completedLevelExams')
@@ -541,7 +589,9 @@ export class StudyPathService {
     kind: StudyCompletableKind,
     group = 1,
     lesson = 1,
+    scope: CourseScope = resolveCourseScope(),
   ) {
+    this.assertCourseAvailable(scope);
     const key = studyNodeKey(section, unit, kind, group, lesson);
     await this.userModel.updateOne(
       { _id: userId },
@@ -760,7 +810,11 @@ export class StudyPathService {
   private async countUnitsBeforeSection(section: number): Promise<number> {
     if (section <= 1) return 0;
     const rows = await this.nodeModel
-      .find({ isActive: true, section: { $lt: section } })
+      .find({
+        ...courseContentFilter(resolveCourseScope()),
+        isActive: true,
+        section: { $lt: section },
+      })
       .select('section unit')
       .lean();
     const keys = new Set(rows.map((r: any) => `${r.section}-${r.unit}`));
@@ -775,6 +829,12 @@ export class StudyPathService {
       };
     } catch {
       return { units: [] as UnitWordSummary[] };
+    }
+  }
+
+  private assertCourseAvailable(scope: CourseScope): void {
+    if (resolveCourseScope(scope).courseId !== DEFAULT_COURSE_ID) {
+      throw new BadRequestException('COURSE_MODE_UNAVAILABLE');
     }
   }
 }

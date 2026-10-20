@@ -12,6 +12,7 @@ import {
   guidedDestination,
   hasLearningTaster,
   learningDestination,
+  learnCourseOf,
   type LearnMode,
   type LearningCategory,
   type StudyMode,
@@ -45,6 +46,8 @@ export function CourseCategoriesScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { request, updateUser, user } = useTelegramAuth();
+  const course = learnCourseOf(searchParams.get("lang") ?? user?.learnCourse);
+  const isEnglish = course === "en";
   const [studyMode, setStudyMode] = useState<StudyMode>(
     user?.studyMode ?? "free",
   );
@@ -62,10 +65,10 @@ export function CourseCategoriesScreen() {
   // 학습 로드에서는 로드가 안 덮는 것만 남긴다. 두 방식 다 미리 그려 두고 옆으로 넘긴다
   const categoriesByMode = useMemo(
     () => ({
-      free: LEARNING_CATEGORIES,
-      guided: LEARNING_CATEGORIES.filter((category) => category.guided),
+      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ["vocabulary", "wordCard"].includes(category.category)),
+      guided: LEARNING_CATEGORIES.filter((category) => isEnglish ? ["vocabulary", "wordCard"].includes(category.category) : category.guided),
     }),
-    [],
+    [isEnglish],
   );
   const contentRef = useRef<HTMLDivElement>(null);
   const heading = searchParams.get("label") || "Nimani o'rganasiz?";
@@ -123,6 +126,17 @@ export function CourseCategoriesScreen() {
       "conversation",
     ].includes(category.category);
     if (shortcut) {
+      if (category.category === "wordCard") {
+        setSaving(true);
+        try {
+          const result = await saveLearnMode(request, "vocabulary", undefined, course);
+          updateUser({ ...result, learnMode: "vocabulary", learnCourse: course });
+        } catch {
+          setError("Tanlovni saqlab bo'lmadi. Qayta urinib ko'ring.");
+          setSaving(false);
+          return;
+        }
+      }
       router.push(destination);
       return;
     }
@@ -131,8 +145,8 @@ export function CourseCategoriesScreen() {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveLearnMode(request, category.category, undefined, "ko");
-      updateUser({ ...result, learnMode: category.category });
+      const result = await saveLearnMode(request, category.category, undefined, course);
+      updateUser({ ...result, learnMode: category.category, learnCourse: course });
       router.push(destination);
     } catch {
       setError("Tanlovni saqlab bo'lmadi. Qayta urinib ko'ring.");
@@ -161,7 +175,7 @@ export function CourseCategoriesScreen() {
         Bosqichingiz saqlanadi. Istagan payt qaytarib o&apos;zgartirasiz.
       </small>
 
-      {mode === "guided" ? (
+      {!isEnglish && mode === "guided" ? (
         <button
           className={styles.guidedCard}
           disabled={saving}

@@ -1,4 +1,6 @@
 import type { CSSProperties } from "react";
+import { useTelegramAuth } from "../../../auth/model/telegram-auth-context";
+import { LEARN_COURSES, learnCourseOf } from "../../../learning/model/learning-options";
 
 import { darken } from "./color";
 import styles from "./roadmap-map.module.css";
@@ -30,6 +32,7 @@ export function ScoreNode({
   score: number;
   unitColor: string;
 }) {
+  const { user } = useTelegramAuth();
   const main = locked ? "#D3D3D6" : unitColor;
   const style = {
     "--base": locked ? "#BFBFC4" : darken(unitColor, 32),
@@ -56,7 +59,7 @@ export function ScoreNode({
         </span>
         <span className={`${styles.scoreFace} ${locked ? styles.scoreFlipBack : ""}`}>
           <Rosette color={main} />
-          <span>🇰🇷</span>
+          <span>{LEARN_COURSES[learnCourseOf(user?.learnCourse)].flag}</span>
         </span>
       </span>
     </button>

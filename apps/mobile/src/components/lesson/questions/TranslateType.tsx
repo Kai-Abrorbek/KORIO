@@ -61,6 +61,7 @@ export default function TranslateType({
   theme,
 }: Props) {
   const { t } = useTranslation();
+  const targetLabel = { language: t(question.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") };
   const { height } = useWindowDimensions();
   const compact = height < 740;
   const s = styles(theme);
@@ -173,7 +174,7 @@ export default function TranslateType({
             </View>
             <View style={s.headerCopy}>
               <Text style={s.title}>{t("lesson.translateSentence")}</Text>
-              <Text style={s.subtitle}>{t("lesson.translateTypeHint")}</Text>
+              <Text style={s.subtitle}>{t("lesson.translateTargetHint", targetLabel)}</Text>
             </View>
             {question.hard ? (
               <View style={s.hardBadge}>
@@ -211,7 +212,7 @@ export default function TranslateType({
                   style={[s.directionPill, { backgroundColor: theme.surface }]}
                 >
                   <Text style={[s.directionText, { color: theme.primary }]}>
-                    {t("lesson.toKorean")}
+                    {t("lesson.toTarget", targetLabel)}
                   </Text>
                   <Ionicons
                     name="arrow-forward"
@@ -266,7 +267,7 @@ export default function TranslateType({
                   />
                 </View>
                 <Text style={[s.answerLabel, { color: theme.text }]}>
-                  {t("lesson.yourKoreanAnswer")}
+                  {t("lesson.yourTargetAnswer", targetLabel)}
                 </Text>
               </View>
               {input && !locked ? (
@@ -303,7 +304,7 @@ export default function TranslateType({
               onChangeText={changeInput}
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
-              placeholder={t("lesson.enterKoreanAnswer")}
+              placeholder={t("lesson.enterTargetAnswer", targetLabel)}
               placeholderTextColor={`${theme.textSecondary}A6`}
               editable={!locked}
               multiline
@@ -321,7 +322,7 @@ export default function TranslateType({
             <View style={s.answerFooter}>
               <View style={[s.koreanDot, { backgroundColor: accent }]} />
               <Text style={[s.answerHelper, { color: theme.textSecondary }]}>
-                {t("lesson.answerInKorean")}
+                {t("lesson.answerInTarget", targetLabel)}
               </Text>
               <Text style={[s.characterCount, { color: theme.textSecondary }]}>
                 {input.length}/300

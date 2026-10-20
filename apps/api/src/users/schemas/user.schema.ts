@@ -9,6 +9,7 @@ import { Interest } from '../../common/enums/interest.enum';
 import { AvatarConfig, AvatarConfigSchema } from './avatar.schema';
 import { DEFAULT_AVATAR_CONFIG } from '../avatar/avatar.constants';
 import { ENERGY_CONFIG } from '../../energy/energy.constants';
+import { type CourseProgress } from '../../common/learning-course';
 import {
   LEARN_MODES,
   STUDY_MODES,
@@ -167,6 +168,10 @@ export class User {
   // 온보딩 데이터
   @Prop()
   targetLanguage: string;
+
+  /** Non-default courses have independent roadmap state. Korean keeps its legacy fields. */
+  @Prop({ type: Object, default: {} })
+  courseProgress: Record<string, CourseProgress>;
 
   @Prop([String])
   learningGoals: string[];

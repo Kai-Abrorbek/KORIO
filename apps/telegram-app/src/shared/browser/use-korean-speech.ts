@@ -311,7 +311,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
   );
 
   const prewarm = useCallback(
-    (texts: readonly string[]) => {
+    (texts: readonly string[], language: SpeechLanguage = "ko-KR") => {
       if (!request || typeof window === "undefined") return;
       // speak() 와 같은 목소리·속도로 받아 둔다. 기본값으로 받으면 설정에서 목소리를
       // 바꾼 사람은 캐시가 한 번도 안 맞고 TTS 호출만 두 배가 된다
@@ -321,9 +321,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       const unique = [...new Set(texts.map((text) => text.trim()).filter(Boolean))];
       void Promise.all(
         unique.map((text) =>
-          preparedRef.current.has(`${voice}:${rate}:${text}`)
-            ? Promise.resolve()
-            : prepare(text, rate, undefined, voice).then(() => undefined).catch(() => undefined),
+          prepare(text, rate, undefined, voice, language).then(() => undefined).catch(() => undefined),
         ),
       );
     },

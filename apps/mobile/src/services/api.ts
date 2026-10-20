@@ -1,5 +1,7 @@
 import { Platform } from "react-native";
 import { useErrorStore } from "@/store/error.store";
+import { useSettingsStore } from "@/store/settings.store";
+import { isLearningRequest, learningScopePath } from "@/constants/learnCourses";
 
 const DEV_LAN_IP = process.env.EXPO_PUBLIC_DEV_LAN_IP ?? "localhost";
 
@@ -96,6 +98,9 @@ function resolveCode(status: number, backendMsg?: string): string {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // Freeze the scope before any async work (token lookup, retry, pagination).
+  const course = useSettingsStore.getState().learnCourse;
+  const scopedPath = learningScopePath(path, course);
   const token = await TokenStorage.get();
   const headers = {
     "Content-Type": "application/json",
@@ -107,7 +112,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   while (true) {
     let res: Response;
     try {
-      res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+      res = await fetch(`${BASE_URL}${scopedPath}`, { ...options, headers });
     } catch {
       const retry = await useErrorStore.getState().present("NETWORK_ERROR");
       if (retry) continue;
@@ -121,6 +126,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       data = null;
     }
 
+    if (isLearningRequest(path) && useSettingsStore.getState().learnCourse !== course) {
+      throw new ApiError("LEARNING_COURSE_CHANGED", 409);
+    }
     if (res.ok) return data;
 
     if (res.status >= 500) {

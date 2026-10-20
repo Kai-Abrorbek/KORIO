@@ -40,7 +40,8 @@ const LANGUAGES = [
 type Lang = (typeof LANGUAGES)[number];
 
 /** 설명 언어 이름도 원어로 */
-const CONTENT_NAMES: Record<ContentLanguage, string> = {
+const CONTENT_NAMES: Record<ContentLanguage | "ko", string> = {
+  ko: "한국어",
   uz: "O'zbek",
   ru: "Русский",
   en: "English",
@@ -192,7 +193,7 @@ export default function LanguageSettings() {
 
       <ContentLanguageSheet
         visible={sheetOpen}
-        value={contentLang}
+        value={contentLang === "ko" ? contentLanguage ?? detectDeviceContentLanguage() : contentLang}
         onConfirm={(lang) => {
           setContentLanguage(lang);
           setSheetOpen(false);

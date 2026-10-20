@@ -14,7 +14,8 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { darken } from "@/utils/color";
-import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
+import { useSettingsStore } from "@/store/settings.store";
 
 interface Props {
   score: number;
@@ -54,6 +55,7 @@ export default function ScoreNode({
   onPress,
 }: Props) {
   const theme = useTheme();
+  const course = useSettingsStore((state) => state.learnCourse);
   const s = getStyles(theme);
   const flip = useSharedValue(0);
 
@@ -128,7 +130,7 @@ export default function ScoreNode({
         <Animated.View style={[s.face, backStyle]}>
           <Rosette size={SIZE} color={main} />
           <View style={s.center}>
-            <Text style={s.flag}>{KOR_FLAG}</Text>
+            <Text style={s.flag}>{LEARN_COURSES[course].flag}</Text>
           </View>
         </Animated.View>
       </View>

@@ -147,7 +147,7 @@ function automaticSpeechOf(
   learnerLanguage: string,
 ): AutomaticSpeech | null {
   let text = "";
-  let language = "ko-KR";
+  let language = question.speechLocale ?? question.targetLanguage ?? "ko-KR";
 
   switch (question.type) {
     case "sentence_builder":
@@ -186,9 +186,7 @@ export default function LessonScreen() {
   const { t } = useTranslation();
   const contentLang = useContentLang();
   const theme = useTheme();
-  const lessonSpeech = useSpeech();
   const { play } = useSound();
-  const prewarmSpeech = lessonSpeech.prewarm;
   const s = getStyles(theme);
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -275,6 +273,8 @@ export default function LessonScreen() {
   const updateUser = useAuthStore((st) => st.updateUser);
   const locked = useRef(false);
   const [lesson, setLesson] = useState<LessonSession | null>(null);
+  const lessonSpeech = useSpeech(lesson?.speechLocale ?? lesson?.targetLanguage);
+  const prewarmSpeech = lessonSpeech.prewarm;
   const [loading, setLoading] = useState(true);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");

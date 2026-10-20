@@ -5,6 +5,13 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, type QueryFilter } from 'mongoose';
+import {
+  DEFAULT_COURSE_ID,
+  resolveCourseScope,
+  speechLocaleOf,
+  targetLanguageFilter,
+  type CourseScope,
+} from '../common/learning-course';
 import { ListWordsQueryDto } from './dto/list-words-query.dto';
 import {
   allowedStarts,
@@ -38,14 +45,17 @@ export class WordsService {
   ) {}
 
   async getWords(userId: string, query: ListWordsQueryDto) {
-    const filter = this.buildScopeFilter(query.section, query.unit);
+    const scope = resolveCourseScope(query);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     const words = (await this.wordModel.find(filter).lean()) as WordRecord[];
-    const sorted = this.sortWords(words, query.section, query.unit);
+    const sorted = this.sortWords(words, query.section, query.unit, scope);
     const limit = query.limit ?? 50;
 
     let startIndex = 0;
     if (query.cursor) {
-      const cursorIndex = sorted.findIndex((word) => word.code === query.cursor);
+      const cursorIndex = sorted.findIndex(
+        (word) => word.code === query.cursor,
+      );
       if (cursorIndex === -1) {
         throw new BadRequestException('INVALID_WORD_CURSOR');
       }
@@ -60,6 +70,7 @@ export class WordsService {
     const hasNextPage = startIndex + page.length < sorted.length;
 
     return {
+      ...scope,
       items: page.map((word) =>
         this.serializeWord(
           word,
@@ -67,6 +78,7 @@ export class WordsService {
           progressByWordId.get(word._id.toString()),
           query.section,
           query.unit,
+          scope,
         ),
       ),
       total: sorted.length,
@@ -74,35 +86,57 @@ export class WordsService {
     };
   }
 
-  async getWord(userId: string, id: string, lang: WordLanguage) {
-    const word = await this.findWord(id);
+  async getWord(
+    userId: string,
+    id: string,
+    lang: WordLanguage,
+    scope = resolveCourseScope(),
+  ) {
+    const word = await this.findWord(id, scope);
     const progress = await this.progressModel
       .findOne({ userId: new Types.ObjectId(userId), wordId: word._id })
       .lean();
 
-    return this.serializeWord(word, lang, progress as ProgressRecord | null);
+    return this.serializeWord(
+      word,
+      lang,
+      progress as ProgressRecord | null,
+      undefined,
+      undefined,
+      scope,
+    );
   }
 
-  async getSectionSummaries(userId: string) {
-    const rawSections = await this.wordModel.distinct('placements.section', {
-      isActive: true,
-    });
+  async getSectionSummaries(userId: string, scope = resolveCourseScope()) {
+    const words = await this.wordModel
+      .find(this.buildScopeFilter(undefined, undefined, scope))
+      .select('placements')
+      .lean();
+    const rawSections = words.flatMap((word) =>
+      (word.placements || [])
+        .filter((placement) => this.placementInCourse(placement, scope))
+        .map((placement) => placement.section),
+    );
     const sections = [...new Set(rawSections.map(Number))]
       .filter((section) => Number.isInteger(section) && section > 0)
       .sort((a, b) => a - b);
 
     return Promise.all(
-      sections.map((section) => this.getSectionSummary(userId, section)),
+      sections.map((section) => this.getSectionSummary(userId, section, scope)),
     );
   }
 
-  async getSectionSummary(userId: string, section: number) {
+  async getSectionSummary(
+    userId: string,
+    section: number,
+    scope = resolveCourseScope(),
+  ) {
     if (!Number.isInteger(section) || section < 1) {
       throw new BadRequestException('INVALID_WORD_SECTION');
     }
 
     const words = (await this.wordModel
-      .find({ isActive: true, 'placements.section': section })
+      .find(this.buildScopeFilter(section, undefined, scope))
       .select({ _id: 1, placements: 1 })
       .lean()) as WordRecord[];
     const progressByWordId = await this.getProgressMap(
@@ -114,7 +148,11 @@ export class WordsService {
 
     for (const word of words) {
       for (const placement of word.placements || []) {
-        if (placement.section !== section) continue;
+        if (
+          placement.section !== section ||
+          !this.placementInCourse(placement, scope)
+        )
+          continue;
         if (!unitWordIds.has(placement.unit)) {
           unitWordIds.set(placement.unit, new Set());
         }
@@ -151,6 +189,7 @@ export class WordsService {
       .map(([unit, ids]) => ({ unit, ...summarize([...ids]) }));
 
     return {
+      ...scope,
       section,
       unitCount: units.length,
       ...summarize(uniqueWordIds),
@@ -159,7 +198,8 @@ export class WordsService {
   }
 
   async getReviewQueue(userId: string, query: ReviewQueueQueryDto) {
-    const filter = this.buildScopeFilter(query.section, query.unit);
+    const scope = resolveCourseScope(query);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     const words = (await this.wordModel.find(filter).lean()) as WordRecord[];
     const progressByWordId = await this.getProgressMap(
       userId,
@@ -168,7 +208,7 @@ export class WordsService {
     const now = new Date();
     const limit = query.limit ?? 20;
 
-    const queue = this.sortWords(words, query.section, query.unit)
+    const queue = this.sortWords(words, query.section, query.unit, scope)
       .map((word) => {
         const progress = progressByWordId.get(word._id.toString());
         if (progress?.state === UserWordState.MASTERED) return null;
@@ -197,6 +237,7 @@ export class WordsService {
 
     const selected = queue.slice(0, limit);
     return {
+      ...scope,
       items: selected.map(({ word, progress, queueReason }) => ({
         ...this.serializeWord(
           word,
@@ -204,6 +245,7 @@ export class WordsService {
           progress,
           query.section,
           query.unit,
+          scope,
         ),
         queueReason,
       })),
@@ -212,8 +254,13 @@ export class WordsService {
     };
   }
 
-  async reviewWord(userId: string, id: string, result: WordReviewResult) {
-    const word = await this.findWord(id);
+  async reviewWord(
+    userId: string,
+    id: string,
+    result: WordReviewResult,
+    scope = resolveCourseScope(),
+  ) {
+    const word = await this.findWord(id, scope);
     const userObjectId = new Types.ObjectId(userId);
     const current = (await this.progressModel
       .findOne({ userId: userObjectId, wordId: word._id })
@@ -241,11 +288,20 @@ export class WordsService {
    * 않는다 — 그것까지 올리면 실제로 테스트한 적 없는 단어가 복습 큐에서
    * 빠져버린다. 아직 NEW 인 단어만 LEARNING 으로 올리고 첫 복습일을 잡아준다.
    */
-  async markSeen(userId: string, ids: string[]) {
+  async markSeen(userId: string, ids: string[], scope = resolveCourseScope()) {
     const userObjectId = new Types.ObjectId(userId);
-    const wordIds = [...new Set(ids)]
+    const requestedIds = [...new Set(ids)]
       .filter((id) => Types.ObjectId.isValid(id))
       .map((id) => new Types.ObjectId(id));
+    if (!requestedIds.length) return { seen: 0 };
+    const allowedWords = await this.wordModel
+      .find({
+        ...this.buildScopeFilter(undefined, undefined, scope),
+        _id: { $in: requestedIds },
+      })
+      .select('_id')
+      .lean();
+    const wordIds = allowedWords.map((word) => word._id);
     if (!wordIds.length) return { seen: 0 };
 
     const now = new Date();
@@ -289,8 +345,8 @@ export class WordsService {
     return { seen: wordIds.length };
   }
 
-  async masterWord(userId: string, id: string) {
-    const word = await this.findWord(id);
+  async masterWord(userId: string, id: string, scope = resolveCourseScope()) {
+    const word = await this.findWord(id, scope);
     const userObjectId = new Types.ObjectId(userId);
     const now = new Date();
     const progress = await this.progressModel.findOneAndUpdate(
@@ -317,26 +373,43 @@ export class WordsService {
   private buildScopeFilter(
     section?: number,
     unit?: number,
+    scope = resolveCourseScope(),
   ): QueryFilter<Word> {
     if (unit && !section) {
       throw new BadRequestException('WORD_SECTION_REQUIRED_WITH_UNIT');
     }
 
-    const filter: QueryFilter<Word> = { isActive: true };
-    if (section && unit) {
-      filter.placements = { $elemMatch: { section, unit } };
-    } else if (section) {
-      filter['placements.section'] = section;
-    }
-    return filter;
+    const placement = {
+      ...(scope.courseId === DEFAULT_COURSE_ID
+        ? {
+            $or: [
+              { courseId: scope.courseId },
+              { courseId: { $exists: false } },
+            ],
+          }
+        : { courseId: scope.courseId }),
+      ...(section ? { section } : {}),
+      ...(unit ? { unit } : {}),
+    };
+    return {
+      isActive: true,
+      $and: [targetLanguageFilter(scope.targetLanguage)],
+      placements: { $elemMatch: placement },
+    };
   }
 
-  private async findWord(idOrCode: string): Promise<WordRecord> {
+  private async findWord(
+    idOrCode: string,
+    scope = resolveCourseScope(),
+  ): Promise<WordRecord> {
     const identity = Types.ObjectId.isValid(idOrCode)
       ? { _id: new Types.ObjectId(idOrCode) }
       : { code: idOrCode };
     const word = (await this.wordModel
-      .findOne({ ...identity, isActive: true })
+      .findOne({
+        ...this.buildScopeFilter(undefined, undefined, scope),
+        ...identity,
+      })
       .lean()) as WordRecord | null;
     if (!word) throw new NotFoundException('WORD_NOT_FOUND');
     return word;
@@ -353,10 +426,15 @@ export class WordsService {
     return new Map(progress.map((item) => [item.wordId.toString(), item]));
   }
 
-  private sortWords(words: WordRecord[], section?: number, unit?: number) {
+  private sortWords(
+    words: WordRecord[],
+    section?: number,
+    unit?: number,
+    scope = resolveCourseScope(),
+  ) {
     return [...words].sort((a, b) => {
-      const aPlacement = this.findPlacement(a, section, unit);
-      const bPlacement = this.findPlacement(b, section, unit);
+      const aPlacement = this.findPlacement(a, section, unit, scope);
+      const bPlacement = this.findPlacement(b, section, unit, scope);
       const sectionDiff =
         (aPlacement?.section ?? Number.MAX_SAFE_INTEGER) -
         (bPlacement?.section ?? Number.MAX_SAFE_INTEGER);
@@ -369,7 +447,7 @@ export class WordsService {
         (aPlacement?.order ?? Number.MAX_SAFE_INTEGER) -
         (bPlacement?.order ?? Number.MAX_SAFE_INTEGER);
       if (orderDiff !== 0) return orderDiff;
-      return a.headword.localeCompare(b.headword, 'ko');
+      return a.headword.localeCompare(b.headword, scope.targetLanguage);
     });
   }
 
@@ -377,8 +455,11 @@ export class WordsService {
     word: WordRecord,
     section?: number,
     unit?: number,
+    scope = resolveCourseScope(),
   ): WordPlacement | undefined {
-    const placements = word.placements || [];
+    const placements = (word.placements || []).filter((placement) =>
+      this.placementInCourse(placement, scope),
+    );
     return (
       placements.find(
         (placement) =>
@@ -386,10 +467,13 @@ export class WordsService {
           (!unit || placement.unit === unit),
       ) ||
       [...placements].sort(
-        (a, b) =>
-          a.section - b.section || a.unit - b.unit || a.order - b.order,
+        (a, b) => a.section - b.section || a.unit - b.unit || a.order - b.order,
       )[0]
     );
+  }
+
+  private placementInCourse(placement: WordPlacement, scope: CourseScope) {
+    return (placement.courseId || DEFAULT_COURSE_ID) === scope.courseId;
   }
 
   private serializeWord(
@@ -398,9 +482,14 @@ export class WordsService {
     progress?: ProgressRecord | UserWordProgressDocument | null,
     section?: number,
     unit?: number,
+    scope = resolveCourseScope(),
   ) {
-    const placement = this.findPlacement(word, section, unit);
+    const placement = this.findPlacement(word, section, unit, scope);
+    const targetLanguage = word.targetLanguage || 'ko';
     return {
+      courseId: scope.courseId,
+      targetLanguage,
+      speechLocale: speechLocaleOf(targetLanguage),
       id: word._id.toString(),
       code: word.code,
       headword: word.headword,
@@ -408,11 +497,17 @@ export class WordsService {
       partOfSpeech: word.partOfSpeech,
       meaning: this.localize(word.meaning, lang, word.headword),
       examples: (word.examples || []).map((example) => ({
-        korean: example.korean,
+        text: example.text || example.korean || '',
+        ...(targetLanguage === 'ko'
+          ? { korean: example.text || example.korean || '' }
+          : {}),
         translation: this.localize(example.translations, lang),
       })),
       pronunciation: {
-        hangul: word.pronunciation?.hangul || word.headword,
+        ipa: word.pronunciation?.ipa || '',
+        hangul:
+          word.pronunciation?.hangul ||
+          (targetLanguage === 'ko' ? word.headword : ''),
         romanization: word.pronunciation?.romanization || '',
         ttsText: word.pronunciation?.ttsText || word.headword,
       },
@@ -422,7 +517,9 @@ export class WordsService {
         imageAlt: this.localize(word.media?.imageAlt, lang),
       },
       placement: placement || null,
-      placements: word.placements || [],
+      placements: (word.placements || []).filter((item) =>
+        this.placementInCourse(item, scope),
+      ),
       tags: word.tags || [],
       difficulty: word.difficulty,
       usageNote: this.localize(word.usageNote, lang),
@@ -517,10 +614,7 @@ export class WordsService {
         intervalDays =
           currentInterval <= 0
             ? 4
-            : Math.max(
-                4,
-                Math.round(currentInterval * easeFactor * 1.5),
-              );
+            : Math.max(4, Math.round(currentInterval * easeFactor * 1.5));
         break;
       case WordReviewResult.GOOD:
       default:
@@ -550,8 +644,7 @@ export class WordsService {
     return {
       state,
       correctCount: (current?.correctCount || 0) + (wasCorrect ? 1 : 0),
-      incorrectCount:
-        (current?.incorrectCount || 0) + (wasCorrect ? 0 : 1),
+      incorrectCount: (current?.incorrectCount || 0) + (wasCorrect ? 0 : 1),
       consecutiveCorrect,
       easeFactor,
       intervalDays,
@@ -578,8 +671,17 @@ export class WordsService {
    */
   async getGamePool(
     userId: string,
-    opts: { count?: number; maxLen?: number } = {},
+    opts: {
+      count?: number;
+      maxLen?: number;
+      courseId?: string;
+      targetLanguage?: string;
+    } = {},
   ) {
+    const scope = resolveCourseScope(opts);
+    if (scope.targetLanguage !== 'ko')
+      throw new BadRequestException('WORD_GAME_UNAVAILABLE');
+    const wordScope = this.buildScopeFilter(undefined, undefined, scope);
     const count = Math.min(Math.max(opts.count ?? 40, 4), 120);
     const maxLen = Math.min(Math.max(opts.maxLen ?? 5, 2), 8);
 
@@ -591,15 +693,13 @@ export class WordsService {
     const seenIds = seen.map((s: any) => s.wordId);
 
     const pick = (rows: any[]) =>
-      rows.filter((w) =>
-        isPlayable(w.headword, maxLen, w.meaning ?? {}),
-      );
+      rows.filter((w) => isPlayable(w.headword, maxLen, w.meaning ?? {}));
 
     // 1) 이미 만난 단어
     let pool = seenIds.length
       ? pick(
           await this.wordModel
-            .find({ _id: { $in: seenIds }, isActive: true })
+            .find({ ...wordScope, _id: { $in: seenIds } })
             .select('headword meaning media difficulty')
             .lean(),
         )
@@ -611,7 +711,7 @@ export class WordsService {
       const filler = pick(
         await this.wordModel
           .find({
-            isActive: true,
+            ...wordScope,
             ...(seenIds.length ? { _id: { $nin: seenIds } } : {}),
           })
           .select('headword meaning media difficulty')
@@ -657,7 +757,7 @@ export class WordsService {
 
     const word = body.word.trim();
     const found = await this.wordModel
-      .findOne({ headword: word, isActive: true })
+      .findOne({ ...this.buildScopeFilter(), headword: word })
       .select('headword meaning media')
       .lean();
     if (!found) return { accepted: false, reason: 'UNKNOWN_WORD' as const };
@@ -669,7 +769,7 @@ export class WordsService {
     const reply = starts.length
       ? await this.wordModel
           .findOne({
-            isActive: true,
+            ...this.buildScopeFilter(),
             headword: {
               $regex: `^[${starts.join('')}]`,
               $nin: taken,
@@ -715,8 +815,11 @@ export class WordsService {
     if (!starts.length) return { words: [] };
     const rows = await this.wordModel
       .find({
-        isActive: true,
-        headword: { $regex: `^[${starts.join('')}]`, $nin: exclude.slice(0, 200) },
+        ...this.buildScopeFilter(),
+        headword: {
+          $regex: `^[${starts.join('')}]`,
+          $nin: exclude.slice(0, 200),
+        },
         $expr: { $lte: [{ $strLenCP: '$headword' }, 5] },
       })
       .select('headword meaning')
@@ -736,7 +839,7 @@ export class WordsService {
   /** 끝말잇기 첫 단어 */
   async chainStart() {
     const rows = await this.wordModel
-      .find({ isActive: true, difficulty: { $lte: 2 } })
+      .find({ ...this.buildScopeFilter(), difficulty: { $lte: 2 } })
       .select('headword meaning media')
       .limit(300)
       .lean();
@@ -760,7 +863,6 @@ export class WordsService {
       },
     };
   }
-
 }
 
 /** 피셔-예이츠. 매번 같은 순서로 나오면 게임이 아니다 */

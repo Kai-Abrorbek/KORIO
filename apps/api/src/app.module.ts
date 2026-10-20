@@ -41,6 +41,7 @@ import { GemLedgerModule } from './gem-ledger/gem-ledger.module';
 import { CosmeticsModule } from './cosmetics/cosmetics.module';
 import { StickersModule } from './stickers/stickers.module';
 import { LearnProgressModule } from './learn-progress/learn-progress.module';
+import { LearningCoursesModule } from './learning-courses/learning-courses.module';
 
 @Module({
   imports: [
@@ -92,6 +93,7 @@ import { LearnProgressModule } from './learn-progress/learn-progress.module';
     StickersModule,
     MailModule,
     LearnProgressModule,
+    LearningCoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

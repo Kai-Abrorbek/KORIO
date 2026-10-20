@@ -1,4 +1,5 @@
 import { IsIn, IsOptional } from 'class-validator';
+import { CourseScopeQueryDto } from '../../common/dto/course-scope-query.dto';
 import {
   EXPRESSION_LANGUAGES,
   type ExpressionLanguage,
@@ -15,7 +16,7 @@ import {
 } from '../../users/learn-mode.constants';
 
 /** 앱이 지금 띄운 코스·모드. 비우면 계정에 저장된 값으로 센다 */
-export class LearnProgressQueryDto {
+export class LearnProgressQueryDto extends CourseScopeQueryDto {
   @IsOptional()
   @IsIn([...LEARN_COURSES])
   course?: LearnCourse;

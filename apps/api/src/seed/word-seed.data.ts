@@ -1,5 +1,10 @@
 import { createHash } from 'node:crypto';
 import {
+  DEFAULT_COURSE_ID,
+  resolveCourseScope,
+} from '../common/learning-course';
+import { buildEnglishWordSources } from './english-vocabulary-seed.data';
+import {
   S1_UNIT1_WORDS,
   S1_UNIT2_WORDS,
   S1_UNIT3_WORDS,
@@ -60,7 +65,7 @@ import {
 } from '../words/schemas/word.schema';
 import {
   type LocalizedWordSeedText,
-  type WordSeedEntry,
+  type MultilingualWordSeedEntry,
   type WordSeedSource,
 } from './word-seed.types';
 
@@ -117,19 +122,21 @@ const WORD_SOURCES: WordSeedSource[] = [
 
 export interface NormalizedWordSeed {
   code: string;
-  targetLanguage: 'ko';
+  targetLanguage: string;
   headword: string;
   senseKey: string;
   partOfSpeech: WordPartOfSpeech;
   meaning: Record<WordLanguage, string>;
   examples: Array<{
-    korean: string;
+    text: string;
+    korean?: string;
     translations: Record<WordLanguage, string>;
   }>;
   pronunciation: {
     hangul: string;
     romanization: string;
     ttsText: string;
+    ipa: string;
   };
   media: {
     emoji: string;
@@ -137,6 +144,7 @@ export interface NormalizedWordSeed {
     imageAlt: Record<WordLanguage, string>;
   };
   placements: Array<{
+    courseId: string;
     section: number;
     unit: number;
     order: number;
@@ -150,11 +158,27 @@ export interface NormalizedWordSeed {
 
 /** DB 유니크 인덱스와 같은 기준의 키 */
 function senseIdOf(word: NormalizedWordSeed) {
-  return `${word.headword}|${word.senseKey}`;
+  return `${word.targetLanguage}|${word.headword}|${word.senseKey}`;
 }
 
-export function buildWordSeedData(): NormalizedWordSeed[] {
+export function buildWordSeedData(
+  options: {
+    courseId?: string;
+    targetLanguage?: string;
+    sources?: readonly WordSeedSource[];
+  } = {},
+): NormalizedWordSeed[] {
+  const scope = resolveCourseScope(options);
+  const sources =
+    options.sources ??
+    (scope.courseId === DEFAULT_COURSE_ID
+      ? WORD_SOURCES
+      : scope.courseId === 'en-general'
+        ? buildEnglishWordSources()
+        : []);
+  if (!sources.length) throw new Error(`No word sources for ${scope.courseId}`);
   const grouped = new Map<string, NormalizedWordSeed>();
+  const byCode = new Map<string, NormalizedWordSeed>();
 
   // words 컬렉션의 유니크 인덱스는 (targetLanguage, headword, senseKey) 다.
   // code 로만 묶으면 "같은 단어·같은 뜻인데 code 만 다른" 항목이 그대로 통과했다가
@@ -165,19 +189,31 @@ export function buildWordSeedData(): NormalizedWordSeed[] {
   const bySense = new Map<string, NormalizedWordSeed>();
   const merged: string[] = [];
 
-  for (const source of WORD_SOURCES) {
+  for (const source of sources) {
+    const sourceScope = resolveCourseScope({ ...scope, ...source });
+    if (sourceScope.courseId !== scope.courseId) {
+      throw new Error(
+        `Word source belongs to ${sourceScope.courseId}, not ${scope.courseId}`,
+      );
+    }
     source.words.forEach((entry, index) => {
-      const word = normalizeEntry(entry, source, index + 1);
+      const word = normalizeEntry(
+        entry,
+        { ...source, ...scope },
+        index + 1 + (source.orderOffset ?? 0),
+      );
       const senseId = senseIdOf(word);
-      const existing = grouped.get(word.code) ?? bySense.get(senseId);
+      const existing = byCode.get(word.code) ?? bySense.get(senseId);
 
       if (!existing) {
         grouped.set(word.code, word);
+        byCode.set(word.code, word);
         bySense.set(senseId, word);
         return;
       }
 
       assertCompatible(existing, word);
+      byCode.set(word.code, existing);
       if (existing.code !== word.code) {
         merged.push(
           `${word.headword}(${word.senseKey}): ${word.code} → ${existing.code}` +
@@ -187,7 +223,9 @@ export function buildWordSeedData(): NormalizedWordSeed[] {
       for (const placement of word.placements) {
         const isDuplicate = existing.placements.some(
           (item) =>
-            item.section === placement.section && item.unit === placement.unit,
+            item.courseId === placement.courseId &&
+            item.section === placement.section &&
+            item.unit === placement.unit,
         );
         if (!isDuplicate) existing.placements.push(placement);
       }
@@ -214,20 +252,32 @@ export function buildWordSeedData(): NormalizedWordSeed[] {
 }
 
 function normalizeEntry(
-  entry: WordSeedEntry,
+  entry: MultilingualWordSeedEntry,
   source: WordSeedSource,
   order: number,
 ): NormalizedWordSeed {
-  const headword = entry.korean.trim();
+  const scope = resolveCourseScope(source);
+  const headword =
+    (
+      entry.headword ||
+      (scope.targetLanguage === 'ko'
+        ? entry.korean
+        : scope.targetLanguage === 'en'
+          ? entry.english
+          : undefined)
+    )?.trim() || '';
   if (!headword) {
     throw new Error(
-      `Empty Korean headword at section ${source.section}, unit ${source.unit}, order ${order}`,
+      `Empty ${scope.targetLanguage} headword at section ${source.section}, unit ${source.unit}, order ${order}`,
     );
   }
 
   const meaning = completeLocalizedText(
     {
-      ko: entry.meaning?.ko || entry.ko || headword,
+      ko:
+        entry.meaning?.ko ||
+        entry.ko ||
+        (scope.targetLanguage === 'ko' ? headword : undefined),
       uz: entry.meaning?.uz || entry.uz,
       en: entry.meaning?.en || entry.en,
       ru: entry.meaning?.ru || entry.ru,
@@ -238,30 +288,43 @@ function normalizeEntry(
   const senseKey =
     entry.senseKey?.trim() || `legacy-${shortHash(meaningSignature)}`;
   const code =
-    entry.code?.trim() || `word_${shortHash(`${headword}|${senseKey}`)}`;
-  const examples = (entry.examples || []).map((example, exampleIndex) => ({
-    korean: requiredText(
-      example.korean,
-      `${headword} example ${exampleIndex + 1} Korean text`,
-    ),
-    translations: completeLocalizedText(
-      example.translations,
-      `${headword} example ${exampleIndex + 1} translations`,
-    ),
-  }));
+    entry.code?.trim() ||
+    `${scope.targetLanguage === 'ko' ? '' : `${scope.targetLanguage}_`}word_${shortHash(`${headword}|${senseKey}`)}`;
+  const examples = (entry.examples || []).map((example, exampleIndex) => {
+    const text = requiredText(
+      example.text ||
+        (scope.targetLanguage === 'ko'
+          ? example.korean
+          : scope.targetLanguage === 'en'
+            ? example.english
+            : undefined),
+      `${headword} example ${exampleIndex + 1} ${scope.targetLanguage} text`,
+    );
+    return {
+      text,
+      ...(scope.targetLanguage === 'ko' ? { korean: text } : {}),
+      translations: completeLocalizedText(
+        example.translations,
+        `${headword} example ${exampleIndex + 1} translations`,
+      ),
+    };
+  });
 
   return {
     code,
-    targetLanguage: 'ko',
+    targetLanguage: scope.targetLanguage,
     headword,
     senseKey,
     partOfSpeech: entry.partOfSpeech || WordPartOfSpeech.OTHER,
     meaning,
     examples,
     pronunciation: {
-      hangul: entry.pronunciation?.hangul?.trim() || headword,
+      hangul:
+        entry.pronunciation?.hangul?.trim() ||
+        (scope.targetLanguage === 'ko' ? headword : ''),
       romanization: entry.pronunciation?.romanization?.trim() || '',
       ttsText: entry.pronunciation?.ttsText?.trim() || headword,
+      ipa: entry.pronunciation?.ipa?.trim() || '',
     },
     media: {
       emoji: entry.media?.emoji || entry.emoji || '',
@@ -270,6 +333,7 @@ function normalizeEntry(
     },
     placements: [
       {
+        courseId: scope.courseId,
         section: source.section,
         unit: source.unit,
         order,
@@ -326,6 +390,7 @@ function assertCompatible(
   next: NormalizedWordSeed,
 ) {
   const sameIdentity =
+    existing.targetLanguage === next.targetLanguage &&
     existing.headword === next.headword &&
     existing.senseKey === next.senseKey &&
     existing.partOfSpeech === next.partOfSpeech;
@@ -338,6 +403,7 @@ function assertCompatible(
     // 없다. DB 유니크 인덱스가 (headword, senseKey) 라 따로 두면 insert 에서
     // 죽는다. 둘 중 하나의 senseKey 를 바꿔야 한다.
     if (
+      existing.targetLanguage === next.targetLanguage &&
       existing.headword === next.headword &&
       existing.senseKey === next.senseKey
     ) {
@@ -362,12 +428,12 @@ function mergeExamples(
   current: NormalizedWordSeed['examples'],
   next: NormalizedWordSeed['examples'],
 ) {
-  const seen = new Set(current.map((example) => example.korean));
+  const seen = new Set(current.map((example) => example.text));
   return [
     ...current,
     ...next.filter((example) => {
-      if (seen.has(example.korean)) return false;
-      seen.add(example.korean);
+      if (seen.has(example.text)) return false;
+      seen.add(example.text);
       return true;
     }),
   ];

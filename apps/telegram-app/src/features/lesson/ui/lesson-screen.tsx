@@ -1075,7 +1075,7 @@ export function LessonScreen() {
   // 아래 피드백 바까지 뜨면 같은 말을 두 번 하게 된다.
   const hidesFeedbackBar = GRAMMAR_TYPES.has(current.question.type);
   return (
-    <LessonSpeechProvider>
+    <LessonSpeechProvider language={current.question.speechLocale ?? session.speechLocale ?? current.question.targetLanguage ?? session.targetLanguage}>
     <main className={styles.lessonPage}>
       {isLegend ? (
         <LegendLessonHeader

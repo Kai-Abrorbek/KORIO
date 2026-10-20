@@ -35,7 +35,7 @@ function Waveform({ active }: { active: boolean }) {
 export function AudioMatch({ answerState, onAnswer, onSkip, question }: QuestionProps) {
   const { speak } = useLessonSpeech();
   const pairs = question.pairs ?? [];
-  const [left, setLeft] = useState<Item[]>(() => shuffle(pairs.map((pair, index) => ({ id: `a-${index}`, pairId: index, status: "idle" as PairStatus, value: pair.korean }))));
+  const [left, setLeft] = useState<Item[]>(() => shuffle(pairs.map((pair, index) => ({ id: `a-${index}`, pairId: index, status: "idle" as PairStatus, value: pair.text ?? pair.korean }))));
   const [right, setRight] = useState<Item[]>(() => shuffle(pairs.map((pair, index) => ({ id: `t-${index}`, pairId: index, status: "idle" as PairStatus, value: pair.native }))));
   const [selA, setSelA] = useState<number | null>(null);
   const [selT, setSelT] = useState<number | null>(null);

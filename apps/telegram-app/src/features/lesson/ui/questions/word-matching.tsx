@@ -25,7 +25,7 @@ export function WordMatching({ answerState, onAnswer, question }: QuestionProps)
   const { prewarm, speak, stop } = useLessonSpeech();
   const pairs = question.pairs ?? [];
   const [left, setLeft] = useState<Item[]>(() =>
-    shuffle(pairs.map((pair, index) => ({ id: `k-${index}`, pairId: index, status: "idle" as PairStatus, text: pair.korean }))),
+    shuffle(pairs.map((pair, index) => ({ id: `k-${index}`, pairId: index, status: "idle" as PairStatus, text: pair.text ?? pair.korean }))),
   );
   const [right, setRight] = useState<Item[]>(() =>
     shuffle(pairs.map((pair, index) => ({ id: `n-${index}`, pairId: index, status: "idle" as PairStatus, text: pair.native }))),
@@ -36,7 +36,7 @@ export function WordMatching({ answerState, onAnswer, question }: QuestionProps)
 
   // 짝을 맞춘 순간 읽어 줄 단어는 미리 받아 둔다 (한 박자 늦게 나지 않게)
   useEffect(() => {
-    prewarm(pairs.map((pair) => pair.korean));
+    prewarm(pairs.map((pair) => pair.text ?? pair.korean));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.id]);
 
