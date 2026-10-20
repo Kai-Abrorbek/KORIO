@@ -336,6 +336,11 @@ export class User {
       target: number;
       category?: string;
       promo?: boolean;
+      /** 문제 퀘스트의 코스별 모양 (courseId → kind·target·category). retention/quest-picker */
+      courses?: Record<
+        string,
+        { kind: string; target: number; category?: string }
+      >;
     }[];
     rerolls?: number;
   } | null;

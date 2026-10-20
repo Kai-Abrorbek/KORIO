@@ -35,12 +35,21 @@ import { isSuperActive } from '../users/super.util';
 import { checkinRewardFor } from './checkin-reward';
 import {
   bumpQuestCounter,
+  LEGACY_QUEST_LANGUAGE,
   QUEST_EVENT_KEYS,
+  languageQuestValue,
   type QuestCounterKey,
 } from '../users/utils/quest-counter.util';
 import {
+  LEARNING_COURSES,
+  resolveCourseScope,
+  type CourseScope,
+} from '../common/learning-course';
+import { courseOf } from '../users/learn-mode.constants';
+import {
   CHECKIN_REWARDS,
   COMEBACK,
+  COURSE_QUEST_KINDS,
   DAILY_QUESTS,
   MONTHLY_CHALLENGE,
   QUEST_CHEST_FREEZE_FALLBACK_GEMS,
@@ -51,8 +60,11 @@ import {
   bandOf,
   pickBonus,
   pickDailyQuests,
+  questFor,
   rerollPick,
   rollQuestChest,
+  type CourseQuest,
+  type CourseQuestContext,
   type PickContext,
   type QuestPick,
 } from './quest-picker';
@@ -69,38 +81,112 @@ export const QUEST_SLOT_IDS = ['easy', 'normal', 'hard', 'bonus'] as const;
 /** 상자 대표값 — 옛 앱이 상자 옆 숫자 칸에 그린다 (실제로는 랜덤) */
 const QUEST_CHEST_DISPLAY_GEMS = 50;
 
-/** 오늘 칸의 진행도 — 학습 통계 + 행동 카운터 */
+/** 오늘 칸의 진행도에 쓰는 통계 필드 */
+const QUEST_STAT_FIELDS =
+  'xpEarned correctQuestions studyTimeSeconds questCounters categoryCounts languageQuests';
+
+/**
+ * 오늘 칸의 진행도 — 학습 통계 + 행동 카운터.
+ * 문제 퀘스트(COURSE_QUEST_KINDS)는 그 언어 것만 센다 (quest-counter.util languageQuestValue).
+ * XP·시간·팔로우·공유는 계정 공통이다.
+ */
 function progressOf(
-  pick: QuestPick,
+  quest: CourseQuest,
   row: {
     xpEarned?: number;
     correctQuestions?: number;
     studyTimeSeconds?: number;
     questCounters?: unknown;
     categoryCounts?: unknown;
+    languageQuests?: unknown;
   } | null,
+  language: string,
 ): number {
-  switch (pick.kind) {
+  switch (quest.kind) {
     case 'xp':
       return row?.xpEarned ?? 0;
-    case 'correct':
-      return row?.correctQuestions ?? 0;
     case 'minutes':
       return Math.floor((row?.studyTimeSeconds ?? 0) / 60);
+    case 'correct':
+    case 'sessions':
+    case 'accurate':
+    case 'perfect':
+    case 'mistakes':
+      return languageQuestValue(row, language, quest.kind);
     case 'category':
-      return Number(
-        (row?.categoryCounts as Record<string, number> | undefined)?.[
-          pick.category ?? ''
-        ] ?? 0,
+      return languageQuestValue(
+        row,
+        language,
+        `categoryCounts.${quest.category ?? ''}`,
       );
     default:
-      // sessions · accurate · perfect · mistakes · follow · shareProgress · shareInvite
+      // follow · shareProgress · shareInvite
       return Number(
         (row?.questCounters as Record<string, number> | undefined)?.[
-          pick.kind
+          quest.kind
         ] ?? 0,
       );
   }
+}
+
+/**
+ * 카테고리 퀘스트 — 최근 7일에 그 언어로 실제로 푼 분야 중 정답률이 가장 낮은 곳.
+ * 안 해 본 분야(잠긴 기능일 수도)는 내지 않는다.
+ */
+function weakestCategory(
+  rows: {
+    categoryCounts?: unknown;
+    categoryCorrect?: unknown;
+    languageQuests?: unknown;
+  }[],
+  language: string,
+): string | null {
+  const counts = new Map<string, number>();
+  const correct = new Map<string, number>();
+  for (const row of rows) {
+    for (const cat of DAILY_QUESTS.CATEGORIES) {
+      const n = languageQuestValue(row, language, `categoryCounts.${cat}`);
+      if (n) counts.set(cat, (counts.get(cat) ?? 0) + n);
+      // 정답 기록이 없는 옛 데이터는 정답률을 모른다 — 0% 로 보지 않는다
+      if (hasCategoryCorrect(row, language, cat)) {
+        correct.set(
+          cat,
+          (correct.get(cat) ?? 0) +
+            languageQuestValue(row, language, `categoryCorrect.${cat}`),
+        );
+      }
+    }
+  }
+  const scored = [...counts.entries()]
+    .filter(([, n]) => n >= DAILY_QUESTS.CATEGORY_MIN_RECENT)
+    .map(([cat, n]) => ({
+      cat,
+      // 정답률을 모르는 분야는 뒤로 미룬다
+      acc: correct.has(cat) ? (correct.get(cat) ?? 0) / n : 2,
+    }))
+    .sort((a, b) => a.acc - b.acc);
+  return scored[0]?.cat ?? null;
+}
+
+function hasCategoryCorrect(
+  row: { categoryCorrect?: unknown; languageQuests?: unknown },
+  language: string,
+  cat: string,
+): boolean {
+  const source =
+    language === LEGACY_QUEST_LANGUAGE
+      ? row.categoryCorrect
+      : (
+          (row.languageQuests as Record<string, Record<string, unknown>>)?.[
+            language
+          ] as Record<string, unknown> | undefined
+        )?.categoryCorrect;
+  if (!source || typeof source !== 'object') return false;
+  const value =
+    source instanceof Map
+      ? (source.get(cat) as unknown)
+      : (source as Record<string, unknown>)[cat];
+  return value != null;
 }
 
 /**
@@ -129,7 +215,7 @@ export class RetentionService {
   // ─────────────────────────── 요약 ───────────────────────────
 
   /** 홈 한 번에 — 복구펜 · 퀘스트 · 출석 · 복귀 · XP 부스트 · 연속 목표 */
-  async summary(userId: string) {
+  async summary(userId: string, course?: Partial<CourseScope>) {
     // 연속을 먼저 맞춘다 — 복구펜 자동 사용·목표 판정이 여기서 일어난다
     await this.usersService.syncStreak(userId).catch(() => null);
 
@@ -139,7 +225,7 @@ export class RetentionService {
     const today = dayKey(now, tz);
 
     const [quests, comeback] = await Promise.all([
-      this.questsFor(me, tz, today),
+      this.questsFor(me, tz, today, this.questScope(me, course)),
       this.comebackFor(me, tz, now),
     ]);
 
@@ -242,32 +328,42 @@ export class RetentionService {
     me: User & { _id: Types.ObjectId },
     tz: string,
     today: string,
+    scope: CourseScope,
   ) {
     const isSuper = isSuperActive(me);
-    const state = await this.ensureQuestState(me, tz, today, isSuper);
+    const state = await this.ensureQuestState(me, tz, today, isSuper, scope);
 
     const row = await this.statsModel
       .findOne({ userId: me._id, date: startOfDay(new Date(), tz) })
-      .select(
-        'xpEarned correctQuestions studyTimeSeconds questCounters categoryCounts',
-      )
+      .select(QUEST_STAT_FIELDS)
       .lean();
 
     const slots = state.picks
       // SUPER 가 끝났으면 bonus 칸은 숨긴다 (받을 수도 없다)
       .filter((pick) => pick.slot !== 'bonus' || isSuper)
       .map((pick) => {
-        const progress = progressOf(pick, row);
+        // 문제 퀘스트는 지금 코스의 모양으로 — 한국어 화면엔 한국어 문제, 영어 화면엔 영어 문제
+        const quest = questFor(pick, scope.courseId);
+        const claimed = state.claimed.includes(pick.slot);
+        const progress = progressOf(quest, row, scope.targetLanguage);
+        // 칸은 코스끼리 하나다 — 다른 언어로 이미 받은 칸은 여기서도 끝난 칸이다
+        const done = claimed || progress >= quest.target;
         return {
           id: pick.slot,
           slot: pick.slot,
-          kind: pick.kind,
-          category: pick.category ?? null,
+          kind: quest.kind,
+          category: quest.category ?? null,
+          /** 문제 퀘스트면 어느 언어 문제를 세는지 ('ko' · 'en'). 공통 퀘스트는 null */
+          course: COURSE_QUEST_KINDS.has(quest.kind)
+            ? scope.targetLanguage
+            : null,
           promo: !!pick.promo,
-          target: pick.target,
-          progress: Math.min(pick.target, Math.max(0, progress)),
-          done: progress >= pick.target,
-          claimed: state.claimed.includes(pick.slot),
+          target: quest.target,
+          progress: claimed
+            ? quest.target
+            : Math.min(quest.target, Math.max(0, progress)),
+          done,
+          claimed,
           gems: DAILY_QUESTS.REWARD[pick.slot] ?? 0,
         };
       });
@@ -312,6 +408,7 @@ export class RetentionService {
     tz: string,
     today: string,
     isSuper: boolean,
+    scope: CourseScope,
   ): Promise<{ picks: QuestPick[]; claimed: string[]; rerolls: number }> {
     const prev = me.dailyQuestState;
     const sameDay = prev?.day === today;
@@ -321,7 +418,7 @@ export class RetentionService {
       // 오늘 SUPER 가 됐다 — 이미 깔린 세 칸은 두고 bonus 만 붙인다
       if (isSuper && !picks.some((pick) => pick.slot === 'bonus')) {
         const bonus = pickBonus(
-          await this.pickContext(me, tz, today, isSuper),
+          await this.pickContext(me, tz, today, isSuper, scope),
           picks,
         );
         if (bonus) {
@@ -344,7 +441,7 @@ export class RetentionService {
     }
 
     const picks = pickDailyQuests(
-      await this.pickContext(me, tz, today, isSuper),
+      await this.pickContext(me, tz, today, isSuper, scope),
     );
     // 배포 당일 옛 기록(picks 없음)이면 받은 것(상자 등)은 그대로 둔다
     const claimed = sameDay ? (prev?.claimed ?? []) : [];
@@ -386,9 +483,10 @@ export class RetentionService {
     tz: string,
     today: string,
     isSuper: boolean,
+    scope: CourseScope,
   ): Promise<PickContext> {
     const now = new Date();
-    const [rows, openMistakes] = await Promise.all([
+    const [rows, mistakesByLanguage] = await Promise.all([
       this.statsModel
         .find({
           userId: me._id,
@@ -397,9 +495,11 @@ export class RetentionService {
             $lt: startOfDay(now, tz),
           },
         })
-        .select('xpEarned totalQuestions categoryCounts categoryCorrect')
+        .select(
+          'xpEarned totalQuestions categoryCounts categoryCorrect languageQuests',
+        )
         .lean(),
-      this.mistakeModel.countDocuments({ userId: me._id, resolvedAt: null }),
+      this.openMistakesByLanguage(me._id),
     ]);
 
     const studied = rows.filter(
@@ -409,35 +509,63 @@ export class RetentionService {
       ? studied.reduce((sum, r) => sum + (r.xpEarned ?? 0), 0) / studied.length
       : 0;
 
-    // 카테고리 퀘스트 — 최근에 실제로 푼 분야 중 정답률이 가장 낮은 곳.
-    // 안 해 본 분야(잠긴 기능일 수도)는 내지 않는다
-    const counts = new Map<string, number>();
-    const correct = new Map<string, number>();
-    for (const r of rows as any[]) {
-      for (const cat of DAILY_QUESTS.CATEGORIES) {
-        const n = Number(r.categoryCounts?.[cat] ?? 0);
-        if (n) counts.set(cat, (counts.get(cat) ?? 0) + n);
-        const c = r.categoryCorrect?.[cat];
-        if (c != null) correct.set(cat, (correct.get(cat) ?? 0) + Number(c));
-      }
+    // 문제 퀘스트는 코스(언어)마다 따로 낸다 — 오답 수·약한 분야도 그 언어 것으로
+    const courses: Record<string, CourseQuestContext> = {};
+    for (const course of LEARNING_COURSES) {
+      courses[course.courseId] = {
+        openMistakes: mistakesByLanguage.get(course.targetLanguage) ?? 0,
+        category: weakestCategory(rows, course.targetLanguage),
+      };
     }
-    const scored = [...counts.entries()]
-      .filter(([, n]) => n >= DAILY_QUESTS.CATEGORY_MIN_RECENT)
-      .map(([cat, n]) => ({
-        cat,
-        // 정답 기록이 없는 옛 데이터는 정답률을 모르니 뒤로 미룬다
-        acc: correct.has(cat) ? (correct.get(cat) ?? 0) / n : 2,
-      }))
-      .sort((a, b) => a.acc - b.acc);
 
     return {
       userId: me._id.toString(),
       day: today,
       band: bandOf(avgXp),
       isSuper,
-      openMistakes,
-      category: scored[0]?.cat ?? null,
+      course: scope.courseId,
+      courses,
     };
+  }
+
+  /** 아직 해소 안 된 오답 수 — 문제의 언어별 (언어 없는 옛 문제는 한국어) */
+  private async openMistakesByLanguage(
+    userId: Types.ObjectId,
+  ): Promise<Map<string, number>> {
+    const rows = await this.mistakeModel.aggregate<{
+      _id: string;
+      n: number;
+    }>([
+      { $match: { userId, resolvedAt: null } },
+      {
+        $lookup: {
+          from: 'questions',
+          localField: 'questionId',
+          foreignField: '_id',
+          as: 'question',
+        },
+      },
+      {
+        $group: {
+          _id: {
+            $ifNull: [
+              { $arrayElemAt: ['$question.targetLanguage', 0] },
+              LEGACY_QUEST_LANGUAGE,
+            ],
+          },
+          n: { $sum: 1 },
+        },
+      },
+    ]);
+    return new Map(rows.map((row) => [String(row._id), row.n]));
+  }
+
+  /** 퀘스트를 어느 코스로 볼지 — 앱이 보낸 코스, 없으면(옛 앱) 계정의 지금 코스 */
+  private questScope(me: User, course?: Partial<CourseScope>): CourseScope {
+    if (course?.courseId || course?.targetLanguage) {
+      return resolveCourseScope(course);
+    }
+    return resolveCourseScope({ targetLanguage: courseOf(me.targetLanguage) });
   }
 
   /**
@@ -445,11 +573,16 @@ export class RetentionService {
    * 옛 앱은 xp | correct | minutes 로 보낸다 — 오늘 그 종류인 칸으로 바꿔 읽는다.
    * 받을 때마다 월간 챌린지 칸이 하나 찬다 (상자는 안 센다).
    */
-  async claimQuest(userId: string, id: string) {
+  async claimQuest(userId: string, id: string, course?: Partial<CourseScope>) {
     const me = await this.findMe(userId);
     const tz = resolveTimezone(me.timezone);
     const today = dayKey(new Date(), tz);
-    const quests = await this.questsFor(me, tz, today);
+    const quests = await this.questsFor(
+      me,
+      tz,
+      today,
+      this.questScope(me, course),
+    );
 
     if (id === 'chest') {
       if (!quests.chest.ready) throw new BadRequestException('QUEST_NOT_DONE');
@@ -601,11 +734,16 @@ export class RetentionService {
    * 한 칸 바꾸기 — 하루 REROLLS_FREE 번 (SUPER 는 REROLLS_SUPER).
    * 받았거나 이미 끝낸 칸은 못 바꾼다. 같은 난이도의 다른 퀘스트로.
    */
-  async rerollQuest(userId: string, slotId: string) {
+  async rerollQuest(
+    userId: string,
+    slotId: string,
+    course?: Partial<CourseScope>,
+  ) {
     const me = await this.findMe(userId);
     const tz = resolveTimezone(me.timezone);
     const today = dayKey(new Date(), tz);
-    const quests = await this.questsFor(me, tz, today);
+    const scope = this.questScope(me, course);
+    const quests = await this.questsFor(me, tz, today, scope);
 
     const slot = quests.slots.find((s) => s.slot === slotId);
     if (!slot) throw new BadRequestException('UNKNOWN_QUEST');
@@ -621,7 +759,7 @@ export class RetentionService {
     }
     const used = state.rerolls ?? 0;
     const next = rerollPick(
-      await this.pickContext(fresh, tz, today, isSuperActive(fresh)),
+      await this.pickContext(fresh, tz, today, isSuperActive(fresh), scope),
       state.picks as QuestPick[],
       slot.slot,
       used + 1,
@@ -653,14 +791,18 @@ export class RetentionService {
     if (!res.modifiedCount) throw new BadRequestException('REROLL_CONFLICT');
 
     const after = await this.findMe(userId);
-    return { quests: await this.questsFor(after, tz, today) };
+    return { quests: await this.questsFor(after, tz, today, scope) };
   }
 
   /**
    * 앱이 알려 주는 행동 (공유) — 서버가 직접 볼 수 없어서 앱 말을 믿는다.
    * 그래서 하루 상한(EVENT_DAILY_CAP)을 걸고, 보상은 어차피 칸당 하루 한 번이다.
    */
-  async questEvent(userId: string, type: string) {
+  async questEvent(
+    userId: string,
+    type: string,
+    course?: Partial<CourseScope>,
+  ) {
     if (!QUEST_EVENT_KEYS.includes(type as QuestCounterKey)) {
       throw new BadRequestException('UNKNOWN_EVENT');
     }
@@ -674,7 +816,14 @@ export class RetentionService {
       1,
       DAILY_QUESTS.EVENT_DAILY_CAP,
     );
-    return { quests: await this.questsFor(me, tz, dayKey(new Date(), tz)) };
+    return {
+      quests: await this.questsFor(
+        me,
+        tz,
+        dayKey(new Date(), tz),
+        this.questScope(me, course),
+      ),
+    };
   }
 
   // ─────────────────────────── 월간 챌린지 ───────────────────────────
@@ -1027,7 +1176,7 @@ export class RetentionService {
     const me = await this.userModel
       .findById(new Types.ObjectId(userId))
       .select(
-        'timezone gems streak streakFreeze streakFreezeNotice dailyQuestState dailyGoalMinutes comebackClaimedAt xpBoostUntil checkin streakGoal isSuper superExpiresAt monthlyQuest questBadges',
+        'timezone targetLanguage gems streak streakFreeze streakFreezeNotice dailyQuestState dailyGoalMinutes comebackClaimedAt xpBoostUntil checkin streakGoal isSuper superExpiresAt monthlyQuest questBadges',
       )
       .lean();
     if (!me) throw new NotFoundException('USER_NOT_FOUND');

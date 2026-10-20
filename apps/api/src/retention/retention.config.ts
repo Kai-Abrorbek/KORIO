@@ -54,6 +54,23 @@ export type QuestKind =
   | 'shareProgress'
   | 'shareInvite';
 
+/**
+ * 배우는 언어(코스)마다 따로 세는 퀘스트 — 문제를 푸는 것들.
+ *
+ * XP·학습 시간·팔로우·공유는 계정 공통이다. 반면 "정답 25개" 같은 문제 퀘스트는
+ * 한국어를 배우는 화면에선 한국어 문제만, 영어 화면에선 영어 문제만 센다.
+ * 칸은 하루 세 칸 그대로라 보상은 칸당 하루 한 번이다 — 두 언어를 다 해도 두 배가 아니다
+ * (보석이 현금으로 나가므로).
+ */
+export const COURSE_QUEST_KINDS: ReadonlySet<QuestKind> = new Set<QuestKind>([
+  'correct',
+  'sessions',
+  'accurate',
+  'perfect',
+  'mistakes',
+  'category',
+]);
+
 export interface QuestDef {
   kind: QuestKind;
   /** [가벼움, 보통, 많음] 활동량별 목표 */

@@ -46,7 +46,7 @@ export const DEFAULT_LEARNING_COURSES = {
 } as const;
 
 export function learningScopePath(path: string, course: LearnCourse): string {
-  if (!isLearningRequest(path)) return path;
+  if (!isCourseScopedRequest(path)) return path;
   const [pathname, search = ""] = path.split("?");
   const query = new URLSearchParams(search);
   const scope = query.has("courseId")
@@ -66,6 +66,11 @@ export function learningScopePath(path: string, course: LearnCourse): string {
 
 export const isLearningRequest = (path: string): boolean =>
   /^\/(words|lessons|study-path|learn-progress|speech)(?:[/?]|$)/.test(path);
+
+// 일일 퀘스트도 지금 코스를 붙여 보낸다 — 문제 퀘스트는 코스마다 따로 센다 (공통 퀘스트는 그대로).
+// 학습 요청은 아니라서 코스가 바뀌어도 응답을 버리지 않고 lang 도 건드리지 않는다.
+export const isCourseScopedRequest = (path: string): boolean =>
+  isLearningRequest(path) || /^\/retention(?:[/?]|$)/.test(path);
 
 export function learnCourseOf(value: unknown): LearnCourse {
   return value === "en" ? "en" : "ko";

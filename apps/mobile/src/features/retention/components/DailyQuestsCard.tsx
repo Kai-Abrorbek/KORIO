@@ -23,6 +23,7 @@ import {
   type RetentionSummary,
 } from "@/services/retention.service";
 import { useRetentionStore } from "@/store/retention.store";
+import { LEARN_COURSES } from "@/constants/learnCourses";
 import { useAuthStore } from "@/store/auth.store";
 import Button3D from "./Button3D";
 import {
@@ -301,6 +302,12 @@ function QuestRow({
           ) : null}
           {quest.promo ? (
             <Ionicons name="megaphone" size={12} color={meta.color} />
+          ) : null}
+          {/* 문제 퀘스트는 지금 배우는 언어의 문제만 센다 — 어느 언어인지 깃발로 */}
+          {quest.course && LEARN_COURSES[quest.course] ? (
+            <View style={[s.courseChip, { borderColor: meta.color + "40" }]}>
+              <Text style={s.courseFlag}>{LEARN_COURSES[quest.course].flag}</Text>
+            </View>
           ) : null}
         </View>
         <Text
@@ -677,6 +684,13 @@ const getStyles = (theme: ThemeColors) =>
       color: theme.textSecondary,
     },
     qHead: { flexDirection: "row", alignItems: "center", gap: 6 },
+    courseChip: {
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      borderRadius: 8,
+      borderWidth: 1,
+    },
+    courseFlag: { fontSize: 11, lineHeight: 15 },
     tierChip: {
       paddingHorizontal: 7,
       paddingVertical: 2,

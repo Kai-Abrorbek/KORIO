@@ -214,6 +214,14 @@ export default function HomeScreen() {
   const retention = useRetentionStore((st) => st.summary);
   const refreshRetention = useRetentionStore((st) => st.refresh);
   const patchRetention = useRetentionStore((st) => st.patch);
+  // 문제 퀘스트는 코스마다 따로 센다 — 홈에서 코스를 바꾸면 그 코스 것으로 다시 받는다
+  // (첫 렌더는 아래 포커스 효과가 받는다)
+  const retentionCourse = useRef(learnCourse);
+  useEffect(() => {
+    if (retentionCourse.current === learnCourse) return;
+    retentionCourse.current = learnCourse;
+    void refreshRetention();
+  }, [learnCourse, refreshRetention]);
   const [checkinReward, setCheckinReward] = useState<{
     day: number;
     gems: number;

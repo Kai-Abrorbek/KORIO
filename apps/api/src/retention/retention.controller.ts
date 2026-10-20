@@ -3,9 +3,11 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
+import type { CourseScope } from '../common/learning-course';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RetentionService } from './retention.service';
 import {
@@ -23,8 +25,9 @@ export class RetentionController {
 
   /** 홈 한 번에 — 복구펜·퀘스트·출석·복귀·XP 부스트·연속 목표 */
   @Get('summary')
-  summary(@Request() req) {
-    return this.service.summary(req.user._id.toString());
+  summary(@Request() req, @Query() course: Partial<CourseScope> = {}) {
+    // 문제 퀘스트는 지금 배우는 코스 것으로 (앱이 courseId·targetLanguage 를 붙인다)
+    return this.service.summary(req.user._id.toString(), course);
   }
 
   // ── 복구펜 ──
@@ -40,20 +43,32 @@ export class RetentionController {
 
   // ── 일일 퀘스트 ──
   @Post('quests/claim')
-  claimQuest(@Request() req, @Body() dto: ClaimQuestDto) {
-    return this.service.claimQuest(req.user._id.toString(), dto.id);
+  claimQuest(
+    @Request() req,
+    @Body() dto: ClaimQuestDto,
+    @Query() course: Partial<CourseScope> = {},
+  ) {
+    return this.service.claimQuest(req.user._id.toString(), dto.id, course);
   }
 
   /** 한 칸 바꾸기 (하루 1번, SUPER 3번) */
   @Post('quests/reroll')
-  rerollQuest(@Request() req, @Body() dto: RerollQuestDto) {
-    return this.service.rerollQuest(req.user._id.toString(), dto.slot);
+  rerollQuest(
+    @Request() req,
+    @Body() dto: RerollQuestDto,
+    @Query() course: Partial<CourseScope> = {},
+  ) {
+    return this.service.rerollQuest(req.user._id.toString(), dto.slot, course);
   }
 
   /** 앱이 알려 주는 행동 — 학습 결과 공유 · 초대장 보내기 */
   @Post('quests/event')
-  questEvent(@Request() req, @Body() dto: QuestEventDto) {
-    return this.service.questEvent(req.user._id.toString(), dto.type);
+  questEvent(
+    @Request() req,
+    @Body() dto: QuestEventDto,
+    @Query() course: Partial<CourseScope> = {},
+  ) {
+    return this.service.questEvent(req.user._id.toString(), dto.type, course);
   }
 
   // ── 월간 챌린지 ──

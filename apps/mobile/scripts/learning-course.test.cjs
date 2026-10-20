@@ -61,11 +61,24 @@ for (const [client, courses] of [
       "/study-path",
       "/speech/transcribe",
       "/learn-progress",
+      "/retention/summary",
     ]) {
       const scoped = courses.learningScopePath(endpoint, "ko");
       assert.match(scoped, /courseId=ko-general/);
       assert.match(scoped, /targetLanguage=ko/);
     }
+  });
+
+  test(`${client}: daily quests carry the course but are not learning requests`, () => {
+    const claim = new URL(
+      courses.learningScopePath("/retention/quests/claim", "en"),
+      "https://api.test",
+    );
+    assert.equal(claim.searchParams.get("courseId"), "en-general");
+    assert.equal(claim.searchParams.get("targetLanguage"), "en");
+    // 받기 응답을 코스 전환 때문에 버리면 보상 연출이 사라진다
+    assert.equal(courses.isLearningRequest("/retention/quests/claim"), false);
+    assert.equal(courses.isCourseScopedRequest("/retentionx"), false);
   });
 
   test(`${client}: auth and unrelated or similarly prefixed endpoints are untouched`, () => {

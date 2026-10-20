@@ -1,4 +1,5 @@
 import api from "./api";
+import type { LearnCourse } from "@/constants/learnCourses";
 
 export type QuestId = "xp" | "correct" | "minutes";
 
@@ -39,6 +40,11 @@ export interface QuestSlot {
   category: string | null;
   /** 홍보 퀘스트 (공유·초대·팔로우) */
   promo: boolean;
+  /**
+   * 문제 퀘스트면 어느 언어 문제를 세는지 ('ko' · 'en'). XP·시간·공유 같은 공통 퀘스트는 null.
+   * 칸은 코스끼리 하나라 보상은 하루 한 번이다 (옛 서버는 안 보낸다)
+   */
+  course?: LearnCourse | null;
   target: number;
   progress: number;
   done: boolean;

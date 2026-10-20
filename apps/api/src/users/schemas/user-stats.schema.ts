@@ -61,6 +61,17 @@ export class UserStats {
    */
   @Prop({ type: Map, of: Number, default: {} })
   questCounters: Map<string, number>;
+
+  /**
+   * 언어별 문제 퀘스트 카운터 (users/utils/quest-counter.util.ts LanguageQuestCounters).
+   * { en: { correct, sessions, accurate, perfect, mistakes, categoryCounts, categoryCorrect } }
+   *
+   * 일일 퀘스트의 문제 퀘스트(정답·레슨·정확도·무실수·오답·분야)는 지금 배우는 언어의
+   * 것만 센다. 위의 합계 필드는 그대로 모든 언어의 합이다 (통계 화면·XP 는 계정 공통).
+   * 한국어는 "합계 − 다른 언어" 로 읽는다 — 이 필드가 생기기 전 기록은 전부 한국어다.
+   */
+  @Prop({ type: Object, default: undefined })
+  languageQuests?: Record<string, Record<string, unknown>>;
 }
 
 export const UserStatsSchema = SchemaFactory.createForClass(UserStats);

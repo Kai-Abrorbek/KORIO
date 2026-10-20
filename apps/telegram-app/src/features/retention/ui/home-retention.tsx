@@ -36,6 +36,7 @@ import {
   questTitleKey,
   type QuestAction,
 } from "../model/quest-meta";
+import { LEARN_COURSES } from "../../learning/model/learning-options";
 import { getMyInvite } from "../../social/api/social";
 import { shareMessage } from "../../../shared/telegram/share";
 import { uzt } from "../../../shared/i18n/uz-text";
@@ -406,6 +407,15 @@ function QuestRow({
           {quest.promo ? (
             <i className={styles.promoMark} style={{ color: meta.color }}>
               <MobileIcon name="megaphone" size={12} />
+            </i>
+          ) : null}
+          {quest.course && LEARN_COURSES[quest.course] ? (
+            <i
+              className={styles.courseChip}
+              data-no-translate
+              style={{ borderColor: `${meta.color}40` }}
+            >
+              {LEARN_COURSES[quest.course].flag}
             </i>
           ) : null}
         </span>

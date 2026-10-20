@@ -155,7 +155,12 @@ import {
 } from './jump-test.util';
 import { normalizeBuilderChips } from './chip-builder.util';
 import { DAILY_QUESTS } from '../retention/retention.config';
-import { bumpQuestCounter } from '../users/utils/quest-counter.util';
+import {
+  bumpQuestCounter,
+  dominantLanguage,
+  LEGACY_QUEST_LANGUAGE,
+  languageQuestInc,
+} from '../users/utils/quest-counter.util';
 import {
   type CourseScope,
   DEFAULT_COURSE_ID,
@@ -1364,6 +1369,22 @@ export class LessonsService {
         }
       : {};
 
+    const categoryInc = buildCategoryStatsInc(
+      items,
+      wrongSet,
+      params.overrideCategory,
+      wrong,
+    );
+    // 일일 퀘스트의 문제 퀘스트는 언어마다 따로 센다 (UserStats.languageQuests).
+    const languageInc = this.languageQuestIncFor(
+      items,
+      qs,
+      wrongSet,
+      wrong,
+      params,
+      questInc,
+    );
+
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
       {
@@ -1376,12 +1397,8 @@ export class LessonsService {
           totalQuestions: total,
           correctQuestions: correctCount,
           xpEarned: xp,
-          ...buildCategoryStatsInc(
-            items,
-            wrongSet,
-            params.overrideCategory,
-            wrong,
-          ),
+          ...categoryInc,
+          ...languageInc,
         },
       },
       { upsert: true, returnDocument: 'after' },
@@ -1393,6 +1410,79 @@ export class LessonsService {
       params.questionIds ?? [],
       params.wrongQuestionIds ?? [],
     );
+  }
+
+  /**
+   * 한 판의 언어별 문제 퀘스트 증가분 (UserStats.languageQuests — quest-counter.util).
+   *
+   * 한국어는 쌓지 않는다 — 읽을 때 "합계 − 다른 언어" 로 센다. 언어별 카운터가 생기기 전
+   * 기록이 전부 한국어였고, 언어를 모르는 모드(옛 게임)도 한국어로 남아야 해서다.
+   * 그래서 모르는 언어를 추측해 적지도 않는다 (studyLanguages 와 같은 원칙).
+   * 정답·분야는 문제마다 그 문제의 언어로, 판 단위(레슨 수·정확도·무실수)는 가장 많은
+   * 문제의 언어로 준다.
+   */
+  private languageQuestIncFor(
+    items: { id?: string; type?: string; lessonCategory?: string }[],
+    stored: { _id: Types.ObjectId; targetLanguage?: string }[],
+    wrongSet: Set<string>,
+    /** id 로 못 가르는 모드의 총 오답 수 */
+    totalWrong: number,
+    params: {
+      questionIds?: Types.ObjectId[];
+      overrideCategory?: StudyCategory;
+      targetLanguage?: string;
+    },
+    sessionInc: Record<string, number>,
+  ): Record<string, number> {
+    const known = (language?: string | null) =>
+      knownStudyLanguages([language])[0] ?? null;
+    const languageById = new Map(
+      stored.map((q) => [
+        q._id.toString(),
+        q.targetLanguage ?? LEGACY_QUEST_LANGUAGE,
+      ]),
+    );
+    const batchLanguage = known(
+      params.questionIds?.length
+        ? dominantLanguage(
+            stored.map((q) => q.targetLanguage ?? LEGACY_QUEST_LANGUAGE),
+          )
+        : params.targetLanguage,
+    );
+
+    const groups = new Map<string, typeof items>();
+    for (const item of items) {
+      const language = known(
+        item.id ? languageById.get(item.id) : batchLanguage,
+      );
+      if (!language || language === LEGACY_QUEST_LANGUAGE) continue;
+      groups.set(language, [...(groups.get(language) ?? []), item]);
+    }
+
+    const inc: Record<string, number> = {};
+    for (const [language, group] of groups) {
+      const hasIds = group.some((item) => !!item.id);
+      const wrong = hasIds
+        ? group.filter((item) => item.id && wrongSet.has(item.id)).length
+        : // id 가 없는 모드는 총 오답 수를 이 언어에 그대로 (한 판 = 한 언어)
+          Math.min(group.length, totalWrong);
+      Object.assign(
+        inc,
+        languageQuestInc(language, {
+          correct: Math.max(0, group.length - wrong),
+          ...buildCategoryStatsInc(
+            group,
+            wrongSet,
+            params.overrideCategory,
+            wrong,
+          ),
+        }),
+      );
+    }
+    if (batchLanguage && batchLanguage !== LEGACY_QUEST_LANGUAGE) {
+      Object.assign(inc, languageQuestInc(batchLanguage, sessionInc));
+    }
+    return inc;
   }
 
   /**
@@ -1978,22 +2068,41 @@ export class LessonsService {
     // 오답 노트에서 맞힌 것들은 그 자리에서 해소로 본다. 노트는 유저가
     // 의식하고 다시 푸는 자리라 연속 두 번을 기다릴 필요가 없다.
     const now = new Date();
-    const res = await this.userMistakeModel.updateMany(
-      {
-        userId: new Types.ObjectId(userId),
-        questionId: { $in: validIds.map((id) => new Types.ObjectId(id)) },
-        resolvedAt: null,
-      },
-      { $set: { resolvedAt: now, streak: MISTAKE_RESOLVE_STREAK } },
-    );
-    // 일일 퀘스트 "오답 n개 해결" — 실제로 해소된 것만 센다
+    const filter = {
+      userId: new Types.ObjectId(userId),
+      questionId: { $in: validIds.map((id) => new Types.ObjectId(id)) },
+      resolvedAt: null,
+    };
+    // 일일 퀘스트 "오답 n개 해결" 은 언어마다 따로 센다 — 해소될 것들의 언어를 먼저 본다
+    const resolving = await this.userMistakeModel
+      .find(filter)
+      .select('questionId')
+      .lean();
+    const res = await this.userMistakeModel.updateMany(filter, {
+      $set: { resolvedAt: now, streak: MISTAKE_RESOLVE_STREAK },
+    });
+    // 실제로 해소된 것만 센다
     if (res.modifiedCount) {
+      const languages = await this.questionModel
+        .find({ _id: { $in: resolving.map((row) => row.questionId) } })
+        .select('targetLanguage')
+        .lean();
+      const byLanguage: Record<string, number> = {};
+      for (const language of knownStudyLanguages(
+        languages.map((q) => q.targetLanguage ?? LEGACY_QUEST_LANGUAGE),
+      )) {
+        byLanguage[language] = languages.filter(
+          (q) => (q.targetLanguage ?? LEGACY_QUEST_LANGUAGE) === language,
+        ).length;
+      }
       await bumpQuestCounter(
         this.userStatsModel,
         userId,
         startOfDay(now, await this.usersService.getTimezone(userId)),
         'mistakes',
         res.modifiedCount,
+        undefined,
+        byLanguage,
       );
     }
 

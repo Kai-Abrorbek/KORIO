@@ -1,4 +1,5 @@
 import uz from "../../../shared/i18n/locales/uz";
+import type { LearnCourse } from "../../learning/model/learning-options";
 
 /**
  * 리텐션 — 복구펜 · 일일 퀘스트 · 복귀 보상 · 첫 7일 출석 · 연속 목표 (앱과 같은 서버 API).
@@ -41,6 +42,8 @@ export interface QuestSlot {
   kind: QuestKind;
   category: string | null;
   promo: boolean;
+  /** 문제 퀘스트면 어느 코스 문제를 세는가 (공통 퀘스트·옛 서버는 null/없음) */
+  course?: LearnCourse | null;
   target: number;
   progress: number;
   done: boolean;

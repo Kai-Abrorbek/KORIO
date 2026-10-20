@@ -86,6 +86,10 @@ describe('server-owned daily language recording', () => {
           xpEarned: 0,
           'categoryCounts.vocab': 3,
           'categoryCorrect.vocab': 3,
+          // 일일 문제 퀘스트는 언어별로 — 영어 문제 두 개만 영어 칸에 (한국어는 합계 − 영어로 읽는다)
+          'languageQuests.en.correct': 2,
+          'languageQuests.en.categoryCounts.vocab': 2,
+          'languageQuests.en.categoryCorrect.vocab': 2,
         },
       },
       { upsert: true, returnDocument: 'after' },
