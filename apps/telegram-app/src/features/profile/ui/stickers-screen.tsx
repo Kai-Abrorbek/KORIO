@@ -204,6 +204,7 @@ export function StickersScreen() {
           <div className={styles.fan}>
             {fan.length === 3 ? (
               fan.map((src, index) => (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img alt="" className={styles.fanCard} key={index} src={src} style={{ "--i": index } as CSSProperties} />
               ))
             ) : (
@@ -262,6 +263,7 @@ export function StickersScreen() {
                 key={`${sticker?.id ?? "s"}-${index}`}
                 role="img"
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 {sticker ? <img alt="" src={sticker.image} /> : <i />}
               </span>
             ))}
@@ -449,6 +451,7 @@ function DoneModal({
       <button aria-label={uzt("stickers.done.later")} className={styles.backdrop} onClick={onClose} type="button" />
       <section className={styles.done}>
         <div className={styles.doneFan}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           {stickers.map((src, index) => (src ? <img alt="" key={index} src={src} style={{ "--i": index } as CSSProperties} /> : null))}
         </div>
         <h2 data-i18n={kind === "new" ? "stickers.done.title" : "stickers.done.updated"}>
