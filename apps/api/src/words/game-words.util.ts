@@ -13,13 +13,15 @@ export function isPlayable(
   headword: string,
   maxLen: number,
   meaning: { uz?: string; en?: string; ru?: string; ko?: string },
+  targetLanguage = 'ko',
 ): boolean {
   const w = (headword ?? '').trim();
   if (!w || w.length > maxLen) return false;
   // 띄어쓰기·문장부호가 있으면 한 낱말이 아니다 (구·문장이 섞여 있다)
-  if (/[\s.,!?~·\-]/.test(w)) return false;
-  // 한글만. 숫자·라틴 문자가 섞인 항목은 게임에 안 맞는다
-  if (!/^[가-힣]+$/.test(w)) return false;
+  if (/[\s.,!?~·-]/.test(w)) return false;
+  // 학습 언어의 한 낱말만. 구·숫자·다른 문자가 섞인 항목은 게임에 안 맞는다
+  const alphabet = targetLanguage === 'en' ? /^[A-Za-z]+$/ : /^[가-힣]+$/;
+  if (!['ko', 'en'].includes(targetLanguage) || !alphabet.test(w)) return false;
   // 뜻이 최소 두 언어는 있어야 짝맞추기·OX 를 만들 수 있다
   const filled = [meaning.uz, meaning.en, meaning.ru, meaning.ko].filter(
     (v) => !!v && v.trim().length > 0,
@@ -36,7 +38,7 @@ export function isPlayable(
  */
 export function allowedStarts(lastChar: string): string[] {
   const ch = (lastChar ?? '').trim().slice(-1);
-    if (!/^[가-힣]$/.test(ch)) return [];
+  if (!/^[가-힣]$/.test(ch)) return [];
 
   const code = ch.charCodeAt(0) - 0xac00;
   const cho = Math.floor(code / 588);

@@ -391,7 +391,8 @@ test("Telegram request snapshots use Korean explanations for English and preserv
   await request("/lessons/old?courseId=ko-general&targetLanguage=ko&lang=uz");
   const previous = new URL(calls[1].path, "https://api.test");
   assert.equal(previous.searchParams.get("courseId"), "ko-general");
-  assert.equal(previous.searchParams.get("lang"), "ru");
+  // Explicit session scope also preserves its explanation language.
+  assert.equal(previous.searchParams.get("lang"), "uz");
   await request("/lessons/questions/en-1/grade", {
     method: "POST",
     body: JSON.stringify({ answer: "hello", lang: "ru" }),

@@ -1,20 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
+import { matchingPool, type GameWordRecord, type MatchingPair } from "../../../../../../shared/word-games";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { createGameSession, gameRequestPath } from "../model/game-session";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./match-game-screen.module.css";
-import { meaningOfGameWord } from "../model/use-game-words";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 type Side = "left" | "right";
 type PairStatus = "idle" | "selected" | "wrong" | "correct";
 
-interface Pair { id: string; ko: string; native: string }
+type Pair = MatchingPair;
 interface Slot { key: string; pair: Pair; status: PairStatus; vanishing?: boolean }
-interface GameWord { id: string; ko: string; uz: string; en: string; ru: string }
 interface Reward {
   xp: number;
   stars: number | null;
@@ -100,7 +101,7 @@ function PairCard({ onClick, slot }: { onClick: () => void; slot: Slot }) {
       onClick={onClick}
       type="button"
     >
-      <span>{slot.pair.native}</span>
+      <span data-no-translate>{slot.pair.native}</span>
       {slot.status === "correct" ? <><i /><em>✦</em><em>✦</em></> : null}
     </button>
   );
@@ -129,9 +130,15 @@ function XpReward({ onContinue, reward }: { onContinue: () => void; reward: Rewa
 }
 
 export function MatchGameScreen() {
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  const searchParams = useSearchParams();
+  const [session] = useState(() => createGameSession(searchParams.get("targetLanguage"), user?.learnCourse));
+  const requestRef = useRef(request);
+  requestRef.current = request;
   const { finish, goBack, isChallenge } = useLeagueChallenge();
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [left, setLeft] = useState<Slot[]>([]);
   const [right, setRight] = useState<Slot[]>([]);
   const [selection, setSelection] = useState<{ side: Side; index: number } | null>(null);
@@ -149,8 +156,15 @@ export function MatchGameScreen() {
 
   useEffect(() => {
     let active = true;
+    setLoading(true);
+    setFailed(false);
     const start = (words: Pair[]) => {
       if (!active) return;
+      if (words.length < BOARD_PAIRS) {
+        setFailed(true);
+        setLoading(false);
+        return;
+      }
       pool.current = words;
       const picked = shuffle(words).slice(0, BOARD_PAIRS);
       usedIds.current = new Set(picked.map((pair) => pair.id));
@@ -158,23 +172,27 @@ export function MatchGameScreen() {
       setRight(shuffle(picked).map((pair) => ({ key: nextKey(), pair, status: "idle" })));
       setLoading(false);
     };
-    const gamePool = () => request<{ words: GameWord[] }>(`/words/game-pool?count=${BOARD_PAIRS * 3}&maxLen=5`);
-    void request<{ words: Array<{ korean: string; native: string }> }>("/lessons/learned-words")
-      .then((response) => {
-        const learned = (response.words ?? [])
-          .filter((word) => word.korean && word.native)
-          .map((word) => ({ id: word.korean, ko: word.korean, native: word.native }));
-        if (learned.length >= BOARD_PAIRS + 3) return start(learned);
-        const seen = new Set(learned.map((pair) => pair.id));
-        return gamePool()
-          .then((response) => start([...learned, ...(response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: meaningOfGameWord(word) })).filter((pair) => !seen.has(pair.id))]))
-          .catch(() => start(learned));
-      })
-      .catch(() => gamePool()
-        .then((response) => start((response.words ?? []).map((word) => ({ id: word.id, ko: word.ko, native: meaningOfGameWord(word) }))))
-        .catch(() => start([])));
+    const load = async () => {
+      let learned: Array<{ korean: string; native: string }> = [];
+      try {
+        const response = await requestRef.current<{ words: typeof learned }>(gameRequestPath("/lessons/learned-words", session));
+        learned = response.words ?? [];
+      } catch {
+        // New learners and temporary lesson failures use the same course pool.
+      }
+      if (!active) return;
+      const learnedPool = matchingPool(learned, [], session.lang, session.targetLanguage);
+      if (learnedPool.length >= BOARD_PAIRS + 3) return start(learnedPool);
+      try {
+        const response = await requestRef.current<{ words: GameWordRecord[] }>(gameRequestPath(`/words/game-pool?count=${BOARD_PAIRS * 3}&maxLen=5`, session));
+        start(matchingPool(learned, response.words ?? [], session.lang, session.targetLanguage));
+      } catch {
+        start(learnedPool);
+      }
+    };
+    void load();
     return () => { active = false; };
-  }, [request]);
+  }, [loadAttempt, session]);
 
   const endGame = useCallback(() => {
     if (ended.current) return;
@@ -190,7 +208,7 @@ export function MatchGameScreen() {
   }, []);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || failed) return;
     const timer = window.setInterval(() => {
       if (paused.current) return;
       setTimeLeft((current) => {
@@ -203,7 +221,7 @@ export function MatchGameScreen() {
       });
     }, 1000);
     return () => window.clearInterval(timer);
-  }, [endGame, loading]);
+  }, [endGame, failed, loading]);
 
   const setStatus = (side: Side, index: number, status: PairStatus) => {
     const setter = side === "left" ? setLeft : setRight;
@@ -317,6 +335,13 @@ export function MatchGameScreen() {
   const seconds = String(timeLeft % 60).padStart(2, "0");
 
   if (loading) return <main className={styles.loading}><i /></main>;
+  if (failed) return (
+    <main className={`${styles.loading} ${styles.loadError}`}>
+      <p>Yuklab bo&apos;lmadi. Birozdan so&apos;ng urinib ko&apos;ring</p>
+      <button onClick={() => setLoadAttempt((current) => current + 1)} type="button">Qayta urinish</button>
+      <button onClick={exit} type="button">Chiqish</button>
+    </main>
+  );
 
   return (
     <main className={styles.matchPage}>

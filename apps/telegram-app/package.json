@@ -15,6 +15,7 @@
     "test:streak": "node --test scripts/streak-scope.test.mjs",
     "test:phonics": "node --test scripts/english-phonics.test.mjs",
     "test:pronunciation": "node --test scripts/pronunciation-language.test.mjs",
+    "test:word-games": "node --test scripts/word-games-language.test.mjs",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {

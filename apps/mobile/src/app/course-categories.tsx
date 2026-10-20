@@ -232,9 +232,9 @@ function makeGo(
       router.push({ pathname: "/hangul", params: { lang: language } });
       return;
     }
-    if (c.category === "pronunciation") {
+    if (c.category === "pronunciation" || c.category === "games") {
       router.push({
-        pathname: "/pronunciation-practice",
+        pathname: c.category === "games" ? "/games" : "/pronunciation-practice",
         params: { targetLanguage: language === "en" ? "en" : "ko" },
       });
       return;
@@ -242,7 +242,6 @@ function makeGo(
     // 아래 항목은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
     // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
     const SHORTCUTS: Record<string, string> = {
-      games: "/games",
       wordCard: "/word-study",
       // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
       // 회화 = 새 AI 음성 튜터 (옛 Gemini Live 튜터는 앱에서 뺐다)
@@ -455,7 +454,7 @@ export default function CourseCategories() {
           (c) =>
             // 영어도 같은 발음 카드 UI를 사용한다. 로드가 덮는 어휘만 뺀다.
             (!isEnglish ||
-              ["hangul", "vocabulary", "wordCard", "pronunciation"].includes(c.category)) &&
+              ["hangul", "vocabulary", "wordCard", "pronunciation", "games"].includes(c.category)) &&
             (mode === "free" || c.guided),
         ).map((c, i) => (
           <CategoryCard

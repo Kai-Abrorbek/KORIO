@@ -74,6 +74,7 @@
     "test:streak": "node --test scripts/global-streak.test.cjs",
     "test:alphabet": "node --test scripts/english-phonics.test.cjs && node --experimental-strip-types --test scripts/character-page.test.mjs",
     "test:pronunciation": "node --test scripts/pronunciation.test.cjs",
+    "test:match-game": "node --test scripts/match-game.test.cjs",
     "gen:reading-images": "node ./scripts/gen-reading-images.mjs"
   },
   "private": true

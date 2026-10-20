@@ -1,5 +1,6 @@
 import type { SectionUpResult } from "@/features/level-up/levelUp";
 import api from "./api";
+import { learningScopePath, type LearnCourse } from "@/constants/learnCourses";
 
 /**
  * 문제 하나를 푼 기록. 서버의 analytics 모듈이 받는 모양 그대로다.
@@ -200,10 +201,13 @@ export const LessonService = {
   getMistakes: (): Promise<{ count: number; questions: any[] }> =>
     api.get(`/lessons/mistakes`),
 
-  getLearnedWords: (): Promise<{
+  getLearnedWords: (course?: LearnCourse, language?: string): Promise<{
     count: number;
     words: { korean: string; native: string }[];
-  }> => api.get(`/lessons/learned-words`),
+  }> => {
+    const path = `/lessons/learned-words${language ? `?lang=${encodeURIComponent(language)}` : ""}`;
+    return api.get(course ? learningScopePath(path, course) : path);
+  },
 
   getWordPractice: (): Promise<{ questions: any[] }> =>
     api.get(`/lessons/word-practice`),

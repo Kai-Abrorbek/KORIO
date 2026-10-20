@@ -4,15 +4,10 @@
  * 게임들이 라우트만 있고 들어갈 문이 없었다. 여기로 모은다.
  * 한글 게임은 한글 학습 화면에 그대로 두고, 여기선 안내만 한다.
  */
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { TouchableOpacity, Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown } from "react-native-reanimated";
@@ -22,6 +17,12 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { GAMES, type GameItem } from "@/constants/games";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import { useSettingsStore } from "@/store/settings.store";
+import {
+  isWordGameAvailable,
+  resolveGameLanguage,
+  type GameLanguage,
+} from "../../../../shared/word-games";
 
 type Styles = ReturnType<typeof getStyles>;
 
@@ -30,6 +31,9 @@ export default function GamesScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = getStyles(theme);
+  const params = useLocalSearchParams<{ targetLanguage?: string }>();
+  const course = useSettingsStore((state) => state.learnCourse);
+  const language = resolveGameLanguage(params.targetLanguage, course);
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 4 }]}>
@@ -57,31 +61,42 @@ export default function GamesScreen() {
           <Text style={s.introText}>{t("games.subtitle")}</Text>
         </View>
 
-        {GAMES.map((g, i) => (
-          <GameCard key={g.id} game={g} index={i} s={s} t={t} />
-        ))}
+        {GAMES.filter((game) => isWordGameAvailable(game.id, language)).map(
+          (g, i) => (
+            <GameCard
+              key={g.id}
+              game={g}
+              index={i}
+              s={s}
+              t={t}
+              language={language}
+            />
+          ),
+        )}
 
         {/* 한글 게임은 한글 화면에 있다. 여기서 찾다가 헤매지 않게 안내 */}
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push("/hangul");
-          }}
-          style={({ pressed }) => [s.hangulCard, pressed && { opacity: 0.7 }]}
-        >
-          <View style={s.hangulIcon}>
-            <Text style={s.hangulIconText}>가</Text>
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={s.hangulTitle}>{t("games.hangulTitle")}</Text>
-            <Text style={s.hangulDesc}>{t("games.hangulDesc")}</Text>
-          </View>
-          <Ionicons
-            name="chevron-forward"
-            size={20}
-            color={theme.textSecondary}
-          />
-        </Pressable>
+        {language === "ko" && (
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push("/hangul");
+            }}
+            style={({ pressed }) => [s.hangulCard, pressed && { opacity: 0.7 }]}
+          >
+            <View style={s.hangulIcon}>
+              <Text style={s.hangulIconText}>가</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={s.hangulTitle}>{t("games.hangulTitle")}</Text>
+              <Text style={s.hangulDesc}>{t("games.hangulDesc")}</Text>
+            </View>
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={theme.textSecondary}
+            />
+          </Pressable>
+        )}
       </ScrollView>
     </View>
   );
@@ -92,18 +107,23 @@ function GameCard({
   index,
   s,
   t,
+  language,
 }: {
   game: GameItem;
   index: number;
   s: Styles;
   t: (k: string) => string;
+  language: GameLanguage;
 }) {
   return (
     <Animated.View entering={FadeInDown.delay(index * 80).duration(380)}>
       <Pressable
         onPress={() => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          router.push(game.route as any);
+          router.push({
+            pathname: game.route as any,
+            params: { targetLanguage: language },
+          });
         }}
         style={({ pressed }) => [
           s.cardWrap,

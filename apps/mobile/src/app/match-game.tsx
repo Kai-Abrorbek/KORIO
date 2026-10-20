@@ -2,6 +2,7 @@ import { View } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import MatchGame from "@/components/match-game/MatchGame";
+import { useGameSession } from "@/features/games/useGameSession";
 
 /**
  * 짝 맞추기.
@@ -17,10 +18,14 @@ import MatchGame from "@/components/match-game/MatchGame";
 export default function MatchGameScreen() {
   const theme = useTheme();
   const { isChallenge, finish, goBack } = useLeagueChallenge();
+  const session = useGameSession();
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <MatchGame
+        key={session.language}
+        targetLanguage={session.language}
+        contentLanguage={session.contentLanguage}
         // 중간에 X 로 나가도 챌린지면 결과 화면으로 보낸다. 뒤로 가면
         // challenge-intro 가 다시 떠서 무한히 되돌아온다.
         onExit={() => (isChallenge ? void finish(0) : goBack())}

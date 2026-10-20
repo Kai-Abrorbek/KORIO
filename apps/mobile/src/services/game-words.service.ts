@@ -1,4 +1,6 @@
 import api from "./api";
+import { learningScopePath, type LearnCourse } from "@/constants/learnCourses";
+import { gameWordMeaning } from "../../../../shared/word-games";
 
 /**
  * 미니게임에 쓰는 단어.
@@ -30,8 +32,16 @@ export const GameWordsApi = {
   pool: (
     count = 40,
     maxLen = 5,
+    course?: LearnCourse,
   ): Promise<{ words: GameWord[]; fromProgress: boolean }> =>
-    api.get(`/words/game-pool?count=${count}&maxLen=${maxLen}`),
+    api.get(
+      course
+        ? learningScopePath(
+            `/words/game-pool?count=${count}&maxLen=${maxLen}`,
+            course,
+          )
+        : `/words/game-pool?count=${count}&maxLen=${maxLen}`,
+    ),
 
   /** 끝말잇기 첫 단어 */
   chainStart: (): Promise<{ word: ChainWordDto | null }> =>
@@ -76,11 +86,8 @@ export interface ChainWordDto {
 
 /** 화면 언어에 맞는 뜻 한 줄 */
 export function meaningOfWord(
-  w: { uz: string; en: string; ru: string },
+  w: { uz: string; en: string; ru: string; meaningKo?: string },
   lang: string,
 ): string {
-  const l = (lang ?? "uz").slice(0, 2);
-  if (l === "uz") return w.uz || w.en;
-  if (l === "ru") return w.ru || w.en;
-  return w.en || w.uz;
+  return gameWordMeaning(w, lang ?? "uz");
 }

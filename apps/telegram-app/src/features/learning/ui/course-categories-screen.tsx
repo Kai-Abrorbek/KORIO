@@ -65,11 +65,11 @@ export function CourseCategoriesScreen() {
   // 학습 로드에서는 로드가 안 덮는 것만 남긴다. 두 방식 다 미리 그려 두고 옆으로 넘긴다
   const categoriesByMode = useMemo(
     () => ({
-      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ["vocabulary", "wordCard", "pronunciation"].includes(category.category)),
+      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ["vocabulary", "wordCard", "pronunciation", "games"].includes(category.category)),
       // 영어도 같은 규칙 — 로드 모드에서는 로드가 덮는 어휘를 빼고 나머지만
       guided: LEARNING_CATEGORIES.filter(
         (category) =>
-          (!isEnglish || ["vocabulary", "wordCard", "pronunciation"].includes(category.category)) && category.guided,
+          (!isEnglish || ["vocabulary", "wordCard", "pronunciation", "games"].includes(category.category)) && category.guided,
       ),
     }),
     [isEnglish],
@@ -142,7 +142,7 @@ export function CourseCategoriesScreen() {
           return;
         }
       }
-      router.push(category.category === "pronunciation" ? `${destination}?targetLanguage=${course}` : destination);
+      router.push(["pronunciation", "games"].includes(category.category) ? `${destination}?targetLanguage=${course}` : destination);
       return;
     }
     if (!isLearnMode(category.category)) return;

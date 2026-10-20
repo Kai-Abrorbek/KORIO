@@ -17,7 +17,10 @@ export interface GameWord {
 }
 
 export function useGameWords(count = 40, maxLen = 5) {
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  // Unported games must not start consuming English merely because the pool API
+  // now supports it. Each game opts in with an explicit session when migrated.
+  const unavailable = user?.learnCourse === "en";
   const [words, setWords] = useState<GameWord[] | null>(null);
   const [failed, setFailed] = useState(false);
   const generation = useRef(0);
@@ -26,6 +29,10 @@ export function useGameWords(count = 40, maxLen = 5) {
     const current = ++generation.current;
     setFailed(false);
     setWords(null);
+    if (unavailable) {
+      setFailed(true);
+      return;
+    }
     void request<{ words: GameWord[] }>(`/words/game-pool?count=${count}&maxLen=${maxLen}`)
       .then((response) => {
         if (current !== generation.current) return;
@@ -35,14 +42,19 @@ export function useGameWords(count = 40, maxLen = 5) {
       .catch(() => {
         if (current === generation.current) setFailed(true);
       });
-  }, [count, maxLen, request]);
+  }, [count, maxLen, request, unavailable]);
 
   useEffect(() => {
     load();
     return () => { generation.current += 1; };
   }, [load]);
 
-  return { failed, loading: !words && !failed, reload: load, words };
+  return {
+    failed: unavailable || failed,
+    loading: !unavailable && !words && !failed,
+    reload: load,
+    words: unavailable ? null : words,
+  };
 }
 
 /** 게임 카드에 보일 뜻 — 설명 언어로. 없으면 우즈벡어 → 영어 */

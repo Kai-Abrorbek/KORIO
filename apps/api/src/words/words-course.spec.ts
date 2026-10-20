@@ -104,11 +104,15 @@ function fixture() {
   interface Query<T> {
     lean(): Promise<T>;
     select(): Query<T>;
+    limit(): Query<T>;
+    sort(): Query<T>;
   }
   const chain = <T>(value: T): Query<T> => {
     const query: Query<T> = {
       lean: () => Promise.resolve(value),
       select: () => query,
+      limit: () => query,
+      sort: () => query,
     };
     return query;
   };
@@ -217,7 +221,7 @@ describe('word course isolation', () => {
       expect(operation.updateOne.filter.wordId).toEqual(EN_ID);
   });
 
-  it('rejects course/language mismatch and does not put English into Korean games', async () => {
+  it('rejects course/language mismatch and keeps game pools course-specific', async () => {
     const { service, words } = fixture();
     await expect(
       service.getWords(
@@ -228,9 +232,10 @@ describe('word course isolation', () => {
         }),
       ),
     ).rejects.toThrow('INVALID_LEARNING_COURSE');
-    await expect(service.getGamePool(USER, EN)).rejects.toThrow(
-      'WORD_GAME_UNAVAILABLE',
-    );
     expect(words.find).not.toHaveBeenCalled();
+    const english = await service.getGamePool(USER, { ...EN, maxLen: 8 });
+    expect(english.words.map((word) => word.ko)).toEqual(['hello']);
+    const korean = await service.getGamePool(USER, { maxLen: 8 });
+    expect(korean.words.map((word) => word.ko)).toEqual(['안녕하세요']);
   });
 });

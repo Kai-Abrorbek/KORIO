@@ -34,6 +34,10 @@ import {
 
 type WordRecord = Word & { _id: Types.ObjectId };
 type ProgressRecord = UserWordProgress & { _id: Types.ObjectId };
+type GamePoolWord = Pick<
+  WordRecord,
+  '_id' | 'headword' | 'meaning' | 'media' | 'difficulty'
+>;
 
 @Injectable()
 export class WordsService {
@@ -679,21 +683,36 @@ export class WordsService {
     } = {},
   ) {
     const scope = resolveCourseScope(opts);
-    if (scope.targetLanguage !== 'ko')
-      throw new BadRequestException('WORD_GAME_UNAVAILABLE');
     const wordScope = this.buildScopeFilter(undefined, undefined, scope);
     const count = Math.min(Math.max(opts.count ?? 40, 4), 120);
     const maxLen = Math.min(Math.max(opts.maxLen ?? 5, 2), 8);
 
+    // 먼저 코스의 ID로 좁힌다. 다른 언어의 진도 600개가 먼저 조회되면
+    // 영어에서 이미 배운 단어가 있어도 처음 배우는 단어만 나올 수 있다.
+    const courseWords = await this.wordModel
+      .find(wordScope)
+      .select('_id')
+      .lean();
+    if (!courseWords.length) return { words: [], fromProgress: false };
     const seen = await this.progressModel
-      .find({ userId: new Types.ObjectId(userId) })
+      .find({
+        userId: new Types.ObjectId(userId),
+        wordId: { $in: courseWords.map((word) => word._id) },
+      })
       .select('wordId')
       .limit(600)
       .lean();
-    const seenIds = seen.map((s: any) => s.wordId);
+    const seenIds = seen.map((progress) => progress.wordId);
 
-    const pick = (rows: any[]) =>
-      rows.filter((w) => isPlayable(w.headword, maxLen, w.meaning ?? {}));
+    const pick = (rows: GamePoolWord[]) =>
+      rows.filter((word) =>
+        isPlayable(
+          word.headword,
+          maxLen,
+          word.meaning ?? {},
+          scope.targetLanguage,
+        ),
+      );
 
     // 1) 이미 만난 단어
     let pool = seenIds.length
@@ -725,7 +744,7 @@ export class WordsService {
     return {
       words: shuffle(pool)
         .slice(0, count)
-        .map((w: any) => ({
+        .map((w) => ({
           id: String(w._id),
           ko: w.headword,
           uz: w.meaning?.uz ?? '',

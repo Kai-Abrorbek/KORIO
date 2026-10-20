@@ -1,8 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, type CSSProperties } from "react";
 
+import { isWordGameAvailable, resolveGameLanguage } from "../../../../../../shared/word-games";
+import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { gameRoute } from "../../league/model/game-session";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import styles from "./games-screen.module.css";
 
@@ -27,13 +30,20 @@ const GAMES: GameItem[] = [
 
 export function GamesScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user } = useTelegramAuth();
+  const [language] = useState(() => resolveGameLanguage(
+    searchParams.get("targetLanguage"),
+    resolveGameLanguage(user?.learnCourse),
+  ));
+  const games = GAMES.filter((game) => isWordGameAvailable(game.id, language));
   const goBack = () => {
     if (window.history.length > 1) router.back();
     else router.replace("/home");
   };
   const open = (route: string) => {
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("medium");
-    router.push(route);
+    router.push(gameRoute(route, language));
   };
 
   return (
@@ -49,7 +59,7 @@ export function GamesScreen() {
           <p>O&apos;rgangan so&apos;zlaringizni o&apos;ynab takrorlang. O&apos;yinlarda ham XP bor!</p>
         </section>
 
-        {GAMES.map((game, index) => (
+        {games.map((game, index) => (
           <button
             className={styles.card}
             key={game.id}
@@ -63,11 +73,11 @@ export function GamesScreen() {
           </button>
         ))}
 
-        <button className={styles.hangulCard} onClick={() => open("/hangul")} type="button">
+        {language === "ko" ? <button className={styles.hangulCard} onClick={() => open("/hangul")} type="button">
           <span className={styles.hangulIcon}>가</span>
           <span><strong>Hangul o&apos;yinlari</strong><small>Harf o&apos;yinlari hangul bo&apos;limining ichida</small></span>
           <MobileIcon name="chevron-forward" size={20} />
-        </button>
+        </button> : null}
       </div>
     </main>
   );

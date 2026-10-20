@@ -102,11 +102,13 @@ export function TelegramAuthProvider({ children }: { children: ReactNode }) {
       if (!accessToken) throw new Error("TELEGRAM_AUTH_REQUIRED");
       const scopedPath = learningScopePath(path, course);
       // Legacy API helpers already supplied lang before they knew the target.
-      // Resolve it at the request boundary using the same frozen course snapshot.
+      // Resolve those here, but keep an explicitly scoped session's frozen lang.
+      const originalQuery = new URLSearchParams(path.split("?")[1] ?? "");
+      const hasExplicitCourse = originalQuery.has("courseId") || originalQuery.has("targetLanguage");
       const [pathname, search = ""] = scopedPath.split("?");
       const query = new URLSearchParams(search);
       const explanationLanguage = resolveContentLanguage(language, savedContentLanguage, query.get("targetLanguage") ?? course);
-      if (isLearningRequest(path) && query.has("lang")) {
+      if (isLearningRequest(path) && query.has("lang") && !hasExplicitCourse) {
         query.set("lang", explanationLanguage);
       }
       let requestInit = init;

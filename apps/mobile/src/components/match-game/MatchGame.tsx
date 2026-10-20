@@ -1,39 +1,31 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import i18n from "@/locales/i18n";
 import {
-  WordPair,
   BOARD_PAIRS,
   GAME_SECONDS,
   MILESTONES,
   starTier,
   shuffle,
 } from "@/mocks/match-game.mock";
-import { GameWordsApi, meaningOfWord } from "@/services/game-words.service";
+import { GameWordsApi } from "@/services/game-words.service";
 import MatchPairCard, { PairStatus } from "@/components/lesson/MatchPairCard";
 import { LessonService } from "@/services/lesson.service";
 import MatchProgressBar from "./MatchProgressBar";
 import XpRewardScreen from "./XpRewardScreen";
 import { getContentLang } from "@/store/settings.store";
+import { GameWordsGate } from "@/features/games/GameWordsGate";
+import {
+  matchingPool,
+  type GameLanguage,
+  type MatchingPair as Pair,
+} from "../../../../../shared/word-games";
 
 type Side = "left" | "right";
-
-/** 화면에 쓰는 최소 형태 — 실데이터는 native 가 이미 유저 언어로 내려온다 */
-interface Pair {
-  id: string;
-  ko: string;
-  native: string;
-}
 
 interface Slot {
   key: string;
@@ -52,22 +44,6 @@ interface Reward {
   subline?: string;
   final?: boolean;
 }
-
-// 뜻은 설명 언어로 (한국어 UI 면 따로 고른 말)
-const langKey = (): "ko" | "uz" | "en" | "ru" => getContentLang();
-
-/** 서버가 준 단어를 판에 올릴 형태로 */
-const fromServer = (w: {
-  id: string;
-  ko: string;
-  uz: string;
-  en: string;
-  ru: string;
-}): Pair => ({
-  id: w.id,
-  ko: w.ko,
-  native: meaningOfWord(w, langKey()),
-});
 
 let keySeq = 0;
 const nk = () => `c${keySeq++}`;
@@ -89,6 +65,8 @@ function draw(pool: Pair[], used: Set<string>): Pair | null {
 export default function MatchGame({
   onExit,
   onFinish,
+  targetLanguage = "ko",
+  contentLanguage,
 }: {
   onExit: () => void;
   onFinish?: (result: {
@@ -96,12 +74,17 @@ export default function MatchGame({
     matched: number;
     bestCombo: number;
   }) => void;
+  targetLanguage?: GameLanguage;
+  contentLanguage?: string;
 }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const s = getStyles(theme);
+  const [locale] = useState(() => contentLanguage ?? getContentLang());
 
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const requestId = useRef(0);
   const poolRef = useRef<Pair[]>([]);
   const usedIds = useRef<Set<string>>(new Set());
 
@@ -124,11 +107,18 @@ export default function MatchGame({
   const endedRef = useRef(false);
 
   // ── 배운 단어로 풀 구성 (부족하면 기본 단어로 채움) ──
-  useEffect(() => {
-    let alive = true;
+  const load = useCallback(() => {
+    const current = ++requestId.current;
+    setLoading(true);
+    setFailed(false);
 
     const start = (pool: Pair[]) => {
-      if (!alive) return;
+      if (requestId.current !== current) return;
+      if (pool.length < BOARD_PAIRS) {
+        setFailed(true);
+        setLoading(false);
+        return;
+      }
       poolRef.current = pool;
       const picked = shuffle(pool).slice(0, BOARD_PAIRS);
       usedIds.current = new Set(picked.map((p) => p.id));
@@ -141,11 +131,15 @@ export default function MatchGame({
       setLoading(false);
     };
 
-    LessonService.getLearnedWords()
+    LessonService.getLearnedWords(targetLanguage, locale)
       .then((res) => {
-        const learned: Pair[] = (res.words ?? [])
-          .filter((w) => w.korean && w.native)
-          .map((w) => ({ id: w.korean, ko: w.korean, native: w.native }));
+        if (requestId.current !== current) return;
+        const learned = matchingPool(
+          res.words ?? [],
+          [],
+          locale,
+          targetLanguage,
+        );
 
         // 배운 단어가 보드를 채울 만큼 있으면 그걸로 끝
         if (learned.length >= BOARD_PAIRS + 3) {
@@ -155,27 +149,35 @@ export default function MatchGame({
         // 모자라면 서버가 진도에 맞춰 뽑아준 단어로 채운다.
         // 예전엔 앱에 박아둔 스무 개짜리 목록을 썼는데, 그건 유저가 배운
         // 것과 아무 상관이 없어서 "게임에서 본 단어" 와 "배운 단어" 가 따로 놀았다
-        const seen = new Set(learned.map((p) => p.id));
-        GameWordsApi.pool(BOARD_PAIRS * 3, 5)
+        GameWordsApi.pool(BOARD_PAIRS * 3, 5, targetLanguage)
           .then((r) => {
-            if (!alive) return;
-            const filler = (r.words ?? [])
-              .map(fromServer)
-              .filter((p) => !seen.has(p.id));
-            start([...learned, ...filler]);
+            start(
+              matchingPool(
+                res.words ?? [],
+                r.words ?? [],
+                locale,
+                targetLanguage,
+              ),
+            );
           })
-          .catch(() => alive && start(learned));
+          .catch(() => start(learned));
       })
-      .catch(() =>
-        GameWordsApi.pool(BOARD_PAIRS * 3, 5)
-          .then((r) => alive && start((r.words ?? []).map(fromServer)))
-          .catch(() => alive && start([])),
-      );
+      .catch(() => {
+        if (requestId.current !== current) return;
+        return GameWordsApi.pool(BOARD_PAIRS * 3, 5, targetLanguage)
+          .then((r) =>
+            start(matchingPool([], r.words ?? [], locale, targetLanguage)),
+          )
+          .catch(() => start([]));
+      });
+  }, [locale, targetLanguage]);
 
+  useEffect(() => {
+    load();
     return () => {
-      alive = false;
+      requestId.current += 1;
     };
-  }, []);
+  }, [load]);
 
   const endGame = useCallback(() => {
     if (endedRef.current) return;
@@ -192,7 +194,7 @@ export default function MatchGame({
 
   // 타이머 — 보드가 준비된 뒤부터
   useEffect(() => {
-    if (loading) return;
+    if (loading || failed) return;
     const id = setInterval(() => {
       if (pausedRef.current) return;
       setTimeLeft((prev) => {
@@ -205,7 +207,7 @@ export default function MatchGame({
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [loading, endGame]);
+  }, [loading, failed, endGame]);
 
   const setStatus = (side: Side, index: number, status: PairStatus) => {
     const setter = side === "left" ? setLeft : setRight;
@@ -378,6 +380,20 @@ export default function MatchGame({
     return (
       <View style={[s.container, s.center]}>
         <ActivityIndicator size="large" color={theme.primary} />
+      </View>
+    );
+  }
+  if (failed) {
+    return (
+      <View style={s.container}>
+        <View style={s.header}>
+          <TouchableOpacity onPress={onExit} hitSlop={12}>
+            <Ionicons name="close" size={28} color={theme.textSecondary} />
+          </TouchableOpacity>
+        </View>
+        <GameWordsGate loading={false} failed onRetry={load}>
+          {null}
+        </GameWordsGate>
       </View>
     );
   }

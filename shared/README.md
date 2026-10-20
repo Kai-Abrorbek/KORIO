@@ -1,5 +1,28 @@
 # Shared learning content
 
+## Word games
+
+`word-games.ts` adapts scoped server words to the existing game engines. English
+matching uses the same five-pair board, 60-second clock, feedback animations and
+reward rules as Korean. The legacy API field `ko` still holds the headword, even
+in an explicitly English game pool; `meaningKo` holds its Korean meaning.
+
+Use learned words first, then fill from that course's server pool. Freeze the
+target and explanation languages at game entry, deduplicate ambiguous labels and
+never substitute Korean mock words after an English request fails. Games not yet
+ported stay unavailable in English until their own implementation and commit.
+
+Deploy the API before the Telegram release or mobile OTA. No seed write, database
+migration, production dependency or native build is required.
+
+```powershell
+pnpm --filter mobile test:match-game
+pnpm --filter telegram-app test:word-games
+pnpm --filter api exec jest --runInBand words-game-pool.spec.ts game-words.util.spec.ts words-course.spec.ts
+```
+
+## Pronunciation and phonics
+
 `english-phonics.ts` is platform-neutral, authored learning content used directly by
 the mobile English letter sheet and Telegram `/alphabet`. It has no runtime or
 native dependencies and does not write learning progress, XP or streak data.
