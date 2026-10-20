@@ -114,6 +114,7 @@ export function useSpeakingPractice(packCode: string) {
   // 녹음 전용 세대. runRef 는 화면 이탈·재생 취소로도 올라가는데, 그걸로
   // 녹음 결과의 유효성을 판단하면 멀쩡한 녹음이 버려진다.
   const recordGenRef = useRef(0);
+  const recordStartRef = useRef<Promise<boolean> | null>(null);
   const recordingRef = useRef<{ run: number; id: string } | null>(null);
   /** 겹친 채점 중 마지막 것만 화면에 반영하기 위한 카운터 (녹음을 버리는 용도가 아니다) */
   const assessRunRef = useRef(0);
@@ -271,6 +272,8 @@ export function useSpeakingPractice(packCode: string) {
     clearRetryMic();
     setPassFlash(false);
     runRef.current += 1;
+    recordGenRef.current += 1;
+    recordStartRef.current = null;
     recordingRef.current = null;
     speechPlanRef.current = [];
     setSpokenCount(0);
@@ -451,13 +454,14 @@ export function useSpeakingPractice(packCode: string) {
       }, 700);
       return;
     }
-    // 채점 중에만 무시한다. 그 외에는 어떤 상태였든 되살려서 시작한다 —
-    // 마이크를 눌렀는데 아무 일도 안 일어나는 게 최악이고, 예전 코드는
-    // phase 나 focus 플래그가 한 번 어긋나면 영영 그 상태로 굳었다.
+    // 채점 중에는 시작하지 않고, 시작 중인 마이크가 있으면 그 결과를 공유한다.
+    // 자동 시작과 직접 누름이 서로를 취소하는 일이 없어야 한다.
     if (phaseRef.current === "assessing") { setStep("busy-assessing"); return; }
-    if (phaseRef.current !== "idle") {
-      cancel();
-      changePhase("idle");
+    if (phaseRef.current === "starting") {
+      // 자동 시작과 버튼 탭은 같은 마이크 시작을 기다린다. 여기서 cancel 하면
+      // 권한 대화상자/네이티브 시작을 계속 무르고 사용자는 아무 반응도 못 본다.
+      await recordStartRef.current?.catch(() => undefined);
+      return;
     }
     // 버튼을 눌렀다는 건 이 화면이 떠 있다는 뜻이다. useFocusEffect 가 어떤
     // 이유로든 못 돌았어도 여기서부터는 포커스로 친다 — 안 그러면 결과가
@@ -479,24 +483,18 @@ export function useSpeakingPractice(packCode: string) {
     runRef.current += 1;
     const run = ++recordGenRef.current;
     recordingRef.current = { run, id: current.id };
+    let pendingStart: Promise<boolean> | null = null;
     try {
-      // start() 가 영영 안 끝나면 스피너에 갇힌다. 권한 대화상자를 기다리는
-      // 시간까지 감안해서 넉넉히 주되, 무한정은 아니게.
+      // 권한·오디오·스트림의 제한 시간은 녹음 컨트롤러가 관리한다.
+      // 화면에서 별도 8초 타이머를 걸면 권한 허용 중인 시도나, 이미 새로
+      // 시작한 녹음까지 오래된 타이머가 취소할 수 있다.
       setStep("starting");
-      const started = await Promise.race([
-        start(),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-      ]);
-      // 여기서 run 을 다시 검사하면 안 된다. stopAll 이 한 번만 끼어들어도
-      // 방금 성공한 녹음을 취소하고 아무 표시 없이 빠져나간다. 뒤늦은 결과는
-      // onResult 에서 recordingRef.run 으로 이미 걸러진다.
-      if (started === null) {
-        cancel();
-        setStep("timeout");
-        setError("micError");
-        changePhase("idle");
-        return;
-      }
+      pendingStart = start();
+      recordStartRef.current = pendingStart;
+      const started = await pendingStart;
+      // 화면 이탈/백그라운드/다음 카드 이후에는 이전 시작의 응답이 UI나
+      // 새 마이크를 건드리지 않는다. 실제 녹음도 stopAll에서 취소한다.
+      if (run !== recordGenRef.current || !focusedRef.current) return;
       if (started) {
         changePhase("recording");
         recordStartedAtRef.current = Date.now();
@@ -513,17 +511,19 @@ export function useSpeakingPractice(packCode: string) {
           setError("micError");
           changePhase("idle");
         }, 2000);
-      } else if (run === recordGenRef.current && phaseRef.current === "starting") {
+      } else {
         // false 는 이유를 onError 로 알렸거나 일부러 취소된 것이다 (utils/speech-capture —
-        // 이유 없는 조용한 실패는 없다). 더 새 시도가 이어받았으면 그쪽 상태를 덮지 않는다
+        // 이유 없는 조용한 실패는 없다). 최신 시작인지는 위에서 이미 확인했다.
         changePhase("idle");
       }
     } catch (error) {
-      if (run === recordGenRef.current) {
+      if (run === recordGenRef.current && focusedRef.current) {
         setStep(`throw:${String(error).slice(0, 40)}`);
         setError("micError");
         changePhase("idle");
       }
+    } finally {
+      if (recordStartRef.current === pendingStart) recordStartRef.current = null;
     }
   };
 
@@ -542,32 +542,39 @@ export function useSpeakingPractice(packCode: string) {
     if (loading || completed || !currentId || !currentKorean) return;
     const key = `${autoEpoch}:${index}:${currentId}`;
     if (autoKeyRef.current === key) return;
-    autoKeyRef.current = key;
     // 이미 채점한 카드로 되돌아온 거라면 다시 읽어주지 않는다
     if (resultsRef.current[currentId]) return;
     const run = runRef.current;
+    let active = true;
+    let microphoneTimer: ReturnType<typeof setTimeout> | undefined;
     const ready = () =>
-      focusedRef.current && runRef.current === run && phaseRef.current === "idle";
+      active && focusedRef.current && runRef.current === run && phaseRef.current === "idle";
     // 화면 전환이 튀지 않을 만큼만 기다린다. 예전 450ms 는 카드를 보고
     // "왜 안 읽지" 하는 시간이었다. 실제 체감 지연의 대부분은 이 타이머가
     // 아니라 TTS 왕복이라, 아래 prewarm 이펙트로 미리 받아둔다.
     const timer = setTimeout(() => {
       if (!ready()) return;
+      autoKeyRef.current = key;
       setError(null);
       speakAuto(currentKorean, "ko-KR", {
         respectSoundSettings: false,
         volume: 1,
         onDone: () => {
+          if (!ready()) return;
           // 재생을 막 멈춘 오디오 세션이 정리되기 전에 AudioRecord 를 열면
           // 안드로이드가 "마이크를 다른 곳이 쥐고 있다"로 던진다. 한 박자 준다.
           // 150ms 아래로 내리면 그 오류가 다시 나기 시작한다 — 더 줄이지 마라.
-          setTimeout(() => {
+          microphoneTimer = setTimeout(() => {
             if (ready()) void autoRecordRef.current(true);
           }, 150);
         },
       });
     }, 120);
-    return () => clearTimeout(timer);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+      clearTimeout(microphoneTimer);
+    };
   }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
 
   const next = () => {

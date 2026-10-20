@@ -63,6 +63,7 @@ export function useSpeechRecorder({
   const chunks = useRef<Int16Array[]>([]);
   const sourceRate = useRef(TARGET_SAMPLE_RATE);
   const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestRevision = useRef(0);
   const voiceStarted = useRef(false);
   const lastVoiceAt = useRef(0);
   const silenceFinishQueued = useRef(false);
@@ -143,6 +144,7 @@ export function useSpeechRecorder({
   };
 
   const finish = useCallback(() => {
+    requestRevision.current += 1;
     clearTimer();
     // 실제로 녹음 중이 아니었으면 할 일이 없다 (진행 중인 시작은 물러진다)
     if (!capture.finish()) return;
@@ -180,6 +182,7 @@ export function useSpeechRecorder({
       return false;
     }
     const wasActive = capture.active;
+    const revision = requestRevision.current;
     if (!wasActive) {
       chunks.current = [];
       sourceRate.current = TARGET_SAMPLE_RATE;
@@ -188,6 +191,9 @@ export function useSpeechRecorder({
       silenceFinishQueued.current = false;
     }
     const result = await capture.start();
+    // cancel/finish may run after the bridge resolved but before this continuation.
+    // Do not restore isRecording or report an old error into a newer recording.
+    if (revision !== requestRevision.current) return false;
     if (!result.ok) {
       if (result.reason !== "cancelled") {
         onErrorRef.current?.(result.reason === "permission" ? "permission" : "mic");
@@ -204,6 +210,7 @@ export function useSpeechRecorder({
 
   /** 결과를 버리고 즉시 중단 (화면 이탈 등) — 진행 중인 시작도 무른다 */
   const cancel = useCallback(() => {
+    requestRevision.current += 1;
     const wasActive = capture.active;
     capture.cancel();
     clearTimer();

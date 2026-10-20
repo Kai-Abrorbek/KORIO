@@ -69,6 +69,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "test:sfx": "node --test scripts/press-sound.test.cjs scripts/ui-sound-playback.test.cjs scripts/speech-capture.test.cjs",
+    "test:speaking": "node --test scripts/speaking-practice.test.cjs",
     "gen:reading-images": "node ./scripts/gen-reading-images.mjs"
   },
   "private": true
