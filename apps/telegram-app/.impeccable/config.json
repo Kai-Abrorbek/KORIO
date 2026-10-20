@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/features/league/ui/league-result-screen.module.css"
+        ],
+        "createdAt": "2026-10-20T11:37:51.322Z",
+        "reason": "agent judgment: these are DESIGN.md's slab depth device (darker bottom edge on the continue button, the gem chip like chip-goal, and the XP gauge fill), same pattern the mobile league-result.tsx and league tab use"
+      }
+    ]
+  }
+}
