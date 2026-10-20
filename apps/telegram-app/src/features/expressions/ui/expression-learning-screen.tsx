@@ -86,6 +86,9 @@ export function ExpressionLearningScreen() {
   const targetExpressionId = useRef<string | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const advanceRef = useRef<(force?: boolean) => Promise<void>>(async () => undefined);
+  /** 글로 맞혔을 때 잠시 뒤 다음 문장으로 넘기는 예약 (카드가 바뀌거나 화면을 떠나면 버린다) */
+  const typedAdvance = useRef<number | null>(null);
+  useEffect(() => () => { if (typedAdvance.current) window.clearTimeout(typedAdvance.current); }, []);
 
   const load = useCallback(async () => {
     if (!premium) { setLoading(false); return; }
@@ -162,6 +165,7 @@ export function ExpressionLearningScreen() {
   });
 
   useEffect(() => {
+    if (typedAdvance.current) { window.clearTimeout(typedAdvance.current); typedAdvance.current = null; }
     setDetailsOpen(false);
     setTypingActive(false);
     setTypedAnswer("");
@@ -252,6 +256,9 @@ export function ExpressionLearningScreen() {
       setTypeState("wrong"); scheduleRetry(); window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("error"); return;
     }
     setTypeState("correct"); setPracticeReady(true); window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
+    // 말로 맞혔을 때처럼 알아서 다음 문장으로 (앱과 같다) — 초록 "To'g'ri!" 를 볼 만큼만 머문다
+    if (typedAdvance.current) window.clearTimeout(typedAdvance.current);
+    typedAdvance.current = window.setTimeout(() => { typedAdvance.current = null; void advanceRef.current(true); }, 700);
   };
 
   const startVoice = async () => {

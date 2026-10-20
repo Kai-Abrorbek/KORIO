@@ -33,6 +33,7 @@ interface Props {
   onPracticeReadyChange: (ready: boolean) => void;
   onPracticeBusyChange: (busy: boolean) => void;
   onScheduleRetry: () => void;
+  /** 말 · 글 어느 쪽으로든 맞혔을 때 — 화면이 다음 문장으로 넘긴다 */
   onSpeechPassed: () => void;
 }
 
@@ -40,6 +41,13 @@ const TYPE_TONES = {
   correct: "#52A94A",
   wrong: "#E35A5A",
 } as const;
+
+/**
+ * 글로 맞혔을 때 다음 문장으로 넘어가기까지 — 초록 표시를 볼 만큼만 머문다.
+ * 말로 맞혔을 때(ExpressionPracticePanel, 380ms)보다 조금 길다: 키보드가 내려가는 동안
+ * 맞았다는 표시가 가려지지 않게.
+ */
+const TYPED_PASS_ADVANCE_MS = 700;
 
 const DETAILS_LAYOUT_TRANSITION = LinearTransition.duration(220).easing(
   Easing.out(Easing.cubic),
@@ -63,6 +71,10 @@ export default function ExpressionLearningPage({
   const requiresAnswer = item.kind === "quiz" || item.kind === "retry";
   const inputRef = useRef<TextInput>(null);
   const retryScheduledRef = useRef(false);
+  const typedAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 화면이 렌더마다 새 함수를 넘긴다 — 잠시 뒤 넘길 때는 그때의 최신 것을 부른다
+  const onPassedRef = useRef(onSpeechPassed);
+  onPassedRef.current = onSpeechPassed;
   const [detailsVisible, setDetailsVisible] = useState(false);
   const [typingActive, setTypingActive] = useState(false);
   const [typedAnswer, setTypedAnswer] = useState("");
@@ -91,7 +103,12 @@ export default function ExpressionLearningPage({
     setHintVisible(false);
     onPracticeReadyChange(initiallyReady);
 
-    return () => Keyboard.dismiss();
+    return () => {
+      // 넘어가기 전에 카드가 바뀌거나 화면을 떠나면 예약해 둔 넘김을 버린다
+      if (typedAdvanceRef.current) clearTimeout(typedAdvanceRef.current);
+      typedAdvanceRef.current = null;
+      Keyboard.dismiss();
+    };
   }, [item.key, onPracticeReadyChange, requiresAnswer]);
 
   const scheduleRetryOnce = useCallback(() => {
@@ -130,6 +147,12 @@ export default function ExpressionLearningPage({
       completePractice();
       Keyboard.dismiss();
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      // 말로 맞혔을 때처럼 알아서 다음 문장으로 — 맞은 문장 앞에서 다음 버튼을 찾게 하지 않는다
+      if (typedAdvanceRef.current) clearTimeout(typedAdvanceRef.current);
+      typedAdvanceRef.current = setTimeout(() => {
+        typedAdvanceRef.current = null;
+        onPassedRef.current();
+      }, TYPED_PASS_ADVANCE_MS);
       return;
     }
 
