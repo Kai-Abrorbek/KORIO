@@ -207,7 +207,13 @@ async function fixture(t, options = {}) {
   // Functions are injected as standalone globals into each loaded module.
   clock.setTimeout = clock.setTimeout.bind(clock);
   clock.clearTimeout = clock.clearTimeout.bind(clock);
-  const calls = { permission: 0, nativeStart: 0, nativeStop: 0, cancel: 0 };
+  const calls = {
+    permission: 0,
+    permissionCheck: 0,
+    nativeStart: 0,
+    nativeStop: 0,
+    cancel: 0,
+  };
   const stateListeners = new Set();
   const reads = [];
   const permission = options.permission;
@@ -231,9 +237,24 @@ async function fixture(t, options = {}) {
     {
       react: hooks.react,
       "expo-audio": {
+        getRecordingPermissionsAsync: () => {
+          calls.permissionCheck++;
+          return Promise.resolve({ granted: options.granted === true });
+        },
         requestRecordingPermissionsAsync: () => {
           calls.permission++;
-          return permission?.promise ?? Promise.resolve({ granted: true });
+          // Android: Activity.requestPermissions always launches the system
+          // permission activity, even when already granted -> onPause -> RN
+          // AppState "background", then "active" once it closes.
+          if (options.permissionScreen) {
+            for (const listener of stateListeners) listener("background");
+          }
+          const result = permission?.promise ?? Promise.resolve({ granted: true });
+          if (!options.permissionScreen) return result;
+          return result.then((value) => {
+            for (const listener of stateListeners) listener("active");
+            return value;
+          });
         },
         useAudioStream: (next) => {
           streamOptions = next;
@@ -500,24 +521,66 @@ test("a delayed old TTS completion cannot restart a microphone opened manually",
   assert.equal(app.page.error, null);
 });
 
-for (const leave of ["navigation", "background"]) {
-  test(`${leave} during a pending start cannot resurrect recording on late success`, async (t) => {
-    const app = await fixture(t, { laggingBridge: true });
-    const pending = app.page.record();
-    await app.flush();
-    assert.equal(app.page.phase, "starting");
-    if (leave === "navigation") await app.blur();
-    else await app.appState("background");
-    app.bridgeStarts[0].resolve(true);
-    await app.flush();
-    await pending;
-    assert.equal(
-      app.page.phase,
-      "idle",
-      "a departed start must not become recording",
-    );
-  });
-}
+test("navigation during a pending start cannot resurrect recording on late success", async (t) => {
+  const app = await fixture(t, { laggingBridge: true });
+  const pending = app.page.record();
+  await app.flush();
+  assert.equal(app.page.phase, "starting");
+  await app.blur();
+  app.bridgeStarts[0].resolve(true);
+  await app.flush();
+  await pending;
+  assert.equal(
+    app.page.phase,
+    "idle",
+    "a departed start must not become recording",
+  );
+});
+
+// 2026-10-20: the Android permission activity reports AppState "background"
+// while the microphone is starting. That must not cancel the start.
+test("Android permission screen during start still opens the microphone", async (t) => {
+  const app = await fixture(t, { permissionScreen: true });
+  const pending = app.page.record();
+  await app.flush();
+  await pending;
+  assert.equal(app.calls.permission, 1);
+  assert.equal(app.calls.nativeStart, 1);
+  assert.equal(app.page.phase, "recording");
+  assert.equal(app.recording, true);
+  assert.equal(app.page.error, null);
+});
+
+test("automatic microphone survives the Android permission screen too", async (t) => {
+  const app = await fixture(t, { permissionScreen: true });
+  await app.advance(120);
+  app.finishRead();
+  await app.advance(150);
+  assert.equal(app.calls.nativeStart, 1);
+  assert.equal(app.page.phase, "recording");
+});
+
+test("already granted permission is checked without opening the system screen", async (t) => {
+  const app = await fixture(t, { granted: true, permissionScreen: true });
+  const pending = app.page.record();
+  await app.flush();
+  await pending;
+  assert.equal(app.calls.permissionCheck, 1);
+  assert.equal(app.calls.permission, 0);
+  assert.equal(app.calls.nativeStart, 1);
+  assert.equal(app.page.phase, "recording");
+});
+
+test("going to the background while recording still stops the microphone", async (t) => {
+  const app = await fixture(t);
+  const pending = app.page.record();
+  await app.flush();
+  await pending;
+  assert.equal(app.page.phase, "recording");
+  await app.appState("background");
+  assert.equal(app.page.phase, "idle");
+  assert.equal(app.recording, false);
+});
 
 test("an old start timeout cannot cancel a newer recording after navigation", async (t) => {
   const app = await fixture(t, { laggingBridge: true });

@@ -305,7 +305,14 @@ export function useSpeakingPractice(packCode: string) {
     const subscription = AppState.addEventListener("change", (state) => {
       // "inactive" 는 권한 대화상자·볼륨 UI 같은 일시적 가림에도 뜬다.
       // 그걸로 녹음을 끊으면 안 된다. 진짜 백그라운드일 때만 정리한다.
-      if (state === "background") stopAllRef.current();
+      if (state !== "background") return;
+      // ⚠️ 마이크를 여는 중("starting")에는 정리하지 않는다.
+      // 안드로이드에는 "inactive" 가 없다 — 권한 화면이 위에 뜨기만 해도 onPause →
+      // "background" 다. 여기서 stopAll 하면 방금 누른 마이크를 스스로 취소한다.
+      // 10-16 이후 시작 취소가 실제로 먹히면서 "마이크가 활성화가 안 된다" 가 됐다.
+      // (허용된 상태에서는 useSpeechRecorder 가 아예 권한 화면을 안 띄운다)
+      if (phaseRef.current === "starting") return;
+      stopAllRef.current();
     });
     return () => subscription.remove();
   }, []);

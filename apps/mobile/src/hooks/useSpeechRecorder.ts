@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
+import {
+  getRecordingPermissionsAsync,
+  requestRecordingPermissionsAsync,
+  useAudioStream,
+} from "expo-audio";
 import { activateRecordingAudio } from "@/utils/audio-session";
 import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 import { createSpeechCapture } from "@/utils/speech-capture";
@@ -19,6 +23,22 @@ export type SpeechRecorderError =
   | "unsupported";
 
 const MIN_SAMPLES = TARGET_SAMPLE_RATE * 0.4; // 0.4초 미만은 서버가 어차피 거절
+
+/**
+ * 마이크 권한 — 이미 허용돼 있으면 **묻지 않는다.**
+ *
+ * 안드로이드에서 expo 의 requestRecordingPermissionsAsync 는 허용된 상태여도 매번
+ * Activity.requestPermissions 를 부른다. 그러면 시스템 권한 화면이 떴다가 바로 닫히고,
+ * 그 사이 앱이 onPause → onResume 을 타서 RN AppState 가 "background" 로 튄다.
+ * 말하기 연습은 background 에서 녹음을 정리하므로, 마이크를 여는 바로 그 순간 자기
+ * 시작을 스스로 취소하고 있었다 — "마이크를 눌러도 활성화가 안 된다" (2026-10-20).
+ * 확인(get)은 화면을 띄우지 않는다. 음성 튜터(useVoiceTutor)도 같은 순서다.
+ */
+export async function ensureRecordingPermission() {
+  const existing = await getRecordingPermissionsAsync();
+  if (existing.granted) return existing;
+  return requestRecordingPermissionsAsync();
+}
 
 function rmsLevel(samples: Int16Array): number {
   if (!samples.length) return 0;
@@ -125,7 +145,7 @@ export function useSpeechRecorder({
   const capture = useMemo(
     () =>
       createSpeechCapture({
-        requestPermission: () => requestRecordingPermissionsAsync(),
+        requestPermission: ensureRecordingPermission,
         activateAudio: () => activateRecordingAudio(),
         startStream: async () => {
           await streamRef.current?.start();

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { requestRecordingPermissionsAsync, useAudioStream } from "expo-audio";
+import {
+  getRecordingPermissionsAsync,
+  requestRecordingPermissionsAsync,
+  useAudioStream,
+} from "expo-audio";
 import { activateRecordingAudio } from "@/utils/audio-session";
 import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 import {
@@ -275,7 +279,12 @@ export function useContinuousReadingRecorder({ onSegment, onError }: Options) {
         onErrorRef.current?.("unsupported");
         return false;
       }
-      const permission = await requestRecordingPermissionsAsync();
+      // 이미 허용돼 있으면 시스템 권한 화면을 띄우지 않는다 — 안드로이드는 허용된
+      // 상태여도 화면이 떴다 닫히며 AppState 가 background 로 튄다 (useSpeechRecorder 참고)
+      const existing = await getRecordingPermissionsAsync();
+      const permission = existing.granted
+        ? existing
+        : await requestRecordingPermissionsAsync();
       if (request !== startRequest.current) return false;
       if (!permission.granted) {
         onErrorRef.current?.("permission");

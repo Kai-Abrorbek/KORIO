@@ -260,6 +260,7 @@ for (const [file, name] of [
           useEffect: () => {},
         },
         "expo-audio": {
+          getRecordingPermissionsAsync: async () => ({ granted: true }),
           requestRecordingPermissionsAsync: async () => ({ granted: true }),
           useAudioStream: () => ({ stream }),
         },
