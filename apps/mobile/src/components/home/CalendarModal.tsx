@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Modal,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,7 +13,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { StatsService } from "@/services/stats.service";
+import { CalendarData, StatsService } from "@/services/stats.service";
+import { isLearnCourse, LEARN_COURSES } from "@/constants/learnCourses";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   Gesture,
@@ -53,6 +55,9 @@ export default function CalendarModal({
   const [frozenDays, setFrozenDays] = useState<number[]>([]);
   const [serverStreak, setServerStreak] = useState<number | null>(null);
   const [longestStreak, setLongestStreak] = useState(0);
+  const [languageActivity, setLanguageActivity] =
+    useState<CalendarData["languageActivity"]>();
+  const [calendarMonth, setCalendarMonth] = useState<string>();
   const WEEKS = t("home.days", { returnObjects: true }) as string[];
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -66,21 +71,33 @@ export default function CalendarModal({
 
   useEffect(() => {
     if (!visible) return;
+    let active = true;
     const y = currentDate.getFullYear();
     const m = currentDate.getMonth() + 1; // 1-12
+    setLanguageActivity(undefined);
+    setCompletedDays([]);
+    setStreakDays([]);
+    setFrozenDays([]);
     StatsService.getCalendar(y, m)
       .then((data) => {
+        if (!active) return;
         setCompletedDays(data.completedDays ?? []);
         setStreakDays(data.streakDays ?? []);
         setFrozenDays(data.frozenDays ?? []);
         setServerStreak(data.streak ?? 0);
         setLongestStreak(data.longestStreak ?? 0);
+        setLanguageActivity(data.languageActivity);
+        setCalendarMonth(`${data.year}-${data.month}`);
       })
       .catch((err) => {
+        if (!active) return;
         console.error("달력 로드 실패:", err);
         setCompletedDays([]);
         setStreakDays([]);
       });
+    return () => {
+      active = false;
+    };
   }, [visible, currentDate]);
 
   useEffect(() => {
@@ -95,6 +112,8 @@ export default function CalendarModal({
 
   const isStreak = (day: number) => streakDays.includes(day);
   const shownStreak = serverStreak ?? streak;
+  const currentActivity =
+    calendarMonth === `${year}-${month + 1}` ? languageActivity : undefined;
 
   const weeks = [];
   for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
@@ -147,13 +166,13 @@ export default function CalendarModal({
             style={[styles.backdropFill, backdropStyle]}
             pointerEvents="none"
           />
-          <GestureDetector gesture={panGesture}>
-            <Animated.View style={sheetStyle}>
-              <TouchableOpacity
-                activeOpacity={1}
-                style={[styles.sheet, { paddingBottom: 28 + insets.bottom }]}
-              >
-                {/* 핸들 + X 버튼 */}
+          <Animated.View style={sheetStyle}>
+            <TouchableOpacity
+              activeOpacity={1}
+              style={[styles.sheet, { paddingBottom: 28 + insets.bottom }]}
+            >
+              {/* 핸들 + X 버튼 */}
+              <GestureDetector gesture={panGesture}>
                 <View style={styles.sheetTop}>
                   <View style={styles.handle} />
                   <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
@@ -164,6 +183,19 @@ export default function CalendarModal({
                     />
                   </TouchableOpacity>
                 </View>
+              </GestureDetector>
+
+              <ScrollView
+                style={styles.sheetScroll}
+                showsVerticalScrollIndicator={false}
+              >
+                <Text style={styles.scopeTitle}>
+                  {t("learningStreak.title")}
+                </Text>
+                <Text style={styles.scopeDescription}>
+                  {t("learningStreak.description")}{" "}
+                  {t("learningStreak.sharedAcrossApps")}
+                </Text>
 
                 {/* 연속 학습을 보여주는 자리라 신난 표정 */}
                 <View style={styles.streakMascot}>
@@ -288,6 +320,57 @@ export default function CalendarModal({
                   </View>
                 ))}
 
+                {currentActivity && (
+                  <View style={styles.activitySection}>
+                    <Text style={styles.medalTitle}>
+                      {t("learningStreak.activityTitle")}
+                    </Text>
+                    <Text style={styles.activityDescription}>
+                      {t("learningStreak.activityDescription")}
+                    </Text>
+                    <Text style={styles.activityDescription}>
+                      {t("learningStreak.activityTrackingNotice")}
+                    </Text>
+                    {currentActivity.languages.length === 0 ? (
+                      <Text style={styles.activityDescription}>
+                        {t("learningStreak.activityEmpty")}
+                      </Text>
+                    ) : (
+                      currentActivity.languages.map(
+                        ({ targetLanguage, days }) => {
+                          const course = isLearnCourse(targetLanguage)
+                            ? LEARN_COURSES[targetLanguage]
+                            : undefined;
+                          return (
+                            <View
+                              key={targetLanguage}
+                              style={styles.activityRow}
+                            >
+                              <Text style={styles.activityLanguage}>
+                                {course
+                                  ? `${course.flag} ${t(`courses.languages.${course.key}`)}`
+                                  : targetLanguage}
+                              </Text>
+                              <Text style={styles.activityCount}>
+                                {t("learningStreak.activityDays", {
+                                  count: days,
+                                })}
+                              </Text>
+                            </View>
+                          );
+                        },
+                      )
+                    )}
+                    {currentActivity.unclassifiedDays > 0 && (
+                      <Text style={styles.activityDescription}>
+                        {t("learningStreak.activityUnknown", {
+                          count: currentActivity.unclassifiedDays,
+                        })}
+                      </Text>
+                    )}
+                  </View>
+                )}
+
                 {/* 이달의 학습 메달 */}
                 <View style={styles.medalSection}>
                   <Text style={styles.medalTitle}>{t("home.medalTitle")}</Text>
@@ -306,9 +389,9 @@ export default function CalendarModal({
                     ))}
                   </View>
                 </View>
-              </TouchableOpacity>
-            </Animated.View>
-          </GestureDetector>
+              </ScrollView>
+            </TouchableOpacity>
+          </Animated.View>
         </TouchableOpacity>
       </GestureHandlerRootView>
     </Modal>
@@ -342,9 +425,45 @@ const getStyles = (theme: ThemeColors) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
+      height: 32,
       marginBottom: 8,
       position: "relative",
     },
+    sheetScroll: { flexGrow: 0, flexShrink: 1 },
+    scopeTitle: {
+      fontSize: 18,
+      fontWeight: "800",
+      textAlign: "center",
+      color: theme.text,
+      marginBottom: 6,
+    },
+    scopeDescription: {
+      fontSize: 12,
+      lineHeight: 18,
+      textAlign: "center",
+      color: theme.textSecondary,
+      marginBottom: 12,
+    },
+    activitySection: {
+      marginTop: 20,
+      padding: 16,
+      borderRadius: 16,
+      backgroundColor: theme.bg,
+      gap: 8,
+    },
+    activityDescription: {
+      fontSize: 12,
+      lineHeight: 18,
+      color: theme.textSecondary,
+    },
+    activityRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+    activityLanguage: {
+      flex: 1,
+      fontSize: 14,
+      fontWeight: "600",
+      color: theme.text,
+    },
+    activityCount: { fontSize: 14, fontWeight: "800", color: theme.primary },
     handle: {
       width: 40,
       height: 4,

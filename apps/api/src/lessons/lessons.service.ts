@@ -38,6 +38,7 @@ import { UsersService } from '../users/users.service';
 import { dayKey, startOfDay } from '../common/date.util';
 import { buildCategoryStatsInc, LESSON_TO_STUDY } from './utils/category.util';
 import { StudyCategory } from '../users/utils/study-category.util';
+import { knownStudyLanguages } from '../users/utils/language-activity.util';
 import { COMEBACK } from '../retention/retention.config';
 import { EnergyService } from '../energy/energy.service';
 import {
@@ -1293,6 +1294,8 @@ export class LessonsService {
       wrongCount?: number;
       speedSeconds?: number;
       xpEarned?: number;
+      /** Server-owned language for count-only modes, never the user's selection. */
+      targetLanguage?: string;
     },
   ) {
     // 카테고리 판정에 필요한 최소 정보만 모은다.
@@ -1301,17 +1304,25 @@ export class LessonsService {
       params.questionTypes ?? []
     ).map((type) => ({ type }));
 
-    if (!items.length && params.questionIds?.length) {
-      const qs = await this.questionModel
-        .find({ _id: { $in: params.questionIds } })
-        .select('type lessonCategory')
-        .lean();
+    const qs = params.questionIds?.length
+      ? await this.questionModel
+          .find({ _id: { $in: params.questionIds } })
+          .select('type lessonCategory targetLanguage')
+          .lean()
+      : [];
+    if (!items.length && qs.length) {
       items = qs.map((q) => ({
         id: q._id.toString(),
         type: q.type,
         lessonCategory: (q as any).lessonCategory,
       }));
     }
+
+    const studyLanguages = knownStudyLanguages(
+      params.questionIds?.length
+        ? qs.map((question) => question.targetLanguage ?? 'ko')
+        : [params.targetLanguage],
+    );
 
     // 문제 개념이 없는 모드는 questionCount 만큼 override 버킷에 넣는다
     if (!items.length && params.questionCount && params.overrideCategory) {
@@ -1351,6 +1362,9 @@ export class LessonsService {
     await this.userStatsModel.findOneAndUpdate(
       { userId: new Types.ObjectId(userId), date: today },
       {
+        ...(studyLanguages.length
+          ? { $addToSet: { studyLanguages: { $each: studyLanguages } } }
+          : {}),
         $inc: {
           ...questInc,
           studyTimeSeconds: seconds,

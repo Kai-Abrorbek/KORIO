@@ -462,6 +462,7 @@ export class TopikStatsService {
     await this.userStatsModel.findOneAndUpdate(
       { userId: attempt.userId, date },
       {
+        ...(answeredCount > 0 ? { $addToSet: { studyLanguages: 'ko' } } : {}),
         $inc: {
           studyTimeSeconds: attempt.elapsedSeconds,
           totalQuestions: answeredCount,

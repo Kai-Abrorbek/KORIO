@@ -188,6 +188,7 @@ export class SpeechService {
     // 이 가는 곳과 같다 — 같은 행위를 두 버킷으로 나누면 스킬 레이더가 거짓말한다.
     // expression 버킷에 넣으면 발음 연습만 했는데 "표현 잘함" 으로 보인다.
     await this.lessonsService.recordStudy(userId, {
+      targetLanguage: 'ko',
       questionCount: 1,
       wrongCount: result.passed ? 0 : 1,
       overrideCategory: StudyCategory.CONVERSATION,

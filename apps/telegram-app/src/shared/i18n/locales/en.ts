@@ -2,6 +2,18 @@ import topik from "./topik/en";
 
 export default {
   topik,
+  learningStreak: {
+    title: "Overall learning streak",
+    days: "{{count}}-day streak",
+    description: "Study any language to keep it going. It increases only once a day.",
+    sharedAcrossApps: "Shared between the app and Telegram on the same account.",
+    activityTitle: "Study days by language this month",
+    activityDescription: "These are active days for each language, not separate streaks.",
+    activityTrackingNotice: "Only study with a recorded language after this update is shown. Earlier activity may be missing.",
+    activityDays: "{{count}} days",
+    activityEmpty: "No language-specific study has been recorded this month yet.",
+    activityUnknown: "{{count}} study days without language information are excluded.",
+  },
   common: {
     loadFailed: "Couldn't load. Please try again in a moment",
     retry: "Try again",
@@ -3201,8 +3213,8 @@ export default {
       chestGems: "{{n}} gems!",
       chestBoost: "{{x}}× XP for {{m}} min!",
       chestFreeze: "+1 repair pen!",
-      shareProgressMessage: "I've been learning Korean on KORIO for {{streak}} days in a row 🔥 Join me! My invite code: {{code}}\n{{link}}",
-      shareProgressPlain: "I'm learning Korean on KORIO 🇰🇷 Join me! My invite code: {{code}}\n{{link}}",
+      shareProgressMessage: "I've been learning on KORIO for {{streak}} days in a row 🔥 Join me! My invite code: {{code}}\n{{link}}",
+      shareProgressPlain: "I'm learning on KORIO 🌍 Join me! My invite code: {{code}}\n{{link}}",
     },
     monthly: {
       title: "{{month}} Challenge",

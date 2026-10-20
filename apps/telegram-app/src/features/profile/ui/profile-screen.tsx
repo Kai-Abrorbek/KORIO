@@ -14,6 +14,7 @@ import { getMe } from "../api/profile";
 import { TIER_COLORS, TIER_LABELS, type UserMe } from "../model/profile";
 import { QuestBadgesRow } from "../../retention/ui/home-retention";
 import { StickerPromoCard } from "./sticker-promo";
+import { uzt } from "../../../shared/i18n/uz-text";
 import styles from "./profile-screen.module.css";
 
 export function ProfileScreen() {
@@ -96,7 +97,7 @@ export function ProfileScreen() {
         <section className={styles.learning}>
           <h2>O‘qish holati</h2>
           <div className={styles.learningGrid}>
-            <Stat icon="flame" color="#FF7A00" value={`${profile.streak ?? 0} kun`} />
+            <Stat icon="flame" color="#FF7A00" value={`${profile.streak ?? 0} kun`} label={uzt("learningStreak.title")} labelKey="learningStreak.title" />
             <Stat emoji={profile.coursePrimaryFlag || "🇰🇷"} value={String(profile.languageLevel ?? 1)} />
             <Stat icon="trophy" color={TIER_COLORS[profile.league] ?? "#CD7F32"} value={TIER_LABELS[profile.league] ?? "Bronza"} />
             <Stat icon="flash" color="#FFCC00" value={`${profile.totalXP ?? 0} XP`} />
@@ -121,6 +122,6 @@ export function ProfileScreen() {
   );
 }
 
-function Stat({ icon, color, emoji, value }: { icon?: "flame" | "trophy" | "flash" | "diamond"; color?: string; emoji?: string; value: string }) {
-  return <div className={styles.stat}>{emoji ? <span>{emoji}</span> : icon ? <MobileIcon name={icon} size={26} style={{ color }} /> : null}<b>{value}</b></div>;
+function Stat({ icon, color, emoji, value, label, labelKey }: { icon?: "flame" | "trophy" | "flash" | "diamond"; color?: string; emoji?: string; value: string; label?: string; labelKey?: string }) {
+  return <div className={styles.stat} title={label}>{emoji ? <span>{emoji}</span> : icon ? <MobileIcon name={icon} size={26} style={{ color }} /> : null}{label ? <div className={styles.statText}><b>{value}</b><small data-i18n={labelKey}>{label}</small></div> : <b>{value}</b>}</div>;
 }

@@ -339,12 +339,18 @@ export function HomeScreen() {
           <span className={styles.streakHeading}>
             <span>
               <HomeIcon name="flame" size={18} />
-              <b>{profile.streak ?? 0}</b> kun ketma-ket
+              <span className={styles.streakSummary}>
+                <span data-i18n="learningStreak.title">{uzt("learningStreak.title")}</span>
+                <b data-i18n="learningStreak.days">{uzt("learningStreak.days", { count: profile.streak ?? 0 })}</b>
+              </span>
             </span>
             <span className={styles.cardLink}>
               Taqvim <HomeIcon name="chevron" size={14} />
             </span>
           </span>
+          <p className={styles.streakDescription} data-i18n="learningStreak.description">
+            {uzt("learningStreak.description")}
+          </p>
           <span className={styles.daysRow}>
             {week.map((day, index) => {
               const studied =

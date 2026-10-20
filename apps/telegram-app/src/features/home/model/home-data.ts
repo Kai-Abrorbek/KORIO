@@ -26,6 +26,10 @@ export interface HomeCalendarData {
   /** 복구펜으로 메운 날 (옛 서버는 안 준다) */
   frozenDays?: number[];
   longestStreak: number;
+  languageActivity?: {
+    languages: Array<{ targetLanguage: string; days: number }>;
+    unclassifiedDays: number;
+  };
   month: number;
   streak: number;
   streakDays: number[];

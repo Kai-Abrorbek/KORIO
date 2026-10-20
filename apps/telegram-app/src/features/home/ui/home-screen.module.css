@@ -130,6 +130,24 @@
   font-weight: 800;
 }
 
+.streakSummary {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.streakSummary > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.streakDescription {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
 .cardLink {
   color: var(--primary);
   font-size: 13px;
@@ -877,6 +895,40 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   row-gap: 5px;
+}
+
+.languageActivity {
+  background: var(--home-soft);
+  border-radius: 16px;
+  margin-bottom: 18px;
+  padding: 14px;
+}
+
+.languageActivity h3 {
+  font-size: 14px;
+  margin: 0 0 7px;
+}
+
+.languageActivity p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 5px 0;
+}
+
+.languageActivity ul {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.languageActivity li {
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 5px 0;
 }
 
 .calendarWeekday,

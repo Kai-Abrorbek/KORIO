@@ -217,6 +217,7 @@ export class TopikController {
     if ('requiresReview' in result && result.requiresReview) {
       await this.lessonsService
         .recordStudy(userId, {
+          targetLanguage: 'ko',
           questionCount: Math.max(1, result.totalQuestions),
           overrideCategory: StudyCategory.TOPIK,
           xpEarned: 0,

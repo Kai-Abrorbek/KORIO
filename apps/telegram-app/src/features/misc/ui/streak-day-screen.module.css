@@ -11,6 +11,7 @@
 .flameSvg{display:block;height:100%;width:100%}
 .spark{border-radius:50%;left:50%;pointer-events:none;position:absolute;top:50%}
 .badge{background:#ffd45c;border-bottom:3px solid #e2a83a;border-radius:999px;color:#7a4c00;font-size:15px;font-weight:900;margin-bottom:12px;padding:7px 16px;white-space:nowrap}
+.streakScope{display:block;margin-bottom:8px;color:#ff9600;font-size:13px;font-weight:800;letter-spacing:0}
 .day>span>em{align-items:center;background:#ff9600;border-radius:50%;color:#fff;display:flex;inset:0;justify-content:center;position:absolute}
 .dayRing{border:3px solid #ffc93c;border-radius:50%;box-sizing:border-box;inset:0;pointer-events:none;position:absolute}
 .day>small>b{color:#ff9600;font:inherit;left:0;position:absolute;top:0}

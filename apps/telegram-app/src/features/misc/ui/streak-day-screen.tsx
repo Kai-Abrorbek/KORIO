@@ -382,7 +382,10 @@ export function StreakDayScreen() {
             {uzt("streakDay.milestone", { n: streak })}
           </div>
         ) : null}
-        <h1 data-i18n="streakDay.title" ref={title} style={{ opacity: 0 }}>{uzt("streakDay.title")}</h1>
+        <h1 ref={title} style={{ opacity: 0 }}>
+          <small className={styles.streakScope} data-i18n="learningStreak.title">{uzt("learningStreak.title")}</small>
+          <span data-i18n="streakDay.title">{uzt("streakDay.title")}</span>
+        </h1>
         {/* 줄바꿈까지 locale 문장 그대로여야 번역이 붙는다 (<br/> 로 쪼개면 우즈벡어로 남는다) */}
         <p data-i18n="streakDay.subtitle" ref={subtitle} style={{ opacity: 0 }}>{uzt("streakDay.subtitle")}</p>
         <div className={styles.week}>

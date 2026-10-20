@@ -274,6 +274,7 @@ export class ReadingLessonsService {
     // 읽기 자체는 문제 개념이 없어서 최소 1건으로 잡는다.
     await this.lessonsService
       .recordStudy(userId, {
+        targetLanguage: 'ko',
         questionCount: Math.max(1, quizTotal),
         wrongCount: Math.max(0, quizTotal - quizCorrect),
         overrideCategory: StudyCategory.LISTENING,

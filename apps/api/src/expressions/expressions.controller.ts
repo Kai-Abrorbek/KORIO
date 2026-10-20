@@ -90,6 +90,7 @@ export class ExpressionsController {
     const userId = req.user._id.toString();
     await this.expressionLearningService.getNodeLearning(userId, nodeCode, 'uz');
     await this.lessonsService.recordStudy(userId, {
+      targetLanguage: 'ko',
       questionCount: 1,
       overrideCategory: StudyCategory.EXPRESSION,
       xpEarned: 0,

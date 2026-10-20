@@ -370,11 +370,16 @@ export default function HomeScreen() {
         </View>
 
         {/* 스트릭 트래커 */}
-        <TouchableOpacity onPress={() => setCalendarVisible(true)}>
+        <TouchableOpacity
+          onPress={() => setCalendarVisible(true)}
+          accessibilityLabel={t("learningStreak.title")}
+          accessibilityHint={t("learningStreak.description")}
+        >
           <Animated.View
             entering={FadeInDown.delay(100).duration(500)}
             style={styles.card}
           >
+            <Text style={styles.streakScope}>{t("learningStreak.title")}</Text>
             <View style={styles.streakHeader}>
               <View style={styles.streakTitle}>
                 <Ionicons name="flame" size={18} color="#FF7A00" />
@@ -400,6 +405,9 @@ export default function HomeScreen() {
                 streak={user?.streak ?? 0}
               />
             </View>
+            <Text style={styles.streakDescription}>
+              {t("learningStreak.description")}
+            </Text>
             <View style={styles.daysRow}>
               {weekly.map((d, i) => {
                 const studied = studiedDay(i);
@@ -933,6 +941,18 @@ const getStyles = (theme: ThemeColors) =>
       fontSize: 12.5,
       fontWeight: "900",
       color: "#FFFFFF",
+    },
+    streakScope: {
+      fontSize: 12,
+      fontWeight: "700",
+      color: theme.textSecondary,
+      marginBottom: 6,
+    },
+    streakDescription: {
+      fontSize: 12,
+      lineHeight: 18,
+      color: theme.textSecondary,
+      marginBottom: 12,
     },
     streakHeader: {
       flexDirection: "row",

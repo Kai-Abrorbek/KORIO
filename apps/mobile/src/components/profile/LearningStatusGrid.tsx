@@ -31,6 +31,9 @@ export default function LearningStatusGrid({
   return (
     <View style={styles.wrap}>
       <Text style={styles.title}>{t("profile.learningStatus")}</Text>
+      <Text style={styles.streakScope}>
+        {t("learningStreak.title")} · {t("learningStreak.sharedAcrossApps")}
+      </Text>
 
       <View style={styles.grid}>
         <View style={styles.row}>
@@ -84,6 +87,12 @@ const getStyles = (theme: ThemeColors) =>
     },
     grid: {
       gap: 18,
+    },
+    streakScope: {
+      fontSize: 12,
+      lineHeight: 18,
+      color: theme.textSecondary,
+      marginBottom: 16,
     },
     row: {
       flexDirection: "row",

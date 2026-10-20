@@ -488,6 +488,7 @@ export default function StreakDayScreen() {
             </Animated.View>
           ) : null}
 
+          <Animated.Text style={[s.scopeLabel, textStyle]}>{t("learningStreak.title")}</Animated.Text>
           <Animated.Text style={[s.title, textStyle]}>{t("streakDay.title")}</Animated.Text>
           <Animated.Text style={[s.subtitle, textStyle]}>{t("streakDay.subtitle")}</Animated.Text>
 
@@ -792,6 +793,12 @@ const styles = (theme: ThemeColors) =>
       borderBottomColor: "#E2A83A",
     },
     badgeText: { fontSize: 15, fontWeight: "900", color: "#7A4C00" },
+    scopeLabel: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.textSecondary,
+      marginBottom: 8,
+    },
     title: {
       fontSize: 30,
       fontWeight: "900",

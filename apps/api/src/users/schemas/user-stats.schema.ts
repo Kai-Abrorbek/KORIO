@@ -23,6 +23,14 @@ export class UserStats {
   @Prop({ default: 0 })
   xpEarned: number;
 
+  /**
+   * Languages actually studied on this date, recorded from server-owned content.
+   * Missing on historical rows: never infer those languages from user settings.
+   * This is activity metadata only; streaks and rewards remain account-wide.
+   */
+  @Prop({ type: [String], default: undefined })
+  studyLanguages?: string[];
+
   // 기존 vocabularyCount ~ listeningCount 5개 @Prop 전부 삭제하고 ↓
   /**
    * 카테고리별 문제 수. { vocab: 12, grammar: 8, topik: 4, ... }

@@ -2,6 +2,18 @@ import topik from "./topik/ru";
 
 export default {
   topik,
+  learningStreak: {
+    title: "Общая серия обучения",
+    days: "{{count}} дн. подряд",
+    description: "Занимайтесь любым языком, чтобы продолжить серию. Она растёт только раз в день.",
+    sharedAcrossApps: "Общая для приложения и Telegram в одном аккаунте.",
+    activityTitle: "Дни занятий по языкам за этот месяц",
+    activityDescription: "Это дни активности по каждому языку, а не отдельные серии.",
+    activityTrackingNotice: "Показаны только занятия с записанным языком после обновления. Более ранние занятия могут быть не учтены.",
+    activityDays: "{{count}} дн.",
+    activityEmpty: "В этом месяце занятия по языкам ещё не записаны.",
+    activityUnknown: "Дни занятий без информации о языке ({{count}}) не учтены.",
+  },
   common: {
     loadFailed: "Не удалось загрузить. Попробуйте чуть позже",
     retry: "Повторить",
@@ -3206,8 +3218,8 @@ export default {
       chestGems: "{{n}} самоцветов!",
       chestBoost: "XP ×{{x}} на {{m}} мин!",
       chestFreeze: "+1 перо восстановления!",
-      shareProgressMessage: "Учу корейский в KORIO уже {{streak}} дн. подряд 🔥 Присоединяйся! Мой код приглашения: {{code}}\n{{link}}",
-      shareProgressPlain: "Учу корейский в KORIO 🇰🇷 Присоединяйся! Мой код приглашения: {{code}}\n{{link}}",
+      shareProgressMessage: "Учусь в KORIO уже {{streak}} дн. подряд 🔥 Присоединяйся! Мой код приглашения: {{code}}\n{{link}}",
+      shareProgressPlain: "Учусь в KORIO 🌍 Присоединяйся! Мой код приглашения: {{code}}\n{{link}}",
     },
     monthly: {
       title: "Испытание: {{month}}",

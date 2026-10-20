@@ -36,6 +36,7 @@ import {
 } from '../common/date.util';
 import { langToFlag, levelToNumber } from './utils';
 import { buildVersusWeek, versusFetchRange } from './versus-week.util';
+import { summarizeLanguageActivity } from './utils/language-activity.util';
 import { assertCosmeticOwned } from '../cosmetics/cosmetics.service';
 import {
   COSMETIC_SLOTS,
@@ -1358,8 +1359,12 @@ export class UsersService {
   async getCalendar(userId: string, year: number, month: number) {
     const tz = await this.getTimezone(userId);
     // month 는 1-12 (0-indexed 가 아니라)
-    const start = new Date(year, month - 1, 1, 0, 0, 0);
-    const end = new Date(year, month, 1, 0, 0, 0);
+    const monthBoundary = (offset: number) => {
+      const anchor = new Date(Date.UTC(year, month - 1 + offset, 15));
+      return startOfDayPlus(anchor, 1 - dateParts(anchor, tz).day, tz);
+    };
+    const start = monthBoundary(0);
+    const end = monthBoundary(1);
     const uId = new Types.ObjectId(userId);
     // 실제로 학습이 있었던 날만 (빈 레코드 제외)
     const studied = {
@@ -1369,7 +1374,7 @@ export class UsersService {
     const [monthStats, allStats, frozenOf] = await Promise.all([
       this.statsModel
         .find({ userId: uId, date: { $gte: start, $lt: end }, ...studied })
-        .select('date')
+        .select('date totalQuestions xpEarned studyLanguages')
         .lean(),
       // 연속 계산은 월 경계를 넘나들기 때문에 전체 기록이 필요
       this.statsModel
@@ -1417,6 +1422,7 @@ export class UsersService {
       frozenDays,
       streak: current,
       longestStreak: longest,
+      languageActivity: summarizeLanguageActivity(monthStats, year, month, tz),
     };
   }
 

@@ -162,6 +162,9 @@ export default function StreakGoalScreen() {
               freezeMax={page.freeze.max}
               theme={theme}
             />
+            <Text style={s.streakScope}>
+              {t("learningStreak.description")} {t("learningStreak.sharedAcrossApps")}
+            </Text>
 
             <MilestoneTrack
               streak={page.streak}
@@ -372,7 +375,7 @@ function Hero({
       </View>
       <View style={s.heroMid}>
         <Text style={s.heroCount}>{streak}</Text>
-        <Text style={s.heroLabel}>{t("retention.goal.heroStreak")}</Text>
+        <Text style={s.heroLabel}>{t("learningStreak.title")}</Text>
         <View style={s.heroFreeze}>
           <Ionicons name="snow" size={13} color="#FFFFFF" />
           <Text style={s.heroFreezeText}>
@@ -733,6 +736,12 @@ const getStyles = (theme: ThemeColors) =>
       lineHeight: 48,
     },
     heroLabel: { fontSize: 15, fontWeight: "900", color: "#FFF3E0" },
+    streakScope: {
+      fontSize: 13,
+      lineHeight: 20,
+      color: theme.textSecondary,
+      marginBottom: 16,
+    },
     heroFreeze: {
       marginTop: 8,
       alignSelf: "flex-start",

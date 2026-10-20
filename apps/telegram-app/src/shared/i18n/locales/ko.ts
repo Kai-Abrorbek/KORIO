@@ -2,6 +2,18 @@ import topik from "./topik/ko";
 
 export default {
   topik,
+  learningStreak: {
+    title: "전체 연속학습",
+    days: "{{count}}일 연속",
+    description: "어떤 언어를 공부해도 이어져요. 하루에 한 번만 올라가요.",
+    sharedAcrossApps: "앱과 텔레그램에서 같은 계정으로 공유해요.",
+    activityTitle: "이달 언어별 학습일수",
+    activityDescription: "언어별 활동 일수이며, 별도의 연속학습 기록은 아니에요.",
+    activityTrackingNotice: "이 기능 적용 이후 언어가 기록된 학습만 표시해요. 이전 활동은 일부 누락될 수 있어요.",
+    activityDays: "{{count}}일",
+    activityEmpty: "아직 이달에 기록된 언어별 학습이 없어요.",
+    activityUnknown: "언어 정보가 없는 학습일 {{count}}일은 제외했어요.",
+  },
   common: {
     loadFailed: "불러오지 못했어요. 잠시 뒤에 다시 시도해 주세요",
     retry: "다시 시도",
@@ -3195,8 +3207,8 @@ export default {
       chestGems: "보석 {{n}}개!",
       chestBoost: "{{m}}분 동안 XP {{x}}배!",
       chestFreeze: "복구펜 1개!",
-      shareProgressMessage: "KORIO에서 {{streak}}일째 한국어 공부 중이야 🔥 같이 하자! 내 초대 코드: {{code}}\n{{link}}",
-      shareProgressPlain: "KORIO에서 한국어 공부 중이야 🇰🇷 같이 하자! 내 초대 코드: {{code}}\n{{link}}",
+      shareProgressMessage: "KORIO에서 {{streak}}일째 공부 중이야 🔥 같이 하자! 내 초대 코드: {{code}}\n{{link}}",
+      shareProgressPlain: "KORIO에서 공부 중이야 🌍 같이 하자! 내 초대 코드: {{code}}\n{{link}}",
     },
     monthly: {
       title: "{{month}} 챌린지",

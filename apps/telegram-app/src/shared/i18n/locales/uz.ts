@@ -2,6 +2,18 @@ import topik from "./topik/uz";
 
 export default {
   topik,
+  learningStreak: {
+    title: "Umumiy o'qish seriyasi",
+    days: "{{count}} kun ketma-ket",
+    description: "Istalgan tilni o'rganib davom ettiring. Kuniga faqat bir marta oshadi.",
+    sharedAcrossApps: "Ilova va Telegramda bir akkaunt uchun umumiy.",
+    activityTitle: "Bu oy tillar bo'yicha o'qilgan kunlar",
+    activityDescription: "Bu har bir til bo'yicha faol kunlar, alohida seriyalar emas.",
+    activityTrackingNotice: "Faqat yangilanishdan keyin tili qayd etilgan mashg‘ulotlar ko‘rsatiladi. Oldingi faoliyatning bir qismi ko‘rinmasligi mumkin.",
+    activityDays: "{{count}} kun",
+    activityEmpty: "Bu oy hali tillar bo'yicha o'qish qayd etilmagan.",
+    activityUnknown: "Tili noma'lum bo'lgan {{count}} o'qish kuni hisobga olinmagan.",
+  },
   common: {
     loadFailed: "Yuklab bo'lmadi. Birozdan so'ng urinib ko'ring",
     retry: "Qayta urinish",
@@ -3211,8 +3223,8 @@ export default {
       chestGems: "{{n}} ta gavhar!",
       chestBoost: "{{m}} daqiqa davomida XP {{x}} baravar!",
       chestFreeze: "1 ta tiklash qalami!",
-      shareProgressMessage: "KORIO'da {{streak}} kundan beri koreys tilini o'rganyapman 🔥 Birga o'rganamiz! Taklif kodim: {{code}}\n{{link}}",
-      shareProgressPlain: "KORIO'da koreys tilini o'rganyapman 🇰🇷 Birga o'rganamiz! Taklif kodim: {{code}}\n{{link}}",
+      shareProgressMessage: "KORIO'da {{streak}} kundan beri o'rganyapman 🔥 Birga o'rganamiz! Taklif kodim: {{code}}\n{{link}}",
+      shareProgressPlain: "KORIO'da o'rganyapman 🌍 Birga o'rganamiz! Taklif kodim: {{code}}\n{{link}}",
     },
     monthly: {
       title: "{{month}} challenji",

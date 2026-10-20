@@ -11,6 +11,8 @@ import { HomeIcon } from "./home-icon";
 import styles from "./home-screen.module.css";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
+import { uzt } from "../../../shared/i18n/uz-text";
+import { LEARN_COURSES, type LearnCourse } from "../../learning/model/learning-options";
 
 interface HomeCalendarProps {
   fallbackLongestStreak: number;
@@ -72,9 +74,14 @@ export function HomeCalendar({
     return result;
   }, [visibleMonth]);
 
-  const completedDays = calendar?.completedDays ?? [];
-  const streakDays = calendar?.streakDays ?? [];
-  const frozenDays = calendar?.frozenDays ?? [];
+  // A new month must not briefly show the previous response's activity.
+  const currentCalendar = calendar?.year === visibleMonth.year && calendar.month === visibleMonth.month + 1
+    ? calendar
+    : null;
+  const completedDays = currentCalendar?.completedDays ?? [];
+  const streakDays = currentCalendar?.streakDays ?? [];
+  const frozenDays = currentCalendar?.frozenDays ?? [];
+  const languageActivity = currentCalendar?.languageActivity;
 
   const moveMonth = (offset: number) => {
     setVisibleMonth((current) => {
@@ -86,7 +93,7 @@ export function HomeCalendar({
   return (
     <div className={styles.sheetBackdrop} onClick={onClose} role="presentation">
       <section
-        aria-label="O'quv taqvimi"
+        aria-label={uzt("learningStreak.title")}
         aria-modal="true"
         className={styles.calendarSheet}
         ref={sheetRef}
@@ -123,20 +130,61 @@ export function HomeCalendar({
 
         <div className={styles.calendarStats}>
           <div>
-            <span>Ketma-ket kunlar</span>
+            <span data-i18n="learningStreak.title">{uzt("learningStreak.title")}</span>
             <strong>
               <HomeIcon name="flame" size={20} />
-              {calendar?.streak ?? fallbackStreak}
+              {currentCalendar?.streak ?? fallbackStreak}
             </strong>
           </div>
           <div>
             <span>Eng uzun seriya</span>
             <strong>
               <HomeIcon name="trophy" size={20} />
-              {calendar?.longestStreak ?? fallbackLongestStreak}
+              {currentCalendar?.longestStreak ?? fallbackLongestStreak}
             </strong>
           </div>
         </div>
+
+        <p className={styles.streakDescription} data-i18n="learningStreak.description">
+          {uzt("learningStreak.description")}
+        </p>
+        <p className={styles.streakDescription} data-i18n="learningStreak.sharedAcrossApps">
+          {uzt("learningStreak.sharedAcrossApps")}
+        </p>
+
+        {languageActivity ? (
+          <section className={styles.languageActivity}>
+            <h3 data-i18n="learningStreak.activityTitle">{uzt("learningStreak.activityTitle")}</h3>
+            <p data-i18n="learningStreak.activityDescription">{uzt("learningStreak.activityDescription")}</p>
+            <p data-i18n="learningStreak.activityTrackingNotice">{uzt("learningStreak.activityTrackingNotice")}</p>
+            {languageActivity.languages.length > 0 ? (
+              <ul>
+                {languageActivity.languages.map(({ targetLanguage, days }) => {
+                  const course = Object.hasOwn(LEARN_COURSES, targetLanguage)
+                    ? LEARN_COURSES[targetLanguage as LearnCourse]
+                    : undefined;
+                  const nameKey = course ? `userCourses.list.${course.key}` : undefined;
+                  return (
+                    <li key={targetLanguage}>
+                      <span>
+                        {course ? <span aria-hidden="true">{course.flag} </span> : null}
+                        <span data-i18n={nameKey} data-no-translate={!course || undefined}>
+                          {nameKey ? uzt(nameKey) : targetLanguage}
+                        </span>
+                      </span>
+                      <b data-i18n="learningStreak.activityDays">{uzt("learningStreak.activityDays", { count: days })}</b>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p data-i18n="learningStreak.activityEmpty">{uzt("learningStreak.activityEmpty")}</p>
+            )}
+            {languageActivity.unclassifiedDays > 0 ? (
+              <p data-i18n="learningStreak.activityUnknown">{uzt("learningStreak.activityUnknown", { count: languageActivity.unclassifiedDays })}</p>
+            ) : null}
+          </section>
+        ) : null}
 
         <div className={styles.calendarGrid}>
           {WEEKDAY_LABELS.map((label) => (

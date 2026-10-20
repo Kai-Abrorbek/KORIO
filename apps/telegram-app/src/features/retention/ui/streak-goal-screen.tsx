@@ -16,6 +16,7 @@ import {
   type StreakGoalPage,
 } from "../model/retention";
 import { Button3D, RewardDialog } from "./parts";
+import { uzt } from "../../../shared/i18n/uz-text";
 import styles from "./retention.module.css";
 
 /** "이어가면 받는 보석" 표를 며칠 앞까지 보여줄지 */
@@ -128,6 +129,7 @@ export function StreakGoalScreen() {
                 <MobileIcon name="flame" size={64} />
               </span>
               <span>
+                <div className={styles.heroLabel} data-i18n="learningStreak.title">{uzt("learningStreak.title")}</div>
                 <div className={styles.heroCount} data-no-translate>{page.streak}</div>
                 <div className={styles.heroLabel}>{rt("goal.heroStreak")}</div>
                 <span className={styles.heroFreeze}>
@@ -136,6 +138,7 @@ export function StreakGoalScreen() {
                 </span>
               </span>
             </section>
+            <p className={styles.sub} data-i18n="learningStreak.description">{uzt("learningStreak.description")}</p>
 
             <MilestoneTrack
               everyDays={page.streakChest.everyDays}

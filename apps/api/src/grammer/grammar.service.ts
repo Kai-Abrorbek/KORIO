@@ -218,6 +218,7 @@ export class GrammarService {
     // 통계 기록 (grammar 버킷, 퀴즈 문제 수만큼)
     const quizCount = (g as any).quiz?.length ?? 0;
     await this.lessonsService.recordStudy(userId, {
+      targetLanguage: 'ko',
       questionCount: Math.max(1, quizCount),
       overrideCategory: StudyCategory.GRAMMAR,
     });

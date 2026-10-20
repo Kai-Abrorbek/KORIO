@@ -20,6 +20,11 @@ export interface CalendarData {
   longestStreak: number;
   /** 복구펜으로 메운 이번 달 날짜 (옛 서버는 안 준다) */
   frozenDays?: number[];
+  /** 선택 월의 언어별 학습일수. 이전 기록의 언어는 추정하지 않는다. */
+  languageActivity?: {
+    languages: { targetLanguage: string; days: number }[];
+    unclassifiedDays: number;
+  };
 }
 
 export interface DayStats {
