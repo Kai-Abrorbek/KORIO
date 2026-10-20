@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스 · 연속 학습일.
+ * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스 · 연속 학습일 · 리그 결과.
  * (레벨업 로켓 소리는 tools/levelup-audio 가 따로 만든다)
  *
  * 만든 mp3 는 두 앱에 똑같이 들어간다 —
@@ -76,6 +76,13 @@ const CATALOG = {
     { file: "vo-100.mp3", voice: "[shouting] [excited] 100일 연속! 대단해요!" },
     { file: "vo-365.mp3", voice: "[shouting] [excited] 1년 연속! 전설이에요!" },
     { file: "vo-record.mp3", voice: "[shouting] [excited] 대기록이에요!" },
+  ],
+  league: [
+    { file: "crack.mp3", sfx: `A glass crystal cracking under stress: a few sharp crackles, tense but light. ${NO_VOICE}`, duration: 0.8 },
+    { file: "shatter.mp3", sfx: `A small crystal shattering into pieces and tinkling down, glassy and soft, not violent. ${NO_VOICE}`, duration: 1.2 },
+    { file: "vo-promote.mp3", voice: "[excited] 승급! 축하해요!" },
+    { file: "vo-stay.mp3", voice: "[cheerfully] 리그를 지켰어요!" },
+    { file: "vo-demote.mp3", voice: "[warmly] 괜찮아요, 다음 주에 다시 올라가요!" },
   ],
 };
 
