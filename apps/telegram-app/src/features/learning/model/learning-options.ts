@@ -50,12 +50,17 @@ export function learningScopePath(path: string, course: LearnCourse): string {
   const [pathname, search = ""] = path.split("?");
   const query = new URLSearchParams(search);
   const scope = query.has("courseId")
-    ? Object.values(DEFAULT_LEARNING_COURSES).find((entry) => entry.courseId === query.get("courseId"))
+    ? Object.values(DEFAULT_LEARNING_COURSES).find(
+        (entry) => entry.courseId === query.get("courseId"),
+      )
     : query.has("targetLanguage")
-      ? Object.values(DEFAULT_LEARNING_COURSES).find((entry) => entry.targetLanguage === query.get("targetLanguage"))
+      ? Object.values(DEFAULT_LEARNING_COURSES).find(
+          (entry) => entry.targetLanguage === query.get("targetLanguage"),
+        )
       : DEFAULT_LEARNING_COURSES[course];
   if (scope && !query.has("courseId")) query.set("courseId", scope.courseId);
-  if (scope && !query.has("targetLanguage")) query.set("targetLanguage", scope.targetLanguage);
+  if (scope && !query.has("targetLanguage"))
+    query.set("targetLanguage", scope.targetLanguage);
   return `${pathname}?${query.toString()}`;
 }
 
@@ -137,44 +142,14 @@ export const LEARNING_CATEGORIES: LearningCategory[] = [
     description: "Qoidalarni o'rganing",
   },
   {
-    key: "expression",
-    category: "expression",
-    icon: "chatbubble",
-    color: "#26a69a",
+    key: "grammarPractice",
+    category: "grammarPractice",
+    icon: "barbell",
+    color: "#7e57c2",
     guided: false,
-    feature: "expression",
-    label: "Iboralar",
-    description: "Ko'p ishlatiladigan iboralar",
-  },
-  {
-    key: "speaking",
-    category: "speaking",
-    icon: "mic",
-    color: "#776ee2",
-    guided: false,
-    feature: "expression",
-    label: "Gapirish",
-    description: "Mavzu bo'yicha gaplarni takrorlang",
-  },
-  {
-    key: "conversation",
-    category: "conversation",
-    icon: "chatbubbles",
-    color: "#ec407a",
-    guided: true,
-    feature: "tutor",
-    label: "Jonli suhbat",
-    description: "Haqiqiy suhbat mashqi",
-  },
-  {
-    key: "listening",
-    category: "listening",
-    icon: "headset",
-    color: "#42a5f5",
-    guided: true,
-    feature: "listening",
-    label: "Tinglash",
-    description: "Tinglash mashqi",
+    feature: "lesson",
+    label: "Grammatika mashqi",
+    description: "Bo‘sh joy va gap yig‘ish",
   },
   {
     key: "topik",
@@ -187,6 +162,46 @@ export const LEARNING_CATEGORIES: LearningCategory[] = [
     description: "Imtihonga tayyorgarlik",
   },
   {
+    key: "conversation",
+    category: "conversation",
+    icon: "chatbubbles",
+    color: "#ec407a",
+    guided: true,
+    feature: "tutor",
+    label: "Jonli suhbat",
+    description: "Haqiqiy suhbat mashqi",
+  },
+  {
+    key: "speaking",
+    category: "speaking",
+    icon: "mic",
+    color: "#776ee2",
+    guided: false,
+    feature: "expression",
+    label: "Gapirish",
+    description: "Mavzu bo'yicha gaplarni takrorlang",
+  },
+  {
+    key: "expression",
+    category: "expression",
+    icon: "chatbubble",
+    color: "#26a69a",
+    guided: false,
+    feature: "expression",
+    label: "Iboralar",
+    description: "Ko'p ishlatiladigan iboralar",
+  },
+  {
+    key: "listening",
+    category: "listening",
+    icon: "headset",
+    color: "#42a5f5",
+    guided: true,
+    feature: "listening",
+    label: "Tinglash",
+    description: "Tinglash mashqi",
+  },
+  {
     key: "pronunciation",
     category: "pronunciation",
     icon: "mic",
@@ -195,16 +210,6 @@ export const LEARNING_CATEGORIES: LearningCategory[] = [
     feature: "pronunciation",
     label: "Talaffuz",
     description: "Tovushlarni farqlang",
-  },
-  {
-    key: "grammarPractice",
-    category: "grammarPractice",
-    icon: "barbell",
-    color: "#7e57c2",
-    guided: false,
-    feature: "lesson",
-    label: "Grammatika mashqi",
-    description: "Bo‘sh joy va gap yig‘ish",
   },
   {
     key: "games",
@@ -288,7 +293,11 @@ export function continueLearningDestination(user: {
   topikLevel?: "1" | "2";
 }): string {
   if (!user.learnMode) return "/courses";
-  if (user.learnCourse !== "en" && user.studyMode === "guided" && user.learnMode === "vocabulary") {
+  if (
+    user.learnCourse !== "en" &&
+    user.studyMode === "guided" &&
+    user.learnMode === "vocabulary"
+  ) {
     return guidedDestination(user.hasPickedLevel);
   }
   return (

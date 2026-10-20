@@ -74,27 +74,15 @@ const CATEGORIES: Array<{
   { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true, feature: "hangul" },
   { key: "vocab", category: "vocabulary", icon: "book", color: "#FF7043", guided: false, feature: "lesson" },
   { key: "grammar", category: "grammar", icon: "construct", color: "#5C6BC0", guided: false, feature: "grammar" },
-  // 표현·말하기는 로드 모드에서 숨긴다.
-  // 둘 다 자기 순서(표현 로드맵 / 주제별 세션)를 스스로 관리한다. 로드가
-  // "오늘 할 일" 을 순서대로 깔아주는 화면에서 이것까지 보이면 오늘 분량이
-  // 두 갈래가 되어 로드가 의미를 잃는다 — 어휘·문법을 뺀 것과 같은 이유다.
-  // 자유 모드에서는 그대로 보인다.
   {
-    key: "expression",
-    category: "expression",
-    icon: "chatbubble-ellipses",
-    color: "#26A69A",
+    key: "grammarPractice",
+    category: "grammarPractice",
+    icon: "barbell",
+    color: "#7E57C2",
     guided: false,
-    feature: "expression",
+    feature: "lesson",
   },
-  {
-    key: "speaking",
-    category: "speaking",
-    icon: "mic",
-    color: "#776EE2",
-    guided: false,
-    feature: "expression",
-  },
+  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC", guided: true, feature: "topik" },
   {
     // 로드가 짜주는 트랙이 아니라 언제든 들어갈 수 있다 → 두 모드 모두에서 보인다
     key: "conversation",
@@ -105,6 +93,27 @@ const CATEGORIES: Array<{
     guided: true,
     feature: "tutor",
   },
+  // 표현·말하기는 로드 모드에서 숨긴다.
+  // 둘 다 자기 순서(표현 로드맵 / 주제별 세션)를 스스로 관리한다. 로드가
+  // "오늘 할 일" 을 순서대로 깔아주는 화면에서 이것까지 보이면 오늘 분량이
+  // 두 갈래가 되어 로드가 의미를 잃는다 — 어휘·문법을 뺀 것과 같은 이유다.
+  // 자유 모드에서는 그대로 보인다.
+  {
+    key: "speaking",
+    category: "speaking",
+    icon: "mic",
+    color: "#776EE2",
+    guided: false,
+    feature: "expression",
+  },
+  {
+    key: "expression",
+    category: "expression",
+    icon: "chatbubble-ellipses",
+    color: "#26A69A",
+    guided: false,
+    feature: "expression",
+  },
   {
     key: "listening",
     category: "listening",
@@ -113,7 +122,6 @@ const CATEGORIES: Array<{
     guided: true,
     feature: "listening",
   },
-  { key: "topik", category: "topik", icon: "ribbon", color: "#AB47BC", guided: true, feature: "topik" },
   {
     key: "pronunciation",
     category: "pronunciation",
@@ -121,14 +129,6 @@ const CATEGORIES: Array<{
     color: "#FFA726",
     guided: true,
     feature: "pronunciation",
-  },
-  {
-    key: "grammarPractice",
-    category: "grammarPractice",
-    icon: "barbell",
-    color: "#7E57C2",
-    guided: false,
-    feature: "lesson",
   },
   {
     key: "games",
