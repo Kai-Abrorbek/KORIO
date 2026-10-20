@@ -9,7 +9,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { darken } from "@/utils/color";
@@ -46,7 +46,7 @@ export default function DayBanner({
   level,
   onLevelPress,
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
   const ratio = total > 0 ? Math.min(1, done / total) : 0;

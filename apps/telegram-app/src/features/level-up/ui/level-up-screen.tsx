@@ -4,6 +4,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { courseCopyKey } from "../../learning/model/course-copy";
+import { learnCourseOf } from "../../learning/model/learning-options";
 import { GeneratedAvatar, WearShapes } from "../../league/ui/generated-avatar";
 import { mergeAvatarConfig } from "../../../shared/model/avatar";
 import {
@@ -239,18 +241,21 @@ export function LevelUpScreen() {
   const pick = (field?: Record<string, string> | null) =>
     field ? (field[language] || field.en || field.uz || "") : "";
   const n = payload.to;
+  // 급수(level) 문구는 코스마다 다르다 — 영어는 "1급" 이 아니라 "1단계" (learning/model/course-copy)
+  const course = learnCourseOf(user?.learnCourse);
+  const levelKey = (key: string) => courseCopyKey(key, course);
   const chipKey =
     payload.via === "jump"
       ? "levelUp.introJump"
       : payload.kind === "level"
-        ? "levelUp.introLevel"
+        ? levelKey("levelUp.introLevel")
         : "levelUp.introSection";
   const kickerKey =
-    payload.kind === "level" ? "levelUp.kickerLevel" : payload.kind === "course" ? "levelUp.kickerCourse" : "levelUp.kickerSection";
+    payload.kind === "level" ? levelKey("levelUp.kickerLevel") : payload.kind === "course" ? "levelUp.kickerCourse" : "levelUp.kickerSection";
   const titleKey =
-    payload.kind === "level" ? "levelUp.titleLevel" : payload.kind === "course" ? "levelUp.titleCourse" : "levelUp.titleSection";
+    payload.kind === "level" ? levelKey("levelUp.titleLevel") : payload.kind === "course" ? "levelUp.titleCourse" : "levelUp.titleSection";
   const bodyKey =
-    payload.kind === "level" ? "levelUp.bodyLevel" : payload.kind === "course" ? "levelUp.bodyCourse" : "levelUp.bodySection";
+    payload.kind === "level" ? levelKey("levelUp.bodyLevel") : payload.kind === "course" ? "levelUp.bodyCourse" : "levelUp.bodySection";
   const serverTitle = payload.kind === "course" ? "" : pick(payload.title);
   const serverBody = payload.kind === "course" ? "" : pick(payload.description);
 

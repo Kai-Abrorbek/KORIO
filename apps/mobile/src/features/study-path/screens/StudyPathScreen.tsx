@@ -25,7 +25,8 @@ import {
   ROW_HEIGHT,
   UNIT_PADDING,
 } from "@/components/roadmap/roadmap.utils";
-import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
+import { useSettingsStore } from "@/store/settings.store";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { useAuthStore } from "@/store/auth.store";
@@ -56,6 +57,14 @@ export default function StudyPathScreen() {
   const energy = user?.energy ?? 0;
   const guardLessonStart = useEnergyStore((s) => s.guardLessonStart);
   const { data, loading, loadFailed, reload } = useStudyPath();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
+
+  // 이 코스에서 아직 급수를 안 골랐으면 고르는 화면부터 — 한국어 급수를 골랐어도
+  // 영어는 따로다. 로컬 hasPickedLevel(guidedEntryPath)은 마지막 getMe 코스의 값이라
+  // 코스를 막 바꾼 직후엔 틀릴 수 있어서, 서버가 준 그 코스의 값으로 한 번 더 거른다.
+  useEffect(() => {
+    if (data?.levelPicked === false) router.replace("/study-level");
+  }, [data?.levelPicked, router]);
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   // 아래쪽 노드를 눌러도 팝오버 버튼까지 보이게 올린다
   const { listWrapRef, onScroll, revealPopover, isAutoScrolling } =
@@ -96,7 +105,7 @@ export default function StudyPathScreen() {
     units[visibleDayIndex] ?? units[data?.currentDayIndex ?? 0];
 
   const userStats = {
-    language: KOR_FLAG,
+    language: LEARN_COURSES[learnCourse].flag,
     courseCount: (user?.courseExtraCount ?? 0) + 1,
     // 학습 로드 모드의 스코어. 자유 학습(로드맵) 스코어와 다른 값이다 —
     // 두 모드는 진도를 각각 다른 곳에 쌓는다.

@@ -39,7 +39,8 @@ export function CourseDropdown({
     if (!visible) return;
     let alive = true;
     const grammar = !!category && category !== "vocabulary";
-    const load = course === "ko" && studyMode === "guided" && !grammar ? getStudyPathScore(request) : getRoadmapScore(request, category);
+    // 학습 로드는 코스마다 같은 구조 — 영어도 그 코스의 로드 스코어
+    const load = studyMode === "guided" && !grammar ? getStudyPathScore(request) : getRoadmapScore(request, category);
     void load.then((value) => alive && setScore(value)).catch(() => undefined);
     return () => {
       alive = false;

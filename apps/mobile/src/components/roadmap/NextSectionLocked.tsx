@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 
@@ -25,7 +25,7 @@ export default function NextSectionLocked({
   badgeKey = "roadmap.nextSection",
   jumpKey = "roadmap.jumpHere",
 }: Props) {
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
 

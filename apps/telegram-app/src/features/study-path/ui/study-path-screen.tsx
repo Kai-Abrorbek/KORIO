@@ -8,6 +8,7 @@ import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 import { useRevealPopover } from "../../../shared/ui/use-reveal-popover";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useEnergyGuard, useEnergySync } from "../../energy/energy-gate";
+import { useCourseCopyKey } from "../../learning/model/course-copy";
 import { CourseDropdown } from "../../roadmap/ui/course-dropdown";
 import { AppIcon } from "../../roadmap/ui/map/icon";
 import { JumpToCurrent } from "../../roadmap/ui/map/jump-to-current";
@@ -31,6 +32,7 @@ export function StudyPathScreen() {
   const router = useRouter();
   const [courseOpen, setCourseOpen] = useState(false);
   const { request, updateUser, user } = useTelegramAuth();
+  const copyKey = useCourseCopyKey();
   const [data, setData] = useState<StudyPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -65,6 +67,13 @@ export function StudyPathScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // 이 코스에서 아직 급수를 안 골랐으면 고르는 화면부터 — 한국어 급수를 골랐어도 영어는
+  // 따로다. 로컬 hasPickedLevel 은 마지막 getMe 코스의 값이라 코스를 막 바꾼 직후엔
+  // 틀릴 수 있어서, 서버가 준 그 코스의 값으로 한 번 더 거른다 (앱 StudyPathScreen 과 같다)
+  useEffect(() => {
+    if (data?.levelPicked === false) router.replace("/study-level");
+  }, [data?.levelPicked, router]);
 
   const viewModel = useMemo(
     () => (data ? buildStudyPathViewModel(data.days, (data.pendingChests ?? 0) > 0) : null),
@@ -282,7 +291,7 @@ export function StudyPathScreen() {
             />
           ) : data?.nextLevel ? (
             <NextSectionLocked
-              badgeKey="studyPath.nextLevelBadge"
+              badgeKey={copyKey("studyPath.nextLevelBadge")}
               description={data.nextLevel.description}
               jumpKey="studyPath.nextLevelJump"
               // 다음 급으로 건너뛰기 = 지금 급 졸업 시험. 합격하면 서버가 다음 급으로 올린다

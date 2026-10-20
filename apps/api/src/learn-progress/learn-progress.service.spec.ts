@@ -168,11 +168,32 @@ describe('LearnProgressService', () => {
     ).resolves.toBeNull();
   });
 
-  it('영어 어휘 진도는 한국어 guided 상태와 무관하게 영어 로드맵으로 계산한다', async () => {
+  it('영어 학습 로드 진도는 영어 코스의 하루로 센다 (한국어 로드와 섞이지 않는다)', async () => {
     const { service, lessonsService, studyPathService } = build({
       ...ME,
       targetLanguage: 'english',
       studyMode: 'guided',
+    });
+    await expect(service.get(USER)).resolves.toMatchObject({
+      course: 'en',
+      mode: 'vocabulary',
+      scope: 'level',
+    });
+    expect(studyPathService.getStudyPath).toHaveBeenCalledWith(USER, 'uz', {
+      courseId: 'en-general',
+      targetLanguage: 'en',
+    });
+    expect(lessonsService.getRoadmap).not.toHaveBeenCalled();
+    await expect(
+      service.get(USER, { course: 'en', mode: 'topik' }),
+    ).resolves.toBeNull();
+  });
+
+  it('영어 자율 어휘 진도는 영어 로드맵 섹션으로 센다', async () => {
+    const { service, lessonsService, studyPathService } = build({
+      ...ME,
+      targetLanguage: 'english',
+      studyMode: 'free',
     });
     await expect(service.get(USER)).resolves.toMatchObject({
       course: 'en',
@@ -189,9 +210,6 @@ describe('LearnProgressService', () => {
       { courseId: 'en-general', targetLanguage: 'en' },
     );
     expect(studyPathService.getStudyPath).not.toHaveBeenCalled();
-    await expect(
-      service.get(USER, { course: 'en', mode: 'topik' }),
-    ).resolves.toBeNull();
   });
 
   it('언어와 코스 식별자가 충돌하면 다른 코스의 진도를 읽지 않는다', async () => {

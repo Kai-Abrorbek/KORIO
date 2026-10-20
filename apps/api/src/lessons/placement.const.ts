@@ -1,4 +1,5 @@
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
+import { DEFAULT_COURSE_ID } from '../common/learning-course';
 
 export const SECTIONS_PER_LEVEL = 2;
 export const MAX_PLACEMENT_LEVEL = 6; // 12섹션 / 2
@@ -172,3 +173,116 @@ export const PLACEMENT_LEVELS: PlacementLevelMeta[] = [
     },
   },
 ];
+
+/**
+ * 영어 코스의 급수 메타. 구조(급 하나 = 섹션 두 개, 6급)는 한국어와 같고
+ * 이름만 CEFR(A1~C2)에 맞췄다. 콘텐츠 유무는 똑같이 DB 노드로 판단한다.
+ */
+export const ENGLISH_PLACEMENT_LEVELS: PlacementLevelMeta[] = [
+  {
+    level: 1,
+    title: {
+      ko: '1단계 · A1 입문',
+      uz: '1-daraja · A1 Boshlang‘ich',
+      en: 'Level 1 · A1 Starter',
+      ru: 'Уровень 1 · A1 Начальный',
+    },
+    description: {
+      ko: '알파벳과 인사, 첫 단어부터. 영어가 처음이면 여기서 시작해요.',
+      uz: 'Alifbo, salomlashuv va ilk so‘zlardan. Ingliz tili yangi bo‘lsa shu yerdan.',
+      en: 'The alphabet, greetings and first words. Start here if English is new to you.',
+      ru: 'Алфавит, приветствия и первые слова. Начните здесь, если английский для вас новый.',
+    },
+  },
+  {
+    level: 2,
+    title: {
+      ko: '2단계 · A2 일상 영어',
+      uz: '2-daraja · A2 Kundalik ingliz tili',
+      en: 'Level 2 · A2 Everyday English',
+      ru: 'Уровень 2 · A2 Повседневный английский',
+    },
+    description: {
+      ko: '자기소개, 물건 사기, 약속 잡기. 기본 인사는 아는 분께.',
+      uz: 'O‘zini tanishtirish, xarid, uchrashuv. Oddiy salomlashuvni bilsangiz.',
+      en: 'Introductions, shopping, making plans. If basic greetings are already easy.',
+      ru: 'Знакомство, покупки, планы. Если базовые приветствия уже даются легко.',
+    },
+  },
+  {
+    level: 3,
+    title: {
+      ko: '3단계 · B1 생활 영어',
+      uz: '3-daraja · B1 Hayotiy ingliz tili',
+      en: 'Level 3 · B1 English for life',
+      ru: 'Уровень 3 · B1 Английский для жизни',
+    },
+    description: {
+      ko: '여행, 일, 생활 속 상황을 영어로 처리해요.',
+      uz: 'Sayohat, ish va kundalik vaziyatlarni inglizcha hal qilasiz.',
+      en: 'Handle travel, work and everyday situations in English.',
+      ru: 'Решайте ситуации в поездках, на работе и в быту по-английски.',
+    },
+  },
+  {
+    level: 4,
+    title: {
+      ko: '4단계 · B2 자신 있는 대화',
+      uz: '4-daraja · B2 Erkin suhbat',
+      en: 'Level 4 · B2 Confident talk',
+      ru: 'Уровень 4 · B2 Уверенное общение',
+    },
+    description: {
+      ko: '뉴스와 사회 이슈를 이야기하고 의견을 말해요.',
+      uz: 'Yangiliklar va ijtimoiy mavzularda fikr bildirasiz.',
+      en: 'Discuss news and social issues, and give your opinion.',
+      ru: 'Обсуждайте новости и общественные темы, выражайте мнение.',
+    },
+  },
+  {
+    level: 5,
+    title: {
+      ko: '5단계 · C1 고급',
+      uz: '5-daraja · C1 Yuqori daraja',
+      en: 'Level 5 · C1 Advanced',
+      ru: 'Уровень 5 · C1 Продвинутый',
+    },
+    description: {
+      ko: '복잡한 주제와 업무 영어를 다뤄요.',
+      uz: 'Murakkab mavzular va ish uchun ingliz tili bilan ishlaysiz.',
+      en: 'Work with complex topics and professional English.',
+      ru: 'Работайте со сложными темами и деловым английским.',
+    },
+  },
+  {
+    level: 6,
+    title: {
+      ko: '6단계 · C2 원어민 수준',
+      uz: '6-daraja · C2 Mukammal',
+      en: 'Level 6 · C2 Mastery',
+      ru: 'Уровень 6 · C2 Свободное владение',
+    },
+    description: {
+      ko: '관용 표현과 미묘한 뉘앙스까지. 원어민에 가깝게.',
+      uz: 'Idiomalar va nozik ma‘nolar — ona tilida so‘zlashuvchiga yaqin.',
+      en: 'Idioms and fine nuance — close to a native speaker.',
+      ru: 'Идиомы и тонкие оттенки — близко к носителю языка.',
+    },
+  },
+];
+
+/** 코스별 급수 메타. 모르는 코스는 한국어 표를 쓰지 않고 번호만 붙인 기본값 */
+export function placementLevelsFor(courseId: string): PlacementLevelMeta[] {
+  if (courseId === DEFAULT_COURSE_ID) return PLACEMENT_LEVELS;
+  if (courseId === 'en-general') return ENGLISH_PLACEMENT_LEVELS;
+  return PLACEMENT_LEVELS.map((meta) => ({
+    level: meta.level,
+    title: {
+      ko: `${meta.level}단계`,
+      uz: `${meta.level}-daraja`,
+      en: `Level ${meta.level}`,
+      ru: `Уровень ${meta.level}`,
+    },
+    description: { ko: '', uz: '', en: '', ru: '' },
+  }));
+}

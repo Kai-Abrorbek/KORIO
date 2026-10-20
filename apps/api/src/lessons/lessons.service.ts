@@ -1023,7 +1023,12 @@ export class LessonsService {
       .select('section')
       .lean();
     const to = next?.section ?? null;
-    return { track, from: node.section, to, meta: sectionUpMeta(to) };
+    return {
+      track,
+      from: node.section,
+      to,
+      meta: sectionUpMeta(to, resolveCourseScope(node)),
+    };
   }
 
   private async checkUnitCompleted(
@@ -2919,7 +2924,12 @@ export class LessonsService {
     );
     return from === null
       ? null
-      : { track, from, to: targetSection, meta: sectionUpMeta(targetSection) };
+      : {
+          track,
+          from,
+          to: targetSection,
+          meta: sectionUpMeta(targetSection, scope),
+        };
   }
 
   /** 실제 진도 반영. 합격이 확인된 뒤에만 불린다 */
@@ -3138,9 +3148,15 @@ export class LessonsService {
   }
 }
 
-/** 레벨업 연출에 띄울 새 섹션 제목·설명 (네 언어) */
-function sectionUpMeta(section: number | null): SectionUp['meta'] {
-  if (section === null) return null;
+/**
+ * 레벨업 연출에 띄울 새 섹션 제목·설명 (네 언어).
+ * 섹션 이름표(SECTIONS)는 한국어 코스 것이라 다른 코스는 null — 화면이 "N번째 섹션" 으로 그린다.
+ */
+function sectionUpMeta(
+  section: number | null,
+  scope: CourseScope,
+): SectionUp['meta'] {
+  if (section === null || scope.courseId !== DEFAULT_COURSE_ID) return null;
   const meta = getSectionMeta(section);
   return { title: meta.title, description: meta.description };
 }

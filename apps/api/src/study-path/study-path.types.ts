@@ -196,6 +196,10 @@ export interface StudyDay {
 }
 
 export interface StudyPathResponse {
+  /** 이 로드가 어느 코스(언어)인지 — 한국어 ko-general, 영어 en-general … */
+  courseId: string;
+  /** 이 코스에서 급수를 직접 골랐나. false 면 화면이 급수 고르기로 먼저 보낸다 */
+  levelPicked: boolean;
   /** 안 받은 상자 수 */
   pendingChests: number;
   /** 학습 로드 모드 스코어 = 완주한 '하루' 수. 자유 학습 스코어와 다른 값이다 */

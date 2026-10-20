@@ -66,7 +66,11 @@ export function CourseCategoriesScreen() {
   const categoriesByMode = useMemo(
     () => ({
       free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ["vocabulary", "wordCard"].includes(category.category)),
-      guided: LEARNING_CATEGORIES.filter((category) => isEnglish ? ["vocabulary", "wordCard"].includes(category.category) : category.guided),
+      // 영어도 같은 규칙 — 로드 모드에서는 로드가 덮는 어휘를 빼고 나머지만
+      guided: LEARNING_CATEGORIES.filter(
+        (category) =>
+          (!isEnglish || ["vocabulary", "wordCard"].includes(category.category)) && category.guided,
+      ),
     }),
     [isEnglish],
   );
@@ -96,9 +100,10 @@ export function CourseCategoriesScreen() {
     setSaving(true);
     setError(null);
     try {
-      const result = await saveLearnMode(request, "vocabulary", undefined, "ko");
-      updateUser({ ...result, learnMode: "vocabulary" });
-      router.push(guidedDestination(user?.hasPickedLevel));
+      // 학습 로드는 코스마다 같은 구조 — 그 코스의 어휘 트랙 위에 하루치가 깔린다
+      const result = await saveLearnMode(request, "vocabulary", undefined, course);
+      updateUser({ ...result, learnMode: "vocabulary", learnCourse: course });
+      router.push(guidedDestination(user?.hasPickedLevel, course));
     } catch {
       setError("Tanlovni saqlab bo'lmadi. Qayta urinib ko'ring.");
       setSaving(false);
@@ -175,7 +180,7 @@ export function CourseCategoriesScreen() {
         Bosqichingiz saqlanadi. Istagan payt qaytarib o&apos;zgartirasiz.
       </small>
 
-      {!isEnglish && mode === "guided" ? (
+      {mode === "guided" ? (
         <button
           className={styles.guidedCard}
           disabled={saving}

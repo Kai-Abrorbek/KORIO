@@ -2869,6 +2869,12 @@ export default {
     examBody: "{{prev}}급 졸업 시험(25문제)을 통과하면 바로 {{n}}급으로 넘어가요.",
     examStart: "시험 보기",
     examCancel: "나중에",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    subtitle_en: "지금 영어 수준에 맞게 골라주세요.\n윗 단계는 시험을 통과하면 열려요.",
+    hint_en: "잘 모르겠다면 1단계부터 시작하는 게 좋아요.",
+    examLock_en: "{{n}}단계 시험을 통과하면 열려요",
+    examTitle_en: "{{n}}단계로 가려면 시험이 필요해요",
+    examBody_en: "{{prev}}단계 졸업 시험(25문제)을 통과하면 바로 {{n}}단계로 넘어가요.",
   },
   levelExam: {
     cardTitle: "{{n}}급 졸업 시험",
@@ -2895,6 +2901,14 @@ export default {
       listening: "듣기",
       etc: "기타",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    cardTitle_en: "{{n}}단계 졸업 시험",
+    cardBody_en: "이 단계에서 배운 걸 25문제로 확인해요.",
+    passedTitle_en: "{{n}}단계 통과!",
+    passedBody_en: "여기까지 온 게 대단해요. 다음 단계로 가요.",
+    missedTitle_en: "{{n}}단계, 거의 다 왔어요",
+    missedBody_en: "다음 단계는 시험을 통과해야 열려요. 아래 부분만 한 번 더 보고 다시 도전해 봐요.",
+    nextOpen_en: "{{n}}단계가 열렸어요",
   },
   studyPath: {
     sectionStart: "섹션 {{n}} 시작",
@@ -2941,6 +2955,9 @@ export default {
       grammarQuiz: "오늘 문법을 문제로 확인해요.",
       final: "틀렸던 것부터 다시 보고 이 과를 마쳐요.",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    levelShort_en: "{{n}}단계",
+    nextLevelBadge_en: "다음 단계",
   },
   voiceTutor: {
     title: "AI 음성 튜터",
@@ -3342,5 +3359,10 @@ export default {
     bodyCourse: "새 섹션이 곧 열려요. 그동안 복습으로 실력을 다져요.",
     skip: "건너뛰기",
     continue: "계속하기",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    introLevel_en: "{{n}}단계 졸업 시험 통과!",
+    kickerLevel_en: "새 단계가 열렸어요",
+    titleLevel_en: "{{n}}단계",
+    bodyLevel_en: "한 단계 더 높은 영어가 기다리고 있어요.",
   },
 };

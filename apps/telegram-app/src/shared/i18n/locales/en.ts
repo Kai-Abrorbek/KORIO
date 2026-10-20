@@ -2875,6 +2875,12 @@ export default {
     examBody: "Pass the Level {{prev}} final test (25 questions) and you'll move straight to Level {{n}}.",
     examStart: "Take the test",
     examCancel: "Later",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    subtitle_en: "Pick what matches your English right now.\nHigher levels open when you pass a test.",
+    hint_en: "Not sure? Starting from Level 1 is a safe bet.",
+    examLock_en: "Pass the Level {{n}} test to unlock",
+    examTitle_en: "Level {{n}} needs a test",
+    examBody_en: "Pass the Level {{prev}} final test (25 questions) and you'll move straight to Level {{n}}.",
   },
   levelExam: {
     cardTitle: "Level {{n}} final exam",
@@ -2901,6 +2907,14 @@ export default {
       listening: "Listening",
       etc: "Other",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    cardTitle_en: "Level {{n}} final exam",
+    cardBody_en: "25 questions on everything from this level.",
+    passedTitle_en: "Level {{n}} passed!",
+    passedBody_en: "Getting here is no small thing. On to the next level.",
+    missedTitle_en: "Level {{n}} — so close",
+    missedBody_en: "The next level opens once you pass. Review these and give it another shot.",
+    nextOpen_en: "Level {{n}} is now open",
   },
   studyPath: {
     sectionStart: "Section {{n}} begins",
@@ -2947,6 +2961,9 @@ export default {
       grammarQuiz: "Put today's grammar into questions.",
       final: "Revisit what you missed and finish this unit.",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    levelShort_en: "Lv.{{n}}",
+    nextLevelBadge_en: "Next level",
   },
   voiceTutor: {
     title: "AI voice tutor",
@@ -3348,5 +3365,10 @@ export default {
     bodyCourse: "New sections are coming soon. Keep your skills sharp with review.",
     skip: "Skip",
     continue: "Continue",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    introLevel_en: "Level {{n}} exam passed!",
+    kickerLevel_en: "New level unlocked",
+    titleLevel_en: "Level {{n}}",
+    bodyLevel_en: "A higher level of English is waiting for you.",
   },
 };

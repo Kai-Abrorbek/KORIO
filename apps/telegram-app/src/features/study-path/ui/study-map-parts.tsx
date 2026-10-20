@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { uzt } from "../../../shared/i18n/uz-text";
 import type { IoniconName } from "../../../shared/ui/mobile-icon";
 import { darken } from "../../roadmap/ui/map/color";
+import { useCourseCopyKey } from "../../learning/model/course-copy";
 import { AppIcon } from "../../roadmap/ui/map/icon";
 import type { StudyDay, StudyNode } from "../model/study-path";
 import { STUDY_NODE_ICON } from "../model/study-path-view";
@@ -24,6 +25,7 @@ export function DayBanner({
   /** 급수 목록 열기 (위 급은 시험 통과로만 간다) */
   onLevelPress: () => void;
 }) {
+  const copyKey = useCourseCopyKey();
   const done = day.nodes.filter((node) => node.done).length;
   const total = day.nodes.length;
   const complete = total > 0 && done >= total;
@@ -64,7 +66,9 @@ export function DayBanner({
           onClick={onLevelPress}
           type="button"
         >
-          <span data-i18n="studyPath.levelShort">{uzt("studyPath.levelShort", { n: level })}</span>
+          <span data-i18n={copyKey("studyPath.levelShort")}>
+            {uzt(copyKey("studyPath.levelShort"), { n: level })}
+          </span>
           <AppIcon name="swap-vertical" size={13} />
         </button>
       </div>
@@ -181,6 +185,7 @@ export function StudyNodePopover({
 
 /** 그 급을 다 끝냈을 때 나오는 졸업 시험 카드 (앱 LevelExamCard) */
 export function LevelExamCard({ level, onPress, passed }: { level: number; onPress: () => void; passed: boolean }) {
+  const copyKey = useCourseCopyKey();
   const color = passed ? "#1D9E75" : "#E2A83A";
   const style = {
     "--exam": color,
@@ -197,8 +202,14 @@ export function LevelExamCard({ level, onPress, passed }: { level: number; onPre
           <AppIcon name={passed ? "ribbon" : "school"} size={26} />
         </span>
         <span className={styles.examTexts}>
-          <strong>{uzt("levelExam.cardTitle", { n: level })}</strong>
-          <small>{uzt(passed ? "levelExam.cardDone" : "levelExam.cardBody")}</small>
+          <strong data-i18n={copyKey("levelExam.cardTitle")}>
+            {uzt(copyKey("levelExam.cardTitle"), { n: level })}
+          </strong>
+          {passed ? (
+            <small>{uzt("levelExam.cardDone")}</small>
+          ) : (
+            <small data-i18n={copyKey("levelExam.cardBody")}>{uzt(copyKey("levelExam.cardBody"))}</small>
+          )}
         </span>
         <AppIcon name="chevron-forward" size={20} />
       </span>

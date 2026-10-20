@@ -83,9 +83,9 @@ export function learnModePath(
   /** 글자 학습처럼 코스마다 같은 화면을 다른 언어로 여는 모드가 있다 */
   course: LearnCourse = "ko",
 ): Href {
-  // 학습 로드 모드는 어휘 트랙 위에서만 하루치를 짜준다.
+  // 학습 로드 모드는 어휘 트랙 위에서만 하루치를 짜준다 (코스마다 같은 구조).
   // 문법·표현·토픽은 각자 전용 흐름이 있어 그대로 둔다.
-  if (course === "ko" && studyMode === "guided" && mode === "vocabulary") return "/study-path";
+  if (studyMode === "guided" && mode === "vocabulary") return "/study-path";
 
   switch (mode) {
     // 전용 메인 페이지가 있는 모드

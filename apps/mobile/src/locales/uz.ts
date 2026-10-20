@@ -2835,6 +2835,8 @@ export default {
     examBody: "{{prev}}-daraja bitiruv imtihonidan (25 savol) o'tsangiz, darhol {{n}}-darajaga o'tasiz.",
     examStart: "Imtihonni boshlash",
     examCancel: "Keyinroq",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    subtitle_en: "Hozirgi ingliz tili darajangizga mos keladiganini tanlang.\nYuqori darajalar imtihondan o'tsangiz ochiladi.",
   },
   levelExam: {
     cardTitle: "{{n}}-daraja bitiruv imtihoni",
@@ -3301,5 +3303,7 @@ export default {
     bodyCourse: "Yangi bo'limlar tez orada ochiladi. Hozircha takrorlab mustahkamlang.",
     skip: "O'tkazib yuborish",
     continue: "Davom etish",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    bodyLevel_en: "Sizni yanada yuqori bosqichdagi ingliz tili kutmoqda.",
   },
 };

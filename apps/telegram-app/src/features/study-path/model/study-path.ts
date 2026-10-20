@@ -35,6 +35,10 @@ export interface StudyDay {
 }
 
 export interface StudyPathResponse {
+  /** 어느 코스(언어)의 로드인지 — ko-general, en-general … (옛 서버는 안 준다) */
+  courseId?: string;
+  /** 이 코스에서 급수를 직접 골랐나. false 면 급수 고르기부터 (옛 서버는 안 준다) */
+  levelPicked?: boolean;
   currentDayIndex: number;
   currentLevel: number;
   currentSection: number;

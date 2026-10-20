@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { HomeIcon } from "../../home/ui/home-icon";
+import { useCourseCopyKey } from "../../learning/model/course-copy";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { LearningIcon } from "../../learning/ui/learning-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { getStudyLevels, setStudyLevel } from "../api/study-path";
@@ -24,6 +26,8 @@ export function StudyLevelScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { request, updateUser } = useTelegramAuth();
+  // 영어 코스는 "koreys tili"·"1급" 대신 영어용 문구 (learning/model/course-copy)
+  const copyKey = useCourseCopyKey();
   const [levels, setLevels] = useState<StudyLevel[]>([]);
   const [current, setCurrent] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -118,10 +122,8 @@ export function StudyLevelScreen() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="" src="/characters/hangulmon_default.png" />
             <h1>Qayerdan boshlaymiz?</h1>
-            <p>
-              Hozirgi koreys tili darajangizga mos keladiganini tanlang.
-              <br />
-              Yuqori darajalar imtihondan o&apos;tsangiz ochiladi.
+            <p data-i18n={copyKey("studyLevel.subtitle")} style={{ whiteSpace: "pre-line" }}>
+              {uzt(copyKey("studyLevel.subtitle"))}
             </p>
           </section>
 
@@ -163,7 +165,9 @@ export function StudyLevelScreen() {
                       <strong>{level.title}</strong>
                       <span className={styles.levelExamPill}>
                         <MobileIcon name="ribbon" size={12} />
-                        <span>{`${examLevel}-daraja imtihonidan o'tsangiz ochiladi`}</span>
+                        <span data-i18n={copyKey("studyLevel.examLock")}>
+                          {uzt(copyKey("studyLevel.examLock"), { n: examLevel })}
+                        </span>
                       </span>
                     </span>
                     <span className={styles.levelAction}>
@@ -206,8 +210,8 @@ export function StudyLevelScreen() {
           </section>
 
           {error ? <p className={styles.inlineError}>{error}</p> : null}
-          <p className={styles.levelHint}>
-            Ikkilanayotgan bo&apos;lsangiz, 1-darajadan boshlang.
+          <p className={styles.levelHint} data-i18n={copyKey("studyLevel.hint")}>
+            {uzt(copyKey("studyLevel.hint"))}
           </p>
         </div>
       )}
@@ -228,9 +232,14 @@ export function StudyLevelScreen() {
             <span className={styles.examSheetIcon}>
               <MobileIcon name="ribbon" size={34} />
             </span>
-            <h2>{`${examTarget.level.level}-darajaga o'tish uchun imtihon kerak`}</h2>
-            <p>
-              {`${examTarget.level.examLevel ?? examTarget.level.level - 1}-daraja bitiruv imtihonidan (25 savol) o'tsangiz, darhol ${examTarget.level.level}-darajaga o'tasiz.`}
+            <h2 data-i18n={copyKey("studyLevel.examTitle")}>
+              {uzt(copyKey("studyLevel.examTitle"), { n: examTarget.level.level })}
+            </h2>
+            <p data-i18n={copyKey("studyLevel.examBody")}>
+              {uzt(copyKey("studyLevel.examBody"), {
+                n: examTarget.level.level,
+                prev: examTarget.level.examLevel ?? examTarget.level.level - 1,
+              })}
             </p>
             <button className={styles.examSheetCta} onClick={startExam} type="button">
               Imtihonni boshlash

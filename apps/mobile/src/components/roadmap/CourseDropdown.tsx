@@ -78,10 +78,10 @@ export default function CourseDropdown({ visible, onClose, category }: Props) {
     if (!visible) return;
     let alive = true;
     // 문법 로드맵에서 열면 문법 트랙으로 센다 — 안 그러면 헤더는 문법 스코어인데
-    // 드롭다운은 어휘 스코어라 숫자가 서로 다르다. 학습 로드는 어휘 전용
+    // 드롭다운은 어휘 스코어라 숫자가 서로 다르다. 학습 로드는 어휘 전용 (코스마다 같은 구조)
     const grammar = !!category && category !== "vocabulary";
     const load =
-      course === "ko" && studyMode === "guided" && !grammar
+      studyMode === "guided" && !grammar
         ? StudyPathService.getScore()
         : LessonService.getScore(grammar ? category : undefined);
     load

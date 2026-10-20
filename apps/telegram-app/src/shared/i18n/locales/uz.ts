@@ -2885,6 +2885,12 @@ export default {
     examBody: "{{prev}}-daraja bitiruv imtihonidan (25 savol) o'tsangiz, darhol {{n}}-darajaga o'tasiz.",
     examStart: "Imtihonni boshlash",
     examCancel: "Keyinroq",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    subtitle_en: "Hozirgi ingliz tili darajangizga mos keladiganini tanlang.\nYuqori darajalar imtihondan o'tsangiz ochiladi.",
+    hint_en: "Ikkilanayotgan bo'lsangiz, 1-darajadan boshlang.",
+    examLock_en: "{{n}}-daraja imtihonidan o'tsangiz ochiladi",
+    examTitle_en: "{{n}}-darajaga o'tish uchun imtihon kerak",
+    examBody_en: "{{prev}}-daraja bitiruv imtihonidan (25 savol) o'tsangiz, darhol {{n}}-darajaga o'tasiz.",
   },
   levelExam: {
     cardTitle: "{{n}}-daraja bitiruv imtihoni",
@@ -2911,6 +2917,14 @@ export default {
       listening: "Tinglash",
       etc: "Boshqa",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    cardTitle_en: "{{n}}-daraja bitiruv imtihoni",
+    cardBody_en: "Shu darajada o'rganganingizni 25 ta savolda sinaymiz.",
+    passedTitle_en: "{{n}}-daraja o'tildi!",
+    passedBody_en: "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz.",
+    missedTitle_en: "{{n}}-daraja, ozgina qoldi",
+    missedBody_en: "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring.",
+    nextOpen_en: "{{n}}-daraja ochildi",
   },
   studyPath: {
     sectionStart: "{{n}}-bo'lim boshlandi",
@@ -2957,6 +2971,9 @@ export default {
       grammarQuiz: "Bugungi grammatikani mashqda sinang.",
       final: "Xatolaringizni ko'rib, bu darsni yakunlang.",
     },
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    levelShort_en: "{{n}}-daraja",
+    nextLevelBadge_en: "Keyingi daraja",
   },
   voiceTutor: {
     title: "Ovozli AI ustoz",
@@ -3358,5 +3375,10 @@ export default {
     bodyCourse: "Yangi bo'limlar tez orada ochiladi. Hozircha takrorlab mustahkamlang.",
     skip: "O'tkazib yuborish",
     continue: "Davom etish",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    introLevel_en: "{{n}}-daraja imtihoni topshirildi!",
+    kickerLevel_en: "Yangi daraja ochildi",
+    titleLevel_en: "{{n}}-daraja",
+    bodyLevel_en: "Sizni yanada yuqori bosqichdagi ingliz tili kutmoqda.",
   },
 };

@@ -115,19 +115,11 @@ export default function CoursesScreen() {
     if (!target) return;
     commitStudyMode(mode);
 
-    // 영어는 어휘·글자 코스를 고른다. 한국어 전용 학습 로드는 아직 쓰지 않는다.
-    if (target.code === "en") {
-      router.push({
-        pathname: "/course-categories",
-        params: { lang: target.code, label: target.label },
-      });
-      return;
-    }
-
     // 학습 로드는 오늘 뭘 할지까지 정해주는 모드다. 여기서 다시 분야를
     // 고르라고 하면 그 약속이 깨지므로 바로 하루치 로드맵으로 보낸다.
+    // 영어도 같은 구조다 — 그 코스의 어휘 트랙 위에 하루치가 깔린다.
     if (mode === "guided") {
-      commitLearnMode("vocabulary", undefined, "ko");
+      commitLearnMode("vocabulary", undefined, target.code === "en" ? "en" : "ko");
       // 어디서부터 배울지 먼저 고른다. 예전엔 온보딩 테스트만이 급수를
       // 정했고 건너뛰면 무조건 1급에 묶였다.
       // 이미 고른 적이 있으면 다시 묻지 않고 이어서 간다.

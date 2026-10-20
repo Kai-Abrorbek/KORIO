@@ -14,7 +14,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { FadeInDown } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import * as Haptics from "expo-haptics";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
 import type { ThemeColors } from "@/constants/theme";
@@ -41,7 +41,7 @@ const LEVEL_COLORS = [
  * 다시 온다.
  */
 export default function StudyLevelScreen() {
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();

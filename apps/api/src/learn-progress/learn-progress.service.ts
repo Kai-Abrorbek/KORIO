@@ -116,8 +116,13 @@ export class LearnProgressService {
       topik: (ctx) => this.topikExams(ctx),
       // conversation: AI 튜터와의 대화는 끝이 있는 콘텐츠가 아니라 셀 진도가 없다
     },
-    // English vocabulary uses its own free roadmap, never the Korean guided planner.
-    en: { vocabulary: (ctx) => this.roadmapSection(ctx) },
+    // 영어도 같은 구조 — 학습 로드는 영어 코스의 하루, 자율은 영어 로드맵 섹션
+    en: {
+      vocabulary: (ctx) =>
+        ctx.studyMode === 'guided'
+          ? this.studyLevel(ctx)
+          : this.roadmapSection(ctx),
+    },
   };
 
   constructor(
@@ -215,7 +220,11 @@ export class LearnProgressService {
 
   /** 학습 로드 — 지금 급의 하루 (1과 = 이틀). 학습 로드 화면의 스코어와 같은 숫자다 */
   private async studyLevel(ctx: Ctx) {
-    const path = await this.studyPathService.getStudyPath(ctx.userId, ctx.lang);
+    const path = await this.studyPathService.getStudyPath(
+      ctx.userId,
+      ctx.lang,
+      ctx.courseScope,
+    );
     const days = path.days ?? [];
     const done = days.filter((day) => day.status === 'completed').length;
     return measure('level', path.currentLevel ?? 1, 'day', done, days.length);

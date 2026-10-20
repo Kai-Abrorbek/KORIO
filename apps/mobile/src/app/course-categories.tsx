@@ -421,17 +421,12 @@ export default function CourseCategories() {
   const renderMode = (mode: StudyMode) => (
     <View>
       <Text style={s.modeNote}>
-        {t(
-          isEnglish
-            ? "alphabet.courseIntro"
-            : mode === "guided"
-              ? "courses.modeGuidedNote"
-              : "courses.modeFreeNote",
-        )}
+        {t(mode === "guided" ? "courses.modeGuidedNote" : "courses.modeFreeNote")}
       </Text>
-      {!isEnglish && <Text style={s.modeHint}>{t("courses.modeHint")}</Text>}
+      <Text style={s.modeHint}>{t("courses.modeHint")}</Text>
 
-      {!isEnglish && mode === "guided" && (
+      {/* 학습 로드는 코스마다 같은 구조 — 그 코스의 어휘 트랙 위에 하루치가 깔린다 */}
+      {mode === "guided" && (
         <GuidedEntry
           s={s}
           t={t}
@@ -439,7 +434,7 @@ export default function CourseCategories() {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             // 학습 로드는 어휘 트랙 위에 깔린다. 모드와 트랙을 같이 맞춰야
             // 홈의 "이어서 학습하기" 도 여기로 온다.
-            commitLearnMode("vocabulary", undefined, "ko");
+            commitLearnMode("vocabulary", undefined, isEnglish ? "en" : "ko");
             // 급수를 아직 안 골랐으면 그것부터. 골랐으면 바로 이어서 간다.
             router.push(guidedEntryPath());
           }}
@@ -448,8 +443,11 @@ export default function CourseCategories() {
 
       <Text style={s.lead}>{t("courses.chooseCategory")}</Text>
       <View style={s.grid}>
-        {CATEGORIES.filter((c) =>
-          isEnglish ? ["hangul", "vocabulary", "wordCard"].includes(c.category) : mode === "free" || c.guided,
+        {CATEGORIES.filter(
+          (c) =>
+            // 영어는 글자·어휘·단어카드만 있다. 로드 모드에서는 로드가 덮는 어휘를 뺀다 (한국어와 같은 규칙)
+            (!isEnglish || ["hangul", "vocabulary", "wordCard"].includes(c.category)) &&
+            (mode === "free" || c.guided),
         ).map((c, i) => (
           <CategoryCard
             key={c.key}

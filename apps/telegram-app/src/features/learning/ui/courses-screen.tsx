@@ -62,15 +62,16 @@ export function CoursesScreen() {
       await saveStudyMode(request, studyMode);
       updateUser({ studyMode });
 
-      if (selectedCourse.code === "ko" && studyMode === "guided") {
-        const learned = await saveLearnMode(request, "vocabulary", undefined, "ko");
-        updateUser({ ...learned, learnMode: "vocabulary" });
+      const course = learnCourseOf(selectedCourse.code);
+      // 학습 로드는 영어도 한국어와 같은 구조 — 바로 하루치 로드로
+      if (studyMode === "guided") {
+        const learned = await saveLearnMode(request, "vocabulary", undefined, course);
+        updateUser({ ...learned, learnMode: "vocabulary", learnCourse: course });
         setPending(null);
-        router.push(guidedDestination(user?.hasPickedLevel));
+        router.push(guidedDestination(user?.hasPickedLevel, course));
         return;
       }
 
-      const course = learnCourseOf(selectedCourse.code);
       const learned = await saveLearnMode(request, "vocabulary", undefined, course);
       updateUser({ ...learned, learnMode: "vocabulary", learnCourse: course });
 

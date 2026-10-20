@@ -2,10 +2,12 @@ import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { StudyPathService } from "@/services/study-path.service";
 import type { StudyPathResponse } from "@/types/study-path";
-import { useContentLang } from "@/store/settings.store";
+import { useContentLang, useSettingsStore } from "@/store/settings.store";
 
 export function useStudyPath() {
   const contentLang = useContentLang();
+  // 요청은 지금 코스로 나간다 (services/api.ts). 코스가 바뀌면 다시 받는다
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
   const [data, setData] = useState<StudyPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -28,7 +30,7 @@ export function useStudyPath() {
   useFocusEffect(
     useCallback(() => {
       void load();
-    }, [contentLang, load]),
+    }, [contentLang, learnCourse, load]),
   );
 
   return { data, loading, loadFailed, reload: load };

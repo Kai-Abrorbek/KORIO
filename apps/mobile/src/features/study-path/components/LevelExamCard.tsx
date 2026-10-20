@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { darken } from "@/utils/color";
@@ -19,7 +19,7 @@ interface Props {
  * 떨어져도 다음 급은 열리므로 관문이 아니라 매듭에 가깝다.
  */
 export default function LevelExamCard({ level, passed, onPress }: Props) {
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
   const color = passed ? "#1D9E75" : "#E2A83A";

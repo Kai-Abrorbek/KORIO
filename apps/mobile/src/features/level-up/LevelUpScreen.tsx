@@ -12,7 +12,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useAudioPlayer, type AudioPlayer } from "expo-audio";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import Animated, {
   Easing,
   cancelAnimation,
@@ -175,7 +175,7 @@ function useCinemaAudio() {
 
 export default function LevelUpScreen() {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const insets = useSafeAreaInsets();
   const language = useSettingsStore((s) => s.language);
   const user = useAuthStore((s) => s.user);

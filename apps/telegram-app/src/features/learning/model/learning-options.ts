@@ -281,7 +281,16 @@ export function learningDestination(
   return destinations[category] ?? null;
 }
 
-export function guidedDestination(hasPickedLevel?: boolean): string {
+/**
+ * 학습 로드의 목적지. 급수를 아직 안 골랐으면 고르는 화면부터.
+ * 로컬 hasPickedLevel 은 마지막 getMe 코스의 값이라, 다른 코스로 막 바꾼 거면 믿지 않고
+ * 로드로 보낸다 — 서버가 그 코스의 levelPicked 를 주고 화면이 급수 고르기로 넘긴다.
+ */
+export function guidedDestination(
+  hasPickedLevel?: boolean,
+  course: LearnCourse = "ko",
+): string {
+  if (course !== "ko") return "/study-path";
   return hasPickedLevel ? "/study-path" : "/study-level";
 }
 
@@ -293,12 +302,9 @@ export function continueLearningDestination(user: {
   topikLevel?: "1" | "2";
 }): string {
   if (!user.learnMode) return "/courses";
-  if (
-    user.learnCourse !== "en" &&
-    user.studyMode === "guided" &&
-    user.learnMode === "vocabulary"
-  ) {
-    return guidedDestination(user.hasPickedLevel);
+  // 학습 로드는 코스마다 같은 구조 (영어도 그 코스의 하루치)
+  if (user.studyMode === "guided" && user.learnMode === "vocabulary") {
+    return guidedDestination(user.hasPickedLevel, learnCourseOf(user.learnCourse));
   }
   return (
     learningDestination(user.learnMode, user.topikLevel ?? "1") ??

@@ -14,21 +14,27 @@ import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
 import { CompleteLevelExamDto } from './dto/complete-level-exam.dto';
 import {
   MAX_PLACEMENT_LEVEL,
-  PLACEMENT_LEVELS,
   clampLevel,
+  placementLevelsFor,
   sectionRangeForLevel,
 } from '../lessons/placement.const';
 import { buildMilestones, calcScore } from '../lessons/score.util';
-import { getSectionMeta, pickSectionText } from '../lessons/section.const';
+import {
+  getCourseSectionMeta,
+  pickSectionText,
+} from '../lessons/section.const';
 import { ChestService } from '../lessons/chest.service';
 import { WordsService } from '../words/words.service';
 import { Grammar, GrammarDocument } from '../grammer/schemas/grammar.schema';
 import { LessonNode, LessonNodeDocument } from '../lessons/schemas/node.schema';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import {
+  type CourseProgress,
   type CourseScope,
   DEFAULT_COURSE_ID,
   courseContentFilter,
+  courseProgressPath,
+  getCourseProgress,
   resolveCourseScope,
 } from '../common/learning-course';
 import {
@@ -52,6 +58,13 @@ interface UnitWordSummary {
   words: number;
   new: number;
 }
+
+/**
+ * 코스별 진도를 읽을 때 같이 고르는 필드. 한국어는 옛 최상위 필드,
+ * 다른 코스는 courseProgress.<courseId> 에 있다 (common/learning-course).
+ */
+const PROGRESS_FIELDS =
+  'completedGrammar completedStudyNodes placementLevel placementLevelSetAt studyLevelUnlocked completedLevelExams courseProgress';
 
 @Injectable()
 export class StudyPathService {
@@ -93,6 +106,8 @@ export class StudyPathService {
       lang,
       undefined,
       true,
+      undefined,
+      scope,
     );
     const units: any[] = roadmap.units ?? [];
     const section: number = roadmap.currentSection ?? 1;
@@ -101,30 +116,31 @@ export class StudyPathService {
       ...new Set(units.map((u: any) => u.sectionNumber as number)),
     ].sort((a, b) => a - b);
 
+    const isDefaultCourse = scope.courseId === DEFAULT_COURSE_ID;
     const [me, grammarRows, wordSummaries, unitsBefore] = await Promise.all([
-      this.userModel
-        .findById(userId)
-        .select(
-          'completedGrammar completedStudyNodes placementLevel completedLevelExams',
-        )
-        .lean(),
-      this.grammarModel
-        .find({ isActive: true, section: { $in: sections } })
-        .select('code section unit')
-        .lean(),
-      Promise.all(sections.map((s) => this.safeWordSummary(userId, s))),
-      this.countUnitsBeforeSection(sections[0] ?? section),
+      this.userModel.findById(userId).select(PROGRESS_FIELDS).lean(),
+      // 문법 시드는 한국어 코스에만 있다. 다른 코스에 한국어 문법 노드가 끼면
+      // 그날이 엉뚱한 내용으로 막힌다 — 노드는 "다룰 게 없으면 안 세운다"
+      isDefaultCourse
+        ? this.grammarModel
+            .find({ isActive: true, section: { $in: sections } })
+            .select('code section unit')
+            .lean()
+        : Promise.resolve([]),
+      Promise.all(sections.map((s) => this.safeWordSummary(userId, s, scope))),
+      this.countUnitsBeforeSection(sections[0] ?? section, scope),
     ]);
+    const progress = this.progressOf(me, scope);
 
     const questionCounts = new Map<string, number>();
     for (const s of sections) {
-      const counts = await this.lessonsService.countSectionQuestions(s);
+      const counts = await this.lessonsService.countSectionQuestions(s, scope);
       for (const [key, value] of counts)
         questionCounts.set(`${s}:${key}`, value);
     }
 
-    const doneGrammar = new Set<string>(me?.completedGrammar ?? []);
-    const doneNodes = new Set<string>(me?.completedStudyNodes ?? []);
+    const doneGrammar = new Set<string>(progress.completedGrammar ?? []);
+    const doneNodes = new Set<string>(progress.completedStudyNodes ?? []);
 
     const grammarByUnit = new Map<string, string[]>();
     for (const row of grammarRows as any[]) {
@@ -177,12 +193,16 @@ export class StudyPathService {
 
     const currentDayIndex = this.applyStatuses(days);
 
-    const level = clampLevel(me?.placementLevel ?? 1);
+    const level = clampLevel(progress.placementLevel ?? 1);
     // 그 급을 전부 끝내야 졸업 시험이 열린다
     const allDone =
       days.length > 0 && days.every((d) => d.status === 'completed');
 
     return {
+      courseId: scope.courseId,
+      // 이 코스에서 급수를 직접 골랐나. 코스를 바꿔 처음 들어오면 false 라
+      // 화면이 급수 고르기로 먼저 보낸다 (한국어 급수를 골랐어도 영어는 따로)
+      levelPicked: !!progress.placementLevelSetAt,
       currentSection: section,
       currentLevel: level,
       currentDayIndex,
@@ -194,9 +214,9 @@ export class StudyPathService {
       days,
       levelExam: {
         available: allDone,
-        passed: (me?.completedLevelExams ?? []).includes(level),
+        passed: (progress.completedLevelExams ?? []).includes(level),
       },
-      nextLevel: await this.nextLevelInfo(level, lang),
+      nextLevel: await this.nextLevelInfo(level, lang, scope),
     };
   }
 
@@ -218,7 +238,7 @@ export class StudyPathService {
     scope: CourseScope = resolveCourseScope(),
   ) {
     this.assertCourseAvailable(scope);
-    const path = await this.getStudyPath(userId, lang);
+    const path = await this.getStudyPath(userId, lang, scope);
     const days = path.days ?? [];
 
     const completedDays = path.score;
@@ -236,7 +256,10 @@ export class StudyPathService {
       [...daysPerSection.entries()].map(([section, count]) => ({
         section,
         units: count,
-        title: pickSectionText(getSectionMeta(section).title, lang),
+        title: pickSectionText(
+          getCourseSectionMeta(section, scope.courseId).title,
+          lang,
+        ),
       })),
     );
 
@@ -247,14 +270,16 @@ export class StudyPathService {
    * 이 급을 다 끝냈을 때 안내할 다음 급. 콘텐츠가 없으면 null 이라 화면이
    * 아무것도 띄우지 않는다 — 없는 걸 예고하면 기다리게만 만든다.
    */
-  private async nextLevelInfo(level: number, lang: string) {
+  private async nextLevelInfo(level: number, lang: string, scope: CourseScope) {
     const next = level + 1;
-    const meta = PLACEMENT_LEVELS.find((m) => m.level === next);
+    const meta = placementLevelsFor(scope.courseId).find(
+      (m) => m.level === next,
+    );
     if (!meta) return null;
 
     const [start, end] = sectionRangeForLevel(next);
     const ready = await this.nodeModel.exists({
-      ...courseContentFilter(resolveCourseScope()),
+      ...courseContentFilter(scope),
       isActive: true,
       section: { $in: [start, end] },
     });
@@ -280,10 +305,7 @@ export class StudyPathService {
   ) {
     this.assertCourseAvailable(scope);
     const [me, sections] = await Promise.all([
-      this.userModel
-        .findById(userId)
-        .select('placementLevel studyLevelUnlocked completedLevelExams')
-        .lean(),
+      this.userModel.findById(userId).select(PROGRESS_FIELDS).lean(),
       this.nodeModel.distinct('section', {
         isActive: true,
         ...courseContentFilter(scope),
@@ -291,10 +313,11 @@ export class StudyPathService {
     ]);
 
     const ready = new Set<number>((sections as number[]) ?? []);
-    const current = me?.placementLevel ?? 1;
-    const unlocked = this.unlockedLevel(me);
+    const progress = this.progressOf(me, scope);
+    const current = progress.placementLevel ?? 1;
+    const unlocked = this.unlockedLevel(progress);
 
-    const levels = PLACEMENT_LEVELS.map((meta) => {
+    const levels = placementLevelsFor(scope.courseId).map((meta) => {
       const [start, end] = sectionRangeForLevel(meta.level);
       // 그 급이 맡은 두 섹션 중 하나라도 있으면 시작할 수 있다
       const available = ready.has(start) || ready.has(end);
@@ -321,19 +344,24 @@ export class StudyPathService {
    * 통과한 졸업 시험 다음 급 중 가장 큰 값. 옛 유저는 저장 값이 없어도 지금
    * 급까지는 그대로 열려 있다 (진도를 빼앗지 않는다).
    */
-  private unlockedLevel(me: any): number {
-    const passedTop = Math.max(
-      0,
-      ...((me?.completedLevelExams ?? []) as number[]),
-    );
+  private unlockedLevel(progress: CourseProgress): number {
+    const passedTop = Math.max(0, ...(progress.completedLevelExams ?? []));
     return Math.min(
       MAX_PLACEMENT_LEVEL,
       Math.max(
         1,
-        me?.studyLevelUnlocked ?? 0,
-        me?.placementLevel ?? 1,
+        progress.studyLevelUnlocked ?? 0,
+        progress.placementLevel ?? 1,
         passedTop + 1,
       ),
+    );
+  }
+
+  /** 이 코스의 진도 (한국어는 최상위 필드, 그 외는 courseProgress.<courseId>) */
+  private progressOf(me: unknown, scope: CourseScope): CourseProgress {
+    return getCourseProgress(
+      me as Parameters<typeof getCourseProgress>[0],
+      scope,
     );
   }
 
@@ -362,9 +390,9 @@ export class StudyPathService {
     // 아래로 내려가는 건 자유 — 열린 최고 급은 그대로 기억해 둔다.
     const me = await this.userModel
       .findById(userId)
-      .select('placementLevel studyLevelUnlocked completedLevelExams')
+      .select(PROGRESS_FIELDS)
       .lean();
-    const unlocked = this.unlockedLevel(me);
+    const unlocked = this.unlockedLevel(this.progressOf(me, scope));
     if (target > unlocked) {
       throw new ForbiddenException('LEVEL_EXAM_REQUIRED');
     }
@@ -373,9 +401,9 @@ export class StudyPathService {
       { _id: userId },
       {
         $set: {
-          placementLevel: target,
-          placementLevelSetAt: new Date(),
-          studyLevelUnlocked: unlocked,
+          [courseProgressPath(scope, 'placementLevel')]: target,
+          [courseProgressPath(scope, 'placementLevelSetAt')]: new Date(),
+          [courseProgressPath(scope, 'studyLevelUnlocked')]: unlocked,
         },
       },
     );
@@ -392,16 +420,19 @@ export class StudyPathService {
     this.assertCourseAvailable(scope);
     const me = await this.userModel
       .findById(userId)
-      .select('placementLevel')
+      .select(PROGRESS_FIELDS)
       .lean();
     // 급수 화면에서 잠긴 급을 열려고 보면 그 아래 급의 시험이 온다
-    const level = clampLevel(examLevel || (me?.placementLevel ?? 1));
+    const level = clampLevel(
+      examLevel || (this.progressOf(me, scope).placementLevel ?? 1),
+    );
     const [start, end] = sectionRangeForLevel(level);
 
     const exam = await this.lessonsService.getLevelExam(
       [start, end],
       lang,
       LEVEL_EXAM.questions,
+      scope,
     );
     // 기회 수는 서버가 정한다 — 앱은 이 값으로 하트를 그린다
     return { level, hearts: LEVEL_EXAM.hearts, ...exam };
@@ -423,9 +454,10 @@ export class StudyPathService {
     this.assertCourseAvailable(scope);
     const me = await this.userModel
       .findById(userId)
-      .select('placementLevel studyLevelUnlocked completedLevelExams')
+      .select(PROGRESS_FIELDS)
       .lean();
-    const currentLevel = clampLevel(me?.placementLevel ?? 1);
+    const progress = this.progressOf(me, scope);
+    const currentLevel = clampLevel(progress.placementLevel ?? 1);
     const level = clampLevel(dto.level || currentLevel);
 
     const questionIds = [
@@ -453,6 +485,7 @@ export class StudyPathService {
     const verified = await this.lessonsService.countExamQuestionsInRange(
       [start, end],
       questionIds,
+      scope,
     );
     const total = verified;
     const correct = Math.max(0, total - wrongIds.length);
@@ -494,17 +527,22 @@ export class StudyPathService {
     // 받은 양만 주면 앱이 더해야 하는데, 그러면 두 기기에서 풀 때 어긋난다
     let gemsTotal: number | null = null;
     if (passed) {
+      // 코스마다 따로 센다 — 한국어 1급을 통과했다고 영어 1급 보상을 막지 않는다
+      const examsPath = courseProgressPath(scope, 'completedLevelExams');
       const granted = await this.userModel.findOneAndUpdate(
-        { _id: userId, completedLevelExams: { $ne: level } },
+        { _id: userId, [examsPath]: { $ne: level } },
         {
           $inc: { gems: LEVEL_EXAM.gems },
-          $addToSet: { completedLevelExams: level },
+          $addToSet: { [examsPath]: level },
         },
         { returnDocument: 'after' },
       );
       if (granted) {
         await this.gemLedger?.record(userId, LEVEL_EXAM.gems, 'level_exam', {
           level,
+          ...(scope.courseId === DEFAULT_COURSE_ID
+            ? {}
+            : { courseId: scope.courseId }),
         });
         gemsEarned = LEVEL_EXAM.gems;
         gemsTotal = granted.gems ?? 0;
@@ -518,17 +556,21 @@ export class StudyPathService {
     // **합격해야만** 다음 급으로 간다. 예전엔 떨어져도 넘겨줘서 시험이 장식이었다.
     // 지금 급보다 낮은 시험을 다시 본 거면 급을 끌어내리지 않는다.
     const next = passed
-      ? await this.nextLevelInfo(level, dto.lang ?? 'uz')
+      ? await this.nextLevelInfo(level, dto.lang ?? 'uz', scope)
       : null;
     if (next) {
-      const unlocked = Math.max(this.unlockedLevel(me), next.level);
+      const unlocked = Math.max(this.unlockedLevel(progress), next.level);
       await this.userModel.updateOne(
         { _id: userId },
         {
           $set: {
-            studyLevelUnlocked: unlocked,
+            [courseProgressPath(scope, 'studyLevelUnlocked')]: unlocked,
             ...(next.level > currentLevel
-              ? { placementLevel: next.level, placementLevelSetAt: new Date() }
+              ? {
+                  [courseProgressPath(scope, 'placementLevel')]: next.level,
+                  [courseProgressPath(scope, 'placementLevelSetAt')]:
+                    new Date(),
+                }
               : {}),
           },
         },
@@ -545,7 +587,9 @@ export class StudyPathService {
       /** 다음 급 제목·설명 (네 언어) — 앱의 레벨업 연출이 쓴다 */
       nextLevelMeta: next
         ? (() => {
-            const meta = PLACEMENT_LEVELS.find((m) => m.level === next.level);
+            const meta = placementLevelsFor(scope.courseId).find(
+              (m) => m.level === next.level,
+            );
             return meta
               ? { title: meta.title, description: meta.description }
               : null;
@@ -595,7 +639,11 @@ export class StudyPathService {
     const key = studyNodeKey(section, unit, kind, group, lesson);
     await this.userModel.updateOne(
       { _id: userId },
-      { $addToSet: { completedStudyNodes: key } },
+      {
+        $addToSet: {
+          [courseProgressPath(scope, 'completedStudyNodes')]: key,
+        },
+      },
     );
 
     // 하루를 통째로 끝냈으면 상자를 하나 적립한다.
@@ -603,7 +651,9 @@ export class StudyPathService {
     // 자유 학습은 노드 하나를 끝낼 때마다 벌지만, 이쪽 노드는 훨씬 잘게 쪼개져
     // 있어서 같은 규칙을 쓰면 상자가 쏟아진다. 이 모드에서 "한 덩어리를 끝냈다"
     // 는 단위는 하루다. sourceKey 에 하루를 넣어 두 번 벌지 못하게 막는다.
-    await this.grantDayChest(userId, section, unit).catch(() => undefined);
+    await this.grantDayChest(userId, section, unit, scope).catch(
+      () => undefined,
+    );
 
     return { success: true, key };
   }
@@ -618,8 +668,13 @@ export class StudyPathService {
    * 안 생긴다. 느린 게 없는 것보다 낫다. 부하가 문제가 되면 하루의 노드 키만
    * 따로 계산하는 쪽으로 쪼개면 된다.
    */
-  private async grantDayChest(userId: string, section: number, unit: number) {
-    const path = await this.getStudyPath(userId);
+  private async grantDayChest(
+    userId: string,
+    section: number,
+    unit: number,
+    scope: CourseScope,
+  ) {
+    const path = await this.getStudyPath(userId, 'uz', scope);
     const finished = path.days.filter(
       (day) =>
         day.section === section &&
@@ -628,7 +683,12 @@ export class StudyPathService {
     );
 
     for (const day of finished) {
-      await this.chestService.earn(userId, `day:${day.id}`, {
+      // 하루 id(day-섹션-유닛-n)는 코스끼리 겹친다 — 다른 코스는 코스 id 를 붙인다
+      const sourceKey =
+        scope.courseId === DEFAULT_COURSE_ID
+          ? `day:${day.id}`
+          : `day:${scope.courseId}:${day.id}`;
+      await this.chestService.earn(userId, sourceKey, {
         section,
         // 이 모드는 문항별 정오답을 노드 단위로 안 들고 있어서 무실수 보너스는
         // 주지 않는다. 있는 척하는 것보다 없는 게 낫다.
@@ -807,11 +867,14 @@ export class StudyPathService {
   }
 
   /** 통산 일차용. 이전 섹션들의 유닛 개수를 센다 */
-  private async countUnitsBeforeSection(section: number): Promise<number> {
+  private async countUnitsBeforeSection(
+    section: number,
+    scope: CourseScope,
+  ): Promise<number> {
     if (section <= 1) return 0;
     const rows = await this.nodeModel
       .find({
-        ...courseContentFilter(resolveCourseScope()),
+        ...courseContentFilter(scope),
         isActive: true,
         section: { $lt: section },
       })
@@ -822,9 +885,17 @@ export class StudyPathService {
   }
 
   /** 단어 시드가 없는 섹션이면 단어 노드 없이 나머지만 보여준다 */
-  private async safeWordSummary(userId: string, section: number) {
+  private async safeWordSummary(
+    userId: string,
+    section: number,
+    scope: CourseScope,
+  ) {
     try {
-      return (await this.wordsService.getSectionSummary(userId, section)) as {
+      return (await this.wordsService.getSectionSummary(
+        userId,
+        section,
+        scope,
+      )) as {
         units: UnitWordSummary[];
       };
     } catch {
@@ -832,9 +903,11 @@ export class StudyPathService {
     }
   }
 
+  /**
+   * 등록된 코스면 어느 코스든 학습 로드를 쓴다 — 구조(하루 = 유닛 반쪽, 급 = 섹션 둘)는
+   * 같고, 다룰 콘텐츠가 없는 노드는 알아서 안 세운다. 모르는 코스만 막는다.
+   */
   private assertCourseAvailable(scope: CourseScope): void {
-    if (resolveCourseScope(scope).courseId !== DEFAULT_COURSE_ID) {
-      throw new BadRequestException('COURSE_MODE_UNAVAILABLE');
-    }
+    resolveCourseScope(scope);
   }
 }

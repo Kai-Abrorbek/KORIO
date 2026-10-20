@@ -5,7 +5,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
-import { useTranslation } from "react-i18next";
+import { useCourseTranslation } from "@/hooks/useCourseTranslation";
 import CelebrationMascot from "@/components/lesson-complete/CelebrationMascot";
 import Confetti from "@/components/lesson-complete/Confetti";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
@@ -25,7 +25,7 @@ const MISS_COLOR = "#776ee2";
  * 아니라 "여기까지 왔고, 이건 더 봐야 한다"를 알려주는 자리다.
  */
 export default function LevelExamResultScreen() {
-  const { t } = useTranslation();
+  const { t } = useCourseTranslation();
   const router = useRouter();
   const theme = useTheme();
   const insets = useSafeAreaInsets();

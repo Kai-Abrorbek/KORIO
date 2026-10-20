@@ -2825,6 +2825,8 @@ export default {
     examBody: "Pass the Level {{prev}} final test (25 questions) and you'll move straight to Level {{n}}.",
     examStart: "Take the test",
     examCancel: "Later",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    subtitle_en: "Pick what matches your English right now.\nHigher levels open when you pass a test.",
   },
   levelExam: {
     cardTitle: "Level {{n}} final exam",
@@ -3291,5 +3293,7 @@ export default {
     bodyCourse: "New sections are coming soon. Keep your skills sharp with review.",
     skip: "Skip",
     continue: "Continue",
+    // 영어 코스용 (hooks/useCourseTranslation — 없으면 위의 원래 문구)
+    bodyLevel_en: "A higher level of English is waiting for you.",
   },
 };

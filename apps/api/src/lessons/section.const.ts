@@ -1,3 +1,5 @@
+import { DEFAULT_COURSE_ID } from '../common/learning-course';
+
 /**
  * 섹션 메타데이터.
  * 노드에는 section 번호만 있어서 섹션 단위 제목·설명을 담을 곳이 없다.
@@ -73,7 +75,23 @@ const FALLBACK_LANG = 'en';
 export function getSectionMeta(section: number): SectionMeta {
   const known = SECTIONS.find((s) => s.section === section);
   if (known) return known;
+  return genericSectionMeta(section);
+}
 
+/**
+ * 코스별 섹션 메타. SECTIONS 는 한국어 코스의 섹션 이름이라 다른 코스에서는
+ * 번호만 붙인 기본값을 쓴다 (영어 1섹션에 "한국어 첫걸음" 이 뜨면 안 된다).
+ */
+export function getCourseSectionMeta(
+  section: number,
+  courseId: string,
+): SectionMeta {
+  return courseId === DEFAULT_COURSE_ID
+    ? getSectionMeta(section)
+    : genericSectionMeta(section);
+}
+
+function genericSectionMeta(section: number): SectionMeta {
   return {
     section,
     title: {

@@ -7,11 +7,13 @@ import { useEffect, type CSSProperties } from "react";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useCourseCopyKey } from "../../learning/model/course-copy";
 import { WEAK_AREA_LABELS } from "../model/misc";
 import styles from "./celebration-screen.module.css";
 
 export function LevelExamResultScreen() {
   const router = useRouter();
+  const copyKey = useCourseCopyKey();
   const params = useSearchParams();
   const passed = params.get("passed") === "1";
   useEffect(() => {
@@ -37,15 +39,32 @@ export function LevelExamResultScreen() {
       {passed ? <div className={styles.examConfetti} aria-hidden="true">{Array.from({ length: 22 }, (_, index) => <i key={index} style={{ "--i": index } as CSSProperties} />)}</div> : null}
       <section className={styles.examContent}>
         <Image alt="Haneulmon" className={styles.examMascot} height={passed ? 170 : 150} src={`/characters/hangulmon_${passed ? "celebrating" : "default"}.png`} unoptimized width={passed ? 170 : 150} />
-        <h1>{passed ? `${level}-daraja o'tildi!` : heartsOut ? uzt("levelExam.heartsOutTitle") : `${level}-daraja, ozgina qoldi`}</h1>
-        <p>{passed ? "Bu yergacha kelganingiz zo'r. Keyingi darajaga o'tamiz." : heartsOut ? uzt("levelExam.heartsOutBody", { hearts }) : "Keyingi daraja imtihondan o'tgandan keyin ochiladi. Quyidagilarni yana bir ko'rib, qayta urinib ko'ring."}</p>
+        {/* 영어 코스는 영어용 문구 (learning/model/course-copy — 한국어 화면의 "급" → "단계") */}
+        {passed ? (
+          <h1 data-i18n={copyKey("levelExam.passedTitle")}>{uzt(copyKey("levelExam.passedTitle"), { n: level })}</h1>
+        ) : heartsOut ? (
+          <h1>{uzt("levelExam.heartsOutTitle")}</h1>
+        ) : (
+          <h1 data-i18n={copyKey("levelExam.missedTitle")}>{uzt(copyKey("levelExam.missedTitle"), { n: level })}</h1>
+        )}
+        {passed ? (
+          <p data-i18n={copyKey("levelExam.passedBody")}>{uzt(copyKey("levelExam.passedBody"))}</p>
+        ) : heartsOut ? (
+          <p>{uzt("levelExam.heartsOutBody", { hearts })}</p>
+        ) : (
+          <p data-i18n={copyKey("levelExam.missedBody")}>{uzt(copyKey("levelExam.missedBody"))}</p>
+        )}
         <div className={styles.examScore}><b>{ratio}%</b><span>{`${total} savoldan ${correct} tasi to'g'ri`}</span></div>
         {passed && (gems > 0 || xp > 0) ? <div className={styles.examRewards}>
           {gems > 0 ? <span><MobileIcon name="diamond" size={19} />+{gems}</span> : null}
           {xp > 0 ? <span><MobileIcon name="flash" size={19} />{`+${xp} XP`}</span> : null}
         </div> : null}
         {weak.length ? <div className={styles.weakCard}><strong>Shu qismlar qiyin bo&apos;ldi</strong><div>{weak.map((area) => <span key={area}>{WEAK_AREA_LABELS[area] ?? "Boshqa"}</span>)}</div></div> : null}
-        {nextLevel ? <small className={styles.nextLevel}>{`${nextLevel}-daraja ochildi`}</small> : null}
+        {nextLevel ? (
+          <small className={styles.nextLevel} data-i18n={copyKey("levelExam.nextOpen")}>
+            {uzt(copyKey("levelExam.nextOpen"), { n: nextLevel })}
+          </small>
+        ) : null}
       </section>
       <footer className={styles.examActions}>
         <button className={styles.examPrimary} onClick={() => router.replace("/study-path")} type="button">Davom etish</button>

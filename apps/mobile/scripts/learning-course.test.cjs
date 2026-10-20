@@ -131,12 +131,22 @@ test("both clients use exactly the same course and locale registry", () => {
   );
 });
 
-test("Telegram English vocabulary does not enter the Korean guided planner", () => {
+// The guided planner is course-scoped (study-path requests carry courseId), so English
+// reuses the same structure. The server's levelPicked decides the level picker per course.
+test("Telegram English guided vocabulary opens the English study path", () => {
   assert.equal(
     telegram.continueLearningDestination({
       learnCourse: "en",
       learnMode: "vocabulary",
       studyMode: "guided",
+    }),
+    "/study-path",
+  );
+  assert.equal(
+    telegram.continueLearningDestination({
+      learnCourse: "en",
+      learnMode: "vocabulary",
+      studyMode: "free",
     }),
     "/roadmap",
   );
@@ -220,10 +230,14 @@ test("mobile legacy bookmark migration assigns only the Korean course", () => {
   assert.equal(state.wordStudyLast, null);
 });
 
-test("mobile English vocabulary does not enter the Korean guided planner", () => {
+test("mobile English guided vocabulary opens the English study path", () => {
   const { settings } = settingsFixture();
   assert.equal(
     settings.learnModePath("vocabulary", "1", "guided", "en"),
+    "/study-path",
+  );
+  assert.equal(
+    settings.learnModePath("vocabulary", "1", "free", "en"),
     "/roadmap",
   );
   assert.equal(

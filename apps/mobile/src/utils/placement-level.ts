@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/auth.store";
+import { useSettingsStore } from "@/store/settings.store";
 import type { Href } from "expo-router";
 
 /**
@@ -15,8 +16,15 @@ export function hasPickedLevel(): boolean {
   return !!(useAuthStore.getState().user as any)?.hasPickedLevel;
 }
 
-/** 학습 로드의 목적지. 급수를 아직 안 골랐으면 고르는 화면부터. */
+/**
+ * 학습 로드의 목적지. 급수를 아직 안 골랐으면 고르는 화면부터.
+ *
+ * 로컬 hasPickedLevel 은 마지막 getMe 시점 코스의 값이다. 방금 코스를 바꿨으면
+ * 믿을 수 없어서, 한국어가 아니면 학습 로드로 바로 보낸다 — 서버가 그 코스의
+ * levelPicked 를 내려주고, 안 골랐으면 화면이 급수 고르기로 넘긴다 (StudyPathScreen).
+ */
 export function guidedEntryPath(): Href {
+  if (useSettingsStore.getState().learnCourse !== "ko") return "/study-path";
   return hasPickedLevel() ? "/study-path" : "/study-level";
 }
 
