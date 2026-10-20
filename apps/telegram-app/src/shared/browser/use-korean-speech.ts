@@ -34,6 +34,8 @@ export interface KoreanSpeechOptions {
   /** 기본 ko-KR. 다른 언어면 목소리 설정은 무시한다(한국어 목소리 전용) */
   language?: SpeechLanguage;
   onEnd?: () => void;
+  /** Called only when all playback paths fail, never for an intentional stop. */
+  onError?: () => void;
   rate?: number;
   respectSoundSettings?: boolean;
   voice?: string;
@@ -72,20 +74,27 @@ function browserSpeech(
   volume: number,
   onEnd: () => void,
   language: SpeechLanguage = "ko-KR",
+  onError?: () => void,
 ) {
   if (!("speechSynthesis" in window)) {
+    onError?.();
     onEnd();
     return;
   }
 
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = language;
-  utterance.rate = rate;
-  utterance.volume = volume;
-  utterance.onend = onEnd;
-  utterance.onerror = onEnd;
-  window.speechSynthesis.speak(utterance);
+  try {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+    utterance.rate = rate;
+    utterance.volume = volume;
+    utterance.onend = onEnd;
+    utterance.onerror = () => { onError?.(); onEnd(); };
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    onError?.();
+    onEnd();
+  }
 }
 
 /**
@@ -220,7 +229,8 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
         1,
         Math.max(0, options?.volume ?? saved.speechVolume ?? 1),
       );
-      const sessionMuted = window.sessionStorage.getItem("korio-muted");
+      let sessionMuted: string | null = null;
+      try { sessionMuted = window.sessionStorage.getItem("korio-muted"); } catch { /* unavailable storage uses saved preferences */ }
       const muted =
         respectSettings &&
         (sessionMuted === null
@@ -230,12 +240,15 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
         options?.onEnd?.();
         return;
       }
-      const finish = () => {
-        if (runIdRef.current !== runId) return;
+      let finished = false;
+      const finish = (failed = false) => {
+        if (runIdRef.current !== runId || finished) return;
+        finished = true;
         if (progressFrameRef.current !== null) cancelAnimationFrame(progressFrameRef.current);
         progressFrameRef.current = null;
         setProgress(1);
         setSpeaking(false);
+        if (failed) options?.onError?.();
         options?.onEnd?.();
       };
 
@@ -244,8 +257,15 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
       setSpeaking(true);
       setProgress(0);
 
+      let fallbackStarted = false;
+      const fallback = () => {
+        if (fallbackStarted || runIdRef.current !== runId || finished) return;
+        fallbackStarted = true;
+        browserSpeech(text, rate, volume, () => finish(), language, () => finish(true));
+      };
+
       if (!request) {
-        browserSpeech(text, rate, volume, finish, language);
+        fallback();
         return;
       }
 
@@ -295,6 +315,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
             finish();
           };
           audioRef.current = audio;
+          audio.onerror = fallback;
           audio.ontimeupdate = () => {
             if (runIdRef.current === runId && Number.isFinite(audio.duration) && audio.duration > 0) {
               setProgress(Math.min(1, audio.currentTime / audio.duration));
@@ -303,7 +324,7 @@ export function useKoreanSpeech(request?: AuthenticatedRequest) {
           await audio.play();
         } catch {
           if (runIdRef.current !== runId) return;
-          browserSpeech(text, rate, volume, finish, language);
+          fallback();
         }
       })();
     },

@@ -4,7 +4,7 @@ export default {
     courseCount: "알파벳 26자",
     courseIntro: "대문자와 소문자, 글자 이름과 발음을 배워요",
     intro:
-      "A–Z의 대문자·소문자를 함께 익혀요. 글자를 누르면 읽는 법과 예시 단어를 듣고 볼 수 있어요.",
+      "A는 왜 cap과 cape에서 다르게 읽힐까요? 글자를 눌러 소리의 단서와 예시·예외를 살펴보고, 듣기로 직접 비교해 보세요.",
     all: "전체",
     listenName: "글자 이름 듣기",
     wordSounds: "단어 속 대표 소리 · 눌러서 듣기",
@@ -19,7 +19,7 @@ export default {
     courseCount: "26 letters",
     courseIntro: "Learn uppercase, lowercase, letter names and sounds",
     intro:
-      "Explore uppercase and lowercase A–Z together. Tap a letter to see how it is read and listen to its name and example words.",
+      "Why does A sound different in cap and cape? Tap a letter to discover spelling clues, examples and exceptions, then listen and compare.",
     all: "All",
     listenName: "Listen to the letter name",
     wordSounds: "Common sounds in words · tap to listen",
@@ -35,7 +35,7 @@ export default {
     courseIntro:
       "Bosh va kichik harflar, harf nomlari va tovushlarini o‘rganing",
     intro:
-      "A–Z bosh va kichik harflarini birga o‘rganing. Harfni bosing: uning o‘qilishini ko‘rib, nomi va misol so‘zlarni tinglang.",
+      "Nega A harfi cap va cape so‘zlarida turlicha o‘qiladi? Harfni bosib, yozilishdagi ishoralar, misollar va istisnolarni o‘rganing, keyin tinglab solishtiring.",
     all: "Barchasi",
     listenName: "Harf nomini tinglash",
     wordSounds: "So‘zlardagi asosiy tovushlar · bosib tinglang",
@@ -50,7 +50,7 @@ export default {
     courseCount: "26 букв",
     courseIntro: "Изучайте заглавные и строчные буквы, их названия и звуки",
     intro:
-      "Изучайте заглавные и строчные буквы A–Z вместе. Нажмите на букву, чтобы увидеть произношение и послушать её название и примеры слов.",
+      "Почему A звучит по-разному в cap и cape? Нажмите на букву, изучите подсказки в написании, примеры и исключения, затем послушайте и сравните.",
     all: "Все",
     listenName: "Послушать название буквы",
     wordSounds: "Основные звуки в словах · нажмите, чтобы послушать",

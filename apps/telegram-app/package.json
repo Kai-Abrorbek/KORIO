@@ -13,6 +13,7 @@
     "test:speech": "node --test scripts/lesson-speech-regression.test.mjs",
     "test:word-swipe": "node --experimental-strip-types --test scripts/word-card-swipe.test.mjs",
     "test:streak": "node --test scripts/streak-scope.test.mjs",
+    "test:phonics": "node --test scripts/english-phonics.test.mjs",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {

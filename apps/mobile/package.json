@@ -72,6 +72,7 @@
     "test:speaking": "node --test scripts/speaking-practice.test.cjs",
     "test:courses": "node --test scripts/learning-course.test.cjs",
     "test:streak": "node --test scripts/global-streak.test.cjs",
+    "test:alphabet": "node --test scripts/english-phonics.test.cjs && node --experimental-strip-types --test scripts/character-page.test.mjs",
     "gen:reading-images": "node ./scripts/gen-reading-images.mjs"
   },
   "private": true

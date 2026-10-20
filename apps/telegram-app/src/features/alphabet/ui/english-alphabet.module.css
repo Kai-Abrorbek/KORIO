@@ -1,0 +1,709 @@
+.page {
+  --phonics-bg: #f8f8fd;
+  --phonics-card: #fff;
+  --phonics-text: #24243e;
+  --phonics-muted: #65657e;
+  --phonics-line: #e8e7f3;
+  --phonics-accent: #6155cd;
+  background: var(--phonics-bg);
+  color: var(--phonics-text);
+  margin: 0 auto;
+  max-width: var(--content-width, 600px);
+  min-height: 100dvh;
+  padding: max(22px, calc(var(--korio-top, 0px) + 12px)) 20px
+    max(36px, env(safe-area-inset-bottom));
+}
+.page button {
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.page button:focus-visible {
+  outline: 3px solid #a59af7;
+  outline-offset: 3px;
+}
+.page button:disabled {
+  cursor: default;
+  opacity: 0.3;
+}
+.header,
+.modalHeader,
+.nameRow,
+.example,
+.modalFooter {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.header {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.iconButton {
+  align-items: center;
+  background: var(--phonics-card);
+  border: 1px solid var(--phonics-line);
+  border-radius: 15px;
+  color: var(--phonics-text);
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+.headerBadge {
+  background: #eae6ff;
+  border-radius: 9px;
+  color: #6155cd;
+  font-size: 11px;
+  padding: 7px 9px;
+}
+.hero {
+  padding: 28px 0 24px;
+}
+.heroLetters {
+  align-items: center;
+  display: flex;
+  font-size: 60px;
+  font-weight: 850;
+  gap: 16px;
+  letter-spacing: -4px;
+}
+.heroLetters > span {
+  color: #b5afce;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.heroLetters i {
+  color: var(--phonics-accent);
+  font-size: 42px;
+  font-style: normal;
+  letter-spacing: -2px;
+}
+.hero h1 {
+  font-size: 28px;
+  letter-spacing: -1px;
+  line-height: 1.3;
+  margin: 14px 0 10px;
+}
+.hero p,
+.pageNote {
+  color: var(--phonics-muted);
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding: 3px;
+}
+.filters button {
+  background: transparent;
+  border: 1px solid var(--phonics-line);
+  border-radius: 12px;
+  color: var(--phonics-muted);
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 750;
+  min-height: 44px;
+  padding: 10px 15px;
+}
+.filters button[aria-pressed="true"] {
+  background: var(--phonics-text);
+  border-color: var(--phonics-text);
+  color: #fff;
+}
+.letterGrid {
+  display: grid;
+  gap: 11px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.letterCard,
+.vowelCard {
+  background: var(--phonics-card);
+  border: 1px solid var(--phonics-line);
+  border-bottom-width: 3px;
+  border-radius: 18px;
+  color: var(--phonics-text);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px 7px 13px;
+  text-align: center;
+  transition: transform 0.15s;
+}
+.letterCard:active,
+.vowelCard:active {
+  transform: translateY(2px);
+}
+.vowelCard {
+  background: #f0edff;
+  border-color: #dcd5ff;
+  color: #6155cd;
+}
+.letterCard strong,
+.vowelCard strong {
+  font-size: 31px;
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.letterCard strong span,
+.vowelCard strong span {
+  font-size: 26px;
+  font-weight: 600;
+  margin-left: 2px;
+  opacity: 0.65;
+}
+.cardName {
+  color: var(--phonics-muted);
+  font-size: 12px;
+  margin-top: 9px;
+}
+.cardPatterns {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-top: 8px;
+  opacity: 0.75;
+}
+.pageNote {
+  font-size: 12px;
+  margin: 22px 4px 0;
+}
+.backdrop {
+  align-items: flex-end;
+  background: #14132b8c;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 12px 8px 0;
+  position: fixed;
+  z-index: 150;
+}
+.modal {
+  background: var(--phonics-card);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -12px 60px #17132826;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - max(16px, var(--korio-top, 0px)));
+  max-width: 560px;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: 8px;
+  width: 100%;
+}
+.handle {
+  background: var(--phonics-line);
+  border-radius: 3px;
+  flex-shrink: 0;
+  height: 4px;
+  margin: 0 auto 12px;
+  width: 36px;
+}
+.modalHeader {
+  flex-shrink: 0;
+  padding: 0 22px 10px;
+}
+.overline {
+  color: var(--phonics-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+.modalHeader h2 {
+  font-size: 48px;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  margin: 4px 0 0;
+}
+.modalHeader h2 span {
+  color: #aaa3c6;
+  font-weight: 500;
+  margin-left: 3px;
+}
+.nameRow {
+  background: var(--phonics-bg);
+  border: 1px solid var(--phonics-line);
+  border-radius: 15px;
+  flex-shrink: 0;
+  margin: 0 20px;
+  padding: 12px 14px;
+}
+.nameRow > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 9px;
+  align-items: baseline;
+}
+.eyebrow {
+  color: var(--phonics-muted);
+  font-size: 11px;
+  width: 100%;
+}
+.nameRow strong {
+  font-size: 18px;
+}
+.nameRow strong span {
+  color: var(--phonics-muted);
+  font-size: 13px;
+  font-weight: 500;
+  margin-left: 6px;
+}
+.nameRow small {
+  color: var(--phonics-muted);
+  font-size: 12px;
+}
+.nameNotice {
+  align-items: flex-start;
+  color: var(--phonics-accent);
+  display: flex;
+  flex-shrink: 0;
+  font-size: 12px;
+  gap: 8px;
+  line-height: 1.5;
+  margin: 12px 22px 14px;
+}
+.nameNotice > svg,
+.nameNotice > span:first-child {
+  flex-shrink: 0;
+}
+.tabs {
+  border-bottom: 1px solid var(--phonics-line);
+  display: flex;
+  flex-shrink: 0;
+  padding: 0 20px;
+}
+.tabs button {
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--phonics-muted);
+  flex: 1;
+  font-size: 13px;
+  font-weight: 800;
+  min-height: 44px;
+  padding: 12px 5px;
+}
+.tabs button[aria-selected="true"] {
+  border-bottom-color: var(--phonics-accent);
+  color: var(--phonics-accent);
+}
+.modalScroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 20px 24px;
+  -webkit-overflow-scrolling: touch;
+}
+.tip {
+  color: var(--phonics-muted);
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 0 0 16px;
+}
+.contrast {
+  background: #f4f1ff;
+  border: 1px solid #e5defd;
+  border-radius: 18px;
+  margin-bottom: 20px;
+  padding: 16px;
+}
+.sectionLabel {
+  color: var(--phonics-accent);
+  display: block;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.4px;
+  margin-bottom: 7px;
+}
+.contrast h3 {
+  font-size: 17px;
+  line-height: 1.4;
+  margin: 0 0 8px;
+}
+.contrast p,
+.ruleBody > p {
+  color: var(--phonics-muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+.rules {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rule {
+  border: 1px solid var(--phonics-line);
+  border-radius: 17px;
+  overflow: hidden;
+}
+.rule h3 {
+  margin: 0;
+}
+.ruleToggle {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--phonics-text);
+  display: flex;
+  gap: 11px;
+  min-height: 78px;
+  padding: 15px;
+  text-align: left;
+  width: 100%;
+}
+.ruleNumber {
+  align-self: flex-start;
+  background: #f0edf9;
+  border-radius: 8px;
+  color: #8f83bb;
+  font-size: 11px;
+  font-weight: 850;
+  padding: 6px;
+}
+.ruleHeading {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 7px;
+  line-height: 1.4;
+}
+.pattern {
+  color: var(--phonics-muted);
+  font-size: 14px;
+  font-weight: 500;
+}
+.pattern b {
+  color: var(--phonics-accent);
+  font-size: 17px;
+  font-weight: 800;
+  margin-left: 7px;
+}
+.ruleBody {
+  border-top: 1px solid var(--phonics-line);
+  padding: 16px 15px;
+}
+.example {
+  background: var(--phonics-card);
+  border: 1px solid var(--phonics-line);
+  border-radius: 13px;
+  margin-top: 9px;
+  padding: 12px 10px;
+}
+.wordInfo {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  min-width: 0;
+}
+.word {
+  color: var(--phonics-text);
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.25px;
+  overflow-wrap: anywhere;
+}
+.word mark {
+  background: #ece7ff;
+  border-radius: 4px;
+  color: #5d4bc5;
+  padding: 0 1px;
+}
+.ipa {
+  align-self: center;
+  color: var(--phonics-muted);
+  font-size: 12px;
+}
+.meaning {
+  color: var(--phonics-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  width: 100%;
+}
+.audioControls {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: 4px;
+}
+.audio,
+.audioActive {
+  align-items: center;
+  background: #efecfc;
+  border: 0;
+  border-radius: 12px;
+  color: var(--phonics-accent);
+  display: inline-flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+.audioActive,
+.slowActive {
+  background: #6155cd;
+  color: #fff;
+}
+.slow,
+.slowActive {
+  border: 0;
+  border-radius: 7px;
+  color: var(--phonics-accent);
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  min-height: 28px;
+  padding: 5px 7px;
+}
+.slow {
+  background: transparent;
+}
+.slowActive {
+  color: #fff;
+}
+.caution {
+  background: #fff8e9;
+  border-radius: 11px;
+  color: #806631;
+  font-size: 12px;
+  line-height: 1.65;
+  margin-top: 14px;
+  padding: 12px;
+}
+.caution p {
+  margin: 5px 0 0;
+}
+.disclaimer {
+  color: var(--phonics-muted);
+  font-size: 11px;
+  line-height: 1.7;
+  margin: 20px 0 0;
+}
+.modalFooter {
+  background: var(--phonics-card);
+  border-top: 1px solid var(--phonics-line);
+  flex-shrink: 0;
+  padding: 10px 20px max(12px, env(safe-area-inset-bottom));
+}
+.modalFooter button {
+  align-items: center;
+  background: var(--phonics-bg);
+  border: 1px solid var(--phonics-line);
+  border-radius: 12px;
+  color: var(--phonics-accent);
+  display: flex;
+  font-size: 17px;
+  font-weight: 800;
+  gap: 7px;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 70px;
+}
+.modalFooter > span {
+  color: var(--phonics-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+.audioNotice {
+  background: #fff8e9;
+  color: #806631;
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 20px;
+}
+.srOnly {
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+.practice {
+  padding: 6px 0;
+  text-align: center;
+}
+.practiceIcon {
+  align-items: center;
+  background: #eee9ff;
+  border-radius: 20px;
+  color: var(--phonics-accent);
+  display: inline-flex;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+.practice h3 {
+  font-size: 21px;
+  margin: 15px 0 8px;
+}
+.practice > p {
+  color: var(--phonics-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+.practice h4 {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 24px 0 16px;
+}
+.choices {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+.choice {
+  display: flex;
+  flex-direction: column;
+}
+.choiceButton,
+.choiceSelected {
+  background: var(--phonics-card);
+  border: 2px solid var(--phonics-line);
+  border-radius: 15px 15px 0 0;
+  color: var(--phonics-text);
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 100px;
+  padding: 18px 10px;
+}
+.choiceSelected {
+  background: #f4f0ff;
+  border-color: #9c8fe5;
+}
+.choiceButton > span:last-child,
+.choiceSelected > span:last-child {
+  color: var(--phonics-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.choiceAudio {
+  background: #f0edf9;
+  border: 0;
+  border-radius: 0 0 12px 12px;
+  color: var(--phonics-accent);
+  display: grid;
+  min-height: 44px;
+  place-items: center;
+}
+.correct,
+.retry {
+  border-radius: 16px;
+  margin-top: 20px;
+  padding: 17px;
+  text-align: left;
+}
+.correct {
+  background: #eaf8ef;
+  color: #25784a;
+}
+.retry {
+  background: #fff7e6;
+  color: #87652d;
+}
+.correct strong,
+.retry strong {
+  align-items: center;
+  display: flex;
+  font-size: 15px;
+  gap: 8px;
+}
+.correct p,
+.retry p {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+.correct button,
+.retry button {
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 9px;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  min-height: 40px;
+  padding: 7px 11px;
+}
+.choiceAudioRow {
+  background: #f0edf9;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  overflow: hidden;
+}
+.choiceAudioRow .choiceAudio {
+  border-radius: 0;
+  flex: 1;
+  font-size: 11px;
+  font-weight: 750;
+}
+.choiceAudio[aria-pressed="true"] {
+  background: #6155cd;
+  color: #fff;
+}
+@media (min-width: 600px) {
+  .backdrop {
+    align-items: center;
+    padding: 24px;
+  }
+  .modal {
+    border-radius: 28px;
+    max-height: min(900px, calc(100dvh - 48px));
+  }
+  .letterGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :global(html[data-theme="dark"]) .page,
+  :global(html:not([data-theme="light"])) .page {
+    --phonics-bg: #191925;
+    --phonics-card: #222232;
+    --phonics-text: #f2f0fc;
+    --phonics-muted: #b4b0ca;
+    --phonics-line: #3a374c;
+    --phonics-accent: #b6a8ff;
+  }
+}
+:global(html[data-theme="dark"]) .page {
+  --phonics-bg: #191925;
+  --phonics-card: #222232;
+  --phonics-text: #f2f0fc;
+  --phonics-muted: #b4b0ca;
+  --phonics-line: #3a374c;
+  --phonics-accent: #b6a8ff;
+}
+:global(html[data-theme="dark"]) .vowelCard {
+  background: #322b4b;
+  border-color: #4b3e6b;
+  color: #c1b5ff;
+}
+:global(html[data-theme="dark"]) .contrast,
+:global(html[data-theme="dark"]) .choiceSelected {
+  background: #302941;
+  border-color: #4d4268;
+}
+:global(html[data-theme="dark"]) .word mark {
+  background: #46385e;
+  color: #d6caff;
+}
+@media (prefers-reduced-motion: reduce) {
+  .letterCard,
+  .vowelCard {
+    transition: none;
+  }
+}

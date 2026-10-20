@@ -65,6 +65,7 @@ function renderPage(
       StyleSheet: { create: (styles) => styles },
     },
     "@expo/vector-icons": { Ionicons: "Ionicons" },
+    "@/components/ui/Pressables": { TouchableOpacity: "TouchableOpacity" },
     "react-native-reanimated": {
       __esModule: true,
       default: { View: "AnimatedView" },
@@ -114,6 +115,7 @@ function renderPage(
     "CategoryTabs",
     "CharacterCard",
     "CharacterDetailSheet",
+    "EnglishLetterSheet",
     "games/GameMenu",
   ]) {
     dependencies[`@/components/hangul/${component}`] = {
@@ -145,15 +147,13 @@ function elements(tree, type) {
 test("both languages render the same page layout, mascot hero, tabs and letter grid", () => {
   const korean = renderPage("ko").tree;
   const english = renderPage("en").tree;
-  for (const type of [
-    "MasteryCard",
-    "CategoryTabs",
-    "ScrollView",
-    "CharacterDetailSheet",
-  ]) {
+  for (const type of ["MasteryCard", "CategoryTabs", "ScrollView"]) {
     assert.equal(elements(korean, type).length, 1);
     assert.equal(elements(english, type).length, 1);
   }
+  assert.equal(elements(korean, "CharacterDetailSheet").length, 1);
+  assert.equal(elements(english, "EnglishLetterSheet").length, 1);
+  assert.equal(elements(english, "CharacterDetailSheet").length, 0);
   assert.deepEqual(
     JSON.parse(JSON.stringify(korean.props.style)),
     JSON.parse(JSON.stringify(english.props.style)),
@@ -180,10 +180,9 @@ test("the shared tabs expose all English consonants and vowels with English pron
   }).tree;
   assert.equal(elements(consonants, "CharacterCard").length, 21);
   assert.equal(elements(vowels, "CharacterCard").length, 5);
-  const detail = elements(vowels, "CharacterDetailSheet")[0].props;
-  assert.equal(detail.speechLanguage, "en-US");
-  assert.equal(detail.speechText, "A");
-  assert.equal(detail.character.name, "에이");
+  const detail = elements(vowels, "EnglishLetterSheet")[0].props;
+  assert.equal(detail.letter, "en-a");
+  assert.equal(typeof detail.onSelectLetter, "function");
   assert.equal(detail.onStartGame, undefined);
   assert.equal(elements(consonants, "GameMenu").length, 0);
 });

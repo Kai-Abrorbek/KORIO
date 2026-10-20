@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -19,6 +14,7 @@ import MasteryCard from "@/components/hangul/MasteryCard";
 import CategoryTabs from "@/components/hangul/CategoryTabs";
 import CharacterCard from "@/components/hangul/CharacterCard";
 import CharacterDetailSheet from "@/components/hangul/CharacterDetailSheet";
+import EnglishLetterSheet from "@/components/hangul/EnglishLetterSheet";
 import GameMenu from "@/components/hangul/games/GameMenu";
 import { useEnergyStore, syncEnergyFromServer } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -32,7 +28,7 @@ import {
 export default function HangulScreen() {
   const { lang } = useLocalSearchParams<{ lang?: string }>();
   const isEnglish = lang === "en";
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -117,17 +113,6 @@ export default function HangulScreen() {
       ),
     [category, isEnglish],
   );
-
-  const detailCharacter = useMemo(() => {
-    if (!selected || !isEnglish || !("koreanName" in selected)) return selected;
-    return {
-      ...selected,
-      name:
-        i18n.language.split("-")[0] === "ko"
-          ? selected.koreanName
-          : selected.name,
-    };
-  }, [selected, isEnglish, i18n.language]);
 
   const getMastery = (id: string): HangulMastery => masteryMap[id] ?? 0;
 
@@ -220,19 +205,29 @@ export default function HangulScreen() {
       {!isEnglish && <GameMenu />}
 
       {/* 디테일 시트 */}
-      <CharacterDetailSheet
-        character={detailCharacter}
-        visible={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        onStartGame={isEnglish ? undefined : goToGame}
-        speechLanguage={isEnglish ? "en-US" : "ko-KR"}
-        speechText={
-          isEnglish && selected && "uppercase" in selected
-            ? selected.uppercase
-            : undefined
-        }
-        pronunciationHint={isEnglish ? t("alphabet.nameNote") : undefined}
-      />
+      {isEnglish ? (
+        <EnglishLetterSheet
+          letter={selected?.id ?? null}
+          visible={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          onSelectLetter={(letter) => {
+            const next = ENGLISH_ALPHABET.find(
+              (item) => item.uppercase === letter,
+            );
+            if (next) {
+              setSelected(next);
+              setCategory(next.category);
+            }
+          }}
+        />
+      ) : (
+        <CharacterDetailSheet
+          character={selected}
+          visible={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          onStartGame={goToGame}
+        />
+      )}
     </View>
   );
 }

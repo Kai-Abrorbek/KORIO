@@ -274,8 +274,7 @@ export function learningDestination(
     speaking: "/speaking",
     topik: `/topik-sections?level=${topikLevel}`,
     vocabulary: "/roadmap",
-    // 영어 알파벳은 아직 앱에만 있다 — 미니앱은 준비 중 화면으로
-    alphabet: "/coming-soon",
+    alphabet: "/alphabet",
     wordCard: "/word-study",
   };
   return destinations[category] ?? null;
