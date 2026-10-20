@@ -239,6 +239,8 @@ const IONICONS = {
   stop: 62878,
   sunny: 62893,
   "swap-horizontal": 62896,
+  // 말하기 채점 중 회전 아이콘 (앱 Ionicons "sync" 와 같은 글리프)
+  sync: 62902,
   "swap-horizontal-outline": 62897,
   text: 62923,
   "text-outline": 62924,
@@ -298,16 +300,28 @@ export function hasIonicon(name: string | null | undefined): name is IoniconName
 }
 export type MaterialCommunityIconName = keyof typeof MATERIAL_COMMUNITY;
 
-interface MobileIconProps extends Omit<SVGProps<SVGSVGElement>, "name"> {
-  family?: "ionicons" | "material-community";
-  name: IoniconName | MaterialCommunityIconName;
-  size?: number;
-}
+type MobileIconBaseProps = Omit<SVGProps<SVGSVGElement>, "name"> & { size?: number };
+
+/**
+ * 이름은 고른 글꼴 표에 있는 것만 받는다. 예전엔 두 표의 합집합이라 family 없이
+ * material-community 이름("sync")을 넘겨도 타입이 통과했고, 화면에서 터졌다.
+ */
+type MobileIconProps = MobileIconBaseProps &
+  (
+    | { family?: "ionicons"; name: IoniconName }
+    | { family: "material-community"; name: MaterialCommunityIconName }
+  );
 
 export function MobileIcon({ family = "ionicons", name, size = 24, ...props }: MobileIconProps) {
-  const glyph = family === "material-community"
+  const glyph: number | undefined = family === "material-community"
     ? MATERIAL_COMMUNITY[name as MaterialCommunityIconName]
     : IONICONS[name as IoniconName];
+  // 표에 없는 이름(서버가 준 이름 등)이면 아이콘 자리만 비운다. String.fromCodePoint(undefined)
+  // 는 RangeError 를 던져서 화면 전체가 "This page couldn't load" 로 죽는다 —
+  // 말하기 문제가 채점 중(sync 아이콘)에 바로 그렇게 죽었다.
+  if (glyph === undefined) {
+    return <svg aria-hidden="true" height={size} viewBox="0 0 32 32" width={size} {...props} />;
+  }
   return (
     <svg aria-hidden="true" height={size} viewBox="0 0 32 32" width={size} {...props}>
       <text

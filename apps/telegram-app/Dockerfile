@@ -18,6 +18,8 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 
 FROM deps AS build
 COPY apps/telegram-app ./apps/telegram-app
+# 앱·미니앱이 같이 쓰는 루트 shared/ (발음·파닉스·단어 게임). 빠지면 ../../shared import 가 빌드에서 깨진다
+COPY shared ./shared
 COPY packages/eslint-config ./packages/eslint-config
 COPY packages/typescript-config ./packages/typescript-config
 ENV TELEGRAM_STATIC_EXPORT=true
