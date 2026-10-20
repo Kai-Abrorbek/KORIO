@@ -30,10 +30,9 @@ import {
   type WordSectionSummary,
   type WordUnitSummary,
 } from "../model/word";
+import { useWordCardSwipe, WORD_CARD_SWIPE_THRESHOLD } from "./use-word-card-swipe";
 import styles from "./word-study.module.css";
 
-const SWIPE_THRESHOLD = 88;
-const SWIPE_VELOCITY = 720;
 const SCOPE_STORAGE_KEY = "korio.telegram.word-scope";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
@@ -191,6 +190,7 @@ function WordVisual({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             alt={concealHeadword ? "Ma'nosiga qarab eslang" : word.media.imageAlt || word.headword}
+            draggable={false}
             onError={() => setImageFailed(true)}
             src={word.media.imageUrl}
           />
@@ -722,12 +722,7 @@ export function WordStudyScreen() {
   const recallResultReportedRef = useRef(false);
   const recallHadWrongAttemptRef = useRef(false);
   const animationTimeoutRef = useRef<number | null>(null);
-  const pointerRef = useRef<{
-    pointerId: number;
-    startAt: number;
-    startX: number;
-    startY: number;
-  } | null>(null);
+  const animationLockedRef = useRef(false);
 
   const loadSummaries = useCallback(async () => {
     setScopeLoading(true);
@@ -778,6 +773,11 @@ export function WordStudyScreen() {
 
   const loadWords = useCallback(async () => {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
+    if (animationTimeoutRef.current !== null) {
+      window.clearTimeout(animationTimeoutRef.current);
+      animationTimeoutRef.current = null;
+    }
+    animationLockedRef.current = false;
     setWordsLoading(true);
     setLoadFailed(false);
     flushSeen();
@@ -1070,22 +1070,36 @@ export function WordStudyScreen() {
     ],
   );
 
+  const resetCardPosition = useCallback(() => {
+    if (animationLockedRef.current) return;
+    if (animationTimeoutRef.current !== null) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    animationLockedRef.current = true;
+    setCardMotion("in");
+    setDragX(0);
+    animationTimeoutRef.current = window.setTimeout(() => {
+      animationLockedRef.current = false;
+      setCardMotion("idle");
+      animationTimeoutRef.current = null;
+    }, 320);
+  }, []);
+
   const animateCardOut = useCallback(
     (direction: -1 | 1) => {
-      if (cardMotion !== "idle") return;
+      if (animationLockedRef.current) return;
       if (
         (direction > 0 && !canGoNext) ||
         (direction < 0 && !canGoPrevious)
       ) {
-        setCardMotion("in");
-        setDragX(0);
-        window.setTimeout(() => setCardMotion("idle"), 240);
+        resetCardPosition();
         return;
       }
 
       if (animationTimeoutRef.current !== null) {
         window.clearTimeout(animationTimeoutRef.current);
       }
+      animationLockedRef.current = true;
       setCardMotion("out");
       const width = Math.max(window.innerWidth, 320);
       setDragX(direction > 0 ? -width * 1.18 : width * 1.18);
@@ -1097,13 +1111,24 @@ export function WordStudyScreen() {
           window.requestAnimationFrame(() => setDragX(0));
         });
         animationTimeoutRef.current = window.setTimeout(() => {
+          animationLockedRef.current = false;
           setCardMotion("idle");
           animationTimeoutRef.current = null;
         }, 320);
       }, 245);
     },
-    [canGoNext, canGoPrevious, cardMotion, commitSwipe],
+    [canGoNext, canGoPrevious, commitSwipe, resetCardPosition],
   );
+
+  const cardDeckRef = useWordCardSwipe({
+    disabled:
+      cardMotion !== "idle" || scopeOpen || offerOpen || scopeLoading || wordsLoading,
+    canGoNext,
+    canGoPrevious,
+    onOffset: setDragX,
+    onCommit: animateCardOut,
+    onReset: resetCardPosition,
+  });
 
   useEffect(
     () => () => {
@@ -1161,63 +1186,12 @@ export function WordStudyScreen() {
   const rotation = Math.max(-8, Math.min(8, (dragX / cardWidth) * 8));
   const nextPreviewOpacity = Math.max(
     0,
-    Math.min(1, (-dragX - 18) / (SWIPE_THRESHOLD - 18)),
+    Math.min(1, (-dragX - 18) / (WORD_CARD_SWIPE_THRESHOLD - 18)),
   );
   const previousPreviewOpacity = Math.max(
     0,
-    Math.min(1, (dragX - 18) / (SWIPE_THRESHOLD - 18)),
+    Math.min(1, (dragX - 18) / (WORD_CARD_SWIPE_THRESHOLD - 18)),
   );
-
-  const pointerDown = (event: ReactPointerEvent<HTMLElement>) => {
-    if (cardMotion !== "idle") return;
-    if (
-      (event.target as HTMLElement).closest(
-        "button, input, a, label, textarea, select",
-      )
-    ) {
-      return;
-    }
-    pointerRef.current = {
-      pointerId: event.pointerId,
-      startAt: performance.now(),
-      startX: event.clientX,
-      startY: event.clientY,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const pointerMove = (event: ReactPointerEvent<HTMLElement>) => {
-    const pointer = pointerRef.current;
-    if (!pointer || pointer.pointerId !== event.pointerId) return;
-    const deltaX = event.clientX - pointer.startX;
-    const deltaY = event.clientY - pointer.startY;
-    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 12) return;
-    const movingTowardNext = deltaX < 0;
-    const canMove = movingTowardNext ? canGoNext : canGoPrevious;
-    setDragX(canMove ? deltaX : deltaX * 0.18);
-  };
-
-  const pointerUp = (event: ReactPointerEvent<HTMLElement>) => {
-    const pointer = pointerRef.current;
-    pointerRef.current = null;
-    if (!pointer || pointer.pointerId !== event.pointerId) return;
-    const deltaX = event.clientX - pointer.startX;
-    const elapsed = Math.max(1, performance.now() - pointer.startAt);
-    const velocityX = (deltaX / elapsed) * 1000;
-    const direction: -1 | 1 = deltaX < 0 ? 1 : -1;
-    const canMove = direction > 0 ? canGoNext : canGoPrevious;
-    if (
-      canMove &&
-      (Math.abs(deltaX) >= SWIPE_THRESHOLD ||
-        Math.abs(velocityX) >= SWIPE_VELOCITY)
-    ) {
-      animateCardOut(direction);
-      return;
-    }
-    setCardMotion("in");
-    setDragX(0);
-    window.setTimeout(() => setCardMotion("idle"), 240);
-  };
 
   return (
     <main className={styles.wordPage}>
@@ -1325,15 +1299,7 @@ export function WordStudyScreen() {
           >
             <div
               className={styles.deck}
-              onPointerCancel={() => {
-                pointerRef.current = null;
-                setCardMotion("in");
-                setDragX(0);
-                window.setTimeout(() => setCardMotion("idle"), 240);
-              }}
-              onPointerDown={pointerDown}
-              onPointerMove={pointerMove}
-              onPointerUp={pointerUp}
+              ref={cardDeckRef}
             >
               {nextPreviewWord ? (
                 <div

@@ -330,6 +330,8 @@
   min-height: 0;
   position: relative;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
   width: 100%;
 }
 
@@ -359,6 +361,7 @@
 
 .wordCard,
 .previewCard {
+  touch-action: pan-y;
   /* 카드 팔레트(--word-from 등은 TSX 인라인) — 다크에선 같은 색조의 깊은 톤 */
   --ws-from: var(--word-from);
   --ws-to: var(--word-to);
@@ -500,6 +503,8 @@
 }
 
 .cardBody {
+  /* The inner scroller must also reserve horizontal gestures for the card. */
+  touch-action: pan-y;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -736,6 +741,8 @@
 }
 
 .answerShell input {
+  user-select: text;
+  -webkit-user-select: text;
   background: transparent;
   border: 0;
   color: var(--word-text);
