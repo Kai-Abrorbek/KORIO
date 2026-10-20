@@ -1757,7 +1757,7 @@ export const S6_UNIT9_WORDS = [
   {
     code: 'secretly',
     korean: '몰래',
-    senseKey: 'secretly-without-being-noticed',
+    senseKey: 'secretly',
     partOfSpeech: WordPartOfSpeech.ADVERB,
     meaning: L(
       '다른 사람이 알지 못하게',
@@ -2009,7 +2009,7 @@ export const S6_UNIT9_WORDS = [
   {
     code: 'world',
     korean: '세상',
-    senseKey: 'world-everything-around-us',
+    senseKey: 'world',
     partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: L(
       '사람들이 살아가는 모든 곳과 그 안의 모든 것',

@@ -17893,7 +17893,7 @@ const S6_UNIT2_NODE5_WORDS = [
   {
     code: 'work-diligent',
     korean: '성실하다',
-    senseKey: 'diligent-and-sincere-at-work',
+    senseKey: 'diligent-and-responsible',
     partOfSpeech: WordPartOfSpeech.ADJECTIVE,
     meaning: L(
       '맡은 일을 꾸준하고 진지하게 하다',
@@ -18037,7 +18037,7 @@ const S6_UNIT2_NODE5_WORDS = [
   {
     code: 'work-quick-understanding',
     korean: '이해가 빠르다',
-    senseKey: 'understand-things-quickly',
+    senseKey: 'understand-quickly',
     partOfSpeech: WordPartOfSpeech.PHRASE,
     meaning: L(
       '새로운 내용이나 상황을 빨리 알아듣다',
@@ -18229,7 +18229,7 @@ const S6_UNIT2_NODE5_WORDS = [
   {
     code: 'work-do-best',
     korean: '최선을 다하다',
-    senseKey: 'do-ones-best',
+    senseKey: 'make-best-effort',
     partOfSpeech: WordPartOfSpeech.PHRASE,
     meaning: L(
       '자기가 할 수 있는 만큼 가장 열심히 노력하다',

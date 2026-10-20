@@ -18057,10 +18057,10 @@ const S6_UNIT6_NODE5_WORDS = [
   },
 
   {
-    code: 'housing-repair-technician',
+    code: 'repair-technician',
     korean: '수리 기사',
     senseKey: 'repair-technician',
-    partOfSpeech: WordPartOfSpeech.PHRASE,
+    partOfSpeech: WordPartOfSpeech.NOUN,
     meaning: L(
       '고장 난 시설이나 기계를 고치는 일을 하는 사람',
       'buzilgan uskuna yoki jihozlarni ta’mirlaydigan mutaxassis',
