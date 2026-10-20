@@ -810,6 +810,8 @@ export default {
     guidedEntryDesc: "Siz uchun tartib bilan tuzilgan bugungi ishdan boshlang",
     categories: {
       hangul: "Hangul",
+      // 영어 코스의 글자 카드 (한글 카드 자리) — 앱 locales/alphabet.ts 와 같은 말
+      alphabet: "Ingliz alifbosi",
       games: "O'yinlar",
       vocab: "Lug'at",
       grammar: "Grammatika",
@@ -824,6 +826,7 @@ export default {
     },
     categoryDesc: {
       hangul: "Harflardan boshlang",
+      alphabet: "Bosh va kichik harflar, harf nomlari va tovushlarini o‘rganing",
       games: "O'ynab takrorlang",
       vocab: "So'zlarni o'rganing",
       grammar: "Qoidalarni o'rganing",

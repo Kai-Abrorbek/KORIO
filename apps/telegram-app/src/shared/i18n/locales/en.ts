@@ -806,6 +806,8 @@ export default {
     guidedEntryDesc: "Start with today's plan, laid out in order",
     categories: {
       hangul: "Hangul",
+      // 영어 코스의 글자 카드 (한글 카드 자리) — 앱 locales/alphabet.ts 와 같은 말
+      alphabet: "English alphabet",
       games: "Games",
       vocab: "Vocabulary",
       grammar: "Grammar",
@@ -820,6 +822,7 @@ export default {
     },
     categoryDesc: {
       hangul: "Start with the letters",
+      alphabet: "Learn uppercase, lowercase, letter names and sounds",
       games: "Review by playing",
       vocab: "Learn words",
       grammar: "Master the rules",

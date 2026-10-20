@@ -23,6 +23,16 @@ import { useSwipeTabs, writeSwipeProgress } from "../../../shared/ui/use-swipe-t
 import { LearningIcon } from "./learning-icon";
 import { TopikLevelSheet } from "./topik-level-sheet";
 import styles from "./learning.module.css";
+import { uzt } from "../../../shared/i18n/uz-text";
+
+/** 영어 코스에 있는 카드 — 한글 카드 자리는 영어 알파벳 (앱 course-categories 와 같다) */
+const ENGLISH_CATEGORIES: readonly string[] = [
+  "hangul",
+  "vocabulary",
+  "wordCard",
+  "pronunciation",
+  "games",
+];
 
 const LEARN_MODES: LearnMode[] = [
   "vocabulary",
@@ -63,13 +73,14 @@ export function CourseCategoriesScreen() {
   };
 
   // 학습 로드에서는 로드가 안 덮는 것만 남긴다. 두 방식 다 미리 그려 두고 옆으로 넘긴다
+  // 영어는 한글 카드 자리가 영어 알파벳 카드다 (앱 course-categories 와 같다)
   const categoriesByMode = useMemo(
     () => ({
-      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ["vocabulary", "wordCard", "pronunciation", "games"].includes(category.category)),
+      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ENGLISH_CATEGORIES.includes(category.category)),
       // 영어도 같은 규칙 — 로드 모드에서는 로드가 덮는 어휘를 빼고 나머지만
       guided: LEARNING_CATEGORIES.filter(
         (category) =>
-          (!isEnglish || ["vocabulary", "wordCard", "pronunciation", "games"].includes(category.category)) && category.guided,
+          (!isEnglish || ENGLISH_CATEGORIES.includes(category.category)) && category.guided,
       ),
     }),
     [isEnglish],
@@ -118,6 +129,21 @@ export function CourseCategoriesScreen() {
     }
     if (category.category === "topik") {
       setTopikOpen(true);
+      return;
+    }
+
+    // 영어 알파벳 — 학습 모드를 alphabet 으로 맞춰야 홈 "이어서 학습하기" 도 여기로 온다
+    if (isEnglish && category.category === "hangul") {
+      setSaving(true);
+      setError(null);
+      try {
+        const result = await saveLearnMode(request, "alphabet", undefined, "en");
+        updateUser({ ...result, learnMode: "alphabet", learnCourse: "en" });
+        router.push(learningDestination("alphabet") ?? "/alphabet");
+      } catch {
+        setError("Tanlovni saqlab bo'lmadi. Qayta urinib ko'ring.");
+        setSaving(false);
+      }
       return;
     }
 
@@ -231,8 +257,21 @@ export function CourseCategoriesScreen() {
               >
                 <LearningIcon name={category.icon} size={23} />
               </span>
-              <strong>{category.label}</strong>
-              <small>{category.description}</small>
+              {isEnglish && category.category === "hangul" ? (
+                <>
+                  <strong data-i18n="courses.categories.alphabet">
+                    {uzt("courses.categories.alphabet")}
+                  </strong>
+                  <small data-i18n="courses.categoryDesc.alphabet">
+                    {uzt("courses.categoryDesc.alphabet")}
+                  </small>
+                </>
+              ) : (
+                <>
+                  <strong>{category.label}</strong>
+                  <small>{category.description}</small>
+                </>
+              )}
             </button>
           );
         })}
