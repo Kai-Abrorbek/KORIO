@@ -13,6 +13,8 @@ export enum PushType {
   ENGAGE = 'engage',
   /** 연속학습이 오늘 끊길 위험 */
   STREAK_RISK = 'streak_risk',
+  /** 연속학습이 어제 끊겼다 (끊긴 다음 날 한 번) */
+  STREAK_LOST = 'streak_lost',
   /** 학습 로드(guided) 진행 중인데 며칠째 안 함 */
   GUIDED_IDLE = 'guided_idle',
   /** 구독·체험 종료 임박 */
@@ -50,6 +52,7 @@ export const ENGAGEMENT_TYPES: ReadonlySet<PushType> = new Set([
   PushType.DAILY_REMINDER,
   PushType.ENGAGE,
   PushType.STREAK_RISK,
+  PushType.STREAK_LOST,
   PushType.GUIDED_IDLE,
 ]);
 
@@ -69,6 +72,7 @@ export const PREF_KEY_OF: Partial<Record<PushType, PushPrefKey>> = {
   [PushType.DAILY_REMINDER]: 'daily',
   [PushType.ENGAGE]: 'daily',
   [PushType.STREAK_RISK]: 'streak',
+  [PushType.STREAK_LOST]: 'streak',
   [PushType.GUIDED_IDLE]: 'daily',
   [PushType.LEAGUE_PROMOTED]: 'league',
   [PushType.LEAGUE_DEMOTED]: 'league',
