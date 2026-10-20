@@ -17,36 +17,22 @@
  * 문장은 학습 콘텐츠라 한국어 그대로. 화면 문구(제목·라벨)만 i18n.
  */
 
-export type PronLevel = "lv1" | "lv2" | "lv3" | "lv4";
+import {
+  createPronunciationCurriculum,
+  type PronLevel,
+  type PronLevelData,
+  type PronOption,
+} from "../../../../../../shared/pronunciation";
 
-export interface PronOption {
-  /** 보기 단어 (표기) */
-  word: string;
-  /** 이 단어가 가진 대립 자모 — 카드에 뱃지로 보여준다 */
-  jamo: string;
-}
-
-export interface PronStage {
-  step: number;
-  /** 대립하는 두 자모 */
-  a: string;
-  b: string;
-  /** 초성 자리냐 받침 자리냐 */
-  pos: "front" | "back";
-  /** 말풍선 — {0} 자리에 word 가 강조되어 들어간다 */
-  leftBubble: string;
-  leftWord: string;
-  rightBubble: string;
-  rightWord: string;
-  /** 이 단계의 최소대립쌍들 */
-  pairs: [PronOption, PronOption][];
-}
-
-export interface PronLevelData {
-  /** 스토리 제목 i18n 키 */
-  storyKey: string;
-  stages: PronStage[];
-}
+export {
+  HARD_UNLOCK_SCORE,
+  PRON_LEVELS,
+  STAGE_PASS_SCORE,
+  type PronLevel,
+  type PronLevelData,
+  type PronOption,
+  type PronStage,
+} from "../../../../../../shared/pronunciation";
 
 const P = (word: string, jamo: string): PronOption => ({ word, jamo });
 
@@ -392,67 +378,10 @@ export const PRON_DATA: Record<PronLevel, PronLevelData> = {
   },
 };
 
-export const PRON_LEVELS: PronLevel[] = ["lv1", "lv2", "lv3", "lv4"];
-
-/** 한 레벨의 총 문제 수 (진행률 분모) — 단계당 EASY + HARD */
-export const levelTotal = (lv: PronLevel) => PRON_DATA[lv].stages.length * 2;
-
-export const findStage = (lv: PronLevel, step: number) =>
-  PRON_DATA[lv].stages.find((s) => s.step === step);
-
-/**
- * 한 단계에서 낼 문제 목록.
- *
- * 대립쌍 하나로 문제를 두 개 만든다 — 정답이 왼쪽 단어일 때, 오른쪽 단어일 때.
- * 들리는 소리도 정답도 다르니 서로 다른 문제고, 이렇게 해야 6~8쌍으로
- * 한 판 12~16문제가 나온다. (진짜 최소대립쌍은 자모마다 개수가 한정돼 있어서
- * 쌍 자체를 10개씩 채우려면 없는 단어를 지어내야 한다.)
- */
-export function stageQuestionPlan(
-  lv: PronLevel,
-  step: number,
-): { pair: [PronOption, PronOption]; answer: 0 | 1 }[] {
-  const stage = findStage(lv, step);
-  if (!stage) return [];
-
-  const plan = stage.pairs.flatMap(
-    (pair) =>
-      [
-        { pair, answer: 0 as const },
-        { pair, answer: 1 as const },
-      ] as { pair: [PronOption, PronOption]; answer: 0 | 1 }[],
-  );
-
-  // 같은 쌍이 연달아 나오면 두 번째는 소거법으로 찍힌다 → 섞는다
-  for (let i = plan.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const current = plan[i];
-    const replacement = plan[j];
-    if (current && replacement) [plan[i], plan[j]] = [replacement, current];
-  }
-  return plan;
-}
-
-/** HARD 해금 기준 — EASY 를 이 점수 이상으로 통과해야 열린다 */
-export const HARD_UNLOCK_SCORE = 80;
-
-/** 단계 완료 인정 기준 (진행률 분자에 들어가는 점수) */
-export const STAGE_PASS_SCORE = 60;
-
-/** 한 단계의 문제 수 (대립쌍 × 2 — 정답이 양쪽으로 한 번씩) */
-export const stageQuestionCount = (lv: PronLevel, step: number) =>
-  (findStage(lv, step)?.pairs.length ?? 0) * 2;
-
-/**
- * 점수는 맞힌 비율 × 100.
- * "80점 이상"이라고만 하면 몇 개를 맞혀야 하는지 감이 안 오므로,
- * 화면에는 이 함수로 개수를 계산해 보여준다.
- */
-export const correctNeededFor = (
-  lv: PronLevel,
-  step: number,
-  score: number,
-) => {
-  const total = stageQuestionCount(lv, step);
-  return { total, need: Math.ceil((score / 100) * total) };
-};
+export const {
+  levelTotal,
+  findStage,
+  stageQuestionPlan,
+  stageQuestionCount,
+  correctNeededFor,
+} = createPronunciationCurriculum(PRON_DATA);

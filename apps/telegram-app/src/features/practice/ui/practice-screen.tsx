@@ -7,6 +7,8 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { MobileIcon, type MaterialCommunityIconName } from "../../../shared/ui/mobile-icon";
 import styles from "./practice-screen.module.css";
 import { getContentLang } from "../../../shared/i18n/content-language";
+import { ENGLISH_PRON_COPY, resolvePronunciationLanguage } from "../../pronunciation/data/pronunciation-curriculum";
+import { useAppLanguage } from "../../../shared/i18n/language-context";
 
 interface MistakeQuestion {
   id: string;
@@ -89,7 +91,10 @@ function MistakesModal({ onClose, request }: {
 
 export function PracticeScreen() {
   const router = useRouter();
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
+  const { language } = useAppLanguage();
+  const pronunciationLanguage = resolvePronunciationLanguage(user?.learnCourse);
+  const pronunciationRoute = `/pronunciation-practice?targetLanguage=${pronunciationLanguage}`;
   const [counts, setCounts] = useState({ mistakes: 0, words: 0 });
   const [mistakesOpen, setMistakesOpen] = useState(false);
 
@@ -113,7 +118,7 @@ export function PracticeScreen() {
     { key: "words", label: "So'zlar", hint: "O‘rgangan so‘zlar kartochkada", icon: "cards", color: "#1CB0F6", route: "/word-study", badge: counts.words },
     { key: "speaking", label: "Gapirish", hint: "Mavzu tanlab, ovoz chiqarib", icon: "microphone", color: "#2FBFA0", route: "/speaking" },
     { key: "listening", label: "Tinglash", hint: "O‘qib va tinglab o‘rganish", icon: "headphones", color: "#FF6B6B", route: "/reading-listening-levels" },
-    { key: "pronunciation", label: "Talaffuz", hint: "Batchim va jamo tovushlarini sayqallash", icon: "waveform", color: "#CE82FF", route: "/pronunciation-practice" },
+    { key: "pronunciation", label: "Talaffuz", hint: pronunciationLanguage === "en" ? ENGLISH_PRON_COPY[language].languageLabel : "Batchim va jamo tovushlarini sayqallash", icon: "waveform", color: "#CE82FF", route: pronunciationRoute },
     { key: "games", label: "O‘yinlar", hint: "O‘ynab so‘zlarni mustahkamlash", icon: "gamepad-variant", color: "#776EE2", route: "/games" },
   ];
 
@@ -139,7 +144,7 @@ export function PracticeScreen() {
           </div>
           <div className={styles.heroCard}>
             <strong>{counts.mistakes > 0 ? `${counts.mistakes} ta xato` : "Mukammal talaffuz"}</strong>
-            <button onClick={() => counts.mistakes > 0 ? setMistakesOpen(true) : router.push("/pronunciation-practice")} type="button">Boshlash</button>
+            <button onClick={() => counts.mistakes > 0 ? setMistakesOpen(true) : router.push(pronunciationRoute)} type="button">Boshlash</button>
           </div>
         </section>
 
@@ -152,7 +157,7 @@ export function PracticeScreen() {
                   <strong>{skill.label}</strong>
                   {skill.badge ? <b style={{ "--skill-color": skill.color } as CSSProperties}>{skill.badge > 99 ? "99+" : skill.badge}</b> : null}
                 </span>
-                <small>{skill.hint}</small>
+                <small data-no-translate={skill.key === "pronunciation" && pronunciationLanguage === "en" ? true : undefined}>{skill.hint}</small>
               </span>
               <span className={styles.skillIcon} style={{ "--skill-color": skill.color } as CSSProperties}><MobileIcon family="material-community" name={skill.icon} size={28} /></span>
             </button>

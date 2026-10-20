@@ -9,6 +9,7 @@ export function savePronunciationScore(request: AuthenticatedRequest, body: {
   mode: "easy" | "hard";
   score: number;
   step: number;
+  targetLanguage?: "ko" | "en";
 }) {
   return request<{ scores: Record<string, number> }>("/users/me/pronunciation", {
     body: JSON.stringify(body),

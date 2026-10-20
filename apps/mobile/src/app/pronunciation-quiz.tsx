@@ -1,15 +1,10 @@
 import { useCallback, useState, useEffect, useMemo, useRef } from "react";
-import {
-  ActivityIndicator,
-  View,
-  Text,
-  StyleSheet,
-} from "react-native";
+import { ActivityIndicator, View, Text, StyleSheet } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { AUTO_SPEECH_DELAY_MS, useSpeech } from "@/hooks/useSpeech";
 import Animated, {
   useSharedValue,
@@ -21,8 +16,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import {
-  stageQuestionPlan,
-  correctNeededFor,
+  PRON_LEVELS,
   HARD_UNLOCK_SCORE,
   STAGE_PASS_SCORE,
   type PronLevel,
@@ -30,8 +24,12 @@ import {
 } from "@/constants/pronunciation";
 import { UserService } from "@/services/user.service";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import { glossOf } from "@/constants/pronunciation-gloss";
-import { useContentLang } from "@/store/settings.store";
+import { useContentLang, useSettingsStore } from "@/store/settings.store";
+import {
+  getPronunciationCurriculum,
+  resolvePronunciationLanguage,
+  type PronunciationLanguage,
+} from "@/constants/pronunciation-curriculum";
 
 const C = {
   bgTop: "#cfe9f8",
@@ -66,10 +64,14 @@ interface PQ {
   answer: 0 | 1;
 }
 
-const toOpt = (o: PronOption, lang: string): Opt => ({
+const toOpt = (
+  o: PronOption,
+  lang: string,
+  gloss: (word: string, locale: string) => string,
+): Opt => ({
   word: o.word,
   ipa: o.jamo,
-  meaning: glossOf(o.word, lang),
+  meaning: gloss(o.word, lang),
 });
 
 /**
@@ -83,44 +85,92 @@ const toQuestion = (
   pair: [PronOption, PronOption],
   answer: 0 | 1,
   lang: string,
+  gloss: (word: string, locale: string) => string,
 ): PQ => {
   const swap = Math.random() < 0.5;
   const [l, r] = swap ? [pair[1], pair[0]] : pair;
   return {
-    options: [toOpt(l, lang), toOpt(r, lang)],
+    options: [toOpt(l, lang, gloss), toOpt(r, lang, gloss)],
     answer: (swap ? 1 - answer : answer) as 0 | 1,
   };
 };
 
 export default function PronunciationQuiz() {
+  const params = useLocalSearchParams<{
+    level?: string;
+    step?: string;
+    mode?: string;
+    targetLanguage?: string;
+  }>();
+  const course = useSettingsStore((state) => state.learnCourse);
+  // A settings refresh must not change the language of an in-flight quiz.
+  const [entryCourse] = useState(course);
+  const language = resolvePronunciationLanguage(
+    params.targetLanguage,
+    entryCourse,
+  );
+  const level = (params.level ?? "lv1") as PronLevel;
+  const step = Number(params.step ?? 1);
+  const isHard = params.mode === "hard";
+  if (
+    !PRON_LEVELS.includes(level) ||
+    !Number.isInteger(step) ||
+    !getPronunciationCurriculum(language).findStage(level, step)
+  ) {
+    return (
+      <Redirect
+        href={{
+          pathname: "/pronunciation-practice",
+          params: { targetLanguage: language },
+        }}
+      />
+    );
+  }
+  return (
+    <PronunciationQuizSession
+      key={`${language}:${level}:${step}:${isHard}`}
+      language={language}
+      level={level}
+      step={step}
+      isHard={isHard}
+    />
+  );
+}
+
+function PronunciationQuizSession({
+  language,
+  level,
+  step,
+  isHard,
+}: {
+  language: PronunciationLanguage;
+  level: PronLevel;
+  step: number;
+  isHard: boolean;
+}) {
   const { t } = useTranslation();
-  const contentLang = useContentLang();
+  const currentContentLang = useContentLang(language);
+  const [contentLang] = useState(currentContentLang);
+  const { stageQuestionPlan, correctNeededFor, speechLocale, gloss } =
+    getPronunciationCurriculum(language);
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { speak, stop, prewarm } = useSpeech();
+  const { speak, stop, prewarm } = useSpeech(speechLocale);
   const secondSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const autoSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const correctSpeechTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
   const saveRequestRef = useRef(0);
 
-  const params = useLocalSearchParams<{
-    level?: string;
-    step?: string;
-    mode?: string;
-  }>();
-  const level = (params.level ?? "lv1") as PronLevel;
-  const step = Number(params.step ?? 1);
-  const isHard = params.mode === "hard";
-
   const QUESTIONS = useMemo<PQ[]>(
     () =>
       stageQuestionPlan(level, step).map((p) =>
-        toQuestion(p.pair, p.answer, contentLang),
+        toQuestion(p.pair, p.answer, contentLang, gloss),
       ),
-    [level, step, contentLang],
+    [level, step, contentLang, gloss, stageQuestionPlan],
   );
 
   const [index, setIndex] = useState(0);
@@ -141,9 +191,13 @@ export default function PronunciationQuiz() {
 
   useEffect(() => {
     ring.value = 1;
-  }, []);
+  }, [ring]);
 
   const speakOptions = useCallback(() => {
+    if (autoSpeechTimerRef.current) {
+      clearTimeout(autoSpeechTimerRef.current);
+      autoSpeechTimerRef.current = null;
+    }
     if (secondSpeechTimerRef.current) {
       clearTimeout(secondSpeechTimerRef.current);
       secondSpeechTimerRef.current = null;
@@ -155,19 +209,19 @@ export default function PronunciationQuiz() {
     stop();
     // HARD 는 정답 하나만. 두 개를 순서대로 들려주면 순서만 기억해도 풀린다
     if (isHard) {
-      speak(target.word);
+      speak(target.word, speechLocale);
       return;
     }
     const [a, b] = q.options;
-    speak(a.word, "ko-KR", {
+    speak(a.word, speechLocale, {
       onDone: () => {
         secondSpeechTimerRef.current = setTimeout(() => {
           secondSpeechTimerRef.current = null;
-          speak(b.word);
+          speak(b.word, speechLocale);
         }, BETWEEN_WORDS_DELAY_MS);
       },
     });
-  }, [isHard, q.options, speak, stop, target.word]);
+  }, [isHard, q.options, speak, stop, target.word, speechLocale]);
 
   useEffect(() => {
     flip.value = isHard ? 1 : 0;
@@ -175,20 +229,24 @@ export default function PronunciationQuiz() {
 
     // 현재 두 단어는 병렬로 준비한다. 첫 단어가 끝난 다음 두 번째 단어의
     // Azure 음원을 요청하면 한 음절짜리 문제에서도 침묵이 길어지기 때문이다.
-    prewarm([q.options[0].word], "ko-KR");
-    prewarm([q.options[1].word], "ko-KR");
+    prewarm([q.options[0].word], speechLocale);
+    prewarm([q.options[1].word], speechLocale);
 
     // 현재 문제를 듣는 동안 다음 두 문제도 순서대로 준비해 카드 전환 지연을 없앤다.
     const upcomingWords = QUESTIONS.slice(index + 1, index + 3)
       .flatMap((question) => question.options.map((option) => option.word))
-      .filter(
-        (word, wordIndex, words) => words.indexOf(word) === wordIndex,
-      );
-    if (upcomingWords.length > 0) prewarm(upcomingWords, "ko-KR");
+      .filter((word, wordIndex, words) => words.indexOf(word) === wordIndex);
+    if (upcomingWords.length > 0) prewarm(upcomingWords, speechLocale);
 
-    const t1 = setTimeout(() => speakOptions(), AUTO_SPEECH_DELAY_MS);
+    autoSpeechTimerRef.current = setTimeout(
+      () => speakOptions(),
+      AUTO_SPEECH_DELAY_MS,
+    );
     return () => {
-      clearTimeout(t1);
+      if (autoSpeechTimerRef.current) {
+        clearTimeout(autoSpeechTimerRef.current);
+        autoSpeechTimerRef.current = null;
+      }
       if (secondSpeechTimerRef.current) {
         clearTimeout(secondSpeechTimerRef.current);
         secondSpeechTimerRef.current = null;
@@ -208,10 +266,21 @@ export default function PronunciationQuiz() {
     q.options,
     speakOptions,
     stop,
+    speechLocale,
   ]);
 
   const pick = (i: number) => {
     if (selected !== null) return;
+    // Answering cancels the pending second example before replaying feedback.
+    for (const timer of [
+      autoSpeechTimerRef,
+      secondSpeechTimerRef,
+      correctSpeechTimerRef,
+    ]) {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+    }
+    stop();
     setSelected(i);
     const correct = i === q.answer;
     setResults((r) => {
@@ -223,12 +292,16 @@ export default function PronunciationQuiz() {
     if (correct) {
       correctSpeechTimerRef.current = setTimeout(() => {
         correctSpeechTimerRef.current = null;
-        speak(target.word);
+        speak(target.word, speechLocale);
       }, CORRECT_REPLAY_DELAY_MS);
     }
   };
 
   const next = () => {
+    if (autoSpeechTimerRef.current) {
+      clearTimeout(autoSpeechTimerRef.current);
+      autoSpeechTimerRef.current = null;
+    }
     if (secondSpeechTimerRef.current) {
       clearTimeout(secondSpeechTimerRef.current);
       secondSpeechTimerRef.current = null;
@@ -269,6 +342,7 @@ export default function PronunciationQuiz() {
       step,
       mode: isHard ? "hard" : "easy",
       score,
+      targetLanguage: language,
     })
       .then(() => {
         if (saveRequestRef.current === requestId) setSaveStatus("saved");
@@ -276,7 +350,7 @@ export default function PronunciationQuiz() {
       .catch(() => {
         if (saveRequestRef.current === requestId) setSaveStatus("error");
       });
-  }, [isHard, level, score, step]);
+  }, [isHard, level, score, step, language]);
 
   // 결과 화면에서 저장 완료 여부를 직접 보여주고, 실패하면 같은 결과를 재전송한다
   useEffect(() => {
@@ -357,9 +431,7 @@ export default function PronunciationQuiz() {
             {saveStatus === "error" && (
               <>
                 <Ionicons name="alert-circle" size={20} color={C.red} />
-                <Text style={st.saveErrorText}>
-                  {t("pronQuiz.saveFailed")}
-                </Text>
+                <Text style={st.saveErrorText}>{t("pronQuiz.saveFailed")}</Text>
                 <Pressable onPress={saveResult} hitSlop={8}>
                   <Text style={st.saveRetryText}>
                     {t("pronQuiz.retrySave")}
@@ -446,9 +518,10 @@ export default function PronunciationQuiz() {
             }
             disabled={selected !== null}
             onPress={() => pick(i)}
-            onSpeak={() => speak(opt.word)}
+            onSpeak={() => speak(opt.word, speechLocale)}
             practiceLabel={t("pronQuiz.practice")}
             hideJamo={isHard}
+            englishCard={language === "en"}
           />
         ))}
       </View>
@@ -515,6 +588,7 @@ function OptionCard({
   onSpeak,
   practiceLabel,
   hideJamo,
+  englishCard,
 }: any) {
   const frontStyle = useAnimatedStyle(() => ({
     transform: [
@@ -556,7 +630,7 @@ function OptionCard({
       )}
 
       <Pressable
-        style={st.cardBox}
+        style={[st.cardBox, englishCard && { height: 224 }]}
         onPress={disabled ? undefined : onPress}
         accessibilityRole="button"
       >
@@ -587,7 +661,14 @@ function OptionCard({
           <View style={st.cardInner}>
             <Text style={st.optWord}>{opt.word}</Text>
             {!hideJamo && <Text style={st.optIpa}>[ {opt.ipa} ]</Text>}
-            <Text style={st.optMeaning}>{opt.meaning}</Text>
+            <Text
+              style={st.optMeaning}
+              numberOfLines={3}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+            >
+              {opt.meaning}
+            </Text>
           </View>
           <View style={st.divider} />
           <View style={st.practiceBtn}>

@@ -387,9 +387,9 @@ export const getContentLang = (): ContentLanguage | "ko" => {
 };
 
 /** 컴포넌트용. 설명 언어가 바뀌면 다시 그린다 */
-export function useContentLang(): ContentLanguage | "ko" {
+export function useContentLang(targetLanguage?: string): ContentLanguage | "ko" {
   const ui = useSettingsStore((st) => st.language);
   const saved = useSettingsStore((st) => st.contentLanguage);
   const course = useSettingsStore((st) => st.learnCourse);
-  return resolveContentLanguage(ui, saved, course);
+  return resolveContentLanguage(ui, saved, targetLanguage ?? course);
 }

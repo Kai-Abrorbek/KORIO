@@ -853,7 +853,9 @@ export class UsersService {
    * 최고점만 남긴다 — 다시 풀어서 못 봤다고 진행률이 깎이면 재도전을 피하게 된다.
    */
   async savePronunciation(userId: string, dto: SavePronunciationDto) {
-    const key = `${dto.level}:${dto.step}:${dto.mode}`;
+    // 기존 클라이언트/한국어 기록의 키는 유지하고 새 영어 기록만 별도 공간에 둔다.
+    const prefix = dto.targetLanguage === 'en' ? 'en:' : '';
+    const key = `${prefix}${dto.level}:${dto.step}:${dto.mode}`;
 
     // 동시에 여러 저장 요청이 와도 더 낮은 점수가 최고점을 덮지 않도록 원자적으로 갱신한다.
     const updated = await this.userModel

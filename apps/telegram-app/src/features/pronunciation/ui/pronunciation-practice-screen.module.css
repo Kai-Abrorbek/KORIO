@@ -9,6 +9,7 @@
 .tabs .activeTab { color:#8b7ff0; font-weight:800; }
 .tabs .activeTab i { display:block; }
 .content { margin:0 auto; max-width:620px; padding:16px 16px max(20px,var(--korio-bottom)); }
+.languageNote { color:#6b7283; font-size:12px; line-height:1.5; margin:0 2px 14px; }
 .banner { align-items:center; background:#fff; border-radius:16px; display:flex; gap:14px; margin-bottom:14px; padding:18px; }
 .banner > div { flex:1; min-width:0; }
 .banner h2 { font-size:17px; font-weight:800; margin:0; }
@@ -27,7 +28,7 @@
 .stageHead > div { flex:1; min-width:0; }
 .stageHead > div > span { background:#3d3d4d; border-radius:8px; color:#fff; display:inline-flex; font-size:13px; font-weight:800; margin-bottom:12px; padding:4px 10px; }
 .stageHead > div > svg { color:#3cba54; margin:0 0 8px 8px; vertical-align:middle; }
-.stageHead p { align-items:baseline; display:flex; gap:8px; margin:0; }
+.stageHead p { align-items:baseline; display:flex; flex-wrap:wrap; gap:8px; margin:0; }
 .stageHead p strong { font-size:34px; font-weight:800; }
 .stageHead p i { color:#9aa2b1; font-size:18px; font-style:normal; font-weight:700; }
 .stageHead p b { font-size:16px; margin-left:4px; }

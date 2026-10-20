@@ -1,30 +1,28 @@
 import { useCallback, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Modal,
-} from "react-native";
+import { View, Text, StyleSheet, ScrollView, Modal } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "@/utils/haptics";
 import { UserService } from "@/services/user.service";
 import {
-  PRON_DATA,
   PRON_LEVELS,
   HARD_UNLOCK_SCORE,
   STAGE_PASS_SCORE,
-  levelTotal,
-  correctNeededFor,
   type PronLevel,
   type PronStage,
 } from "@/constants/pronunciation";
+import {
+  getPronunciationCurriculum,
+  englishPronunciationCopy,
+  pronunciationScoreKey,
+  resolvePronunciationLanguage,
+} from "@/constants/pronunciation-curriculum";
+import { useSettingsStore } from "@/store/settings.store";
 
 const C = {
   bg: "#f4f5f9",
@@ -43,16 +41,28 @@ const C = {
   green: "#3cba54",
 };
 
-/** 점수 맵 키 — 백엔드와 같은 규칙 */
-const key = (lv: PronLevel, step: number, mode: "easy" | "hard") =>
-  `${lv}:${step}:${mode}`;
-
 type ScoreStatus = "loading" | "ready" | "error";
 
 export default function PronunciationPractice() {
+  const params = useLocalSearchParams<{ targetLanguage?: string }>();
+  const course = useSettingsStore((state) => state.learnCourse);
+  const language = resolvePronunciationLanguage(params.targetLanguage, course);
+  return <PronunciationPracticeSession key={language} language={language} />;
+}
+
+function PronunciationPracticeSession({ language }: { language: "ko" | "en" }) {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const uiLanguage = useSettingsStore((state) => state.language);
+  const englishCopy = englishPronunciationCopy(uiLanguage);
+  const {
+    data: curriculum,
+    levelTotal,
+    correctNeededFor,
+  } = getPronunciationCurriculum(language);
+  const key = (lv: PronLevel, step: number, mode: "easy" | "hard") =>
+    pronunciationScoreKey(lv, step, mode, language);
 
   const [tab, setTab] = useState<PronLevel>("lv1");
   const [expanded, setExpanded] = useState<number | null>(1);
@@ -88,7 +98,7 @@ export default function PronunciationPractice() {
     }, [loadScores]),
   );
 
-  const data = PRON_DATA[tab];
+  const data = curriculum[tab];
   const total = levelTotal(tab);
   const practiced = scores
     ? data.stages.reduce(
@@ -115,7 +125,12 @@ export default function PronunciationPractice() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
       pathname: "/pronunciation-quiz",
-      params: { level: tab, step: String(stage.step), mode },
+      params: {
+        level: tab,
+        step: String(stage.step),
+        mode,
+        targetLanguage: language,
+      },
     });
   };
 
@@ -148,7 +163,16 @@ export default function PronunciationPractice() {
         <Pressable onPress={() => router.back()} hitSlop={10}>
           <Ionicons name="chevron-back" size={28} color={C.ink} />
         </Pressable>
-        <Text style={st.headerTitle}>{t("pronPractice.title")}</Text>
+        <Text
+          style={st.headerTitle}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.75}
+        >
+          {language === "en"
+            ? englishCopy.languageLabel
+            : t("pronPractice.title")}
+        </Text>
       </View>
 
       {/* 탭 — 라벨은 짧게 고정. 무슨 레벨인지는 아래 배너가 설명한다 */}
@@ -189,8 +213,17 @@ export default function PronunciationPractice() {
         {/* 진행 배너 — 실제 저장된 점수로 계산 */}
         <View style={st.banner}>
           <View style={{ flex: 1 }}>
-            <Text style={st.bannerTitle}>{t(data.storyKey)}</Text>
-            <Text style={st.bannerSub}>{t(`pronPractice.focus.${tab}`)}</Text>
+            <Text style={st.bannerTitle}>
+              {language === "en" ? englishCopy.stories[tab] : t(data.storyKey)}
+            </Text>
+            <Text style={st.bannerSub}>
+              {language === "en"
+                ? englishCopy.focus[tab]
+                : t(`pronPractice.focus.${tab}`)}
+            </Text>
+            {language === "en" && (
+              <Text style={st.bannerSub}>{englishCopy.accentNote}</Text>
+            )}
             <View style={st.bannerTrack}>
               <View
                 style={[
@@ -211,15 +244,13 @@ export default function PronunciationPractice() {
           <View
             style={[
               st.ring,
-              scoreStatus === "ready" &&
-                pct > 0 && { borderColor: C.purple },
+              scoreStatus === "ready" && pct > 0 && { borderColor: C.purple },
             ]}
           >
             <Text
               style={[
                 st.ringPct,
-                scoreStatus === "ready" &&
-                  pct > 0 && { color: C.purpleDk },
+                scoreStatus === "ready" && pct > 0 && { color: C.purpleDk },
               ]}
             >
               {scoreStatus === "ready" ? (
@@ -274,9 +305,11 @@ export default function PronunciationPractice() {
                     <Text style={st.pairVs}>vs</Text>
                     <Text style={st.pairLetter}>{stage.b}</Text>
                     <Text style={st.pairPos}>
-                      {stage.pos === "front"
-                        ? t("pronPractice.front")
-                        : t("pronPractice.back")}
+                      {language === "en"
+                        ? englishCopy.positions[stage.pos]
+                        : stage.pos === "front"
+                          ? t("pronPractice.front")
+                          : t("pronPractice.back")}
                     </Text>
                   </View>
                 </View>
@@ -423,7 +456,7 @@ const st = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
   },
-  headerTitle: { fontSize: 22, fontWeight: "800", color: C.ink },
+  headerTitle: { flex: 1, fontSize: 22, fontWeight: "800", color: C.ink },
 
   tabs: {
     flexDirection: "row",
@@ -512,10 +545,21 @@ const st = StyleSheet.create({
     borderRadius: 8,
   },
   stepBadgeText: { color: "#fff", fontSize: 13, fontWeight: "800" },
-  pairRow: { flexDirection: "row", alignItems: "baseline", gap: 8 },
+  pairRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    gap: 8,
+  },
   pairLetter: { fontSize: 34, fontWeight: "800", color: C.ink },
   pairVs: { fontSize: 18, fontWeight: "700", color: C.sub },
-  pairPos: { fontSize: 16, fontWeight: "700", color: C.ink, marginLeft: 4 },
+  pairPos: {
+    flexShrink: 1,
+    fontSize: 16,
+    fontWeight: "700",
+    color: C.ink,
+    marginLeft: 4,
+  },
   chevron: {
     width: 44,
     height: 44,

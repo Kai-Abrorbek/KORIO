@@ -154,7 +154,7 @@ export const UserService = {
   ): Promise<{ studyMode: "guided" | "free" }> =>
     api.patch(`/users/me/study-mode`, { studyMode }),
 
-  /** 발음 연습 점수 전체. 키는 `레벨:단계:모드` */
+  /** 전체 점수. 한국어는 기존 키, 영어는 `en:레벨:단계:모드`. */
   getPronunciation: (): Promise<{ scores: Record<string, number> }> =>
     api.get(`/users/me/pronunciation`),
 
@@ -164,6 +164,7 @@ export const UserService = {
     step: number;
     mode: "easy" | "hard";
     score: number;
+    targetLanguage?: "ko" | "en";
   }): Promise<{ scores: Record<string, number> }> =>
     api.post(`/users/me/pronunciation`, data),
 

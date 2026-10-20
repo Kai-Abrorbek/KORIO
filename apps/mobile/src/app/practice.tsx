@@ -15,6 +15,8 @@ import { ThemeColors } from "@/constants/theme";
 import MistakesModal from "@/components/practice/MistakesModal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LessonService } from "@/services/lesson.service";
+import { useSettingsStore } from "@/store/settings.store";
+import { englishPronunciationCopy } from "@/constants/pronunciation-curriculum";
 
 type SkillIcon = {
   key: string;
@@ -35,6 +37,12 @@ export default function PracticeScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const s = styles(theme);
+  const language = useSettingsStore((state) => state.learnCourse);
+  const uiLanguage = useSettingsStore((state) => state.language);
+  const openPronunciation = () => router.push({
+    pathname: "/pronunciation-practice",
+    params: { targetLanguage: language },
+  });
 
   const [showMistakes, setShowMistakes] = useState(false);
 
@@ -115,11 +123,13 @@ export default function PracticeScreen() {
     {
       key: "pronunciation",
       label: t("practice.pronunciation"),
-      hint: t("practice.pronunciationHint"),
+      hint: language === "en"
+        ? englishPronunciationCopy(uiLanguage).practiceHint
+        : t("practice.pronunciationHint"),
       icon: "waveform",
       color: "#CE82FF",
       ready: true,
-      onPress: () => router.push("/pronunciation-practice"),
+      onPress: openPronunciation,
     },
     {
       key: "games",
@@ -172,7 +182,7 @@ export default function PracticeScreen() {
               onPress={() =>
                 counts.mistakes > 0
                   ? setShowMistakes(true)
-                  : router.push("/pronunciation-practice")
+                  : openPronunciation()
               }
             >
               <Text style={s.heroBtnText}>{t("practice.heroStart")}</Text>
