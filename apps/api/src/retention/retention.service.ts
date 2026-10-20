@@ -39,7 +39,9 @@ import {
   QUEST_EVENT_KEYS,
   languageQuestValue,
   type QuestCounterKey,
+  type StatsRowForQuests,
 } from '../users/utils/quest-counter.util';
+import { languageStatsRow } from '../users/utils/language-stats.util';
 import {
   LEARNING_COURSES,
   resolveCourseScope,
@@ -83,7 +85,7 @@ const QUEST_CHEST_DISPLAY_GEMS = 50;
 
 /** 오늘 칸의 진행도에 쓰는 통계 필드 */
 const QUEST_STAT_FIELDS =
-  'xpEarned correctQuestions studyTimeSeconds questCounters categoryCounts languageQuests';
+  'xpEarned correctQuestions studyTimeSeconds questCounters categoryCounts languageQuests studyLanguages';
 
 /**
  * 오늘 칸의 진행도 — 학습 통계 + 행동 카운터.
@@ -92,14 +94,7 @@ const QUEST_STAT_FIELDS =
  */
 function progressOf(
   quest: CourseQuest,
-  row: {
-    xpEarned?: number;
-    correctQuestions?: number;
-    studyTimeSeconds?: number;
-    questCounters?: unknown;
-    categoryCounts?: unknown;
-    languageQuests?: unknown;
-  } | null,
+  row: (StatsRowForQuests & { xpEarned?: number }) | null,
   language: string,
 ): number {
   switch (quest.kind) {
@@ -134,11 +129,7 @@ function progressOf(
  * 안 해 본 분야(잠긴 기능일 수도)는 내지 않는다.
  */
 function weakestCategory(
-  rows: {
-    categoryCounts?: unknown;
-    categoryCorrect?: unknown;
-    languageQuests?: unknown;
-  }[],
+  rows: StatsRowForQuests[],
   language: string,
 ): string | null {
   const counts = new Map<string, number>();
@@ -169,24 +160,12 @@ function weakestCategory(
 }
 
 function hasCategoryCorrect(
-  row: { categoryCorrect?: unknown; languageQuests?: unknown },
+  row: StatsRowForQuests,
   language: string,
   cat: string,
 ): boolean {
-  const source =
-    language === LEGACY_QUEST_LANGUAGE
-      ? row.categoryCorrect
-      : (
-          (row.languageQuests as Record<string, Record<string, unknown>>)?.[
-            language
-          ] as Record<string, unknown> | undefined
-        )?.categoryCorrect;
-  if (!source || typeof source !== 'object') return false;
-  const value =
-    source instanceof Map
-      ? (source.get(cat) as unknown)
-      : (source as Record<string, unknown>)[cat];
-  return value != null;
+  // 그 언어에 정답 기록이 있는 분야만 키가 있다 (language-stats.util)
+  return Object.hasOwn(languageStatsRow(row, language).categoryCorrect, cat);
 }
 
 /**
@@ -496,7 +475,7 @@ export class RetentionService {
           },
         })
         .select(
-          'xpEarned totalQuestions categoryCounts categoryCorrect languageQuests',
+          'xpEarned totalQuestions categoryCounts categoryCorrect languageQuests studyLanguages',
         )
         .lean(),
       this.openMistakesByLanguage(me._id),

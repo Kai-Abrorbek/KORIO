@@ -687,9 +687,12 @@ export default {
     continue: "Davom etish",
   },
   stats: {
+    /** 통계 화면 위 국기 전환 (스크린리더) — 코스 key 별 */
+    languageSwitch: { korean: "Koreys tili statistikasi", english: "Ingliz tili statistikasi" },
     studyPath: {
       title: "O'quv yo'li",
       level: "{{level}}-daraja",
+      level_en: "{{level}}-daraja",
       daysDone: "Tugatilgan kunlar",
       /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
       lessonsDone: "Tugatilgan darslar",

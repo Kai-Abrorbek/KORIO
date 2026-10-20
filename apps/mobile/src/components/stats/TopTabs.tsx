@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   View,
   StyleSheet,
@@ -20,9 +21,11 @@ interface Props {
   onChange: (t: StatsTab) => void;
   /** 페이저 위치 (0 = 기간별, 1 = 학습별, 미는 중엔 소수) — 밑줄·글자색이 따라온다 */
   progress: SharedValue<number>;
+  /** 탭 줄 오른쪽 끝 (언어 전환) */
+  right?: ReactNode;
 }
 
-export default function TopTabs({ value, onChange, progress }: Props) {
+export default function TopTabs({ value, onChange, progress, right }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const styles = getStyles(theme);
@@ -89,6 +92,7 @@ export default function TopTabs({ value, onChange, progress }: Props) {
             {t("stats.tabs.category")}
           </Animated.Text>
         </TouchableOpacity>
+        {right}
       </View>
       <Animated.View style={[styles.indicator, indicatorStyle]} />
       <View style={styles.bottomLine} />

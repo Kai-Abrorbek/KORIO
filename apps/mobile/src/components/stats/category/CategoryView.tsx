@@ -6,22 +6,28 @@ import { useTheme } from "@/hooks/useTheme";
 import CategoryTabs from "./CategoryTabs";
 import CategorySummary from "./CategorySummary";
 import StudyInfoChart from "./StudyInfoChart";
+import { useStatsLanguage } from "../StatsLanguage";
 
 export default function CategoryView() {
   const theme = useTheme();
   const [category, setCategory] = useState<StudyCategory>("vocab");
   const [data, setData] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const { language } = useStatsLanguage();
 
   // 요약 타일용 데이터는 week 로 고정 fetch
   // (period 영향 안 받는 totalProblems/todayTime/totalTime 만 씀)
   useEffect(() => {
+    let alive = true;
     setLoading(true);
-    StatsService.getCategory(category, "week")
-      .then(setData)
+    StatsService.getCategory(category, "week", undefined, language)
+      .then((res) => alive && setData(res))
       .catch((err) => console.error("category 로드 실패:", err))
-      .finally(() => setLoading(false));
-  }, [category]);
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [category, language]);
 
   return (
     <View>

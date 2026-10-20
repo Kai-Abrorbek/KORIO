@@ -70,6 +70,73 @@
   }
 }
 
+/* 상단 줄 — 탭 + 오른쪽 끝 언어 전환 (전환은 .topTabs 밖이라 탭 버튼 스타일을 안 받는다) */
+.topBar {
+  position: relative;
+}
+
+.langSwitch {
+  --lang-seg: 40px;
+  background: var(--stats-border);
+  border-radius: 14px;
+  display: flex;
+  padding: 3px;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 고른 칸 — 앱 버튼처럼 바닥 테두리로 입체감, 칸 사이를 미끄러져 옮겨 간다 */
+.langThumb {
+  background: var(--stats-surface);
+  border: 1.5px solid var(--stats-primary);
+  border-bottom-width: 3px;
+  border-radius: 11px;
+  bottom: 3px;
+  left: 3px;
+  position: absolute;
+  top: 3px;
+  transform: translateX(calc(var(--lang-i, 0) * var(--lang-seg)));
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  width: var(--lang-seg);
+}
+
+.langSwitch button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  width: var(--lang-seg);
+}
+
+.langSwitch button b {
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 22px;
+  opacity: 0.45;
+  transition: opacity 200ms ease;
+}
+
+.langSwitch button.langActive b {
+  opacity: 1;
+}
+
+.langSwitch button:not(.langActive):active b {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .langThumb {
+    transition: none;
+  }
+}
+
 /* 밑줄은 두 탭 글자 자리(--tab-x0·w0 → x1·w1, TopTabs 가 잰다) 사이를 --tab-progress 만큼 옮겨 간다.
    밀고 있는 동안엔 손가락을 바로 따라가고(data-swiping), 놓으면 화면과 같은 곡선으로 붙는다 */
 .topIndicator {

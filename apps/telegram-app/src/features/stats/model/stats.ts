@@ -1,3 +1,10 @@
+import { getContentLang } from "../../../shared/i18n/content-language";
+import {
+  DEFAULT_LEARNING_COURSES,
+  LEARN_COURSES,
+  type LearnCourse,
+} from "../../learning/model/learning-options";
+
 export type StatsTab = "period" | "category";
 export type StudyPeriod = "week" | "month" | "year" | "all";
 export type StudyCategory =
@@ -70,6 +77,10 @@ export interface TodaySummary {
 export interface PeriodStats {
   heatmap: HeatmapDay[];
   range: StudyPeriod;
+  /** 최근 1년에 한 번이라도 공부한 언어 (옛 서버는 안 준다) */
+  studiedLanguages?: string[];
+  /** 이 응답이 어느 언어 몫인가 (null = 모든 언어 합계) */
+  targetLanguage?: string | null;
   studyTime: {
     avgPerDayLabel: string;
     points: TimePoint[];
@@ -154,3 +165,41 @@ export const PERIOD_LABELS: Record<StudyPeriod, string> = {
   year: "Yil",
   all: "Hammasi",
 };
+
+/**
+ * 통계 화면 언어 전환에 보일 언어 (앱 utils/stats-language 와 같다).
+ * 지금 배우는 코스 + 지금 보고 있는 언어 + 최근 1년에 공부한 언어, 등록 순서대로.
+ * 하나뿐이면 전환을 안 그린다.
+ */
+export function statsLanguageOptions(
+  current: LearnCourse,
+  selected: LearnCourse,
+  studied: readonly string[] = [],
+): LearnCourse[] {
+  return (Object.keys(LEARN_COURSES) as LearnCourse[]).filter(
+    (course) =>
+      course === current || course === selected || studied.includes(course),
+  );
+}
+
+/**
+ * 통계 화면에서 고른 언어 몫으로 (앱 components/stats/StatsLanguage 와 같다).
+ * 통계 API 엔 targetLanguage 를, 학습 로드엔 그 코스를 명시한다 — 명시한 코스는
+ * 요청 래퍼가 지금 코스로 덮지 않는다. 학습 코스 자체는 안 바꾼다.
+ */
+export function statsLanguagePath(path: string, language: LearnCourse): string {
+  const [pathname = "", search = ""] = path.split("?");
+  const query = new URLSearchParams(search);
+  const scope = DEFAULT_LEARNING_COURSES[language];
+  if (pathname.startsWith("/users/me/stats/")) {
+    query.set("targetLanguage", scope.targetLanguage);
+  } else if (pathname === "/study-path") {
+    query.set("courseId", scope.courseId);
+    query.set("targetLanguage", scope.targetLanguage);
+    // 설명 언어도 그 코스 기준 (영어 코스 + 한국어 화면이면 따로 고른 말)
+    query.set("lang", getContentLang(scope.targetLanguage));
+  } else {
+    return path;
+  }
+  return `${pathname}?${query.toString()}`;
+}

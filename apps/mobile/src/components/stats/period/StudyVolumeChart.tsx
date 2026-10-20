@@ -21,6 +21,7 @@ import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
 import { ALL_CATEGORIES, CATEGORY_COLORS } from "@/constants/stats";
+import { useStatsLanguage } from "../StatsLanguage";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CHART_WIDTH = SCREEN_WIDTH - 32 - 36;
@@ -126,17 +127,23 @@ export default function StudyVolumeChart() {
   const [points, setPoints] = useState<VolumePoint[]>([]);
   const [avgPerDay, setAvgPerDay] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { language } = useStatsLanguage();
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
-    StatsService.getPeriod(period)
+    StatsService.getPeriod(period, undefined, language)
       .then((d) => {
+        if (!alive) return;
         setPoints(d.studyVolume.points);
         setAvgPerDay(d.studyVolume.avgPerDay);
       })
       .catch((err) => console.error("studyVolume 로드 실패:", err))
-      .finally(() => setLoading(false));
-  }, [period]);
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [period, language]);
 
   const maxTotal = Math.max(
     1,

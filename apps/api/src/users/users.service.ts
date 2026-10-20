@@ -60,6 +60,10 @@ import {
   isSuperStale,
 } from './super.util';
 import { bumpQuestCounter } from './utils/quest-counter.util';
+import {
+  languageStatsRow,
+  studiedLanguages,
+} from './utils/language-stats.util';
 import { presenceFor } from './presence.util';
 import {
   computeSkillScores,
@@ -1554,7 +1558,10 @@ export class UsersService {
     range: 'week' | 'month' | 'year' | 'all' = 'week',
     endDateStr: string | undefined,
     lang: string = 'uz',
+    /** 이 언어 몫만 (없으면 옛 앱 — 모든 언어 합계) */
+    targetLanguage?: string,
   ) {
+    const language = this.statsLanguage(targetLanguage);
     const tz = await this.getTimezone(userId);
     let todayStudySeconds = 0;
     let todayTotalQ = 0;
@@ -1605,12 +1612,15 @@ export class UsersService {
     startDate = startOfDay(startDate, tz);
 
     // 데이터 조회
-    const stats = await this.statsModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        date: { $gte: startDate, $lte: endDate },
-      })
-      .lean();
+    const stats = this.forLanguage(
+      await this.statsModel
+        .find({
+          userId: new Types.ObjectId(userId),
+          date: { $gte: startDate, $lte: endDate },
+        })
+        .lean(),
+      language,
+    );
 
     const today = startOfDay(new Date(), tz);
     const todayKey = dayKey(today, tz);
@@ -1741,10 +1751,14 @@ export class UsersService {
         : this.formatTimeLong(avgSeconds, lang);
 
     // 365일 히트맵 (range 와 무관, 항상 동일)
-    const heatmap = await this.buildHeatmap(userId);
+    const { heatmap, languages } = await this.buildHeatmap(userId, language);
 
     return {
       range,
+      /** 이 응답이 어느 언어 몫인가 (null = 모든 언어 합계, 옛 앱) */
+      targetLanguage: language ?? null,
+      /** 최근 1년에 한 번이라도 공부한 언어 — 통계 화면 언어 전환에 보일 것 */
+      studiedLanguages: languages,
       todayHasData,
       heatmap,
       studyTime: {
@@ -1784,16 +1798,22 @@ export class UsersService {
    * 0 이 되어 "약점" 으로 오진되고, 전체 기간으로 잡으면 반 년 전 실력이
    * 지금 그래프에 남는다. 90일이 "요즘의 나" 를 보여주는 선이다.
    */
-  async getSkillRadar(userId: string, days = 90) {
+  async getSkillRadar(userId: string, days = 90, targetLanguage?: string) {
+    const language = this.statsLanguage(targetLanguage);
     const tz = await this.getTimezone(userId);
     const since = startOfDay(new Date(), tz);
     since.setDate(since.getDate() - (days - 1));
 
-    const rows = await this.statsModel
-      .find({ userId: new Types.ObjectId(userId), date: { $gte: since } })
-      .select('date categoryCounts categoryCorrect')
-      .sort({ date: 1 })
-      .lean();
+    const rows = this.forLanguage(
+      await this.statsModel
+        .find({ userId: new Types.ObjectId(userId), date: { $gte: since } })
+        .select(
+          'date categoryCounts categoryCorrect totalQuestions correctQuestions studyTimeSeconds languageQuests studyLanguages',
+        )
+        .sort({ date: 1 })
+        .lean(),
+      language,
+    );
 
     const attempted = new Map<string, number>();
     const correct = new Map<string, number>();
@@ -1861,14 +1881,15 @@ export class UsersService {
     range: 'week' | 'month' | 'year' | 'all' = 'week',
     endDateStr: string | undefined,
     lang: string = 'uz',
+    /** 이 언어 몫만 (없으면 옛 앱 — 모든 언어 합계) */
+    targetLanguage?: string,
   ) {
     if (!(STUDY_CATEGORIES as string[]).includes(category)) {
       throw new BadRequestException(`Invalid category: ${category}`);
     }
+    const language = this.statsLanguage(targetLanguage);
     const tz = await this.getTimezone(userId);
-
-    // Map 필드는 dot path 로 접근 (categoryCounts.vocab)
-    const field = `categoryCounts.${category}`;
+    const cat = category as StudyCategory;
 
     // 범위의 끝은 "그 날의 끝" = 다음 날 자정 직전 (유저 tz 기준)
     const endDate = new Date(
@@ -1915,51 +1936,49 @@ export class UsersService {
     }
     startDate = startOfDay(startDate, tz);
 
-    // 전체 합계
-    const allStats = await this.statsModel.aggregate([
-      { $match: { userId: new Types.ObjectId(userId) } },
-      {
-        $group: {
-          _id: null,
-          totalCategoryCount: { $sum: `$${field}` },
-          totalQuestions: { $sum: '$totalQuestions' },
-          totalStudyTime: { $sum: '$studyTimeSeconds' },
-        },
+    // 전체 합계 — 언어별로 나눠야 해서 하루 행을 받아 여기서 더한다 (유저당 하루 1행)
+    const allRows = this.forLanguage(
+      await this.statsModel
+        .find({ userId: new Types.ObjectId(userId) })
+        .select(
+          'date categoryCounts totalQuestions correctQuestions studyTimeSeconds languageQuests studyLanguages',
+        )
+        .lean(),
+      language,
+    );
+    const all = allRows.reduce(
+      (acc, row) => {
+        acc.totalCategoryCount += toCounts(row.categoryCounts as any)[cat];
+        acc.totalQuestions += row.totalQuestions || 0;
+        acc.totalStudyTime += row.studyTimeSeconds || 0;
+        return acc;
       },
-    ]);
-    const all = allStats[0] || {
-      totalCategoryCount: 0,
-      totalQuestions: 0,
-      totalStudyTime: 0,
-    };
+      { totalCategoryCount: 0, totalQuestions: 0, totalStudyTime: 0 },
+    );
     const allRatio =
       all.totalQuestions > 0 ? all.totalCategoryCount / all.totalQuestions : 0;
     const totalTimeSeconds = Math.round(all.totalStudyTime * allRatio);
 
     // 오늘 시간
     const today = startOfDay(new Date(), tz);
-    const todayStat = await this.statsModel.findOne({
-      userId: new Types.ObjectId(userId),
-      date: { $gte: today },
-    });
+    const todayStat = allRows.find((row) => new Date(row.date) >= today);
     let todayTimeSeconds = 0;
     if (todayStat) {
       const todayRatio =
         todayStat.totalQuestions > 0
-          ? toCounts(todayStat.categoryCounts as any)[
-              category as StudyCategory
-            ] / todayStat.totalQuestions
+          ? toCounts(todayStat.categoryCounts as any)[cat] /
+            todayStat.totalQuestions
           : 0;
-      todayTimeSeconds = Math.round(todayStat.studyTimeSeconds * todayRatio);
+      todayTimeSeconds = Math.round(
+        (todayStat.studyTimeSeconds || 0) * todayRatio,
+      );
     }
 
     // 차트 데이터
-    const periodStats = await this.statsModel
-      .find({
-        userId: new Types.ObjectId(userId),
-        date: { $gte: startDate, $lte: endDate },
-      })
-      .lean();
+    const periodStats = allRows.filter((row) => {
+      const at = new Date(row.date);
+      return at >= startDate && at <= endDate;
+    });
 
     const todayKey = dayKey(today, tz);
     const chart: any[] = [];
@@ -2035,16 +2054,20 @@ export class UsersService {
     };
   }
 
-  private async buildHeatmap(userId: string) {
+  private async buildHeatmap(userId: string, language?: string) {
     const tz = await this.getTimezone(userId);
     const heatmapStart = startOfDayPlus(new Date(), -364, tz);
 
-    const yearStats = await this.statsModel
+    const rawYear = await this.statsModel
       .find({
         userId: new Types.ObjectId(userId),
         date: { $gte: heatmapStart },
       })
+      .select(
+        'date studyTimeSeconds totalQuestions correctQuestions categoryCounts languageQuests studyLanguages',
+      )
       .lean();
+    const yearStats = this.forLanguage(rawYear, language);
 
     const secondsByDate = new Map<string, number>();
     for (const s of yearStats) {
@@ -2061,7 +2084,22 @@ export class UsersService {
       const seconds = secondsByDate.get(key) || 0;
       heatmap.push({ date: key, intensity: this.secondsToIntensity(seconds) });
     }
-    return heatmap;
+    return { heatmap, languages: studiedLanguages(rawYear) };
+  }
+
+  /**
+   * 통계를 언어별로 볼 때 그 언어. 없으면 undefined = 모든 언어 합계 (옛 앱).
+   * 등록 안 된 언어는 400 (resolveCourseScope).
+   */
+  private statsLanguage(targetLanguage?: string): string | undefined {
+    if (!targetLanguage) return undefined;
+    return resolveCourseScope({ targetLanguage }).targetLanguage;
+  }
+
+  /** 하루 통계 행들을 그 언어 몫으로 (language-stats.util). 언어가 없으면 그대로 */
+  private forLanguage<T extends object>(rows: T[], language?: string): T[] {
+    if (!language) return rows;
+    return rows.map((row) => languageStatsRow(row, language) as unknown as T);
   }
 
   private secondsToIntensity(seconds: number): 0 | 1 | 2 | 3 | 4 {

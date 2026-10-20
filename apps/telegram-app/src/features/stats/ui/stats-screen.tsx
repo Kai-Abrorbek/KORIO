@@ -2,7 +2,9 @@
 
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -13,9 +15,17 @@ import { useRouter } from "next/navigation";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import {
   PERIOD_LABELS,
+  statsLanguageOptions,
+  statsLanguagePath,
   type StatsTab,
   type StudyPeriod,
 } from "../model/stats";
+import {
+  LEARN_COURSES,
+  learnCourseOf,
+  type LearnCourse,
+} from "../../learning/model/learning-options";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { SwipePager } from "../../../shared/ui/swipe-pager";
 import { CategoryView } from "./category-view";
@@ -153,10 +163,72 @@ function TopTabs({
   );
 }
 
+/**
+ * 통계를 볼 언어 — 상단 탭 오른쪽 국기. 최근 1년에 공부한 언어 + 지금 코스만,
+ * 하나뿐이면 안 보인다. 학습 코스는 안 바꾼다 (앱 StatsLanguageSwitch 와 같다).
+ */
+function LanguageSwitch({
+  onChange,
+  options,
+  value,
+}: {
+  onChange: (language: LearnCourse) => void;
+  options: LearnCourse[];
+  value: LearnCourse;
+}) {
+  if (options.length < 2) return null;
+  const index = Math.max(0, options.indexOf(value));
+  return (
+    <div
+      className={styles.langSwitch}
+      role="tablist"
+      style={{ "--lang-i": index, "--lang-n": options.length } as CSSProperties}
+    >
+      <i aria-hidden="true" className={styles.langThumb} />
+      {options.map((course) => {
+        const { flag, key } = LEARN_COURSES[course];
+        return (
+          <button
+            aria-label={uzt(`stats.languageSwitch.${key}`)}
+            aria-selected={course === value}
+            className={course === value ? styles.langActive : undefined}
+            key={course}
+            onClick={() => onChange(course)}
+            role="tab"
+            type="button"
+          >
+            <b data-no-translate>{flag}</b>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function StatsScreen() {
-  const { request } = useTelegramAuth();
+  const { request, user } = useTelegramAuth();
   const [tab, setTab] = useState<StatsTab>("period");
   const mainRef = useRef<HTMLElement>(null);
+
+  // 처음엔 지금 배우는 코스, 코스를 바꾸고 오면 그 코스부터
+  const learnCourse = learnCourseOf(user?.learnCourse);
+  const [language, setLanguage] = useState<LearnCourse>(learnCourse);
+  useEffect(() => setLanguage(learnCourse), [learnCourse]);
+  const [studied, setStudied] = useState<string[]>([]);
+  const onStudied = useCallback((languages?: string[]) => {
+    const next = languages ?? [];
+    setStudied((current) =>
+      current.join() === next.join() ? current : next,
+    );
+  }, []);
+  const options = statsLanguageOptions(learnCourse, language, studied);
+  // 모든 카드가 이 요청을 쓴다 — 언어가 바뀌면 request 가 바뀌어서 각자 다시 받는다
+  const statsRequest = useMemo(
+    () =>
+      <T,>(path: string, init?: RequestInit) =>
+        request<T>(statsLanguagePath(path, language), init),
+    [request, language],
+  );
 
   // 밀고 있는 위치를 상단 탭 밑줄·글자색에 바로 넘긴다 (매 프레임이라 리렌더 없이 style 로)
   const handleProgress = useCallback((progress: number, dragging: boolean) => {
@@ -168,15 +240,18 @@ export function StatsScreen() {
 
   return (
     <main className={styles.statsPage} ref={mainRef}>
-      <TopTabs onChange={setTab} value={tab} />
+      <div className={styles.topBar}>
+        <TopTabs onChange={setTab} value={tab} />
+        <LanguageSwitch onChange={setLanguage} options={options} value={language} />
+      </div>
       <SwipePager
         index={TABS.indexOf(tab)}
         onIndexChange={(next) => setTab(TABS[next] ?? "period")}
         onProgress={handleProgress}
         paneClassName={styles.pane}
         pages={[
-          <PeriodView key="period" request={request} />,
-          <CategoryView key="category" request={request} />,
+          <PeriodView key="period" onStudied={onStudied} request={statsRequest} />,
+          <CategoryView key="category" request={statsRequest} />,
         ]}
       />
       <BottomTabs />

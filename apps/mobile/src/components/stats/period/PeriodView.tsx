@@ -11,6 +11,7 @@ import StudyTimeChart from "./StudyTimeChart";
 import StudyVolumeChart from "./StudyVolumeChart";
 import SkillRadarCard from "../radar/SkillRadarCard";
 import StudyPathProgressCard from "../study-path/StudyPathProgressCard";
+import { useStatsLanguage } from "../StatsLanguage";
 
 export default function PeriodView() {
   const theme = useTheme();
@@ -18,19 +19,26 @@ export default function PeriodView() {
   const [todayHasData, setTodayHasData] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [today, setToday] = useState<TodaySummary | null>(null);
+  const { language, reportStudied } = useStatsLanguage();
 
   useFocusEffect(
     useCallback(() => {
-      // 히트맵 + 오늘 정보만 1회 로드 (period 와 무관)
-      StatsService.getPeriod("week")
+      let alive = true;
+      // 히트맵 + 오늘 정보만 1회 로드 (period 와 무관). 고른 언어 몫만
+      StatsService.getPeriod("week", undefined, language)
         .then((d) => {
+          if (!alive) return;
           setHeatmap(d.heatmap);
           setToday(d.today);
           setTodayHasData(d.todayHasData);
+          reportStudied(d.studiedLanguages);
         })
         .catch((err) => console.error("heatmap 로드 실패:", err))
-        .finally(() => setLoaded(true));
-    }, []),
+        .finally(() => alive && setLoaded(true));
+      return () => {
+        alive = false;
+      };
+    }, [language, reportStudied]),
   );
 
   if (!loaded) {

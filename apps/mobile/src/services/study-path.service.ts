@@ -1,4 +1,12 @@
-import { getContentLang } from "@/store/settings.store";
+import {
+  getContentLang,
+  resolveContentLanguage,
+  useSettingsStore,
+} from "@/store/settings.store";
+import {
+  DEFAULT_LEARNING_COURSES,
+  type LearnCourse,
+} from "@/constants/learnCourses";
 import api from "@/services/api";
 import type { ScoreData } from "@/services/lesson.service";
 import type {
@@ -12,8 +20,23 @@ import type {
 const getLang = getContentLang;
 
 export const StudyPathService = {
-  getStudyPath: (): Promise<StudyPathResponse> =>
-    api.get(`/study-path?lang=${encodeURIComponent(getLang())}`),
+  /**
+   * course 를 주면 지금 코스가 아니라 그 코스의 학습 로드 (통계 화면의 언어 전환).
+   * 명시한 코스는 api 가 덮어쓰지 않는다 (learningScopePath).
+   */
+  getStudyPath: (course?: LearnCourse): Promise<StudyPathResponse> => {
+    if (!course) {
+      return api.get(`/study-path?lang=${encodeURIComponent(getLang())}`);
+    }
+    const st = useSettingsStore.getState();
+    const scope = DEFAULT_LEARNING_COURSES[course];
+    const params = new URLSearchParams({
+      lang: resolveContentLanguage(st.language, st.contentLanguage, course),
+      courseId: scope.courseId,
+      targetLanguage: scope.targetLanguage,
+    });
+    return api.get(`/study-path?${params}`);
+  },
 
   /**
    * 학습 로드 모드 스코어.

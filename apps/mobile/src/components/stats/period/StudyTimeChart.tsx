@@ -20,6 +20,7 @@ import { StudyPeriod, TimePoint } from "@/types/stats";
 import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
+import { useStatsLanguage } from "../StatsLanguage";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
@@ -69,18 +70,24 @@ export default function StudyTimeChart() {
   const [avgPerDayLabel, setAvgPerDayLabel] = useState("");
   const [rangeLabel, setRangeLabel] = useState("");
   const [loading, setLoading] = useState(false);
+  const { language } = useStatsLanguage();
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
-    StatsService.getPeriod(period)
+    StatsService.getPeriod(period, undefined, language)
       .then((d) => {
+        if (!alive) return;
         setPoints(d.studyTime.points);
         setAvgPerDayLabel(d.studyTime.avgPerDayLabel);
         setRangeLabel(d.studyTime.rangeLabel);
       })
       .catch((err) => console.error("studyTime 로드 실패:", err))
-      .finally(() => setLoading(false));
-  }, [period]);
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [period, language]);
 
   const max = Math.max(...points.map((p) => p.minutes), 1);
   const stepX =

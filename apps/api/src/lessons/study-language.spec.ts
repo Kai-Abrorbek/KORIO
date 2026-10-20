@@ -88,6 +88,9 @@ describe('server-owned daily language recording', () => {
           'categoryCorrect.vocab': 3,
           // 일일 문제 퀘스트는 언어별로 — 영어 문제 두 개만 영어 칸에 (한국어는 합계 − 영어로 읽는다)
           'languageQuests.en.correct': 2,
+          // 통계 화면의 언어별 보기 — 문제 수, 시간은 문제 수 비율로 (30초 × 2/3)
+          'languageQuests.en.totalQuestions': 2,
+          'languageQuests.en.studyTimeSeconds': 20,
           'languageQuests.en.categoryCounts.vocab': 2,
           'languageQuests.en.categoryCorrect.vocab': 2,
         },

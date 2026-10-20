@@ -3,6 +3,12 @@
 import { useEffect, useState, type CSSProperties } from "react";
 
 import { getStudyPath } from "../../study-path/api/study-path";
+import { courseCopyKey } from "../../learning/model/course-copy";
+import {
+  DEFAULT_LEARNING_COURSES,
+  type LearnCourse,
+} from "../../learning/model/learning-options";
+import { uzt } from "../../../shared/i18n/uz-text";
 import type {
   StudyNodeKind,
   StudyPathResponse,
@@ -160,13 +166,19 @@ export function StudyPathProgressCard({
 
   const radius = 54.5;
   const circumference = 2 * Math.PI * radius;
+  const course: LearnCourse =
+    data.courseId === DEFAULT_LEARNING_COURSES.en.courseId ? "en" : "ko";
+  const levelKey = courseCopyKey("stats.studyPath.level", course);
 
   return (
     <StatsCard>
       <div className={styles.header}>
         <strong>O&apos;quv yo&apos;li</strong>
-        <span>
-          <MobileIcon name="ribbon" size={12} />{`${data.currentLevel}-daraja`}</span>
+        {/* 한국어는 "3급", 영어는 "3단계" — 응답이 어느 코스 것인지로 고른다 (통계 언어 전환) */}
+        <span data-i18n={levelKey}>
+          <MobileIcon name="ribbon" size={12} />
+          {uzt(levelKey, { level: data.currentLevel })}
+        </span>
       </div>
       <div className={styles.ringRow}>
         <div className={styles.ring}>

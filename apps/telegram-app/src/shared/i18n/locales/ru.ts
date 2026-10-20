@@ -683,9 +683,12 @@ export default {
     continue: "Продолжить",
   },
   stats: {
+    /** 통계 화면 위 국기 전환 (스크린리더) — 코스 key 별 */
+    languageSwitch: { korean: "Статистика: корейский", english: "Статистика: английский" },
     studyPath: {
       title: "Учебный маршрут",
       level: "{{level}} уровень",
+      level_en: "{{level}} уровень",
       daysDone: "Пройдено дней",
       /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
       lessonsDone: "Пройдено уроков",

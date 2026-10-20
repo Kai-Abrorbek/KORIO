@@ -17,6 +17,7 @@ import { StatsService } from "@/services/stats.service";
 import type { SkillRadar } from "@/types/stats";
 import StatsCard from "../shared/StatsCard";
 import RadarChart from "./RadarChart";
+import { useStatsLanguage } from "../StatsLanguage";
 
 /** 진단 종류별 아이콘·색 */
 const DIAG_STYLE: Record<string, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
@@ -43,18 +44,19 @@ export default function SkillRadarCard() {
   const { width } = useWindowDimensions();
   const [data, setData] = useState<SkillRadar | null>(null);
   const [loading, setLoading] = useState(true);
+  const { language } = useStatsLanguage();
 
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      StatsService.getSkills()
+      StatsService.getSkills(90, language)
         .then((res) => alive && setData(res))
         .catch((err) => console.error("skills 로드 실패:", err))
         .finally(() => alive && setLoading(false));
       return () => {
         alive = false;
       };
-    }, []),
+    }, [language]),
   );
 
   if (loading && !data) {

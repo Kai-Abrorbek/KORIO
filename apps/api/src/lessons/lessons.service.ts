@@ -1383,6 +1383,7 @@ export class LessonsService {
       wrong,
       params,
       questInc,
+      seconds,
     );
 
     await this.userStatsModel.findOneAndUpdate(
@@ -1433,6 +1434,8 @@ export class LessonsService {
       targetLanguage?: string;
     },
     sessionInc: Record<string, number>,
+    /** 이 판의 학습 시간 — 문제 수 비율로 언어마다 나눈다 (보통 한 판 = 한 언어) */
+    seconds = 0,
   ): Record<string, number> {
     const known = (language?: string | null) =>
       knownStudyLanguages([language])[0] ?? null;
@@ -1470,6 +1473,9 @@ export class LessonsService {
         inc,
         languageQuestInc(language, {
           correct: Math.max(0, group.length - wrong),
+          // 통계 화면의 언어별 보기 (users/utils/language-stats.util)
+          totalQuestions: group.length,
+          studyTimeSeconds: Math.round((seconds * group.length) / items.length),
           ...buildCategoryStatsInc(
             group,
             wrongSet,

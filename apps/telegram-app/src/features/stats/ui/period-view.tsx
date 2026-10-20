@@ -203,7 +203,14 @@ function MomentumCard({ days }: { days: HeatmapDay[] }) {
   );
 }
 
-export function PeriodView({ request }: { request: AuthenticatedRequest }) {
+export function PeriodView({
+  onStudied,
+  request,
+}: {
+  /** 최근 1년에 공부한 언어 — 상단 언어 전환에 보일 것 */
+  onStudied?: (languages?: string[]) => void;
+  request: AuthenticatedRequest;
+}) {
   const [data, setData] = useState<PeriodStats | null>(null);
   const [loaded, setLoaded] = useState(false);
 
@@ -211,7 +218,9 @@ export function PeriodView({ request }: { request: AuthenticatedRequest }) {
     let active = true;
     void getPeriod(request, "week")
       .then((result) => {
-        if (active) setData(result);
+        if (!active) return;
+        setData(result);
+        onStudied?.(result.studiedLanguages);
       })
       .catch(() => undefined)
       .finally(() => {
@@ -220,7 +229,7 @@ export function PeriodView({ request }: { request: AuthenticatedRequest }) {
     return () => {
       active = false;
     };
-  }, [request]);
+  }, [onStudied, request]);
 
   if (!loaded) {
     return (

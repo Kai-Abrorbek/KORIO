@@ -194,12 +194,15 @@ export class UsersController {
     @Query('range') range: 'week' | 'month' | 'year' | 'all' = 'week',
     @Query('endDate') endDate?: string,
     @Query('lang') lang: string = 'uz',
+    /** 통계 화면의 언어 전환 — 그 언어 몫만. 없으면 모든 언어 합계 (옛 앱) */
+    @Query('targetLanguage') targetLanguage?: string,
   ) {
     return this.usersService.getPeriodStats(
       req.user._id.toString(),
       range,
       endDate,
       lang,
+      targetLanguage,
     );
   }
 
@@ -208,10 +211,18 @@ export class UsersController {
    * days 는 7~365 로 제한한다 — 범위를 안 막으면 전체 기간 스캔을 유도한다.
    */
   @Get('me/stats/skills')
-  async getSkillRadar(@Request() req, @Query('days') days?: string) {
+  async getSkillRadar(
+    @Request() req,
+    @Query('days') days?: string,
+    @Query('targetLanguage') targetLanguage?: string,
+  ) {
     const n = Number(days);
     const safe = Number.isFinite(n) ? Math.min(365, Math.max(7, n)) : 90;
-    return this.usersService.getSkillRadar(req.user._id.toString(), safe);
+    return this.usersService.getSkillRadar(
+      req.user._id.toString(),
+      safe,
+      targetLanguage,
+    );
   }
 
   @Get('me/stats/category')
@@ -221,6 +232,7 @@ export class UsersController {
     @Query('range') range: 'week' | 'month' | 'year' | 'all' = 'week',
     @Query('endDate') endDate?: string,
     @Query('lang') lang: string = 'uz',
+    @Query('targetLanguage') targetLanguage?: string,
   ) {
     return this.usersService.getCategoryStats(
       req.user._id.toString(),
@@ -228,6 +240,7 @@ export class UsersController {
       range,
       endDate,
       lang,
+      targetLanguage,
     );
   }
 

@@ -17,6 +17,8 @@ import { ThemeColors } from "@/constants/theme";
 import { StudyPathService } from "@/services/study-path.service";
 import type { StudyNodeKind, StudyPathResponse } from "@/types/study-path";
 import StatsCard from "../shared/StatsCard";
+import { useStatsLanguage } from "../StatsLanguage";
+import { courseCopyContext } from "@/hooks/useCourseTranslation";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -81,11 +83,13 @@ export default function StudyPathProgressCard() {
 
   const [data, setData] = useState<StudyPathResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  // 통계 화면에서 고른 언어의 학습 로드 (지금 코스와 다를 수 있다)
+  const { language } = useStatsLanguage();
 
   useFocusEffect(
     useCallback(() => {
       let alive = true;
-      StudyPathService.getStudyPath()
+      StudyPathService.getStudyPath(language)
         .then((res) => {
           if (alive) setData(res);
         })
@@ -96,7 +100,7 @@ export default function StudyPathProgressCard() {
       return () => {
         alive = false;
       };
-    }, []),
+    }, [language]),
   );
 
   const days = data?.days ?? [];
@@ -218,7 +222,11 @@ export default function StudyPathProgressCard() {
         <View style={s.levelBadge}>
           <Ionicons name="ribbon" size={12} color="#fff" />
           <Text style={s.levelText}>
-            {t("stats.studyPath.level", { level: data.currentLevel })}
+            {t("stats.studyPath.level", {
+              level: data.currentLevel,
+              // 한국어는 "3급", 영어는 "3단계" (useCourseTranslation 과 같은 규칙)
+              context: courseCopyContext(language),
+            })}
           </Text>
         </View>
       </View>

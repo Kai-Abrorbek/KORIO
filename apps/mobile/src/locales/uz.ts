@@ -699,6 +699,8 @@ export default {
     continue: "Davom etish",
   },
   stats: {
+    /** 통계 화면 위 국기 전환 (스크린리더) */
+    languageSwitch: "{{language}} statistikasi",
     studyPath: {
       title: "O'quv yo'li",
       level: "{{level}}-daraja",

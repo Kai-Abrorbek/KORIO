@@ -9,6 +9,10 @@ import TopTabs from "@/components/stats/TopTabs";
 import PeriodView from "@/components/stats/period/PeriodView";
 import CategoryView from "@/components/stats/category/CategoryView";
 import SwipePager from "@/components/common/SwipePager";
+import {
+  StatsLanguageProvider,
+  StatsLanguageSwitch,
+} from "@/components/stats/StatsLanguage";
 
 /** 상단 탭 순서 = 옆으로 넘기는 순서 */
 const TABS: StatsTab[] = ["period", "category"];
@@ -27,17 +31,25 @@ export default function StatsScreen() {
   );
 
   // 헤더를 없앴으니 상태바 자리는 컨테이너가 직접 확보한다
+  // 통계는 언어별로 본다 — 두 탭이 같은 언어를 본다 (StatsLanguage)
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
-      <TopTabs value={tab} onChange={setTab} progress={progress} />
-      <SwipePager
-        index={TABS.indexOf(tab)}
-        onIndexChange={(next) => setTab(TABS[next] ?? "period")}
-        pages={pages}
-        progress={progress}
-        contentContainerStyle={styles.scrollContent}
-      />
-    </View>
+    <StatsLanguageProvider>
+      <View style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <TopTabs
+          value={tab}
+          onChange={setTab}
+          progress={progress}
+          right={<StatsLanguageSwitch />}
+        />
+        <SwipePager
+          index={TABS.indexOf(tab)}
+          onIndexChange={(next) => setTab(TABS[next] ?? "period")}
+          pages={pages}
+          progress={progress}
+          contentContainerStyle={styles.scrollContent}
+        />
+      </View>
+    </StatsLanguageProvider>
   );
 }
 

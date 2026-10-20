@@ -679,9 +679,12 @@ export default {
     stopAudio: "재생 멈추기",
   },
   stats: {
+    /** 통계 화면 위 국기 전환 (스크린리더) — 코스 key 별 */
+    languageSwitch: { korean: "한국어 통계 보기", english: "영어 통계 보기" },
     studyPath: {
       title: "학습 로드",
       level: "{{level}}급",
+      level_en: "{{level}}단계",
       daysDone: "완주한 하루",
       /** 링(레슨) 단위 진행 — 하루를 다 끝내야 오르는 숫자만 있으면 한참 0 이다 */
       lessonsDone: "끝낸 레슨",

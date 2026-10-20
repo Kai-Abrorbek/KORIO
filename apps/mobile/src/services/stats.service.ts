@@ -1,5 +1,6 @@
 import api from "./api";
 import { getContentLang } from "@/store/settings.store";
+import type { LearnCourse } from "@/constants/learnCourses";
 import {
   PeriodStats,
   CategoryStats,
@@ -50,23 +51,30 @@ export const StatsService = {
   getWeekly: (date?: string): Promise<WeeklyData> =>
     api.get(`/users/me/stats/weekly${date ? `?date=${date}` : ""}`),
 
+  // targetLanguage: 통계 화면에서 고른 언어 몫만 (StatsLanguage). 안 보내면 모든 언어 합계
   getPeriod: (
     range: StudyPeriod = "week",
     endDate?: string,
+    targetLanguage?: LearnCourse,
   ): Promise<PeriodStats> => {
     const params = new URLSearchParams({ lang: getLang(), range });
     if (endDate) params.append("endDate", endDate);
+    if (targetLanguage) params.append("targetLanguage", targetLanguage);
     return api.get(`/users/me/stats/period?${params}`);
   },
 
   /** 스킬 레이더 — 분야별 강점·약점 (기본 90일) */
-  getSkills: (days = 90): Promise<SkillRadar> =>
-    api.get(`/users/me/stats/skills?days=${days}`),
+  getSkills: (days = 90, targetLanguage?: LearnCourse): Promise<SkillRadar> => {
+    const params = new URLSearchParams({ days: String(days) });
+    if (targetLanguage) params.append("targetLanguage", targetLanguage);
+    return api.get(`/users/me/stats/skills?${params}`);
+  },
 
   getCategory: (
     category: StudyCategory,
     range: StudyPeriod = "week",
     endDate?: string,
+    targetLanguage?: LearnCourse,
   ): Promise<CategoryStats> => {
     const params = new URLSearchParams({
       category,
@@ -74,6 +82,7 @@ export const StatsService = {
       range,
     });
     if (endDate) params.append("endDate", endDate);
+    if (targetLanguage) params.append("targetLanguage", targetLanguage);
     return api.get(`/users/me/stats/category?${params}`);
   },
 };

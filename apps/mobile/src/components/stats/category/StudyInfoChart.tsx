@@ -26,6 +26,7 @@ import { StatsService } from "@/services/stats.service";
 import StatsCard from "../shared/StatsCard";
 import PeriodSelector from "../shared/PeriodSelector";
 import { CATEGORY_COLORS } from "@/constants/stats";
+import { useStatsLanguage } from "../StatsLanguage";
 
 interface Props {
   category: StudyCategory;
@@ -158,14 +159,19 @@ export default function StudyInfoChart({ category }: Props) {
   const [stats, setStats] = useState<CategoryStats | null>(null);
   const [loading, setLoading] = useState(false);
   const colors = getColors(category);
+  const { language } = useStatsLanguage();
 
   useEffect(() => {
+    let alive = true;
     setLoading(true);
-    StatsService.getCategory(category, period)
-      .then(setStats)
+    StatsService.getCategory(category, period, undefined, language)
+      .then((res) => alive && setStats(res))
       .catch((err) => console.error("category chart 로드 실패:", err))
-      .finally(() => setLoading(false));
-  }, [category, period]);
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [category, period, language]);
 
   if (!stats) {
     return (

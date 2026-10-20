@@ -70,7 +70,7 @@
     "lint": "expo lint",
     "test:sfx": "node --test scripts/press-sound.test.cjs scripts/ui-sound-playback.test.cjs scripts/speech-capture.test.cjs",
     "test:speaking": "node --test scripts/speaking-practice.test.cjs",
-    "test:courses": "node --test scripts/learning-course.test.cjs",
+    "test:courses": "node --test scripts/learning-course.test.cjs scripts/stats-language.test.cjs",
     "test:streak": "node --test scripts/global-streak.test.cjs",
     "test:alphabet": "node --test scripts/english-phonics.test.cjs && node --experimental-strip-types --test scripts/character-page.test.mjs",
     "test:pronunciation": "node --test scripts/pronunciation.test.cjs",

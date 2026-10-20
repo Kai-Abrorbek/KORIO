@@ -695,6 +695,8 @@ export default {
     continue: "Продолжить",
   },
   stats: {
+    /** 통계 화면 위 국기 전환 (스크린리더) */
+    languageSwitch: "Статистика: {{language}}",
     studyPath: {
       title: "Учебный маршрут",
       level: "{{level}} уровень",

@@ -69,6 +69,10 @@ export interface TodaySummary {
 
 export interface PeriodStats {
   range: StudyPeriod;
+  /** 이 응답이 어느 언어 몫인가 (null = 모든 언어 합계 — 언어를 안 보냈을 때) */
+  targetLanguage?: string | null;
+  /** 최근 1년에 한 번이라도 공부한 언어 (옛 서버는 안 준다) */
+  studiedLanguages?: string[];
   todayHasData: boolean;
   today: TodaySummary; // 추가
   heatmap: HeatmapDay[];
