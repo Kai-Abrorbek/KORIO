@@ -2,7 +2,13 @@
 
 import { SceneBackdrop, isScene } from "../../../shared/ui/avatar-scene";
 import { mergeAvatarConfig } from "../../../shared/model/avatar";
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+} from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -63,7 +69,12 @@ const QUICK_ACCESS: QuickAccessItem[] = [
   { color: "#776ee2", icon: "basket", label: "Do'kon", route: "/shop" },
   { color: "#FAC775", icon: "bookmark", label: "Vazifalar" },
   { color: "#45b7d1", icon: "searchOutline", label: "Lug'at" },
-  { color: "#ff6b6b", icon: "heartOutline", label: "So'z daftarim", route: "/word-study" },
+  {
+    color: "#ff6b6b",
+    icon: "heartOutline",
+    label: "So'z daftarim",
+    route: "/word-study",
+  },
 ];
 
 /** 앱 features/subscription/access.ts featureOfLearnMode 와 같다 */
@@ -106,7 +117,11 @@ function ProgressLine({ progress }: { progress: LearnProgress }) {
   const scopeKey = `home.progress.scope.${progress.scope}`;
   const countKey = `home.progress.count.${progress.unit}`;
   const n =
-    progress.scope === "topik" ? (progress.scopeNumber === 2 ? "II" : "I") : progress.scopeNumber;
+    progress.scope === "topik"
+      ? progress.scopeNumber === 2
+        ? "II"
+        : "I"
+      : progress.scopeNumber;
   return (
     <p className={styles.progressLine}>
       {progress.title ? (
@@ -118,7 +133,9 @@ function ProgressLine({ progress }: { progress: LearnProgress }) {
           {uzt(scopeKey, { n })}
         </span>
       )}
-      <span aria-hidden className={styles.progressDot}>·</span>
+      <span aria-hidden className={styles.progressDot}>
+        ·
+      </span>
       <span className={styles.progressCount} data-i18n={countKey}>
         {uzt(countKey, { done: progress.done, total: progress.total })}
       </span>
@@ -150,10 +167,19 @@ function ProgressRing({ value }: { value: number }) {
   );
 }
 
-function UserArtwork({ user, onPress, onWordPress }: { user: HomeUser; onPress: () => void; onWordPress: (word: string) => void }) {
+function UserArtwork({
+  user,
+  onPress,
+  onWordPress,
+}: {
+  user: HomeUser;
+  onPress: () => void;
+  onWordPress: (word: string) => void;
+}) {
   const avatar = user.avatar ? mergeAvatarConfig(user.avatar) : null;
   const background = avatar
-    ? (AVATAR_BACKGROUNDS[avatar.background] ?? AVATAR_BACKGROUNDS.background_cloud)
+    ? (AVATAR_BACKGROUNDS[avatar.background] ??
+      AVATAR_BACKGROUNDS.background_cloud)
     : AVATAR_BACKGROUNDS.background_cloud;
   return (
     <div
@@ -162,20 +188,40 @@ function UserArtwork({ user, onPress, onWordPress }: { user: HomeUser; onPress: 
       onClick={onPress}
       onKeyDown={(event) => {
         if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onPress(); }
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onPress();
+        }
       }}
       role="button"
-      style={{ "--avatar-from": background[0], "--avatar-to": background[1] } as CSSProperties}
+      style={
+        {
+          "--avatar-from": background[0],
+          "--avatar-to": background[1],
+        } as CSSProperties
+      }
       tabIndex={0}
     >
-      {avatar && isScene(avatar.scene) ? <SceneBackdrop scene={avatar.scene} living /> : null}
+      {avatar && isScene(avatar.scene) ? (
+        <SceneBackdrop scene={avatar.scene} living />
+      ) : null}
       {avatar ? (
         <span className={styles.generatedArtwork}>
-          <AvatarComboStage alive avatar={avatar} onWordPress={onWordPress} streak={user.streak} userId={user.id} />
+          <AvatarComboStage
+            alive
+            avatar={avatar}
+            onWordPress={onWordPress}
+            streak={user.streak}
+            userId={user.id}
+          />
         </span>
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img alt="" className={styles.mascotArtwork} src="/characters/hangulmon_default.png" />
+        <img
+          alt=""
+          className={styles.mascotArtwork}
+          src="/characters/hangulmon_default.png"
+        />
       )}
     </div>
   );
@@ -232,28 +278,34 @@ export function HomeScreen() {
         if (!active) return;
         setRetention(summary);
         setProfile((current) =>
-          current ? { ...current, gems: summary.gems, streak: summary.streak } : current,
+          current
+            ? { ...current, gems: summary.gems, streak: summary.streak }
+            : current,
         );
       })
       .catch(() => undefined);
     // 레슨에서 막 나왔으면 마지막 에너지 차감이 서버에 닿은 뒤에 묻는다
-    void energySpendsSettled().then(() => Promise.allSettled([
-      request<HomeUser>("/users/me"),
-      request<{ days: HomeDayStats[] }>("/users/me/stats/weekly"),
-      request<{ count: number }>("/notifications/unread-count"),
-    ])).then(([userResult, weekResult, notificationsResult]) => {
-      if (!active) return;
-      if (userResult.status === "fulfilled") setProfile(userResult.value);
-      if (
-        weekResult.status === "fulfilled" &&
-        weekResult.value.days.length > 0
-      ) {
-        setWeek(weekResult.value.days);
-      }
-      if (notificationsResult.status === "fulfilled") {
-        setUnreadCount(notificationsResult.value.count);
-      }
-    });
+    void energySpendsSettled()
+      .then(() =>
+        Promise.allSettled([
+          request<HomeUser>("/users/me"),
+          request<{ days: HomeDayStats[] }>("/users/me/stats/weekly"),
+          request<{ count: number }>("/notifications/unread-count"),
+        ]),
+      )
+      .then(([userResult, weekResult, notificationsResult]) => {
+        if (!active) return;
+        if (userResult.status === "fulfilled") setProfile(userResult.value);
+        if (
+          weekResult.status === "fulfilled" &&
+          weekResult.value.days.length > 0
+        ) {
+          setWeek(weekResult.value.days);
+        }
+        if (notificationsResult.status === "fulfilled") {
+          setUnreadCount(notificationsResult.value.count);
+        }
+      });
 
     return () => {
       active = false;
@@ -269,7 +321,12 @@ export function HomeScreen() {
   useEffect(() => {
     if (!profile?.isOnboardingCompleted) return;
     let active = true;
-    void getLearnProgress(request, { course: learnCourse, mode: learnMode, studyMode, topikLevel })
+    void getLearnProgress(request, {
+      course: learnCourse,
+      mode: learnMode,
+      studyMode,
+      topikLevel,
+    })
       .then(({ progress }) => {
         if (active) setLearnProgress({ key: progressKey, value: progress });
       })
@@ -277,7 +334,15 @@ export function HomeScreen() {
     return () => {
       active = false;
     };
-  }, [profile?.isOnboardingCompleted, request, learnCourse, learnMode, studyMode, topikLevel, progressKey]);
+  }, [
+    profile?.isOnboardingCompleted,
+    request,
+    learnCourse,
+    learnMode,
+    studyMode,
+    topikLevel,
+    progressKey,
+  ]);
 
   const summary = useMemo(() => {
     const studySeconds = week.reduce(
@@ -296,15 +361,23 @@ export function HomeScreen() {
 
   const course = LEARN_COURSES[learnCourse];
   const courseKey = `userCourses.list.${course.key}`;
-  const modeKey = HOME_MODE_LABELS[learnMode] ? `home.mode.${learnMode}` : "home.mode.vocabulary";
-  const progress = learnProgress?.key === progressKey ? learnProgress.value : undefined;
+  const modeKey = HOME_MODE_LABELS[learnMode]
+    ? `home.mode.${learnMode}`
+    : "home.mode.vocabulary";
+  const progress =
+    learnProgress?.key === progressKey ? learnProgress.value : undefined;
   const hintKey = MODE_HINT[learnMode];
 
   return (
     <main className={styles.homePage}>
       <div className={styles.homeScroll}>
         <header className={styles.header}>
-          <button aria-label="Menyu" className={styles.headerButton} onClick={() => router.push("/settings")} type="button">
+          <button
+            aria-label="Menyu"
+            className={styles.headerButton}
+            onClick={() => router.push("/settings")}
+            type="button"
+          >
             <HomeIcon name="menu" size={29} />
           </button>
           <strong className={styles.username}>{profile.nickname}</strong>
@@ -340,17 +413,21 @@ export function HomeScreen() {
             <span>
               <HomeIcon name="flame" size={18} />
               <span className={styles.streakSummary}>
-                <span data-i18n="learningStreak.title">{uzt("learningStreak.title")}</span>
-                <b data-i18n="learningStreak.days">{uzt("learningStreak.days", { count: profile.streak ?? 0 })}</b>
+                <span data-i18n="learningStreak.title">
+                  {uzt("learningStreak.title")}
+                </span>
+                <b data-i18n="learningStreak.days">
+                  {uzt("learningStreak.days", { count: profile.streak ?? 0 })}
+                </b>
               </span>
             </span>
             <span className={styles.cardLink}>
               Taqvim <HomeIcon name="chevron" size={14} />
             </span>
           </span>
-          <p className={styles.streakDescription} data-i18n="learningStreak.description">
+          {/* <p className={styles.streakDescription} data-i18n="learningStreak.description">
             {uzt("learningStreak.description")}
-          </p>
+          </p> */}
           <span className={styles.daysRow}>
             {week.map((day, index) => {
               const studied =
@@ -387,7 +464,9 @@ export function HomeScreen() {
         {retention?.xpBoost ? (
           <XpBoostBanner
             multiplier={retention.xpBoost.multiplier}
-            onEnd={() => patchRetention((summary) => ({ ...summary, xpBoost: null }))}
+            onEnd={() =>
+              patchRetention((summary) => ({ ...summary, xpBoost: null }))
+            }
             until={retention.xpBoost.until}
           />
         ) : null}
@@ -397,7 +476,11 @@ export function HomeScreen() {
             {SIDE_ACTIONS.map((action) => (
               <button
                 aria-label={action.label}
-                data-tour={action.route === "/course-categories" ? "home.categories" : undefined}
+                data-tour={
+                  action.route === "/course-categories"
+                    ? "home.categories"
+                    : undefined
+                }
                 key={action.label}
                 onClick={() => {
                   if (action.route) router.push(action.route);
@@ -410,7 +493,11 @@ export function HomeScreen() {
           </div>
 
           <div className={styles.artworkWrap}>
-            <UserArtwork onPress={() => router.push("/avatar-editor")} onWordPress={speakAvatarWord} user={profile} />
+            <UserArtwork
+              onPress={() => router.push("/avatar-editor")}
+              onWordPress={speakAvatarWord}
+              user={profile}
+            />
           </div>
 
           <div className={styles.lessonSummary}>
@@ -422,7 +509,11 @@ export function HomeScreen() {
                 onClick={() => router.push("/courses")}
                 type="button"
               >
-                <span aria-hidden className={styles.courseFlag} data-no-translate>
+                <span
+                  aria-hidden
+                  className={styles.courseFlag}
+                  data-no-translate
+                >
                   {course.flag}
                 </span>
                 <span data-i18n={courseKey}>{uzt(courseKey)}</span>
@@ -481,11 +572,18 @@ export function HomeScreen() {
 
         {/* 오늘의 퀘스트 */}
         {retention ? (
-          <DailyQuestsCard patch={patchRetention} quests={retention.quests} streak={retention.streak} />
+          <DailyQuestsCard
+            patch={patchRetention}
+            quests={retention.quests}
+            streak={retention.streak}
+          />
         ) : null}
         {/* 월간 챌린지 — 퀘스트 N개 → 그 달 한정 배지 (앱과 같다) */}
         {retention?.monthly ? (
-          <MonthlyChallengeCard monthly={retention.monthly} patch={patchRetention} />
+          <MonthlyChallengeCard
+            monthly={retention.monthly}
+            patch={patchRetention}
+          />
         ) : null}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여 준다 (앱과 같다) */}
@@ -493,8 +591,15 @@ export function HomeScreen() {
           <RankBanner />
         </div>
 
-        <section className={`${styles.card} ${styles.chartCard}`} data-tour="home.chart">
-          <button className={styles.cardHeader} onClick={() => router.push("/stats")} type="button">
+        <section
+          className={`${styles.card} ${styles.chartCard}`}
+          data-tour="home.chart"
+        >
+          <button
+            className={styles.cardHeader}
+            onClick={() => router.push("/stats")}
+            type="button"
+          >
             <strong>O&apos;quv ma&apos;lumoti</strong>
             <HomeIcon name="chevron" size={20} />
           </button>
@@ -555,7 +660,12 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <button className={`${styles.card} ${styles.reviewCard}`} data-tour="home.review" onClick={() => router.push("/practice")} type="button">
+        <button
+          className={`${styles.card} ${styles.reviewCard}`}
+          data-tour="home.review"
+          onClick={() => router.push("/practice")}
+          type="button"
+        >
           <span className={styles.reviewIcon}>
             <HomeIcon name="refresh" size={21} />
           </span>
@@ -591,7 +701,13 @@ export function HomeScreen() {
         </section>
       </div>
 
-      <button aria-label="KORIO AI" className={styles.aiButton} data-tour="home.ai" onClick={() => setChatOpen(true)} type="button">
+      <button
+        aria-label="KORIO AI"
+        className={styles.aiButton}
+        data-tour="home.ai"
+        onClick={() => setChatOpen(true)}
+        type="button"
+      >
         <HomeIcon name="sparkles" size={24} />
         <span>AI</span>
       </button>
