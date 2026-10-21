@@ -12240,7 +12240,7 @@ export const EN_S1_UNIT10_NODE5_WORDS = [
   },
 
   {
-    code: 'en-adjective-busy',
+    code: 'en-adjective-busy-place',
     english: 'busy',
     senseKey: 'having-many-people-or-much-activity',
     partOfSpeech: WordPartOfSpeech.ADJECTIVE,

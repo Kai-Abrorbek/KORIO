@@ -7,6 +7,7 @@ import * as unit6 from './data/english-vocabulary/section1/unit6';
 import * as unit7 from './data/english-vocabulary/section1/unit7';
 import * as unit8 from './data/english-vocabulary/section1/unit8';
 import * as unit9 from './data/english-vocabulary/section1/unit9';
+import * as unit10 from './data/english-vocabulary/section1/unit10';
 import { WordPartOfSpeech } from '../words/schemas/word.schema';
 import type {
   MultilingualWordSeedEntry,
@@ -17,7 +18,7 @@ import type {
 // means importing its exports here; unpublished authoring files are never globbed.
 export const ENGLISH_VOCABULARY_MODULES: ReadonlyArray<
   Record<string, unknown>
-> = [unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, unit9];
+> = [unit1, unit2, unit3, unit4, unit5, unit6, unit7, unit8, unit9, unit10];
 
 /**
  * These source entries describe the same dictionary senses as their first
@@ -221,6 +222,90 @@ const ENGLISH_SENSE_ALIASES = [
     partOfSpeech: WordPartOfSpeech.NOUN,
     from: 'journey-by-aircraft',
     to: 'journey-through-air',
+  },
+  {
+    code: 'en-person-friend',
+    headword: 'friend',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'person-you-know-and-like',
+    to: 'person-you-like',
+  },
+  {
+    code: 'en-adjective-beautiful',
+    headword: 'beautiful',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    from: 'very-attractive-or-pleasant',
+    to: 'very-attractive',
+  },
+  {
+    code: 'en-adjective-expensive',
+    headword: 'expensive',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    from: 'costing-a-lot-of-money',
+    to: 'costs-a-lot',
+  },
+  {
+    code: 'en-adjective-favourite',
+    headword: 'favourite',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    from: 'liked-more-than-others',
+    to: 'liked-most',
+  },
+  {
+    code: 'en-adverb-together',
+    headword: 'together',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    from: 'with-another-person-or-people',
+    to: 'with-each-other',
+  },
+  {
+    code: 'en-noun-sea',
+    headword: 'sea',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'large-salt-water',
+    to: 'large-area-of-salt-water',
+  },
+  {
+    code: 'en-noun-song',
+    headword: 'song',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'piece-of-music-with-words',
+    to: 'short-piece-of-music-with-words',
+  },
+  {
+    code: 'en-noun-coffee',
+    headword: 'coffee',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'hot-drink-made-from-coffee-beans',
+    to: 'drink-made-from-coffee-beans',
+  },
+  {
+    code: 'en-job-waiter',
+    headword: 'waiter',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'person-serving-food-in-restaurant',
+    to: 'restaurant-server',
+  },
+  {
+    code: 'en-noun-bill',
+    headword: 'bill',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'written-amount-to-pay-for-meal',
+    to: 'written-amount-to-pay',
+  },
+  {
+    code: 'en-noun-machine',
+    headword: 'machine',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'piece-of-equipment-using-power',
+    to: 'mechanical-device',
+  },
+  {
+    code: 'en-noun-bag',
+    headword: 'bag',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    from: 'container-made-of-paper-cloth-or-plastic',
+    to: 'container-for-carrying-things',
   },
 ] as const;
 
