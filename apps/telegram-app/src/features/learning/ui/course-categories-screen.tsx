@@ -8,6 +8,7 @@ import { HomeIcon } from "../../home/ui/home-icon";
 import { saveLearnMode, saveStudyMode } from "../api/learning-preferences";
 import {
   LEARNING_CATEGORIES,
+  ENGLISH_CATEGORY_CARDS,
   canUseLearningFeature,
   guidedDestination,
   hasLearningTaster,
@@ -24,16 +25,6 @@ import { LearningIcon } from "./learning-icon";
 import { TopikLevelSheet } from "./topik-level-sheet";
 import styles from "./learning.module.css";
 import { uzt } from "../../../shared/i18n/uz-text";
-
-/** 영어 코스에 있는 카드 — 한글 카드 자리는 영어 알파벳 (앱 course-categories 와 같다) */
-const ENGLISH_CATEGORIES: readonly string[] = [
-  "hangul",
-  "vocabulary",
-  "wordCard",
-  "pronunciation",
-  "games",
-  "conversation",
-];
 
 const LEARN_MODES: LearnMode[] = [
   "vocabulary",
@@ -77,11 +68,21 @@ export function CourseCategoriesScreen() {
   // 영어는 한글 카드 자리가 영어 알파벳 카드다 (앱 course-categories 와 같다)
   const categoriesByMode = useMemo(
     () => ({
-      free: LEARNING_CATEGORIES.filter((category) => !isEnglish || ENGLISH_CATEGORIES.includes(category.category)),
+      free: LEARNING_CATEGORIES.filter(
+        (category) =>
+          !isEnglish ||
+          ENGLISH_CATEGORY_CARDS.includes(
+            category.category as (typeof ENGLISH_CATEGORY_CARDS)[number],
+          ),
+      ),
       // 영어도 같은 규칙 — 로드 모드에서는 로드가 덮는 어휘를 빼고 나머지만
       guided: LEARNING_CATEGORIES.filter(
         (category) =>
-          (!isEnglish || ENGLISH_CATEGORIES.includes(category.category)) && category.guided,
+          (!isEnglish ||
+            ENGLISH_CATEGORY_CARDS.includes(
+              category.category as (typeof ENGLISH_CATEGORY_CARDS)[number],
+            )) &&
+          category.guided,
       ),
     }),
     [isEnglish],

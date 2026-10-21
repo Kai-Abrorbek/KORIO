@@ -41,6 +41,23 @@ export const LEARN_COURSES: Record<
   en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "conversation"] },
 };
 
+/**
+ * 영어 코스의 분야 선택 화면에 노출하는 카드.
+ *
+ * `hangul`은 화면에서 알파벳 카드로 바뀌고, 단어 카드·발음·게임은
+ * 학습 모드와 별개의 바로가기라 `LEARN_COURSES.en.modes`에 포함되지 않는다.
+ */
+export const ENGLISH_CATEGORY_CARDS = [
+  "hangul",
+  "vocabulary",
+  "grammar",
+  "grammarPractice",
+  "wordCard",
+  "pronunciation",
+  "games",
+  "conversation",
+] as const;
+
 export const DEFAULT_LEARNING_COURSES = {
   ko: { courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR" },
   en: { courseId: "en-general", targetLanguage: "en", speechLocale: "en-US" },

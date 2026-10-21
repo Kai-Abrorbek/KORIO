@@ -43,6 +43,7 @@ import SwipeSlides, {
 } from "@/components/common/SwipeSlides";
 import { useSwipeTabs } from "@/components/common/useSwipeTabs";
 import { englishPronunciationCopy } from "@/constants/pronunciation-curriculum";
+import { ENGLISH_CATEGORY_CARDS } from "@/constants/learnCourses";
 
 /** 세그먼트 순서 = 옆으로 넘기는 순서 */
 const STUDY_MODES: StudyMode[] = ["guided", "free"];
@@ -456,9 +457,11 @@ export default function CourseCategories() {
       <View style={s.grid}>
         {CATEGORIES.filter(
           (c) =>
-            // 영어도 같은 발음 카드 UI를 사용한다. 로드가 덮는 어휘만 뺀다.
+            // 영어도 같은 분야 카드 UI를 사용한다. 지원하는 카드만 코스별로 고른다.
             (!isEnglish ||
-              ["hangul", "vocabulary", "wordCard", "pronunciation", "games", "conversation"].includes(c.category)) &&
+              ENGLISH_CATEGORY_CARDS.includes(
+                c.category as (typeof ENGLISH_CATEGORY_CARDS)[number],
+              )) &&
             (mode === "free" || c.guided),
         ).map((c, i) => (
           <CategoryCard

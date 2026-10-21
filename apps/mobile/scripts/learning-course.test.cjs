@@ -136,12 +136,24 @@ for (const [client, courses] of [
     assert.ok(courses.LEARN_COURSES.en.modes.includes("grammar"));
     assert.ok(!courses.LEARN_COURSES.en.modes.includes("topik"));
   });
+
+  test(`${client}: English category cards expose grammar lessons and drills`, () => {
+    assert.ok(courses.ENGLISH_CATEGORY_CARDS.includes("grammar"));
+    assert.ok(courses.ENGLISH_CATEGORY_CARDS.includes("grammarPractice"));
+  });
 }
 
 test("both clients use exactly the same course and locale registry", () => {
   assert.deepEqual(
     mobile.DEFAULT_LEARNING_COURSES,
     telegram.DEFAULT_LEARNING_COURSES,
+  );
+});
+
+test("both clients expose exactly the same English category cards", () => {
+  assert.deepEqual(
+    mobile.ENGLISH_CATEGORY_CARDS,
+    telegram.ENGLISH_CATEGORY_CARDS,
   );
 });
 
