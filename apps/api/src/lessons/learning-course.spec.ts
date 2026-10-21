@@ -402,6 +402,35 @@ describe('course-isolated lessons', () => {
     expect(result.pairs[0].native).toBe('original salom');
   });
 
+  it('uses the localized grammar rule when a build row has no authored hint', () => {
+    const { service } = fixture();
+    const result = service.formatQuestion(
+      {
+        _id: new Types.ObjectId(),
+        ...en,
+        type: 'grammar_build',
+        answer: 'She works.',
+        hint: {
+          ko: 'she 뒤에는 동사에 -s를 붙여요.',
+          uz: "she dan keyin fe'lga -s qo'shiladi.",
+          en: 'Add -s to the verb after she.',
+          ru: 'После she добавьте к глаголу -s.',
+        },
+        buildRows: [
+          { options: ['She', 'They', 'I'], correct: 'She' },
+          { options: ['works.', 'work.', 'working.'], correct: 'works.' },
+        ],
+      },
+      'ko',
+    );
+
+    expect(result.buildRows[1].hints).toEqual({
+      'work.': 'she 뒤에는 동사에 -s를 붙여요.',
+      'working.': 'she 뒤에는 동사에 -s를 붙여요.',
+    });
+    expect(result.buildRows[1].hints['works.']).toBeUndefined();
+  });
+
   it('rejects an English placement test before touching the Korean question pool', async () => {
     const { service, questions } = fixture();
     await expect(

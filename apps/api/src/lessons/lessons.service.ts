@@ -348,6 +348,31 @@ export class LessonsService {
     return Array.isArray(options) ? options : [];
   }
 
+  /**
+   * grammar_build 화면은 선택지별 힌트를 먼저 보여준다. 개별 힌트를 따로 쓰지
+   * 않은 문항은 이미 번역된 문법 규칙을 오답 선택지에 연결해, 단순한
+   * "틀렸어요" 대신 왜 다시 골라야 하는지 알려준다.
+   */
+  private buildRowsWithHintFallback(q: any, lang: string) {
+    const rows = Array.isArray(q.buildRows) ? q.buildRows : [];
+    const fallback = this.extractI18n(q.hint, lang);
+    if (!fallback) return rows;
+
+    return rows.map((row: any) => {
+      if (row.hints && Object.keys(row.hints).length > 0) return row;
+      const wrongOptions = (row.options ?? []).filter(
+        (option: string) => option !== row.correct,
+      );
+      if (!wrongOptions.length) return row;
+      return {
+        ...row,
+        hints: Object.fromEntries(
+          wrongOptions.map((option: string) => [option, fallback]),
+        ),
+      };
+    });
+  }
+
   private formatQuestion(q: any, lang: string) {
     const scope = resolveCourseScope(q);
     const nativeOptions =
@@ -402,7 +427,7 @@ export class LessonsService {
       acceptedAnswers: usesNativeBuilder ? [] : q.acceptedAnswers || [],
       // 세부 rubric은 서버에만 둔다. 기존 타이핑 시드는 안전한 exact 폴백을 쓴다.
       smartGradingEnabled: SMART_GRADING_TYPES.has(q.type),
-      buildRows: q.buildRows || [], // grammar_build 전용
+      buildRows: this.buildRowsWithHintFallback(q, lang), // grammar_build 전용
       difficulty: q.difficulty ?? 3,
       tags: q.tags || [],
       audioText: q.audioText || (usesNativeBuilder ? q.answer : ''),

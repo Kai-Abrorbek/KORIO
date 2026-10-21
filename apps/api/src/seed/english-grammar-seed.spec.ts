@@ -101,4 +101,24 @@ describe('English grammar section 1 seed', () => {
       }
     }
   });
+
+  it('accepts standard full forms when a typed answer uses a contraction', () => {
+    const blanks = Object.values(ENGLISH_GT_S1_QUESTIONS).filter(
+      (question) => question.type === 'grammar_blank',
+    );
+    const expectedAlternatives = [
+      ["don't like", 'do not like'],
+      ["doesn't drive", 'does not drive'],
+      ["hasn't got", 'has not got'],
+      ["wasn't", 'was not'],
+      ["weren't", 'were not'],
+      ["didn't go", 'did not go'],
+    ] as const;
+
+    for (const [answer, alternative] of expectedAlternatives) {
+      const question = blanks.find((candidate) => candidate.answer === answer);
+      expect(question).toBeDefined();
+      expect(question?.acceptedAnswers).toContain(alternative);
+    }
+  });
 });

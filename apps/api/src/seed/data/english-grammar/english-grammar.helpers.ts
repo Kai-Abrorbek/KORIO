@@ -22,6 +22,32 @@ export function sentenceOf(template: string, answer: string): string {
   return template.replace('___', answer);
 }
 
+const NEGATIVE_CONTRACTIONS: readonly [RegExp, string][] = [
+  [/\bdon't\b/gi, 'do not'],
+  [/\bdoesn't\b/gi, 'does not'],
+  [/\bdidn't\b/gi, 'did not'],
+  [/\bisn't\b/gi, 'is not'],
+  [/\baren't\b/gi, 'are not'],
+  [/\bwasn't\b/gi, 'was not'],
+  [/\bweren't\b/gi, 'were not'],
+  [/\bhaven't\b/gi, 'have not'],
+  [/\bhasn't\b/gi, 'has not'],
+];
+
+/**
+ * 타이핑 문제에서는 축약형과 풀어 쓴 형태를 모두 정답으로 인정한다.
+ * 문법을 맞게 썼는데 표기 방식 때문에 오답이 되는 일을 막기 위한 것이다.
+ */
+function acceptedAnswersFor(answer: string, authored: readonly string[] = []) {
+  const expanded = NEGATIVE_CONTRACTIONS.reduce(
+    (value, [contraction, full]) => value.replace(contraction, full),
+    answer,
+  );
+  return [...new Set([...authored, expanded])].filter(
+    (candidate) => candidate !== answer,
+  );
+}
+
 function assertUnit(unit: EnglishGrammarUnit) {
   for (const spec of unit.specs) {
     if (spec.drills.length !== 10) {
@@ -33,6 +59,8 @@ function assertUnit(unit: EnglishGrammarUnit) {
     if (spec.cautions.length < 2) {
       throw new Error(`${spec.code}: cautions need at least two items`);
     }
+    const sentences = new Set<string>();
+    const answers = new Set<string>();
     for (const [index, drill] of spec.drills.entries()) {
       if ((drill.template.match(/___/g) ?? []).length !== 1) {
         throw new Error(`${spec.code} drill ${index + 1}: expected one blank`);
@@ -46,6 +74,13 @@ function assertUnit(unit: EnglishGrammarUnit) {
         throw new Error(`${spec.code} drill ${index + 1}: missing translation`);
       }
       const sentence = sentenceOf(drill.template, drill.answer);
+      if (sentences.has(sentence)) {
+        throw new Error(
+          `${spec.code} drill ${index + 1}: duplicate practice sentence '${sentence}'`,
+        );
+      }
+      sentences.add(sentence);
+      answers.add(drill.answer);
       const built = drill.rows.map((row) => row[0]).join(' ');
       if (sentence !== built) {
         throw new Error(
@@ -66,6 +101,17 @@ function assertUnit(unit: EnglishGrammarUnit) {
           `${spec.code} drill ${index + 1}: blank choices do not contain the answer`,
         );
       }
+      const focusRows = drill.rows.filter((row) => row[0] === drill.answer);
+      if (focusRows.length !== 1) {
+        throw new Error(
+          `${spec.code} drill ${index + 1}: build must test the blank answer in exactly one row`,
+        );
+      }
+    }
+    if (answers.size < 3) {
+      throw new Error(
+        `${spec.code}: ten drills must practise at least three distinct answers`,
+      );
     }
   }
 }
@@ -159,7 +205,10 @@ export function buildEnglishGrammarSeeds(units: readonly EnglishGrammarUnit[]) {
           hint: spec.rule,
           explanation: spec.summary,
           tags: [spec.code],
-          acceptedAnswers: [...(drill.acceptedAnswers ?? [])],
+          acceptedAnswers: acceptedAnswersFor(
+            drill.answer,
+            drill.acceptedAnswers,
+          ),
         };
 
         questions[buildCode] = {
