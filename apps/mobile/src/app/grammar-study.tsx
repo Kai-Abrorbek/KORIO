@@ -116,13 +116,14 @@ function Kicker({ children }: any) {
 
 function ExampleRow({ ex }: { ex: GrammarExample }) {
   const { speak } = useSpeech();
+  const text = ex.text || ex.ko || "";
   return (
     <View style={st.ex}>
       <View style={{ flex: 1 }}>
-        <HL text={ex.ko} highlight={ex.highlight} style={st.exKo} />
+        <HL text={text} highlight={ex.highlight} style={st.exKo} />
         {!!ex.gloss && <Text style={st.exEn}>{ex.gloss}</Text>}
       </View>
-      <Pressable onPress={() => speak(ex.ko)} hitSlop={8} style={st.spk}>
+      <Pressable onPress={() => speak(text)} hitSlop={8} style={st.spk}>
         <Ionicons name="volume-high" size={18} color={C.ink} />
       </Pressable>
     </View>
@@ -131,13 +132,14 @@ function ExampleRow({ ex }: { ex: GrammarExample }) {
 
 function DialogueRow({ turn }: { turn: GrammarDialogueTurn }) {
   const right = turn.side === "right";
+  const text = turn.text || turn.ko || "";
   return (
     <View style={[st.dRow, right && { flexDirection: "row-reverse" }]}>
       <View style={[st.av, { backgroundColor: right ? C.blue : C.pink }]}>
         <Text style={st.avT}>{turn.speaker}</Text>
       </View>
       <View style={[st.bub, right ? st.bubR : st.bubL]}>
-        <HL text={turn.ko} highlight={turn.highlight} style={st.bubTxt} />
+        <HL text={text} highlight={turn.highlight} style={st.bubTxt} />
         {!!turn.gloss && <Text style={st.bubEn}>{turn.gloss}</Text>}
       </View>
     </View>

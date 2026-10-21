@@ -116,17 +116,16 @@ export class StudyPathService {
       ...new Set(units.map((u: any) => u.sectionNumber as number)),
     ].sort((a, b) => a - b);
 
-    const isDefaultCourse = scope.courseId === DEFAULT_COURSE_ID;
     const [me, grammarRows, wordSummaries, unitsBefore] = await Promise.all([
       this.userModel.findById(userId).select(PROGRESS_FIELDS).lean(),
-      // 문법 시드는 한국어 코스에만 있다. 다른 코스에 한국어 문법 노드가 끼면
-      // 그날이 엉뚱한 내용으로 막힌다 — 노드는 "다룰 게 없으면 안 세운다"
-      isDefaultCourse
-        ? this.grammarModel
-            .find({ isActive: true, section: { $in: sections } })
-            .select('code section unit')
-            .lean()
-        : Promise.resolve([]),
+      this.grammarModel
+        .find({
+          isActive: true,
+          section: { $in: sections },
+          ...courseContentFilter(scope),
+        })
+        .select('code section unit')
+        .lean(),
       Promise.all(sections.map((s) => this.safeWordSummary(userId, s, scope))),
       this.countUnitsBeforeSection(sections[0] ?? section, scope),
     ]);

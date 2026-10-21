@@ -32,7 +32,13 @@ export const LEARNING_COURSES = [
     speechLocale: 'en-US',
     title: { ko: '영어', uz: 'Ingliz tili', en: 'English', ru: 'Английский' },
     // conversation = AI 음성 튜터 (영어 튜터)
-    modes: ['vocabulary', 'alphabet', 'conversation'],
+    modes: [
+      'vocabulary',
+      'alphabet',
+      'grammarPractice',
+      'grammar',
+      'conversation',
+    ],
   },
 ] as const;
 
@@ -91,6 +97,7 @@ export interface CourseProgress {
   placementLevelSetAt?: Date;
   studyLevelUnlocked?: number;
   completedGrammar?: string[];
+  completedGrammarSections?: number[];
   legendNodes?: (string | { toString(): string })[];
   completedStudyNodes?: string[];
   completedLevelExams?: number[];

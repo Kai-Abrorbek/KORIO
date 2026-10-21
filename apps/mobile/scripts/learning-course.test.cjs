@@ -130,9 +130,10 @@ for (const [client, courses] of [
     assert.equal(mismatch.searchParams.get("targetLanguage"), "ko");
   });
 
-  test(`${client}: English exposes vocabulary without unsupported Korean modes`, () => {
+  test(`${client}: English exposes vocabulary and both prepared grammar modes`, () => {
     assert.ok(courses.LEARN_COURSES.en.modes.includes("vocabulary"));
-    assert.ok(!courses.LEARN_COURSES.en.modes.includes("grammar"));
+    assert.ok(courses.LEARN_COURSES.en.modes.includes("grammarPractice"));
+    assert.ok(courses.LEARN_COURSES.en.modes.includes("grammar"));
     assert.ok(!courses.LEARN_COURSES.en.modes.includes("topik"));
   });
 }

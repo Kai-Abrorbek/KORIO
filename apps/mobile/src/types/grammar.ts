@@ -1,12 +1,16 @@
 export interface GrammarExample {
-  ko: string;
+  text: string;
+  /** 이전 서버 응답과의 호환용. */
+  ko?: string;
   gloss: string;
   highlight?: string; // 문장 중 강조할 문법 부분
 }
 export interface GrammarDialogueTurn {
   speaker: string;
   side: "left" | "right";
-  ko: string;
+  text: string;
+  /** 이전 서버 응답과의 호환용. */
+  ko?: string;
   gloss?: string;
   highlight?: string;
 }

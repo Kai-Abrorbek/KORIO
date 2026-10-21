@@ -56,7 +56,12 @@ function setup(me: any = userDoc) {
       currentSection: 1,
       units: [{ sectionNumber: 1, unitNumber: 1, title: 'Unit 1' }],
     }),
-    countSectionQuestions: ok(new Map([['1:vocabulary', 30]])),
+    countSectionQuestions: ok(
+      new Map([
+        ['1:vocabulary', 30],
+        ['1:grammar', 20],
+      ]),
+    ),
     getLevelExam: ok({ questions: [] }),
     countExamQuestionsInRange: ok(25),
     recordStudy: ok(undefined),
@@ -118,13 +123,21 @@ describe('guided study path — English reuses the Korean structure', () => {
       1,
       en,
     );
-    // 한국어 문법 시드는 영어 하루에 끼지 않는다
-    expect(t.grammarModel.find).not.toHaveBeenCalled();
+    expect(t.grammarModel.find).toHaveBeenCalledWith({
+      isActive: true,
+      section: { $in: [1] },
+      $and: [{ targetLanguage: 'en' }, { courseId: 'en-general' }],
+    });
     const kinds = path.days.flatMap((day) => day.nodes.map((n) => n.kind));
-    expect(kinds).not.toContain('grammar');
-    expect(kinds).not.toContain('grammarQuiz');
     expect(kinds).toEqual(
-      expect.arrayContaining(['words', 'vocabQuiz', 'recap', 'final']),
+      expect.arrayContaining([
+        'words',
+        'grammar',
+        'vocabQuiz',
+        'recap',
+        'grammarQuiz',
+        'final',
+      ]),
     );
 
     expect(path.courseId).toBe('en-general');

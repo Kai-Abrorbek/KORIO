@@ -7,7 +7,8 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { HomeIcon } from "../../home/ui/home-icon";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { completeStudyNode } from "../../lesson/api/lesson";
-import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { speechLanguageOf, useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
+import { learnCourseOf } from "../../learning/model/learning-options";
 import { completeGrammar, getGrammar } from "../api/grammar";
 import type { GrammarDialogueTurn, GrammarExample, GrammarQuizItem, Grammar } from "../model/grammar";
 import styles from "./grammar.module.css";
@@ -36,19 +37,21 @@ function Kicker({ children }: { children: ReactNode }) {
 }
 
 function ExampleRow({ example, onSpeak, speaking }: { example: GrammarExample; onSpeak: () => void; speaking: boolean }) {
+  const text = example.text || example.ko || "";
   return (
     <div className={styles.exampleRow}>
-      <span><strong><Highlight highlight={example.highlight} text={example.ko} /></strong>{example.gloss ? <small>{example.gloss}</small> : null}</span>
+      <span><strong><Highlight highlight={example.highlight} text={text} /></strong>{example.gloss ? <small>{example.gloss}</small> : null}</span>
       <SpeakerButton onClick={onSpeak} speaking={speaking} />
     </div>
   );
 }
 
 function DialogueRow({ turn }: { turn: GrammarDialogueTurn }) {
+  const text = turn.text || turn.ko || "";
   return (
     <div className={`${styles.dialogueRow} ${turn.side === "right" ? styles.dialogueRight : ""}`}>
       <span className={styles.dialogueAvatar}>{turn.speaker}</span>
-      <span className={styles.dialogueBubble}><strong><Highlight highlight={turn.highlight} text={turn.ko} /></strong>{turn.gloss ? <small>{turn.gloss}</small> : null}</span>
+      <span className={styles.dialogueBubble}><strong><Highlight highlight={turn.highlight} text={text} /></strong>{turn.gloss ? <small>{turn.gloss}</small> : null}</span>
     </div>
   );
 }
@@ -118,14 +121,18 @@ export function GrammarStudyScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const { request, updateUser, user } = useTelegramAuth();
+  const targetLanguage = learnCourseOf(user?.learnCourse);
   // 서버 TTS — 브라우저 speechSynthesis 는 텔레그램 iOS/안드로이드 WebView 에서 자주 무음이다
   const { speak: speakRaw, speaking, stop } = useKoreanSpeech(request);
   // 어느 문장을 읽는 중인지 — 버튼 하나만 켜진다 (예전엔 하나를 누르면 전부 켜졌다)
   const [speakingText, setSpeakingText] = useState<string | null>(null);
   const speak = useCallback((text: string) => {
     setSpeakingText(text);
-    speakRaw(text, { onEnd: () => setSpeakingText((current) => (current === text ? null : current)) });
-  }, [speakRaw]);
+    speakRaw(text, {
+      language: speechLanguageOf(targetLanguage),
+      onEnd: () => setSpeakingText((current) => (current === text ? null : current)),
+    });
+  }, [speakRaw, targetLanguage]);
   const isSpeaking = (text: string) => speaking && speakingText === text;
   const id = params.get("id") ?? "";
   const scoped = params.get("scoped") === "1";
@@ -238,11 +245,14 @@ export function GrammarStudyScreen() {
           ) : null}
 
           {grammar.examples.length ? (
-            <StudyCard><Kicker>MISOLLAR</Kicker>{grammar.examples.map((example, index) => <ExampleRow example={example} key={`${example.ko}:${index}`} onSpeak={() => speak(example.ko)} speaking={isSpeaking(example.ko)} />)}</StudyCard>
+            <StudyCard><Kicker>MISOLLAR</Kicker>{grammar.examples.map((example, index) => {
+              const text = example.text || example.ko || "";
+              return <ExampleRow example={example} key={`${text}:${index}`} onSpeak={() => speak(text)} speaking={isSpeaking(text)} />;
+            })}</StudyCard>
           ) : null}
 
           {grammar.dialogue.length ? (
-            <StudyCard><Kicker>SUHBATDA</Kicker><div className={styles.dialogue}>{grammar.dialogue.map((turn, index) => <DialogueRow key={`${turn.speaker}:${turn.ko}:${index}`} turn={turn} />)}</div></StudyCard>
+            <StudyCard><Kicker>SUHBATDA</Kicker><div className={styles.dialogue}>{grammar.dialogue.map((turn, index) => <DialogueRow key={`${turn.speaker}:${turn.text || turn.ko}:${index}`} turn={turn} />)}</div></StudyCard>
           ) : null}
 
           {grammar.similar ? <StudyCard tone="blue"><Kicker>O&apos;XSHASH GRAMMATIKA</Kicker><strong className={styles.similarPattern}>{grammar.pattern} ≈ {grammar.similar.pattern}</strong><p className={styles.prose}>{grammar.similar.note}</p></StudyCard> : null}

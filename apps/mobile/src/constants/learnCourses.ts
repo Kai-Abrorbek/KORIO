@@ -32,7 +32,7 @@ export const LEARN_COURSES: Record<LearnCourse, LearnCourseMeta> = {
     ],
   },
   // conversation = AI 음성 튜터 (영어 튜터)
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "conversation"] },
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "conversation"] },
 };
 
 /** UI language selection and curriculum identity are different axes. */
@@ -56,7 +56,7 @@ export function learningScopePath(path: string, course: LearnCourse): string {
 }
 
 export const isLearningRequest = (path: string): boolean =>
-  /^\/(words|lessons|study-path|learn-progress|speech)(?:[/?]|$)/.test(path);
+  /^\/(words|lessons|grammar|study-path|learn-progress|speech)(?:[/?]|$)/.test(path);
 
 // 일일 퀘스트도 지금 코스를 붙여 보낸다 — 문제 퀘스트는 코스마다 따로 센다 (공통 퀘스트는 그대로).
 // 학습 요청은 아니라서 코스가 바뀌어도 응답을 버리지 않는다 (보상 받기는 이미 서버에 반영됐다).

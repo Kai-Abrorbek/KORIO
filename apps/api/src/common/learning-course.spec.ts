@@ -1,4 +1,5 @@
 import {
+  LEARNING_COURSES,
   courseContentFilter,
   courseProgressPath,
   getCourseProgress,
@@ -7,6 +8,15 @@ import {
 } from './learning-course';
 
 describe('learning course scope', () => {
+  it('publishes both English grammar learning modes', () => {
+    const english = LEARNING_COURSES.find(
+      (course) => course.courseId === 'en-general',
+    );
+    expect(english?.modes).toEqual(
+      expect.arrayContaining(['grammarPractice', 'grammar']),
+    );
+  });
+
   it('defaults old requests to Korean but rejects conflicting/unknown scopes', () => {
     expect(resolveCourseScope()).toEqual({
       courseId: 'ko-general',

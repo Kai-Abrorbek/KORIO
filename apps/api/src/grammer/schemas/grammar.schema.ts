@@ -11,13 +11,15 @@ export class I18nText {
 
 @Schema({ _id: false })
 export class GrammarConjugation {
-  @Prop({ required: true }) base: string; // 먹다 (한국어)
-  @Prop({ required: true }) result: string; // 먹고 있다 (한국어)
+  @Prop({ required: true }) base: string;
+  @Prop({ required: true }) result: string;
 }
 
 @Schema({ _id: false })
 export class GrammarExample {
-  @Prop({ required: true }) ko: string; // 한국어 문장
+  /** 배우는 언어의 문장. ko 는 배포된 한국어 문서용 호환 필드다. */
+  @Prop({ default: '' }) text: string;
+  @Prop({ default: '' }) ko: string;
   @Prop({ type: I18nText, default: {} }) gloss: I18nText;
   @Prop({ default: '' }) highlight: string;
 }
@@ -26,7 +28,9 @@ export class GrammarExample {
 export class GrammarDialogueTurn {
   @Prop({ required: true }) speaker: string;
   @Prop({ enum: ['left', 'right'], default: 'left' }) side: string;
-  @Prop({ required: true }) ko: string;
+  /** 배우는 언어의 발화. ko 는 배포된 한국어 문서용 호환 필드다. */
+  @Prop({ default: '' }) text: string;
+  @Prop({ default: '' }) ko: string;
   @Prop({ type: I18nText, default: {} }) gloss: I18nText;
   @Prop({ default: '' }) highlight: string;
 }
@@ -45,6 +49,8 @@ export class GrammarQuizOption {
 
 @Schema({ _id: false })
 export class GrammarQuizItem {
+  /** 배우는 언어로 된 문제. 기존 한국어 문서는 question 을 사용한다. */
+  @Prop({ default: '' }) prompt: string;
   @Prop({ type: I18nText, default: {} }) question: I18nText;
   @Prop({ type: [GrammarQuizOption], default: [] })
   options: GrammarQuizOption[];
@@ -54,11 +60,21 @@ export type GrammarDocument = HydratedDocument<Grammar>;
 
 @Schema({ timestamps: true })
 export class Grammar {
+  @Prop({ type: String, default: 'ko-general', index: true })
+  courseId: string;
+
+  @Prop({ type: String, default: 'ko', index: true })
+  targetLanguage: string;
+
   @Prop({ required: true, unique: true, index: true })
   code: string; // "prog-goitda"
 
   @Prop({ required: true })
-  pattern: string; // 한국어
+  pattern: string;
+
+  /** 원본 교재 단원 등 콘텐츠 검수에 쓰는 추적 정보. */
+  @Prop({ default: 0 })
+  sourceUnit: number;
 
   @Prop({ type: I18nText, default: {} })
   summary: I18nText;
@@ -106,3 +122,4 @@ export const GrammarSchema = SchemaFactory.createForClass(Grammar);
 
 // 학습 로드 모드는 항상 (섹션, 유닛)으로 좁혀서 순서대로 읽는다
 GrammarSchema.index({ section: 1, unit: 1, order: 1 });
+GrammarSchema.index({ courseId: 1, section: 1, unit: 1, order: 1 });

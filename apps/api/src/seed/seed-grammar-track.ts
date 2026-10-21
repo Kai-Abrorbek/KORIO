@@ -13,12 +13,9 @@ import { Model } from 'mongoose';
 import { Question } from '../lessons/schemas/question.schema';
 import { Lesson } from '../lessons/schemas/lesson.schema';
 import { LessonNode } from '../lessons/schemas/node.schema';
-import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
-import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
-import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
-import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { questionXp } from '../lessons/economy.const';
-import { GRAMMAR_SEED } from './data/grammar/grammar.data';
+import { parseSeedCourseScope } from './course-seed.options';
+import { getGrammarSeed, getGrammarTrackSeed } from './grammar-course.data';
 import { splitGrammarLessonParts } from './grammar-track.util';
 
 function numberedTitle(
@@ -36,34 +33,25 @@ function numberedTitle(
 }
 
 async function seed() {
+  const scope = parseSeedCourseScope();
+  const { nodes: allNodes, questions: allQuestions } = getGrammarTrackSeed(
+    scope,
+  ) as { nodes: any[]; questions: Record<string, any> };
+  const grammarSeed = getGrammarSeed(scope) as any[];
   const app = await NestFactory.createApplicationContext(AppModule);
 
   const questionModel = app.get<Model<Question>>(getModelToken(Question.name));
   const lessonModel = app.get<Model<Lesson>>(getModelToken(Lesson.name));
   const nodeModel = app.get<Model<LessonNode>>(getModelToken(LessonNode.name));
 
-  const allNodes = [
-    ...GT_S1_NODES,
-    ...GT_S2_NODES,
-    ...GT_S3_NODES,
-    ...GT_S4_NODES,
-  ];
-  const allQuestions = {
-    ...GT_S1_QUESTIONS,
-    ...GT_S2_QUESTIONS,
-    ...GT_S3_QUESTIONS,
-    ...GT_S4_QUESTIONS,
-  };
-
   // 문제 데이터는 문법을 code('topic-eun-neun')로 가리킨다. 그런데 화면
   // (GrammarBlank)은 tags[0] 을 "지금 연습 중인 문법" 라벨로 그대로 찍어서
   // 슬러그가 유저에게 보였다. 여기서 사람이 읽는 패턴('N은/는')으로 바꿔 넣는다.
   // 데이터는 code 로 연결한 채 두고 표시용 이름만 시딩할 때 붙이는 것이다.
   const patternByCode = new Map<string, string>(
-    GRAMMAR_SEED.filter((g) => g?.code && g?.pattern).map((g) => [
-      g.code as string,
-      g.pattern as string,
-    ]),
+    grammarSeed
+      .filter((g) => g?.code && g?.pattern)
+      .map((g) => [g.code as string, g.pattern as string]),
   );
   const missingPattern = new Set<string>();
 
@@ -73,22 +61,26 @@ async function seed() {
       if (typeof t !== 'string') return t;
       const pattern = patternByCode.get(t);
       if (pattern) return pattern;
-      if (/^[a-z0-9-]+$/.test(t)) missingPattern.add(t);
+      if (/^[a-z0-9:-]+$/.test(t)) missingPattern.add(t);
       return t;
     });
   };
 
-  console.log(`📚 문법 트랙 시딩 시작 (노드 ${allNodes.length}개)`);
+  console.log(
+    `📚 ${scope.courseId} 문법 트랙 시딩 시작 (노드 ${allNodes.length}개)`,
+  );
 
   for (const nodeData of allNodes) {
     const { lessons, ...nodeInfo } = nodeData;
 
     // 어휘 트랙과 code 가 겹치지 않게 gt_ 접두사를 붙인다
-    const nodeCode = `gt_s${nodeInfo.section}_u${nodeInfo.unit}_o${nodeInfo.order}`;
+    const nodeCode =
+      nodeInfo.code ??
+      `gt_s${nodeInfo.section}_u${nodeInfo.unit}_o${nodeInfo.order}`;
 
     const node = await nodeModel.findOneAndUpdate(
       { code: nodeCode },
-      { $set: { ...nodeInfo, code: nodeCode } },
+      { $set: { ...nodeInfo, ...scope, code: nodeCode } },
       { upsert: true, returnDocument: 'after' },
     );
 
@@ -102,7 +94,7 @@ async function seed() {
         partIndex,
         partCount,
       } = lessonParts[li];
-      const { questions: qKeys, ...lessonInfo } = lessonData;
+      const { questions: qKeys, ...lessonInfo } = lessonData as any;
       const title = numberedTitle(
         lessonInfo.title as Record<string, string>,
         partIndex,
@@ -120,7 +112,14 @@ async function seed() {
         const raw = allQuestions[key] as Record<string, unknown>;
         const q = await questionModel.findOneAndUpdate(
           { code: key },
-          { $set: { ...raw, code: key, tags: labelTags(raw.tags) } },
+          {
+            $set: {
+              ...raw,
+              ...scope,
+              code: key,
+              tags: labelTags(raw.tags),
+            },
+          },
           { upsert: true, returnDocument: 'after' },
         );
         questionIds.push(q._id);
@@ -137,6 +136,7 @@ async function seed() {
         {
           $set: {
             ...lessonInfo,
+            ...scope,
             title,
             order: li + 1,
             code: lessonCode,
@@ -153,13 +153,13 @@ async function seed() {
 
       lessonIds.push(lesson._id);
       console.log(
-        `  ✅ 레슨: ${title.ko} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
+        `  ✅ 레슨: ${title.ko ?? title.en} (${lessonCode}, 문제 ${questionIds.length}개, XP ${lessonXp})`,
       );
     }
 
     await nodeModel.findByIdAndUpdate(node._id, { lessonIds });
     console.log(
-      `✅ 노드: ${nodeInfo.title.ko} (${nodeCode}, 레슨 ${lessonIds.length}개)`,
+      `✅ 노드: ${nodeInfo.title.ko ?? nodeInfo.title.en} (${nodeCode}, 레슨 ${lessonIds.length}개)`,
     );
   }
 

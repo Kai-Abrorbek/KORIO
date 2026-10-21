@@ -7,6 +7,13 @@ import { User, UserDocument } from '../users/schemas/user.schema';
 import { LessonsService } from '../lessons/lessons.service';
 import { StudyCategory } from '../users/utils/study-category.util';
 import { isSuperActive } from '../users/super.util';
+import {
+  type CourseScope,
+  courseContentFilter,
+  courseProgressPath,
+  getCourseProgress,
+  resolveCourseScope,
+} from '../common/learning-course';
 
 const FREE_GRAMMAR_SECTIONS = 2; // 무료 섹션 수 (이후 프리미엄)
 // XP 값은 economy.const.ts 하나에 모여 있다
@@ -42,18 +49,26 @@ export class GrammarService {
         base: c.base,
         result: c.result,
       })),
-      examples: (g.examples || []).map((e: any) => ({
-        ko: e.ko,
-        gloss: this.pick(e.gloss, lang),
-        highlight: e.highlight || undefined,
-      })),
-      dialogue: (g.dialogue || []).map((d: any) => ({
-        speaker: d.speaker,
-        side: d.side,
-        ko: d.ko,
-        gloss: this.pick(d.gloss, lang),
-        highlight: d.highlight || undefined,
-      })),
+      examples: (g.examples || []).map((e: any) => {
+        const text = e.text || e.ko || '';
+        return {
+          text,
+          ko: text,
+          gloss: this.pick(e.gloss, lang),
+          highlight: e.highlight || undefined,
+        };
+      }),
+      dialogue: (g.dialogue || []).map((d: any) => {
+        const text = d.text || d.ko || '';
+        return {
+          speaker: d.speaker,
+          side: d.side,
+          text,
+          ko: text,
+          gloss: this.pick(d.gloss, lang),
+          highlight: d.highlight || undefined,
+        };
+      }),
       similar:
         g.similar && (g.similar.pattern || this.pick(g.similar.note, lang))
           ? {
@@ -65,7 +80,7 @@ export class GrammarService {
         .map((c: any) => this.pick(c, lang))
         .filter(Boolean),
       quiz: (g.quiz || []).map((q: any) => ({
-        question: this.pick(q.question, lang),
+        question: q.prompt || this.pick(q.question, lang),
         options: (q.options || []).map((o: any) => ({
           text: o.text,
           correct: o.correct,
@@ -83,24 +98,40 @@ export class GrammarService {
    * 하루치 문법만 도는 데 필요하다 — 안 그러면 "다음 문법" 이 유닛 밖으로
    * 계속 넘어가서 그날 분량이 끝나지 않는다.
    */
-  async getGrammar(code: string, lang = 'uz', scopedToUnit = false) {
-    const g = await this.grammarModel.findOne({ code, isActive: true }).lean();
+  async getGrammar(
+    code: string,
+    lang = 'uz',
+    scopedToUnit = false,
+    course: CourseScope = resolveCourseScope(),
+  ) {
+    const g = await this.grammarModel
+      .findOne({ code, isActive: true, ...courseContentFilter(course) })
+      .lean();
     if (!g) throw new NotFoundException('grammar not found');
 
     const nextFilter: Record<string, any> = {
-      order: { $gt: g.order },
       isActive: true,
+      ...courseContentFilter(course),
     };
     // 범위는 이 문법 자신의 유닛에서 가져온다. 앱이 섹션·유닛을 따로 들고
     // 다닐 필요가 없다.
     if (scopedToUnit) {
       nextFilter.section = (g as any).section ?? 1;
       nextFilter.unit = (g as any).unit ?? 1;
+      nextFilter.order = { $gt: g.order };
+    } else {
+      const section = (g as any).section ?? 1;
+      const unit = (g as any).unit ?? 1;
+      nextFilter.$or = [
+        { section: { $gt: section } },
+        { section, unit: { $gt: unit } },
+        { section, unit, order: { $gt: g.order } },
+      ];
     }
 
     const next = await this.grammarModel
       .findOne(nextFilter)
-      .sort({ order: 1 })
+      .sort({ section: 1, unit: 1, order: 1 })
       .select('code pattern')
       .lean();
     return this.format(g, lang, next);
@@ -116,12 +147,19 @@ export class GrammarService {
     userId: string,
     lang = 'uz',
     scope?: { section: number; unit: number },
+    course: CourseScope = resolveCourseScope(),
   ) {
+    const contentScope = courseContentFilter(course);
     const rows = await this.grammarModel
       .find(
         scope
-          ? { isActive: true, section: scope.section, unit: scope.unit }
-          : { isActive: true },
+          ? {
+              isActive: true,
+              section: scope.section,
+              unit: scope.unit,
+              ...contentScope,
+            }
+          : { isActive: true, ...contentScope },
       )
       .sort({ section: 1, unit: 1, order: 1 })
       .select('code pattern summary tags section unit')
@@ -129,9 +167,11 @@ export class GrammarService {
 
     const me = await this.userModel
       .findById(userId)
-      .select('completedGrammar isSuper superExpiresAt')
+      .select('completedGrammar courseProgress isSuper superExpiresAt')
       .lean();
-    const done = new Set<string>(me?.completedGrammar ?? []);
+    const done = new Set<string>(
+      getCourseProgress(me, course).completedGrammar ?? [],
+    );
     const isSuper = isSuperActive(me ?? {});
 
     const grammars = rows.map((g: any) => ({
@@ -185,18 +225,23 @@ export class GrammarService {
   }
 
   /** 문법 완료 (퀴즈 통과 시): XP · 통계 · 스트릭 · 섹션 완성 보석 */
-  async completeGrammar(userId: string, code: string) {
+  async completeGrammar(
+    userId: string,
+    code: string,
+    course: CourseScope = resolveCourseScope(),
+  ) {
     const g = await this.grammarModel
-      .findOne({ code, isActive: true })
+      .findOne({ code, isActive: true, ...courseContentFilter(course) })
       .select('code section quiz')
       .lean();
     if (!g) throw new NotFoundException('grammar not found');
 
     const me = await this.userModel
       .findById(userId)
-      .select('completedGrammar')
+      .select('completedGrammar completedGrammarSections courseProgress')
       .lean();
-    const done = new Set<string>(me?.completedGrammar ?? []);
+    const progress = getCourseProgress(me, course);
+    const done = new Set<string>(progress.completedGrammar ?? []);
 
     // 이미 완료한 문법은 보상 없이 (중복 방지)
     if (done.has(code)) {
@@ -210,15 +255,16 @@ export class GrammarService {
     }
 
     // 완료 저장
+    const completedGrammarPath = courseProgressPath(course, 'completedGrammar');
     await this.userModel.updateOne(
       { _id: userId },
-      { $addToSet: { completedGrammar: code } },
+      { $addToSet: { [completedGrammarPath]: code } },
     );
 
     // 통계 기록 (grammar 버킷, 퀴즈 문제 수만큼)
     const quizCount = (g as any).quiz?.length ?? 0;
     await this.lessonsService.recordStudy(userId, {
-      targetLanguage: 'ko',
+      targetLanguage: course.targetLanguage,
       questionCount: Math.max(1, quizCount),
       overrideCategory: StudyCategory.GRAMMAR,
     });
@@ -230,7 +276,7 @@ export class GrammarService {
     let gemsEarned = 0;
     const section = (g as any).section ?? 1;
     const sectionCodes = await this.grammarModel
-      .find({ section, isActive: true })
+      .find({ section, isActive: true, ...courseContentFilter(course) })
       .select('code')
       .lean();
     const nowDone = new Set<string>([...done, code]);
@@ -240,14 +286,18 @@ export class GrammarService {
     // 지급 후 잔액 — 앱이 이 값으로 화면의 보석을 갱신한다
     let gemsTotal: number | null = null;
     if (sectionComplete) {
+      const completedSectionsPath = courseProgressPath(
+        course,
+        'completedGrammarSections',
+      );
       // 조건을 업데이트 자체에 건다. exists() 로 먼저 보고 나서 $inc 하면,
       // 마지막 문항을 동시에 두 번 제출했을 때 둘 다 "아직 안 받았다" 를 보고
       // 둘 다 지급한다 ($addToSet 은 멱등이지만 $inc 는 아니다).
       const granted = await this.userModel.findOneAndUpdate(
-        { _id: userId, completedGrammarSections: { $ne: section } },
+        { _id: userId, [completedSectionsPath]: { $ne: section } },
         {
           $inc: { gems: SECTION_COMPLETE_GEMS },
-          $addToSet: { completedGrammarSections: section },
+          $addToSet: { [completedSectionsPath]: section },
         },
         { returnDocument: 'after' },
       );
@@ -256,7 +306,7 @@ export class GrammarService {
           userId,
           SECTION_COMPLETE_GEMS,
           'grammar_section',
-          { section: Number(section) },
+          { section: Number(section), courseId: course.courseId },
         );
         gemsEarned = SECTION_COMPLETE_GEMS;
         gemsTotal = granted.gems ?? 0;

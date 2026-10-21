@@ -1,4 +1,4 @@
-# 다국어 어휘 시드
+# 다국어 학습 시드
 
 학습 언어(`targetLanguage`)와 뜻·설명의 표시 언어(`meaning.ko/uz/en/ru`)는 다릅니다.
 언어별 원본 파일은 분리하지만 Word·Question·Lesson·LessonNode 컬렉션은 공유합니다.
@@ -34,6 +34,8 @@
 pnpm --filter api seed:validate-course
 pnpm --filter api seed:validate-words
 pnpm --filter api seed:validate-words --courseId=en-general
+pnpm --filter api seed:validate-grammar -- --courseId=en-general
+pnpm --filter api seed:validate-grammar-track -- --courseId=en-general
 ```
 
 `seed:validate-course`는 기본적으로 모든 등록 코스의 참조·고유 code·단어 정규화를
@@ -50,6 +52,8 @@ pnpm --filter api seed:words
 # 영어는 반드시 명시적으로 선택
 pnpm --filter api seed --courseId=en-general
 pnpm --filter api seed:words --courseId=en-general
+pnpm --filter api seed:grammar -- --courseId=en-general
+pnpm --filter api seed:grammar-track -- --courseId=en-general
 ```
 
 선택한 코스를 code 기준으로 upsert하며 기존 문서·학습 진행도를 삭제하지 않습니다.
@@ -70,7 +74,9 @@ pnpm --filter api seed:words --courseId=en-general
 5. 코스 간 동일 섹션 번호·단어 표기, 기존 한국어 문서, 요청 중 코스 전환,
    발음·설명 언어 분리 회귀 테스트와 `seed:validate-course`를 통과시킵니다.
 
-현재 영어는 자율 어휘 레슨·단어 카드와 알파벳을 지원합니다. 한국어 전용 학습 로드,
-문법·TOPIK·전용 말하기 주제 등은 영어 데이터로 준비되기 전까지 연결하지 않습니다.
+현재 영어는 자율 어휘 레슨·단어 카드, 알파벳, 문법 설명·문법 문제 트랙을
+지원합니다. 문법 1차 분량은 `Essential Grammar in Use` Unit 1–12를 앱 Section 1의
+3개 유닛으로 묶은 데이터입니다. TOPIK·영어 전용 말하기 주제 등 준비되지 않은
+모드는 연결하지 않습니다.
 단어 복습은 고유 wordId로 유지되고, 레슨 진도는 고유 lessonId, 급수·전설 노드 등
 코스별 상태는 별도 courseProgress 경로를 사용합니다. XP·스트릭은 기존처럼 계정 공통입니다.

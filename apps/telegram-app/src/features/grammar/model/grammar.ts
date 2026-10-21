@@ -3,13 +3,15 @@ import type { StudyCelebration } from "../../misc/model/streak-chest-route";
 export interface GrammarExample {
   gloss: string;
   highlight?: string;
-  ko: string;
+  text: string;
+  ko?: string;
 }
 
 export interface GrammarDialogueTurn {
   gloss?: string;
   highlight?: string;
-  ko: string;
+  text: string;
+  ko?: string;
   side: "left" | "right";
   speaker: string;
 }

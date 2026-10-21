@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
+  courseContentFilter,
+  getCourseProgress,
   resolveCourseScope,
   type CourseScope,
 } from '../common/learning-course';
@@ -159,7 +161,9 @@ export class LearnProgressService {
   ): Promise<LearnProgress | null> {
     const me = await this.userModel
       .findById(userId)
-      .select('targetLanguage learnMode studyMode topikLevel completedGrammar')
+      .select(
+        'targetLanguage learnMode studyMode topikLevel completedGrammar courseProgress',
+      )
       .lean();
     if (!me) return null;
 
@@ -188,7 +192,8 @@ export class LearnProgressService {
       lang: query.lang ?? 'uz',
       studyMode: query.studyMode ?? me.studyMode ?? 'guided',
       topikLevel: query.topikLevel ?? me.topikLevel ?? '1',
-      completedGrammar: me.completedGrammar ?? [],
+      completedGrammar:
+        getCourseProgress(me, courseScope).completedGrammar ?? [],
     };
 
     try {
@@ -233,7 +238,7 @@ export class LearnProgressService {
   /** 문법 설명 — 마지막으로 공부한 문법이 있는 섹션 */
   private async grammarSection(ctx: Ctx) {
     const rows = await this.grammarModel
-      .find({ isActive: true })
+      .find({ isActive: true, ...courseContentFilter(ctx.courseScope) })
       .select('code section')
       .lean();
     const picked = pickGrammarSection(rows, ctx.completedGrammar);

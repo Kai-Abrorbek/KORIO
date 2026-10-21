@@ -10,6 +10,10 @@ import {
 import { GrammarService } from './grammar.service';
 import { LessonsService } from '../lessons/lessons.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import {
+  type CourseScope,
+  resolveCourseScope,
+} from '../common/learning-course';
 
 @Controller('grammar')
 @UseGuards(JwtAuthGuard)
@@ -26,6 +30,7 @@ export class GrammarController {
     @Query('lang') lang = 'uz',
     @Query('section') section?: string,
     @Query('unit') unit?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
     const s = Number(section);
     const u = Number(unit);
@@ -38,13 +43,22 @@ export class GrammarController {
       req.user._id.toString(),
       lang,
       scope,
+      resolveCourseScope(course),
     );
   }
 
   @Post(':code/complete')
-  async complete(@Request() req, @Param('code') code: string) {
+  async complete(
+    @Request() req,
+    @Param('code') code: string,
+    @Query() course: Partial<CourseScope> = {},
+  ) {
     const userId = req.user._id.toString();
-    const result = await this.grammarService.completeGrammar(userId, code);
+    const result = await this.grammarService.completeGrammar(
+      userId,
+      code,
+      resolveCourseScope(course),
+    );
     // 문법 공부도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
     const celebration = await this.lessonsService
       .celebrateStudyDay(userId)
@@ -58,7 +72,13 @@ export class GrammarController {
     @Param('code') code: string,
     @Query('lang') lang = 'uz',
     @Query('scoped') scoped?: string,
+    @Query() course: Partial<CourseScope> = {},
   ) {
-    return this.grammarService.getGrammar(code, lang, scoped === '1');
+    return this.grammarService.getGrammar(
+      code,
+      lang,
+      scoped === '1',
+      resolveCourseScope(course),
+    );
   }
 }
