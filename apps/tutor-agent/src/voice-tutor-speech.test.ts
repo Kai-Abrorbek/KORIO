@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  AudioTagStripper,
   LaughNotationTransformer,
   NdjsonLineReader,
   openingAudioTag,
+  startsWithAudioTag,
+  stripAudioTags,
   voiceTutorTtsModel,
 } from "./voice-tutor-speech.js";
 
@@ -66,4 +69,22 @@ test("NDJSON lines split across chunks", () => {
     { t: "speech", d: "야아!" },
     { t: "done" },
   ]);
+});
+
+test("subtitles drop audio tags even when one is split across deltas", () => {
+  const t = new AudioTagStripper();
+  const out =
+    t.push("[gas") + t.push("ps] 진짜? [la") + t.push("ughs hard] 너 미쳤구나") + t.flush();
+  assert.equal(out, "진짜? 너 미쳤구나");
+});
+
+test("a bracket that never closes into a tag is kept", () => {
+  const t = new AudioTagStripper();
+  assert.equal(t.push("A [") + t.push("B") + t.flush(), "A [B");
+});
+
+test("the heard-text hint and the opening check see the tags", () => {
+  assert.equal(stripAudioTags("[sighs] 아이고, [laughs] 또 라면이야?"), "아이고, 또 라면이야?");
+  assert.equal(startsWithAudioTag("[gasps] 뭐?"), true);
+  assert.equal(startsWithAudioTag("뭐? [gasps]"), false);
 });

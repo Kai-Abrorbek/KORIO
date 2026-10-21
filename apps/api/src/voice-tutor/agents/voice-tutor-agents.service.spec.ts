@@ -69,7 +69,7 @@ function setup() {
 
 describe('VoiceTutorAgentsService lesson paths', () => {
   it.each(['shout', 'laugh'] as const)(
-    'routes chaotic_savage separately and preserves %s performance in both paths',
+    'shares the teacher across personalities and preserves %s performance in both paths',
     async (delivery) => {
       const { llm, service } = setup();
       const chaotic = { ...settings, personality: 'chaotic_savage' as const };
@@ -100,10 +100,10 @@ describe('VoiceTutorAgentsService lesson paths', () => {
       );
 
       expect(llm.completeJson.mock.calls[0][1]).toBe(
-        `${lessonAgentInstructions('chaotic_savage')}\n${personalityInstructions('chaotic_savage')}`,
+        `${lessonAgentInstructions()}\n${personalityInstructions('chaotic_savage')}`,
       );
       expect(llm.streamText.mock.calls[0][1]).toBe(
-        `${lessonAgentInstructions('chaotic_savage', 'stream')}\n${personalityInstructions('chaotic_savage', 'stream')}`,
+        `${lessonAgentInstructions('stream')}\n${personalityInstructions('chaotic_savage', 'stream')}`,
       );
       for (const input of [
         llm.completeJson.mock.calls[0][2],
@@ -112,14 +112,17 @@ describe('VoiceTutorAgentsService lesson paths', () => {
         const parsed = JSON.parse(input) as {
           student: Record<string, unknown>;
         };
+        // Seed material is offered to every personality as a pool, not a checklist.
         expect(parsed.student).toMatchObject({
           lessonGoal: plan.lessonGoal,
           scenario: plan.conversationScenario,
           learnedVocabulary: memory.learnedVocabulary,
+          wordPool: plan.targetVocabulary,
+          grammarIdeas: plan.grammarFocus,
+          reviewFromLastTime: plan.reviewTopics,
         });
         expect(parsed.student).not.toHaveProperty('targetVocabulary');
-        expect(parsed.student).not.toHaveProperty('grammarFocus');
-        expect(parsed.student).not.toHaveProperty('reviewTopics');
+        expect(parsed.student).not.toHaveProperty('topic');
       }
       expect(events).toEqual(['meta', text]);
       for (const reply of [json, streamed]) {
@@ -199,7 +202,7 @@ describe('VoiceTutorAgentsService lesson paths', () => {
         estimatedLevel: 'intermediate',
         learnedVocabulary: memory.learnedVocabulary,
         difficulty: 'intermediate',
-        grammarFocus: plan.grammarFocus,
+        grammarIdeas: plan.grammarFocus,
       },
       recent,
       recentTeacherOpenings: [recent[0].text],
@@ -250,7 +253,7 @@ describe('VoiceTutorAgentsService lesson paths', () => {
     expect(llm.completeJson.mock.calls[1][4]).toBeUndefined();
   });
 
-  it('emits clamped metadata once before the first speech and preserves spoken text', async () => {
+  it('emits the teacher’s own metadata once before the first speech and preserves spoken text', async () => {
     const { llm, service } = setup();
     const controller = new AbortController();
     const events: string[] = [];
@@ -276,10 +279,11 @@ describe('VoiceTutorAgentsService lesson paths', () => {
       lessonProgress,
     );
 
+    // No personality ceiling: the friendly teacher may shout when the moment is big.
     const expectedMeta = {
       emotion: 'excited',
-      delivery: 'normal',
-      intensity: 0.4,
+      delivery: 'shout',
+      intensity: 0.95,
       gesture: 'both_explain_1',
     };
     expect(onMeta).toHaveBeenCalledTimes(1);

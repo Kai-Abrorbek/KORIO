@@ -20,6 +20,8 @@ export interface TutorPlan {
   difficulty: string;
   /** Legacy saved plans may contain stages; teaching no longer follows a fixed timetable. */
   curriculum?: string[];
+  /** The conversation topic the learner picked for this lesson, if any. */
+  topic?: string;
 }
 
 export interface TutorProgress {

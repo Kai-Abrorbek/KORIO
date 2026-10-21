@@ -28,7 +28,7 @@ export const TEACHING_LANGUAGE_NAMES: Record<ExplanationLanguage, string> = {
 export const VOICE_TUTOR_STYLES = ['polite', 'casual'] as const;
 export const VOICE_TUTOR_MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 export const VOICE_TUTOR_PROGRESS_INTERVAL = 6;
-export const VOICE_TUTOR_RECENT_MESSAGES = 12;
+export const VOICE_TUTOR_RECENT_MESSAGES = 16;
 
 export function tutorLanguageEnabled(language: ExplanationLanguage): boolean {
   return (

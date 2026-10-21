@@ -83,8 +83,10 @@ export function connectionFallback(
 }
 
 /**
- * This lesson only: the chosen conversation topic takes over the goal, the
- * scenario the tutor plays, and the phrases to practise. The learner's weak
+ * This lesson only: the chosen conversation topic takes over the goal and the
+ * material. The topic's phrases are a word pool for the teacher's word
+ * ping-pong, and its opener is a role-play idea for later — leading with the
+ * role-play turned every topic lesson into a "say X" drill. The learner's weak
  * points from the saved plan stay as review so the topic still feels personal.
  */
 export function planForTopic(
@@ -98,8 +100,9 @@ export function planForTopic(
     newTopics: [topic.title.ko],
     targetVocabulary: [...core, ...topic.hints].slice(0, 8),
     grammarFocus: topic.targetGrammar,
-    conversationScenario: `${topic.title.en}. ${topic.opener}`,
+    conversationScenario: `Role-play idea once they have some words: ${topic.opener}`,
     difficulty: plan.difficulty || topic.level,
+    topic: `${topic.title.ko} (${topic.title.en})`,
   };
 }
 

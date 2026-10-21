@@ -16,9 +16,12 @@ import {
 } from "./voice-tutor-metadata.js";
 import { VoiceTutorElevenLabsTTS } from "./voice-tutor-elevenlabs-tts.js";
 import {
+  AudioTagStripper,
   LaughNotationTransformer,
   NdjsonLineReader,
   openingAudioTag,
+  startsWithAudioTag,
+  stripAudioTags,
   type TutorSpeechMeta,
 } from "./voice-tutor-speech.js";
 
@@ -266,9 +269,9 @@ class VoiceTutorAgent extends voice.Agent {
   }
 
   /**
-   * TTS adapter: the lesson text is also the subtitle, so provider markup is
-   * added only here — an opening [shouts]/[laughs] from @meta, and ㅋㅋㅋ turned
-   * into a real laugh instead of "크크크".
+   * TTS adapter: the lesson's own inline audio tags pass through to the voice;
+   * a reply that opens plain gets its [shouts]/[laughs] from @meta, and ㅋㅋㅋ
+   * becomes a real laugh instead of "크크크".
    */
   async ttsNode(
     text: Parameters<voice.Agent["ttsNode"]>[0],
@@ -285,7 +288,9 @@ class VoiceTutorAgent extends voice.Agent {
             let out = laugh.push(chunk);
             if (first && out.trim()) {
               first = false;
-              const tag = openingAudioTag(this.speechMeta);
+              const tag = startsWithAudioTag(out)
+                ? undefined
+                : openingAudioTag(this.speechMeta);
               if (tag) out = `${tag} ${out.trimStart()}`;
             }
             if (out) controller.enqueue(out);
@@ -295,13 +300,47 @@ class VoiceTutorAgent extends voice.Agent {
           controller.close();
           // ttsNode only runs for speech that is actually played (preemptive
           // drafts stop at llmNode), so this is what the learner really heard.
-          if (said.trim()) this.onTeacherSpoke?.(said);
+          const words = stripAudioTags(said);
+          if (words) this.onTeacherSpoke?.(words);
         } catch (error) {
           controller.error(error);
         }
       },
     });
     return voice.Agent.default.ttsNode(this, performed, modelSettings);
+  }
+
+  /** Audio tags are acting for the voice; the subtitle shows the words only. */
+  async transcriptionNode(
+    text: Parameters<voice.Agent["transcriptionNode"]>[0],
+    modelSettings: voice.ModelSettings,
+  ) {
+    const stripper = new AudioTagStripper();
+    const words = new WebReadableStream<string | voice.TimedString>({
+      start: async (controller) => {
+        try {
+          for await (const chunk of text as AsyncIterable<
+            string | voice.TimedString
+          >) {
+            if (typeof chunk !== "string") {
+              controller.enqueue({
+                ...chunk,
+                text: chunk.text.replace(/\[[a-z][a-z' -]{0,40}\]/gi, ""),
+              });
+              continue;
+            }
+            const out = stripper.push(chunk);
+            if (out) controller.enqueue(out);
+          }
+          const rest = stripper.flush();
+          if (rest) controller.enqueue(rest);
+          controller.close();
+        } catch (error) {
+          controller.error(error);
+        }
+      },
+    });
+    return voice.Agent.default.transcriptionNode(this, words, modelSettings);
   }
 
   private turnUrl(path: "turns" | "turns/stream"): URL {

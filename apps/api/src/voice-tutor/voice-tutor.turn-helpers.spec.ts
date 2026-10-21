@@ -56,6 +56,9 @@ describe('Voice Tutor turn helpers', () => {
     expect(plan.curriculum).toBeUndefined();
     expect(plan.targetVocabulary.length).toBeGreaterThan(0);
     expect(plan.lessonGoal).toContain('카페');
+    expect(plan.topic).toContain('카페');
+    // The role-play is an idea for later, not the lesson's first move.
+    expect(plan.conversationScenario).toMatch(/^Role-play idea/);
     expect(base.lessonGoal).toBe('');
   });
 

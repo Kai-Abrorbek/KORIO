@@ -37,6 +37,63 @@ export function openingAudioTag(meta?: TutorSpeechMeta): string | undefined {
   return undefined;
 }
 
+/**
+ * The lesson writes its own acting inline — "[gasps] 진짜? [laughs] 미쳤다" —
+ * which the voice performs and the subtitle never shows.
+ */
+const AUDIO_TAG = /\[[a-z][a-z' -]{0,40}\]/gi;
+const MAX_TAG_CHARS = 42;
+
+export function stripAudioTags(text: string): string {
+  return text
+    .replace(AUDIO_TAG, " ")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/ ([.,!?…])/g, "$1")
+    .trim();
+}
+
+/** A reply that opens with its own acting keeps it instead of the @meta tag. */
+export function startsWithAudioTag(text: string): boolean {
+  return /^\s*\[/.test(text);
+}
+
+/**
+ * Streaming subtitle side: drops audio tags even when one is split across
+ * deltas ("[gas" + "ps] 진짜"), by holding back an unclosed "[" until it
+ * closes or grows too long to be a tag.
+ */
+export class AudioTagStripper {
+  private pending = "";
+  private endsWithSpace = true;
+
+  push(delta: string): string {
+    let text = this.pending + delta;
+    this.pending = "";
+    const open = text.lastIndexOf("[");
+    if (open >= 0 && !text.includes("]", open) && text.length - open <= MAX_TAG_CHARS) {
+      this.pending = text.slice(open);
+      text = text.slice(0, open);
+    }
+    return this.clean(text);
+  }
+
+  flush(): string {
+    const rest = this.pending;
+    this.pending = "";
+    return this.clean(rest);
+  }
+
+  private clean(text: string): string {
+    let out = text
+      .replace(AUDIO_TAG, " ")
+      .replace(/[ \t]{2,}/g, " ")
+      .replace(/ ([.,!?…])/g, "$1");
+    if (this.endsWithSpace) out = out.replace(/^[ \t]+/, "");
+    if (out) this.endsWithSpace = /\s$/.test(out);
+    return out;
+  }
+}
+
 const LAUGH_CHARS = /[ㅋㅎ]/;
 const CRY_CHARS = /[ㅠㅜ]/;
 

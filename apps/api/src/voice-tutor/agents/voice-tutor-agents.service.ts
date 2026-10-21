@@ -39,7 +39,7 @@ export class VoiceTutorAgentsService {
   ): Promise<TutorReaction> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().lesson,
-      `${lessonAgentInstructions(settings.personality)}\n${personalityInstructions(settings.personality)}`,
+      `${lessonAgentInstructions()}\n${personalityInstructions(settings.personality)}`,
       buildLessonInput(
         {
           settings,
@@ -61,7 +61,7 @@ export class VoiceTutorAgentsService {
     );
     const result = parseLessonReply(raw);
     if (!result) throw new VoiceTutorProviderError('INVALID_RESPONSE', 'LLM');
-    return { ...performTutorReaction(result, settings), taught: result.taught };
+    return { ...performTutorReaction(result), taught: result.taught };
   }
 
   /**
@@ -83,23 +83,20 @@ export class VoiceTutorAgentsService {
     const parser = new LessonStreamParser();
     let metaSent = false;
     // The TTS adapter needs delivery/intensity before the first word, and the
-    // character wants its emotion early. Values go through the same
-    // personality clamps as the saved reaction (friendly never shouts).
+    // character wants its emotion early. Same validation as the saved reaction.
     const sendMeta = () => {
       if (metaSent || !parser.headerSettled) return;
       metaSent = true;
       const hint = parseLessonReply({ ...parser.metadata, text: '-' });
       if (!hint || !onMeta) return;
-      const { emotion, delivery, intensity, gesture } = performTutorReaction(
-        hint,
-        settings,
-      );
+      const { emotion, delivery, intensity, gesture } =
+        performTutorReaction(hint);
       onMeta({ emotion, delivery, intensity, gesture });
     };
     try {
       for await (const delta of this.llm.streamText(
         voiceTutorModels().lesson,
-        `${lessonAgentInstructions(settings.personality, 'stream')}\n${personalityInstructions(settings.personality, 'stream')}`,
+        `${lessonAgentInstructions('stream')}\n${personalityInstructions(settings.personality, 'stream')}`,
         buildLessonInput(
           {
             settings,
@@ -140,7 +137,7 @@ export class VoiceTutorAgentsService {
     });
     if (!result) throw new VoiceTutorProviderError('INVALID_RESPONSE', 'LLM');
     return {
-      ...performTutorReaction(result, settings),
+      ...performTutorReaction(result),
       taught: result.taught,
     };
   }
