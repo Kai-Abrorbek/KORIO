@@ -721,6 +721,318 @@ export const EN_S1_UNIT1_NODE1_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-verb-am',
+    english: 'am',
+    senseKey: 'present-form-of-be-with-i',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      'be동사의 현재형; I와 함께 쓰는 ~이다/~에 있다',
+      'be fe’lining I bilan ishlatiladigan hozirgi zamon shakli',
+      'the present form of be used with I',
+      'форма настоящего времени be, используемая с I',
+    ),
+    examples: [
+      {
+        english: 'I am here on holiday.',
+        translations: L(
+          '저는 휴가로 여기 와 있어요.',
+          'Men bu yerda ta’tildaman.',
+          'I am here on holiday.',
+          'Я здесь в отпуске.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/æm/',
+      ttsText: 'am',
+    },
+    media: {
+      emoji: '🔗',
+      imageUrl: '',
+      imageAlt: L(
+        'I와 am을 연결하는 표현',
+        'I va am bog‘lanishi',
+        'I with am',
+        'I с формой am',
+      ),
+    },
+    tags: ['be', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-other-and',
+    english: 'and',
+    senseKey: 'connect-words-or-ideas',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L('그리고; ~와/과', 'va', 'used to connect words or ideas', 'и'),
+    examples: [
+      {
+        english: 'Anna and Paul are here.',
+        translations: L(
+          '안나와 폴이 여기 있어요.',
+          'Anna va Paul shu yerda.',
+          'Anna and Paul are here.',
+          'Анна и Пол здесь.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ænd/',
+      ttsText: 'and',
+    },
+    media: {
+      emoji: '➕',
+      imageUrl: '',
+      imageAlt: L(
+        '두 항목을 연결하는 표시',
+        'ikki narsani bog‘lash belgisi',
+        'two things being connected',
+        'соединение двух элементов',
+      ),
+    },
+    tags: ['connector', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-are',
+    english: 'are',
+    senseKey: 'present-form-of-be-with-you-we-they',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      'be동사의 현재형; you/we/they와 함께 쓰는 ~이다/~에 있다',
+      'be fe’lining you, we, they bilan ishlatiladigan hozirgi zamon shakli',
+      'the present form of be used with you, we and they',
+      'форма настоящего времени be с you, we и they',
+    ),
+    examples: [
+      {
+        english: 'Are you here to study?',
+        translations: L(
+          '공부하러 여기 오셨어요?',
+          'Bu yerga o‘qish uchun keldingizmi?',
+          'Are you here to study?',
+          'Вы здесь, чтобы учиться?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɑː(r)/',
+      ttsText: 'are',
+    },
+    media: {
+      emoji: '🔗',
+      imageUrl: '',
+      imageAlt: L(
+        'you와 are를 연결하는 표현',
+        'you va are bog‘lanishi',
+        'you with are',
+        'you с формой are',
+      ),
+    },
+    tags: ['be', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-introduce',
+    english: 'introduce',
+    senseKey: 'tell-people-each-others-names',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '소개하다',
+      'tanishtirmoq',
+      'to tell people each other’s names',
+      'представлять; знакомить',
+    ),
+    examples: [
+      {
+        english: 'Let me introduce you to Anna.',
+        translations: L(
+          '안나를 소개해 드릴게요.',
+          'Sizni Anna bilan tanishtiray.',
+          'Let me introduce you to Anna.',
+          'Позвольте представить вам Анну.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌɪntrəˈdjuːs/',
+      ttsText: 'introduce',
+    },
+    media: {
+      emoji: '🤝',
+      imageUrl: '',
+      imageAlt: L(
+        '두 사람을 소개하는 모습',
+        'ikki odamni tanishtirish',
+        'introducing two people',
+        'знакомство двух людей',
+      ),
+    },
+    tags: ['introduction', 'people'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-is',
+    english: 'is',
+    senseKey: 'present-form-of-be-with-he-she-it',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      'be동사의 현재형; he/she/it와 함께 쓰는 ~이다/~에 있다',
+      'be fe’lining he, she, it bilan ishlatiladigan hozirgi zamon shakli',
+      'the present form of be used with he, she and it',
+      'форма настоящего времени be с he, she и it',
+    ),
+    examples: [
+      {
+        english: 'My address is in London.',
+        translations: L(
+          '제 주소는 런던에 있어요.',
+          'Mening manzilim Londonda.',
+          'My address is in London.',
+          'Мой адрес находится в Лондоне.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪz/',
+      ttsText: 'is',
+    },
+    media: {
+      emoji: '🔗',
+      imageUrl: '',
+      imageAlt: L(
+        '주어와 is를 연결하는 표현',
+        'ega va is bog‘lanishi',
+        'a subject with is',
+        'подлежащее с формой is',
+      ),
+    },
+    tags: ['be', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-other-on',
+    english: 'on',
+    senseKey: 'preposition-used-in-fixed-state-expressions',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '~에; ~중인',
+      '-da; bilan',
+      'a preposition used in expressions such as on holiday',
+      'предлог, используемый в выражениях типа on holiday',
+    ),
+    examples: [
+      {
+        english: 'Are you on holiday?',
+        translations: L(
+          '휴가 중이세요?',
+          'Ta’tildamisiz?',
+          'Are you on holiday?',
+          'Вы в отпуске?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɒn/',
+      ttsText: 'on',
+    },
+    media: {
+      emoji: '🔗',
+      imageUrl: '',
+      imageAlt: L(
+        '단어를 연결하는 전치사',
+        'so‘zlarni bog‘lovchi predlog',
+        'a connecting preposition',
+        'предлог для связи слов',
+      ),
+    },
+    tags: ['preposition', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-that',
+    english: 'that',
+    senseKey: 'particular-thing-away-from-speaker',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '그; 저',
+      'u; o‘sha',
+      'used to refer to a particular thing',
+      'тот; та; то',
+    ),
+    examples: [
+      {
+        english: 'How do you spell that?',
+        translations: L(
+          '그거 철자가 어떻게 돼요?',
+          'Buni qanday harflaysiz?',
+          'How do you spell that?',
+          'Как это пишется по буквам?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ðæt/',
+      ttsText: 'that',
+    },
+    media: {
+      emoji: '👉',
+      imageUrl: '',
+      imageAlt: L(
+        '특정 대상을 가리키는 모습',
+        'ma’lum narsani ko‘rsatish',
+        'pointing to a particular thing',
+        'указание на конкретный предмет',
+      ),
+    },
+    tags: ['determiner', 'question'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-too',
+    english: 'too',
+    senseKey: 'also-as-well',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('또한; ~도', 'ham', 'also; as well', 'тоже; также'),
+    examples: [
+      {
+        english: 'You too.',
+        translations: L('당신도요.', 'Siz ham.', 'You too.', 'И вам тоже.'),
+      },
+    ],
+    pronunciation: {
+      ipa: '/tuː/',
+      ttsText: 'too',
+    },
+    media: {
+      emoji: '➕',
+      imageUrl: '',
+      imageAlt: L(
+        '같은 내용을 하나 더 더하는 표시',
+        'yana bir xil ma’no qo‘shish',
+        'adding the same idea',
+        'добавление того же значения',
+      ),
+    },
+    tags: ['adverb', 'response'],
+    difficulty: 1,
+    isCore: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -3239,6 +3551,82 @@ export const EN_S1_UNIT1_NODE2_WORDS = [
     difficulty: 1,
     isCore: false,
   },
+  {
+    code: 'en-other-in',
+    english: 'in',
+    senseKey: 'inside-place-preposition',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '~안에; ~에서',
+      '-da; ichida',
+      'inside or within a place',
+      'в; внутри',
+    ),
+    examples: [
+      {
+        english: 'We are in a hotel.',
+        translations: L(
+          '우리는 호텔 안에 있어요.',
+          'Biz mehmonxonadamiz.',
+          'We are in a hotel.',
+          'Мы в отеле.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪn/',
+      ttsText: 'in',
+    },
+    media: {
+      emoji: '📍',
+      imageUrl: '',
+      imageAlt: L(
+        '장소 안에 있는 위치',
+        'joy ichidagi holat',
+        'a position inside a place',
+        'положение внутри места',
+      ),
+    },
+    tags: ['preposition', 'place'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-map',
+    english: 'map',
+    senseKey: 'drawing-showing-places',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '지도',
+      'xarita',
+      'a drawing that shows where places are',
+      'карта',
+    ),
+    examples: [
+      {
+        english: 'This is a map of the world.',
+        translations: L(
+          '이것은 세계 지도예요.',
+          'Bu dunyo xaritasi.',
+          'This is a map of the world.',
+          'Это карта мира.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/mæp/',
+      ttsText: 'map',
+    },
+    media: {
+      emoji: '🗺️',
+      imageUrl: '',
+      imageAlt: L('세계 지도', 'dunyo xaritasi', 'a world map', 'карта мира'),
+    },
+    tags: ['places', 'countries'],
+    difficulty: 1,
+    isCore: true,
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -5508,6 +5896,164 @@ export const EN_S1_UNIT1_NODE3_WORDS = [
     difficulty: 1,
     isCore: false,
   },
+  {
+    code: 'en-noun-letter',
+    english: 'letter',
+    senseKey: 'alphabet-symbol',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '글자; 알파벳 문자',
+      'harf',
+      'a written symbol in an alphabet',
+      'буква',
+    ),
+    examples: [
+      {
+        english: 'My name has five letters.',
+        translations: L(
+          '제 이름은 다섯 글자예요.',
+          'Mening ismim beshta harfdan iborat.',
+          'My name has five letters.',
+          'В моём имени пять букв.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈletə(r)/',
+      ttsText: 'letter',
+    },
+    media: {
+      emoji: '🔤',
+      imageUrl: '',
+      imageAlt: L(
+        '알파벳 글자',
+        'alifbo harfi',
+        'an alphabet letter',
+        'буква алфавита',
+      ),
+    },
+    tags: ['alphabet', 'spelling'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-meeting',
+    english: 'meeting',
+    senseKey: 'planned-gathering-of-people',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '회의; 모임',
+      'uchrashuv; yig‘ilish',
+      'a planned occasion when people meet',
+      'встреча; собрание',
+    ),
+    examples: [
+      {
+        english: 'What time is the meeting?',
+        translations: L(
+          '회의가 몇 시예요?',
+          'Uchrashuv soat nechada?',
+          'What time is the meeting?',
+          'Во сколько встреча?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈmiːtɪŋ/',
+      ttsText: 'meeting',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L(
+        '회의 중인 사람들',
+        'uchrashuvdagi odamlar',
+        'people at a meeting',
+        'люди на встрече',
+      ),
+    },
+    tags: ['events', 'time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-number',
+    english: 'number',
+    senseKey: 'word-or-symbol-representing-amount',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '숫자; 번호',
+      'raqam; son',
+      'a word or symbol that represents an amount or position',
+      'число; номер',
+    ),
+    examples: [
+      {
+        english: 'Number one is China.',
+        translations: L(
+          '1번은 중국이에요.',
+          'Birinchi raqam — Xitoy.',
+          'Number one is China.',
+          'Номер один — Китай.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈnʌmbə(r)/',
+      ttsText: 'number',
+    },
+    media: {
+      emoji: '🔢',
+      imageUrl: '',
+      imageAlt: L('여러 숫자', 'raqamlar', 'numbers', 'числа'),
+    },
+    tags: ['numbers', 'personal-information'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-your',
+    english: 'your',
+    senseKey: 'belonging-to-person-being-spoken-to',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '당신의; 너의',
+      'sizning; sening',
+      'belonging to the person being spoken to',
+      'ваш; твой',
+    ),
+    examples: [
+      {
+        english: 'What is your name?',
+        translations: L(
+          '이름이 뭐예요?',
+          'Ismingiz nima?',
+          'What is your name?',
+          'Как вас зовут?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/jɔː(r)/',
+      ttsText: 'your',
+    },
+    media: {
+      emoji: '👉',
+      imageUrl: '',
+      imageAlt: L(
+        '상대방의 것을 가리키는 표현',
+        'suhbatdoshga tegishli narsani ko‘rsatish',
+        'something belonging to another person',
+        'то, что принадлежит собеседнику',
+      ),
+    },
+    tags: ['determiner', 'personal-information'],
+    difficulty: 1,
+    isCore: true,
+  },
 ];
 
 export const EN_S1_UNIT1_NODE3_QUESTIONS = {
@@ -7700,7 +8246,41 @@ export const EN_S1_UNIT1_NODE4_WORDS = [
     difficulty: 1,
     isCore: true,
   },
-
+  {
+    code: 'en-noun-day',
+    english: 'day',
+    senseKey: 'period-of-twenty-four-hours',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('날; 하루', 'kun', 'a period of twenty-four hours', 'день'),
+    examples: [
+      {
+        english: 'Have a nice day.',
+        translations: L(
+          '좋은 하루 보내세요.',
+          'Kuningiz yaxshi o‘tsin.',
+          'Have a nice day.',
+          'Хорошего дня.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/deɪ/',
+      ttsText: 'day',
+    },
+    media: {
+      emoji: '☀️',
+      imageUrl: '',
+      imageAlt: L(
+        '하루를 나타내는 해',
+        'kunni bildiruvchi quyosh',
+        'a day',
+        'день',
+      ),
+    },
+    tags: ['time', 'greeting'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-address-street',
     english: 'street',
