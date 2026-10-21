@@ -235,19 +235,22 @@ export function StimulusCard({
   }
   if (stimulus.kind === "chart" && stimulus.chart) {
     const chart = stimulus.chart;
+    if (stimulus.imageUrl) {
+      return (
+        <section className={styles.chartCard}>
+          <img alt={stimulus.imageAlt} className={styles.chartImage} src={stimulus.imageUrl} />
+        </section>
+      );
+    }
     return (
       <section className={styles.chartCard}>
         {chart.title ? <h3>{chart.title}</h3> : null}
         {chart.subtitle ? <p>{chart.subtitle}</p> : null}
-        {stimulus.imageUrl ? (
-          <img alt={stimulus.imageAlt} className={styles.chartImage} src={stimulus.imageUrl} />
-        ) : (
-          <div className={styles.tableScroll}>
+        <div className={styles.tableScroll}>
             <table><thead><tr><th />{chart.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead>
               <tbody>{chart.rows.map((row) => <tr key={row.label}><th>{row.label}</th>{row.values.map((value, index) => <td key={`${row.label}-${index}`}>{value}</td>)}</tr>)}</tbody>
             </table>
-          </div>
-        )}
+        </div>
         {chart.unit ? <small>{`Birlik: ${chart.unit}`}</small> : null}
         {chart.sourceNote ? <small>{chart.sourceNote}</small> : null}
       </section>

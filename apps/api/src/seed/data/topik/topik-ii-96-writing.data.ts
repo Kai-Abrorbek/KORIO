@@ -342,7 +342,7 @@ export const TOPIK_II_96_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '원본 그래프의 총 참가자 수만 절대 수치로 표시되며 연령별 증가 배율과 원인은 infoItems에 보존했다.',
         variant: 'writing-marathon-participants',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-96-q53.png',
       imageAlt:
         '인주시 마라톤 대회 참가자 수가 2013년 40만 명에서 2023년 100만 명으로 2.5배 늘었다. 20~30대는 4배, 40~50대는 1.3배 증가했다. 건강 관심과 SNS 모임 활성화가 원인이다.',
       visualVariant: 'official-writing-chart',

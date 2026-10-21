@@ -381,7 +381,7 @@ export const TOPIK_II_60_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '원본은 약 5배 증가로 표시. 이용 목적은 절대 수치 없이 2007년 대비 2017년 증가 배수(운동·산책 4배, 출퇴근 14배, 기타 3배)만 제시.',
         variant: 'writing-bicycle-users-trend',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-60-q53.png',
       imageAlt:
         '자전거 이용자 수는 2007년 4만, 2012년 9만, 2017년 21만 명으로 약 5배 증가. 변화 이유는 자전거 도로 개발과 빌리는 곳 확대. 목적별 10년간 증가 배수는 운동·산책 4배, 출퇴근 14배, 기타 3배.',
       visualVariant: 'official-writing-chart',

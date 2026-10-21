@@ -371,7 +371,7 @@ export const TOPIK_II_36_WRITING_QUESTIONS: TopikSeedQuestion[] = [
         sourceNote: '제36회 TOPIK II B형 쓰기 53번 원본 자료',
         variant: 'writing-single-person-households',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-36-q53.png',
       imageAlt:
         '1인 가구 증가 원인: 결혼관 변화와 독신 증가, 노인 인구 증가, 여성의 사회 진출 증가. 1인 가구 비율: 2000년 전체 가구의 16%, 2012년 26%.',
       visualVariant: 'official-writing-chart',

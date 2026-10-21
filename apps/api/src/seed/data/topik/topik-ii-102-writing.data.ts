@@ -354,7 +354,7 @@ export const TOPIK_II_102_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '원본 그래프의 인구 절대 수치만 chart에 표시되며 연령별 순위 변화와 원인은 infoItems에 보존했다.',
         variant: 'writing-camping-population',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-102-q53.png',
       imageAlt:
         '2019년 캠핑 인구 340만 명에서 2024년 650만 명으로 약 2배 증가. 연령별 1위는 20대~30대에서 40대~50대로 바뀌었다. 고급 장비와 대여료, 가족 단위 여가가 원인이다.',
       visualVariant: 'official-writing-chart',

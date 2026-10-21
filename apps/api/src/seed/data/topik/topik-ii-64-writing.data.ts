@@ -343,7 +343,7 @@ export const TOPIK_II_64_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '사용 기기에 따른 매출액은 2014년 컴퓨터 32조·스마트폰 14조 원, 2018년 컴퓨터 39조·스마트폰 53조 원. 원본 두 번째 선 그래프의 수치를 infoItems에도 표기.',
         variant: 'writing-online-shopping-sales',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-64-q53.png',
       imageAlt:
         '전체 매출액 2014년 46조 원, 2018년 92조 원. 컴퓨터 32조에서 39조 원, 스마트폰 14조에서 53조 원. 다양한 온라인 상품 구매와 스마트폰의 높은 접근성이 변화 원인.',
       visualVariant: 'official-writing-chart',

@@ -383,7 +383,7 @@ export const TOPIK_II_52_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '결혼문화연구소, 20대 이상 성인 남녀 3,000명. ‘아니다’ 응답 이유는 남녀별 1·2위만 제시됨.',
         variant: 'writing-childbirth-survey',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-52-q53.png',
       imageAlt:
         '아이를 꼭 낳아야 한다: 남 80%, 여 67%. 아니다: 남 20%, 여 33%. 아니다 응답 이유 1·2위는 남성 양육비 부담·자유로운 생활, 여성 자유로운 생활·직장 생활 유지.',
       visualVariant: 'official-writing-chart',

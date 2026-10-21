@@ -377,7 +377,7 @@ export const TOPIK_II_41_WRITING_QUESTIONS: TopikSeedQuestion[] = [
         sourceNote: '제41회 TOPIK II B형 쓰기 53번 원본 그래프',
         variant: 'writing-improve-writing-skills',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-41-q53.png',
       imageAlt:
         '글쓰기 능력 향상 방법 설문, 교사 300명: 책 많이 읽기 45%, 좋은 글 따라 쓰기 30%, 다양한 주제로 연습하기 25%. 학생 300명: 책 많이 읽기 25%, 좋은 글 따라 쓰기 10%, 다양한 주제로 연습하기 65%.',
       visualVariant: 'official-writing-chart',

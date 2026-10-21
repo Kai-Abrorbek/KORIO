@@ -252,7 +252,7 @@
 .chartCard h3 { font-size: 16px; }
 .chartCard p { color: var(--text-secondary); font-size: 12px; }
 .chartCard small { color: var(--text-muted); font-size: 11px; text-align: right; }
-.chartImage { width: 100%; min-height: 220px; border-radius: 8px; background: var(--paper); object-fit: contain; }
+.chartImage { display: block; width: 100%; height: auto; border-radius: 8px; background: var(--paper); }
 .tableScroll { overflow-x: auto; }
 .tableScroll table { min-width: 320px; border-collapse: collapse; font-size: 12px; text-align: center; }
 .tableScroll th, .tableScroll td { min-width: 84px; height: 40px; border: 1px solid var(--border); padding: 6px; }

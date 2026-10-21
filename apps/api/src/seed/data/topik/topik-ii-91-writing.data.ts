@@ -361,7 +361,7 @@ export const TOPIK_II_91_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '원본 그래프의 대형 마트는 거의 변화가 없고 편의점은 크게 증가한다. 원인과 전망은 infoItems에 보존했다.',
         variant: 'writing-convenience-store-sales',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-91-q53.png',
       imageAlt:
         '2015년 대형 마트 24조 2천억 원, 편의점 17조 2천억 원. 2022년 대형 마트 24조 3천억 원, 편의점 22조 3천억 원. 편의점 수와 소포장 상품 수요 증가로 2023년에는 편의점 매출액이 대형 마트를 넘어설 전망.',
       visualVariant: 'official-writing-chart',

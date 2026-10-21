@@ -5,6 +5,7 @@ import type { TopikStimulus } from "@/types/topik";
 import { TopikPassage } from "./TopikPassage";
 import { TopikTextBlocks } from "./TopikTextBlocks";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
+import { topikStimulusImageSource } from "./topikWritingAssets";
 
 interface TopikStimulusCardProps {
   stimulus: TopikStimulus;
@@ -74,50 +75,56 @@ function Chart({ stimulus }: { stimulus: TopikStimulus }) {
   const chart = stimulus.chart;
   if (!chart) return null;
 
+  if (stimulus.imageUrl) {
+    const source = topikStimulusImageSource(stimulus.imageUrl);
+    const { width, height } = Image.resolveAssetSource(source);
+    return (
+      <View style={styles.chartCard}>
+        <Image
+          accessibilityLabel={stimulus.imageAlt}
+          resizeMode="contain"
+          source={source}
+          style={[
+            styles.chartImage,
+            { aspectRatio: width && height ? width / height : 1.8 },
+          ]}
+        />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.chartCard}>
       {!!chart.title && <Text style={styles.chartTitle}>{chart.title}</Text>}
       {!!chart.subtitle && (
         <Text style={styles.chartSubtitle}>{chart.subtitle}</Text>
       )}
-      {stimulus.imageUrl ? (
-        <Image
-          accessibilityLabel={stimulus.imageAlt}
-          resizeMode="contain"
-          source={{ uri: stimulus.imageUrl }}
-          style={styles.chartImage}
-        />
-      ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View style={styles.table}>
-            <View style={[styles.tableRow, styles.tableHeader]}>
-              <Text style={[styles.tableCell, styles.firstCell]} />
-              {chart.headers.map((header) => (
-                <Text
-                  key={header}
-                  style={[styles.tableCell, styles.headerText]}
-                >
-                  {header}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View style={styles.table}>
+          <View style={[styles.tableRow, styles.tableHeader]}>
+            <Text style={[styles.tableCell, styles.firstCell]} />
+            {chart.headers.map((header) => (
+              <Text key={header} style={[styles.tableCell, styles.headerText]}>
+                {header}
+              </Text>
+            ))}
+          </View>
+          {chart.rows.map((row) => (
+            <View key={row.label} style={styles.tableRow}>
+              <Text
+                style={[styles.tableCell, styles.firstCell, styles.rowLabel]}
+              >
+                {row.label}
+              </Text>
+              {row.values.map((value, index) => (
+                <Text key={`${row.label}-${index}`} style={styles.tableCell}>
+                  {value}
                 </Text>
               ))}
             </View>
-            {chart.rows.map((row) => (
-              <View key={row.label} style={styles.tableRow}>
-                <Text
-                  style={[styles.tableCell, styles.firstCell, styles.rowLabel]}
-                >
-                  {row.label}
-                </Text>
-                {row.values.map((value, index) => (
-                  <Text key={`${row.label}-${index}`} style={styles.tableCell}>
-                    {value}
-                  </Text>
-                ))}
-              </View>
-            ))}
-          </View>
-        </ScrollView>
-      )}
+          ))}
+        </View>
+      </ScrollView>
       {!!chart.unit && (
         <Text style={styles.chartNote}>
           {t("topik.stimulus.chartUnit", { unit: chart.unit })}
@@ -198,7 +205,7 @@ export function TopikStimulusCard({
       />
       {!!stimulus.imageUrl && (
         <Image
-          source={{ uri: stimulus.imageUrl }}
+          source={topikStimulusImageSource(stimulus.imageUrl)}
           accessibilityLabel={stimulus.imageAlt}
           resizeMode="contain"
           style={styles.image}
@@ -296,7 +303,6 @@ const getStyles = (palette: TopikPalette) =>
     },
     chartImage: {
       width: "100%",
-      minHeight: 220,
       borderRadius: 8,
       backgroundColor: palette.paper,
     },

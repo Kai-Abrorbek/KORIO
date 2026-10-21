@@ -30,6 +30,7 @@ import {
 } from './schemas/topik-question.schema';
 import { scoreTopikAnswers } from './topik-score.util';
 import { TopikStatsService } from './topik-stats.service';
+import { withTopikWritingChartImage } from './topik-writing-chart-image';
 
 @Injectable()
 export class TopikService {
@@ -723,7 +724,7 @@ export class TopikService {
     };
   }
 
-  private formatQuestion(question: any) {
+  private formatQuestion(question: TopikQuestion & { _id: Types.ObjectId }) {
     return {
       id: question._id.toString(),
       code: question.code,
@@ -733,7 +734,10 @@ export class TopikService {
       responseType: question.responseType,
       points: question.points,
       prompt: question.prompt,
-      stimulus: question.stimulus ?? null,
+      stimulus: withTopikWritingChartImage(
+        question.code,
+        question.stimulus ?? null,
+      ),
       audio: question.audio ?? null,
       writingConfig: question.writingConfig ?? null,
       choices: question.choices,

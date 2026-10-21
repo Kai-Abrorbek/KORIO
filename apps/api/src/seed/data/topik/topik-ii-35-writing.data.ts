@@ -368,7 +368,7 @@ export const TOPIK_II_35_WRITING_QUESTIONS: TopikSeedQuestion[] = [
         sourceNote: '제35회 TOPIK II B형 쓰기 53번 원본 그래프',
         variant: 'writing-public-facilities-age',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-35-q53.png',
       imageAlt:
         '30대는 공연장·문화센터 40%, 병원·약국 28%, 공원 22%, 기타 10%; 60대는 병원·약국 50%, 공연장·문화센터 23%, 공원 22%, 기타 5%',
       visualVariant: 'official-writing-chart',

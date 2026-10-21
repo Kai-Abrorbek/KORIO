@@ -373,7 +373,7 @@ export const TOPIK_II_47_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '증가 원인: 한국·한국어에 대한 관심, 한국 대학의 유학생 유치 노력. 기대: 2023년 20만 명.',
         variant: 'writing-foreign-students-trend',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-47-q53.png',
       imageAlt:
         '국내 외국인 유학생은 2000년 4천 명에서 2016년 10만 명으로 증가했다. 증가 원인은 한국·한국어에 대한 관심과 한국 대학의 유학생 유치 노력이며, 2023년에는 20만 명이 될 것으로 기대한다.',
       visualVariant: 'official-writing-chart',

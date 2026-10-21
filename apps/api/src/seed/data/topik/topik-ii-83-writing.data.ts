@@ -350,7 +350,7 @@ export const TOPIK_II_83_WRITING_QUESTIONS: TopikSeedQuestion[] = [
           '원본은 전체 가구 수가 1.4배 증가한 것으로 표시한다. 가구원 수별 비율, 원인 및 전망은 infoItems에 보존했다.',
         variant: 'writing-household-count-change',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-83-q53.png',
       imageAlt:
         '인주시 가구 수 2001년 15만, 2021년 21만 가구로 1.4배 증가. 1인 가구 15→30%, 2~3인 45→50%, 4인 이상 40→20%. 원인은 20대 독립과 노인 가구 증가. 2040년 1인 가구 43% 이상 전망.',
       visualVariant: 'official-writing-chart',

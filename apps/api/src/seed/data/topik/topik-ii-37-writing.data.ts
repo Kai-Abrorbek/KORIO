@@ -387,7 +387,7 @@ export const TOPIK_II_37_WRITING_QUESTIONS: TopikSeedQuestion[] = [
         sourceNote: '',
         variant: 'writing-mass-media-classification',
       },
-      imageUrl: '',
+      imageUrl: '/topik/writing/topik-ii-37-q53.png',
       imageAlt:
         '대중매체를 인쇄매체, 전파매체, 통신매체로 분류한 그림. 인쇄매체: 책·잡지·신문, 오래 보관되는 기록과 높은 신뢰도. 전파매체: 텔레비전·라디오, 생생한 전달과 높은 오락성. 통신매체: 인터넷, 쌍방향 소통과 다량의 정보 생산.',
       visualVariant: 'official-writing-classification',
