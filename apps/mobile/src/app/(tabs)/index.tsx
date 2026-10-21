@@ -414,9 +414,9 @@ export default function HomeScreen() {
                 streak={user?.streak ?? 0}
               />
             </View>
-            <Text style={styles.streakDescription}>
+            {/* <Text style={styles.streakDescription}>
               {t("learningStreak.description")}
-            </Text>
+            </Text> */}
             <View style={styles.daysRow}>
               {weekly.map((d, i) => {
                 const studied = studiedDay(i);
