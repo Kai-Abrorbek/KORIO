@@ -32,6 +32,14 @@ const NEGATIVE_CONTRACTIONS: readonly [RegExp, string][] = [
   [/\bweren't\b/gi, 'were not'],
   [/\bhaven't\b/gi, 'have not'],
   [/\bhasn't\b/gi, 'has not'],
+  [/\bcan't\b/gi, 'cannot'],
+  [/\bcouldn't\b/gi, 'could not'],
+  [/\bwon't\b/gi, 'will not'],
+  [/\bwouldn't\b/gi, 'would not'],
+  [/\bshouldn't\b/gi, 'should not'],
+  [/\bmustn't\b/gi, 'must not'],
+  [/\bneedn't\b/gi, 'need not'],
+  [/\bshan't\b/gi, 'shall not'],
 ];
 
 /**
@@ -231,7 +239,12 @@ export function buildEnglishGrammarSeeds(units: readonly EnglishGrammarUnit[]) {
           hint: spec.rule,
           explanation: spec.summary,
           tags: [spec.code],
-          acceptedAnswers: [...(drill.acceptedAnswers ?? [])],
+          acceptedAnswers: acceptedAnswersFor(
+            sentence,
+            (drill.acceptedAnswers ?? []).map((answer) =>
+              sentenceOf(drill.template, answer),
+            ),
+          ),
         };
       });
 

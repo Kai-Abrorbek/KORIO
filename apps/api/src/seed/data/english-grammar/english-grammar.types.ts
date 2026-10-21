@@ -14,6 +14,7 @@ export interface EnglishGrammarDrill {
   rows: readonly (readonly [string, string, string])[];
   /** 빈칸·페이지 퀴즈 보기. 생략하면 answer 가 들어 있는 rows 행을 쓴다. */
   blankOptions?: readonly [string, string, string];
+  /** 빈칸에 넣을 수 있는 다른 정답. 문장 조립 정답은 helper가 완성 문장으로 바꾼다. */
   acceptedAnswers?: readonly string[];
 }
 

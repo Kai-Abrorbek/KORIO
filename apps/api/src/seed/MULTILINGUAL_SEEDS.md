@@ -75,8 +75,8 @@ pnpm --filter api seed:grammar-track -- --courseId=en-general
    발음·설명 언어 분리 회귀 테스트와 `seed:validate-course`를 통과시킵니다.
 
 현재 영어는 자율 어휘 레슨·단어 카드, 알파벳, 문법 설명·문법 문제 트랙을
-지원합니다. 문법은 `Essential Grammar in Use` Unit 1–25를 앱 Section 1–2의
-6개 유닛으로 묶은 데이터입니다. TOPIK·영어 전용 말하기 주제 등 준비되지 않은
+지원합니다. 문법은 `Essential Grammar in Use` Unit 1–38을 앱 Section 1–3의
+9개 유닛으로 묶은 데이터입니다. TOPIK·영어 전용 말하기 주제 등 준비되지 않은
 모드는 연결하지 않습니다.
 단어 복습은 고유 wordId로 유지되고, 레슨 진도는 고유 lessonId, 급수·전설 노드 등
 코스별 상태는 별도 courseProgress 경로를 사용합니다. XP·스트릭은 기존처럼 계정 공통입니다.
