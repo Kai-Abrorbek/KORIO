@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -187,7 +181,14 @@ export default function HomeScreen() {
       return () => {
         alive = false;
       };
-    }, [isLoggedIn, learnCourse, learnMode, studyMode, topikLevel, progressKey]),
+    }, [
+      isLoggedIn,
+      learnCourse,
+      learnMode,
+      studyMode,
+      topikLevel,
+      progressKey,
+    ]),
   );
   const progressScope = learnProgress
     ? learnProgress.title ||
@@ -497,14 +498,22 @@ export default function HomeScreen() {
               activeOpacity={0.7}
               onPress={() => router.push("/profile")}
             >
-              <Ionicons name="person-outline" size={24} color={sideButtonIconColor} />
+              <Ionicons
+                name="person-outline"
+                size={24}
+                color={sideButtonIconColor}
+              />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.lessonSideBtn}
               activeOpacity={0.85}
               onPress={() => router.push("/courses")}
             >
-              <Ionicons name="book-outline" size={24} color={sideButtonIconColor} />
+              <Ionicons
+                name="book-outline"
+                size={24}
+                color={sideButtonIconColor}
+              />
             </TouchableOpacity>
             <TourTarget tourId="home.categories">
               <TouchableOpacity
@@ -675,100 +684,100 @@ export default function HomeScreen() {
           // styles.card 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
           inset={{ left: 16, right: 16, bottom: 12 }}
         >
-        <Animated.View
-          entering={FadeInDown.delay(400).duration(500)}
-          style={styles.card}
-        >
-          <TouchableOpacity
-            style={styles.cardHeader}
-            onPress={() => router.push("/stats")}
-            activeOpacity={0.7}
+          <Animated.View
+            entering={FadeInDown.delay(400).duration(500)}
+            style={styles.card}
           >
-            <Text style={styles.cardTitle}>{t("home.weeklyInfo")}</Text>
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={theme.textSecondary}
-            />
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cardHeader}
+              onPress={() => router.push("/stats")}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.cardTitle}>{t("home.weeklyInfo")}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={theme.textSecondary}
+              />
+            </TouchableOpacity>
 
-          {/* 범례 */}
-          <View style={styles.legendRow}>
-            {CATEGORIES.map((item) => (
-              <View key={item.key} style={styles.legendItem}>
-                <View
-                  style={[styles.legendDot, { backgroundColor: item.color }]}
-                />
-                <Text style={styles.legendText}>
-                  {t(`home.categories.${item.key}`)}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          {/* 요일별 누적 막대 */}
-          <View style={styles.chartRow}>
-            {weekly.map((d, i) => {
-              const segments = CATEGORIES.map((c) => ({
-                color: c.color,
-                value: d?.categories?.[c.key] ?? 0,
-              })).filter((seg) => seg.value > 0);
-              const isToday = i === weekly.length - 1;
-
-              return (
-                <View key={d.date} style={styles.chartItem}>
-                  <View style={styles.chartBarWrap}>
-                    {segments.length > 0 ? (
-                      segments.map((seg, si) => (
-                        <View
-                          key={si}
-                          style={{
-                            height: Math.max(
-                              BAR_MIN_SEG,
-                              (seg.value / maxData) * BAR_MAX,
-                            ),
-                            backgroundColor: seg.color,
-                            borderRadius: 5,
-                            marginTop: si === 0 ? 0 : BAR_GAP,
-                          }}
-                        />
-                      ))
-                    ) : (
-                      <View style={styles.chartBarEmpty} />
-                    )}
-                  </View>
-                  <Text
-                    style={[
-                      styles.chartLabel,
-                      isToday && styles.chartLabelToday,
-                    ]}
-                  >
-                    {isToday ? t("home.today") : dayLabel(d.date)}
+            {/* 범례 */}
+            <View style={styles.legendRow}>
+              {CATEGORIES.map((item) => (
+                <View key={item.key} style={styles.legendItem}>
+                  <View
+                    style={[styles.legendDot, { backgroundColor: item.color }]}
+                  />
+                  <Text style={styles.legendText}>
+                    {t(`home.categories.${item.key}`)}
                   </Text>
                 </View>
-              );
-            })}
-          </View>
-
-          <View style={styles.chartDivider} />
-
-          {/* 주간 합계 */}
-          <View style={styles.chartStats}>
-            <View style={styles.chartStatItem}>
-              <Text style={styles.chartStatLabel}>{t("home.studyTime")}</Text>
-              <Text style={styles.chartStatValue}>{weekTimeText}</Text>
+              ))}
             </View>
-            <View style={styles.chartStatDivider} />
-            <View style={styles.chartStatItem}>
-              <Text style={styles.chartStatLabel}>
-                {t("home.studyProblems")}
-              </Text>
-              <Text style={styles.chartStatValue}>
-                {weekQuestions > 0 ? weekQuestions : "-"}
-              </Text>
+
+            {/* 요일별 누적 막대 */}
+            <View style={styles.chartRow}>
+              {weekly.map((d, i) => {
+                const segments = CATEGORIES.map((c) => ({
+                  color: c.color,
+                  value: d?.categories?.[c.key] ?? 0,
+                })).filter((seg) => seg.value > 0);
+                const isToday = i === weekly.length - 1;
+
+                return (
+                  <View key={d.date} style={styles.chartItem}>
+                    <View style={styles.chartBarWrap}>
+                      {segments.length > 0 ? (
+                        segments.map((seg, si) => (
+                          <View
+                            key={si}
+                            style={{
+                              height: Math.max(
+                                BAR_MIN_SEG,
+                                (seg.value / maxData) * BAR_MAX,
+                              ),
+                              backgroundColor: seg.color,
+                              borderRadius: 5,
+                              marginTop: si === 0 ? 0 : BAR_GAP,
+                            }}
+                          />
+                        ))
+                      ) : (
+                        <View style={styles.chartBarEmpty} />
+                      )}
+                    </View>
+                    <Text
+                      style={[
+                        styles.chartLabel,
+                        isToday && styles.chartLabelToday,
+                      ]}
+                    >
+                      {isToday ? t("home.today") : dayLabel(d.date)}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
-          </View>
-        </Animated.View>
+
+            <View style={styles.chartDivider} />
+
+            {/* 주간 합계 */}
+            <View style={styles.chartStats}>
+              <View style={styles.chartStatItem}>
+                <Text style={styles.chartStatLabel}>{t("home.studyTime")}</Text>
+                <Text style={styles.chartStatValue}>{weekTimeText}</Text>
+              </View>
+              <View style={styles.chartStatDivider} />
+              <View style={styles.chartStatItem}>
+                <Text style={styles.chartStatLabel}>
+                  {t("home.studyProblems")}
+                </Text>
+                <Text style={styles.chartStatValue}>
+                  {weekQuestions > 0 ? weekQuestions : "-"}
+                </Text>
+              </View>
+            </View>
+          </Animated.View>
         </TourTarget>
 
         {/* 복습하기 */}
@@ -778,31 +787,31 @@ export default function HomeScreen() {
           // styles.card 의 marginHorizontal: 16 / marginBottom: 12 를 걷어낸다
           inset={{ left: 16, right: 16, bottom: 12 }}
         >
-        <Animated.View
-          entering={FadeInDown.delay(500).duration(500)}
-          style={styles.card}
-        >
-          <TouchableOpacity
-            style={styles.reviewRow}
-            onPress={() => router.push("/practice")}
+          <Animated.View
+            entering={FadeInDown.delay(500).duration(500)}
+            style={styles.card}
           >
-            <View style={[styles.reviewIcon, { backgroundColor: "#EEEDFE" }]}>
-              <Ionicons name="refresh" size={20} color={theme.primary} />
-            </View>
-            <View style={styles.reviewInfo}>
-              <Text style={styles.reviewTitle}>{t("home.review")}</Text>
-              <Text style={styles.reviewSub}>{t("home.reviewSub")}</Text>
-            </View>
-            {/* <View style={styles.reviewBadge}>
+            <TouchableOpacity
+              style={styles.reviewRow}
+              onPress={() => router.push("/practice")}
+            >
+              <View style={[styles.reviewIcon, { backgroundColor: "#EEEDFE" }]}>
+                <Ionicons name="refresh" size={20} color={theme.primary} />
+              </View>
+              <View style={styles.reviewInfo}>
+                <Text style={styles.reviewTitle}>{t("home.review")}</Text>
+                <Text style={styles.reviewSub}>{t("home.reviewSub")}</Text>
+              </View>
+              {/* <View style={styles.reviewBadge}>
               <Text style={styles.reviewBadgeText}>6</Text>
             </View> */}
-            <Ionicons
-              name="chevron-forward"
-              size={16}
-              color={theme.textSecondary}
-            />
-          </TouchableOpacity>
-        </Animated.View>
+              <Ionicons
+                name="chevron-forward"
+                size={16}
+                color={theme.textSecondary}
+              />
+            </TouchableOpacity>
+          </Animated.View>
         </TourTarget>
 
         {/* 바로가기 */}
@@ -814,25 +823,25 @@ export default function HomeScreen() {
             {quickAccess.map((item) => (
               // 칸 하나만 투어 대상이라 래퍼를 조건부로 씌운다
               <TourItem key={item.label} tourId={item.tourId}>
-              <TouchableOpacity
-                style={styles.quickItem}
-                onPress={item.onPress}
-                disabled={!item.onPress}
-              >
-                <View
-                  style={[
-                    styles.quickIcon,
-                    { backgroundColor: item.color + "20" },
-                  ]}
+                <TouchableOpacity
+                  style={styles.quickItem}
+                  onPress={item.onPress}
+                  disabled={!item.onPress}
                 >
-                  <Ionicons
-                    name={item.icon as any}
-                    size={22}
-                    color={item.color}
-                  />
-                </View>
-                <Text style={styles.quickLabel}>{item.label}</Text>
-              </TouchableOpacity>
+                  <View
+                    style={[
+                      styles.quickIcon,
+                      { backgroundColor: item.color + "20" },
+                    ]}
+                  >
+                    <Ionicons
+                      name={item.icon as any}
+                      size={22}
+                      color={item.color}
+                    />
+                  </View>
+                  <Text style={styles.quickLabel}>{item.label}</Text>
+                </TouchableOpacity>
               </TourItem>
             ))}
           </View>
@@ -849,7 +858,10 @@ export default function HomeScreen() {
 
       {/* AI 플로팅 버튼 */}
       <TourTarget tourId="home.ai" style={styles.tourFloating}>
-        <FloatingAIButton onPress={() => setChatVisible(true)} positioned={false} />
+        <FloatingAIButton
+          onPress={() => setChatVisible(true)}
+          positioned={false}
+        />
       </TourTarget>
       <AIChatModal
         visible={chatVisible}
