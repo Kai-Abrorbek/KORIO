@@ -143,7 +143,469 @@ export const EN_S1_UNIT3_NODE1_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-adjective-beautiful',
+    english: 'beautiful',
+    senseKey: 'very-attractive-or-pleasant',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '아름다운',
+      'chiroyli',
+      'very attractive or pleasant to look at',
+      'красивый',
+    ),
+    examples: [
+      {
+        english: 'It is a beautiful city.',
+        translations: L(
+          '아름다운 도시예요.',
+          'Bu chiroyli shahar.',
+          'It is a beautiful city.',
+          'Это красивый город.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbjuːtɪfəl/',
+      ttsText: 'beautiful',
+    },
+    media: {
+      emoji: '✨',
+      imageUrl: '',
+      imageAlt: L(
+        '아름다운 장소',
+        'chiroyli joy',
+        'a beautiful place',
+        'красивое место',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-noun-bedroom',
+    english: 'bedroom',
+    senseKey: 'room-for-sleeping',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('침실', 'yotoqxona', 'a room where people sleep', 'спальня'),
+    examples: [
+      {
+        english: 'The house has one bedroom.',
+        translations: L(
+          '그 집에는 침실이 하나 있어요.',
+          'Uyda bitta yotoqxona bor.',
+          'The house has one bedroom.',
+          'В доме одна спальня.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbedruːm/',
+      ttsText: 'bedroom',
+    },
+    media: {
+      emoji: '🛏️',
+      imageUrl: '',
+      imageAlt: L('침실', 'yotoqxona', 'a bedroom', 'спальня'),
+    },
+    tags: ['home', 'rooms'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-boy',
+    english: 'boy',
+    senseKey: 'male-child',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('소년; 남자아이', 'o‘g‘il bola', 'a male child', 'мальчик'),
+    examples: [
+      {
+        english: 'The boy is her son.',
+        translations: L(
+          '그 남자아이는 그녀의 아들이에요.',
+          'O‘g‘il bola uning o‘g‘li.',
+          'The boy is her son.',
+          'Мальчик — её сын.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/bɔɪ/',
+      ttsText: 'boy',
+    },
+    media: {
+      emoji: '👦',
+      imageUrl: '',
+      imageAlt: L('남자아이', 'o‘g‘il bola', 'a boy', 'мальчик'),
+    },
+    tags: ['people', 'family'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-called',
+    english: 'called',
+    senseKey: 'having-a-particular-name',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '~라고 불리는; 이름이 ~인',
+      'deb ataladigan; ismli',
+      'having a particular name',
+      'по имени; называемый',
+    ),
+    examples: [
+      {
+        english: 'Her father is called Lee.',
+        translations: L(
+          '그녀의 아버지 이름은 리예요.',
+          'Uning otasining ismi Lee.',
+          'Her father is called Lee.',
+          'Её отца зовут Ли.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kɔːld/',
+      ttsText: 'called',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: '',
+      imageAlt: L('이름표', 'ism yorlig‘i', 'a name label', 'именная табличка'),
+    },
+    tags: ['people', 'names'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-cat',
+    english: 'cat',
+    senseKey: 'small-domestic-feline',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '고양이',
+      'mushuk',
+      'a small animal often kept as a pet',
+      'кошка',
+    ),
+    examples: [
+      {
+        english: 'My mother has got two cats.',
+        translations: L(
+          '우리 어머니는 고양이 두 마리가 있어요.',
+          'Onamning ikkita mushugi bor.',
+          'My mother has got two cats.',
+          'У моей мамы две кошки.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kæt/',
+      ttsText: 'cat',
+    },
+    media: {
+      emoji: '🐈',
+      imageUrl: '',
+      imageAlt: L('고양이', 'mushuk', 'a cat', 'кошка'),
+    },
+    tags: ['animals', 'pets'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-children',
+    english: 'children',
+    senseKey: 'plural-of-child',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('아이들; 자녀들', 'bolalar', 'more than one child', 'дети'),
+    examples: [
+      {
+        english: 'They have got four children.',
+        translations: L(
+          '그들은 아이가 네 명 있어요.',
+          'Ularning to‘rtta farzandi bor.',
+          'They have got four children.',
+          'У них четверо детей.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈtʃɪldrən/',
+      ttsText: 'children',
+    },
+    media: {
+      emoji: '🧒',
+      imageUrl: '',
+      imageAlt: L('아이들', 'bolalar', 'children', 'дети'),
+    },
+    tags: ['people', 'irregular-plural'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-dog',
+    english: 'dog',
+    senseKey: 'domestic-canine',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('개', 'it', 'an animal often kept as a pet', 'собака'),
+    examples: [
+      {
+        english: 'She has got a friendly dog.',
+        translations: L(
+          '그녀에게는 친근한 개가 있어요.',
+          'Uning do‘stona iti bor.',
+          'She has got a friendly dog.',
+          'У неё дружелюбная собака.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/dɒɡ/',
+      ttsText: 'dog',
+    },
+    media: {
+      emoji: '🐕',
+      imageUrl: '',
+      imageAlt: L('개', 'it', 'a dog', 'собака'),
+    },
+    tags: ['animals', 'pets'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-film',
+    english: 'film',
+    senseKey: 'motion-picture',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('영화', 'film', 'a story shown as moving pictures', 'фильм'),
+    examples: [
+      {
+        english: 'It is a funny film.',
+        translations: L(
+          '재미있는 영화예요.',
+          'Bu kulgili film.',
+          'It is a funny film.',
+          'Это смешной фильм.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/fɪlm/',
+      ttsText: 'film',
+    },
+    media: {
+      emoji: '🎬',
+      imageUrl: '',
+      imageAlt: L('영화', 'film', 'a film', 'фильм'),
+    },
+    tags: ['media', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-girl',
+    english: 'girl',
+    senseKey: 'female-child',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('소녀; 여자아이', 'qiz bola', 'a female child', 'девочка'),
+    examples: [
+      {
+        english: 'The girl is their daughter.',
+        translations: L(
+          '그 여자아이는 그들의 딸이에요.',
+          'Qiz bola ularning qizi.',
+          'The girl is their daughter.',
+          'Девочка — их дочь.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡɜːl/',
+      ttsText: 'girl',
+    },
+    media: {
+      emoji: '👧',
+      imageUrl: '',
+      imageAlt: L('여자아이', 'qiz bola', 'a girl', 'девочка'),
+    },
+    tags: ['people', 'family'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-house',
+    english: 'house',
+    senseKey: 'building-used-as-home',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('집', 'uy', 'a building where people live', 'дом'),
+    examples: [
+      {
+        english: 'Their house is in Warsaw.',
+        translations: L(
+          '그들의 집은 바르샤바에 있어요.',
+          'Ularning uyi Varshavada.',
+          'Their house is in Warsaw.',
+          'Их дом находится в Варшаве.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/haʊs/',
+      ttsText: 'house',
+    },
+    media: {
+      emoji: '🏠',
+      imageUrl: '',
+      imageAlt: L('집', 'uy', 'a house', 'дом'),
+    },
+    tags: ['home', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-interesting',
+    english: 'interesting',
+    senseKey: 'holding-attention',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '흥미로운',
+      'qiziqarli',
+      'making you want to know more',
+      'интересный',
+    ),
+    examples: [
+      {
+        english: 'She has got an interesting job.',
+        translations: L(
+          '그녀는 흥미로운 직업을 가지고 있어요.',
+          'Uning qiziqarli ishi bor.',
+          'She has got an interesting job.',
+          'У неё интересная работа.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɪntrəstɪŋ/',
+      ttsText: 'interesting',
+    },
+    media: {
+      emoji: '💡',
+      imageUrl: '',
+      imageAlt: L(
+        '흥미로운 생각',
+        'qiziqarli fikr',
+        'something interesting',
+        'что-то интересное',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-men',
+    english: 'men',
+    senseKey: 'plural-of-man',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('남자들', 'erkaklar', 'more than one man', 'мужчины'),
+    examples: [
+      {
+        english: 'There are three men.',
+        translations: L(
+          '남자가 세 명 있어요.',
+          'U yerda uchta erkak bor.',
+          'There are three men.',
+          'Там трое мужчин.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/men/',
+      ttsText: 'men',
+    },
+    media: {
+      emoji: '👨‍👨',
+      imageUrl: '',
+      imageAlt: L('남자들', 'erkaklar', 'men', 'мужчины'),
+    },
+    tags: ['people', 'irregular-plural'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-people',
+    english: 'people',
+    senseKey: 'plural-persons',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('사람들', 'odamlar', 'more than one person', 'люди'),
+    examples: [
+      {
+        english: 'The people are very friendly.',
+        translations: L(
+          '사람들이 아주 친절해요.',
+          'Odamlar juda do‘stona.',
+          'The people are very friendly.',
+          'Люди очень дружелюбные.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈpiːpəl/',
+      ttsText: 'people',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L('사람들', 'odamlar', 'people', 'люди'),
+    },
+    tags: ['people', 'irregular-plural'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-women',
+    english: 'women',
+    senseKey: 'plural-of-woman',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('여자들', 'ayollar', 'more than one woman', 'женщины'),
+    examples: [
+      {
+        english: 'These women are friends.',
+        translations: L(
+          '이 여자들은 친구예요.',
+          'Bu ayollar do‘stlar.',
+          'These women are friends.',
+          'Эти женщины — подруги.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈwɪmɪn/',
+      ttsText: 'women',
+    },
+    media: {
+      emoji: '👩‍👩',
+      imageUrl: '',
+      imageAlt: L('여자들', 'ayollar', 'women', 'женщины'),
+    },
+    tags: ['people', 'irregular-plural'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-home-flat',
     english: 'flat',
@@ -2700,7 +3162,298 @@ export const EN_S1_UNIT3_NODE2_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-noun-coffee',
+    english: 'coffee',
+    senseKey: 'drink-made-from-coffee-beans',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '커피',
+      'qahva',
+      'a drink made from roasted coffee beans',
+      'кофе',
+    ),
+    examples: [
+      {
+        english: 'This coffee is hot.',
+        translations: L(
+          '이 커피는 뜨거워요.',
+          'Bu qahva issiq.',
+          'This coffee is hot.',
+          'Этот кофе горячий.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈkɒfi/',
+      ttsText: 'coffee',
+    },
+    media: {
+      emoji: '☕',
+      imageUrl: '',
+      imageAlt: L('커피', 'qahva', 'coffee', 'кофе'),
+    },
+    tags: ['drinks', 'adjective-practice'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-adjective-expensive',
+    english: 'expensive',
+    senseKey: 'costing-a-lot-of-money',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('비싼', 'qimmat', 'costing a lot of money', 'дорогой'),
+    examples: [
+      {
+        english: 'The city is very expensive.',
+        translations: L(
+          '그 도시는 아주 비싸요.',
+          'Shahar juda qimmat.',
+          'The city is very expensive.',
+          'Этот город очень дорогой.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪkˈspensɪv/',
+      ttsText: 'expensive',
+    },
+    media: {
+      emoji: '💰',
+      imageUrl: '',
+      imageAlt: L(
+        '비싼 물건',
+        'qimmat buyum',
+        'something expensive',
+        'дорогая вещь',
+      ),
+    },
+    tags: ['adjectives', 'opposites'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-old-not-new',
+    english: 'old',
+    senseKey: 'not-new-used-for-things',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('오래된; 낡은', 'eski', 'not new', 'старый; не новый'),
+    examples: [
+      {
+        english: 'I have got an old bicycle.',
+        translations: L(
+          '저는 오래된 자전거가 있어요.',
+          'Mening eski velosipedim bor.',
+          'I have got an old bicycle.',
+          'У меня есть старый велосипед.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əʊld/',
+      ttsText: 'old',
+    },
+    media: {
+      emoji: '🚲',
+      imageUrl: '',
+      imageAlt: L(
+        '오래된 자전거',
+        'eski velosiped',
+        'an old bicycle',
+        'старый велосипед',
+      ),
+    },
+    tags: ['adjectives', 'opposites', 'things'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-old-age',
+    english: 'old',
+    senseKey: 'having-lived-for-number-of-years',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '~살인; 나이가 ~인',
+      'yoshda',
+      'having lived for a particular number of years',
+      'в возрасте; лет',
+    ),
+    examples: [
+      {
+        english: 'Oliver is eight years old.',
+        translations: L(
+          '올리버는 여덟 살이에요.',
+          'Oliver sakkiz yoshda.',
+          'Oliver is eight years old.',
+          'Оливеру восемь лет.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əʊld/',
+      ttsText: 'old',
+    },
+    media: {
+      emoji: '🎂',
+      imageUrl: '',
+      imageAlt: L(
+        '나이를 나타내는 생일 케이크',
+        'yoshni bildiruvchi tug‘ilgan kun torti',
+        'age shown by a birthday cake',
+        'возраст, обозначенный праздничным тортом',
+      ),
+    },
+    tags: ['adjectives', 'age'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-possession',
+    english: 'possession',
+    senseKey: 'thing-owned-by-person',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '소유물',
+      'mulk; egalikdagi buyum',
+      'something that a person owns',
+      'имущество; вещь',
+    ),
+    examples: [
+      {
+        english: 'Have you got a lot of possessions?',
+        translations: L(
+          '소유물이 많이 있어요?',
+          'Sizda ko‘p buyumlar bormi?',
+          'Have you got a lot of possessions?',
+          'У вас много вещей?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/pəˈzeʃən/',
+      ttsText: 'possession',
+    },
+    media: {
+      emoji: '📦',
+      imageUrl: '',
+      imageAlt: L(
+        '여러 소유물',
+        'turli buyumlar',
+        'personal possessions',
+        'личные вещи',
+      ),
+    },
+    tags: ['possessions'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-project',
+    english: 'project',
+    senseKey: 'planned-piece-of-work',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '프로젝트; 계획된 일',
+      'loyiha',
+      'a planned piece of work',
+      'проект',
+    ),
+    examples: [
+      {
+        english: 'He has got a job on a big project.',
+        translations: L(
+          '그는 큰 프로젝트에서 일하고 있어요.',
+          'U katta loyihada ishlaydi.',
+          'He has got a job on a big project.',
+          'Он работает над большим проектом.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈprɒdʒekt/',
+      ttsText: 'project',
+    },
+    media: {
+      emoji: '📋',
+      imageUrl: '',
+      imageAlt: L('프로젝트', 'loyiha', 'a project', 'проект'),
+    },
+    tags: ['work', 'possessions'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-tv',
+    english: 'TV',
+    senseKey: 'television-device',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('텔레비전; TV', 'televizor', 'a television', 'телевизор'),
+    examples: [
+      {
+        english: 'They have got a TV.',
+        translations: L(
+          '그들은 TV가 있어요.',
+          'Ularda televizor bor.',
+          'They have got a TV.',
+          'У них есть телевизор.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌtiː ˈviː/',
+      ttsText: 'TV',
+    },
+    media: {
+      emoji: '📺',
+      imageUrl: '',
+      imageAlt: L('텔레비전', 'televizor', 'a TV', 'телевизор'),
+    },
+    tags: ['objects', 'possessions'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-world',
+    english: 'world',
+    senseKey: 'earth-and-all-people-places',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '세계; 세상',
+      'dunyo',
+      'the Earth and all its people and places',
+      'мир',
+    ),
+    examples: [
+      {
+        english: 'People around the world have mobile phones.',
+        translations: L(
+          '전 세계 사람들이 휴대전화를 가지고 있어요.',
+          'Dunyo bo‘ylab odamlarning mobil telefonlari bor.',
+          'People around the world have mobile phones.',
+          'У людей по всему миру есть мобильные телефоны.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/wɜːld/',
+      ttsText: 'world',
+    },
+    media: {
+      emoji: '🌍',
+      imageUrl: '',
+      imageAlt: L('세계', 'dunyo', 'the world', 'мир'),
+    },
+    tags: ['places', 'possessions'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-transport-car',
     english: 'car',
@@ -5094,7 +5847,82 @@ export const EN_S1_UNIT3_NODE3_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-family-grandparents',
+    english: 'grandparents',
+    senseKey: 'plural-of-grandparent',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '조부모',
+      'buvi va bobo',
+      'the parents of your parents',
+      'бабушка и дедушка; бабушки и дедушки',
+    ),
+    examples: [
+      {
+        english: 'My grandparents live in London.',
+        translations: L(
+          '제 조부모님은 런던에 살아요.',
+          'Buvim va bobom Londonda yashaydi.',
+          'My grandparents live in London.',
+          'Мои бабушка и дедушка живут в Лондоне.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɡrænpeərənts/',
+      ttsText: 'grandparents',
+    },
+    media: {
+      emoji: '👵👴',
+      imageUrl: '',
+      imageAlt: L(
+        '조부모',
+        'buvi va bobo',
+        'grandparents',
+        'бабушка и дедушка',
+      ),
+    },
+    tags: ['family', 'plural'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-family-parents',
+    english: 'parents',
+    senseKey: 'plural-of-parent',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '부모님',
+      'ota-ona',
+      'a mother and father or two parents',
+      'родители',
+    ),
+    examples: [
+      {
+        english: 'Her parents are in Taiwan.',
+        translations: L(
+          '그녀의 부모님은 대만에 있어요.',
+          'Uning ota-onasi Tayvanda.',
+          'Her parents are in Taiwan.',
+          'Её родители находятся на Тайване.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈpeərənts/',
+      ttsText: 'parents',
+    },
+    media: {
+      emoji: '👨‍👩‍👧',
+      imageUrl: '',
+      imageAlt: L('부모님', 'ota-ona', 'parents', 'родители'),
+    },
+    tags: ['family', 'plural'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-family-grandfather',
     english: 'grandfather',
@@ -7310,6 +8138,370 @@ export const EN_S1_UNIT3_NODE3 = {
 
 export const EN_S1_UNIT3_NODE4_WORDS = [
   {
+    code: 'en-other-but',
+    english: 'but',
+    senseKey: 'connect-contrasting-ideas',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '하지만; 그러나',
+      'lekin',
+      'used to connect contrasting ideas',
+      'но',
+    ),
+    examples: [
+      {
+        english: 'It is small, but it is nice.',
+        translations: L(
+          '작지만 좋아요.',
+          'U kichkina, lekin yaxshi.',
+          'It is small, but it is nice.',
+          'Оно маленькое, но хорошее.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/bʌt/',
+      ttsText: 'but',
+    },
+    media: {
+      emoji: '↔️',
+      imageUrl: '',
+      imageAlt: L(
+        '반대되는 두 생각',
+        'qarama-qarshi ikki fikr',
+        'two contrasting ideas',
+        'две противоположные идеи',
+      ),
+    },
+    tags: ['connector', 'writing'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-centre',
+    english: 'centre',
+    senseKey: 'central-part-of-place',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '중심; 중심가',
+      'markaz',
+      'the middle or central part of a place',
+      'центр',
+    ),
+    examples: [
+      {
+        english: 'The hotel is near the city centre.',
+        translations: L(
+          '호텔은 도심 근처에 있어요.',
+          'Mehmonxona shahar markazi yaqinida.',
+          'The hotel is near the city centre.',
+          'Отель находится рядом с центром города.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsentə(r)/',
+      ttsText: 'centre',
+    },
+    media: {
+      emoji: '🏙️',
+      imageUrl: '',
+      imageAlt: L('도심', 'shahar markazi', 'a city centre', 'центр города'),
+    },
+    tags: ['places', 'location'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-message',
+    english: 'message',
+    senseKey: 'send-person-electronic-message',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '메시지를 보내다',
+      'xabar yubormoq',
+      'to send someone a message',
+      'отправлять сообщение',
+    ),
+    examples: [
+      {
+        english: 'Message me soon.',
+        translations: L(
+          '곧 메시지 보내 주세요.',
+          'Menga tez orada xabar yuboring.',
+          'Message me soon.',
+          'Напиши мне скоро.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈmesɪdʒ/',
+      ttsText: 'message',
+    },
+    media: {
+      emoji: '💬',
+      imageUrl: '',
+      imageAlt: L(
+        '메시지를 보내는 모습',
+        'xabar yuborish',
+        'sending a message',
+        'отправка сообщения',
+      ),
+    },
+    tags: ['communication', 'writing'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-place',
+    english: 'place',
+    senseKey: 'particular-location',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('장소; 곳', 'joy', 'a particular area or location', 'место'),
+    examples: [
+      {
+        english: 'It is a nice place.',
+        translations: L(
+          '좋은 곳이에요.',
+          'Bu yaxshi joy.',
+          'It is a nice place.',
+          'Это хорошее место.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/pleɪs/',
+      ttsText: 'place',
+    },
+    media: {
+      emoji: '📍',
+      imageUrl: '',
+      imageAlt: L('장소', 'joy', 'a place', 'место'),
+    },
+    tags: ['places', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-interjection-please',
+    english: 'please',
+    senseKey: 'polite-request-or-acceptance-word',
+    partOfSpeech: WordPartOfSpeech.INTERJECTION,
+    meaning: L(
+      '부탁합니다; 주세요',
+      'iltimos',
+      'used to make a request or response polite',
+      'пожалуйста',
+    ),
+    examples: [
+      {
+        english: 'Yes, please.',
+        translations: L(
+          '네, 주세요.',
+          'Ha, iltimos.',
+          'Yes, please.',
+          'Да, пожалуйста.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/pliːz/',
+      ttsText: 'please',
+    },
+    media: {
+      emoji: '🙏',
+      imageUrl: '',
+      imageAlt: L(
+        '정중하게 부탁하는 모습',
+        'muloyim so‘rash',
+        'a polite request',
+        'вежливая просьба',
+      ),
+    },
+    tags: ['polite-language'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-room',
+    english: 'room',
+    senseKey: 'part-of-building-enclosed-by-walls',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '방',
+      'xona',
+      'a part of a building enclosed by walls',
+      'комната',
+    ),
+    examples: [
+      {
+        english: 'Our room is very big.',
+        translations: L(
+          '우리 방은 아주 커요.',
+          'Bizning xonamiz juda katta.',
+          'Our room is very big.',
+          'Наша комната очень большая.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ruːm/',
+      ttsText: 'room',
+    },
+    media: {
+      emoji: '🚪',
+      imageUrl: '',
+      imageAlt: L('방', 'xona', 'a room', 'комната'),
+    },
+    tags: ['hotel', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-sea',
+    english: 'sea',
+    senseKey: 'large-area-of-salt-water',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('바다', 'dengiz', 'a large area of salt water', 'море'),
+    examples: [
+      {
+        english: 'The hotel is near the sea.',
+        translations: L(
+          '호텔은 바다 근처에 있어요.',
+          'Mehmonxona dengiz yaqinida.',
+          'The hotel is near the sea.',
+          'Отель находится рядом с морем.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/siː/',
+      ttsText: 'sea',
+    },
+    media: {
+      emoji: '🌊',
+      imageUrl: '',
+      imageAlt: L('바다', 'dengiz', 'the sea', 'море'),
+    },
+    tags: ['places', 'nature'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-seat',
+    english: 'seat',
+    senseKey: 'place-for-person-to-sit',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '좌석; 자리',
+      'o‘rindiq; joy',
+      'a place where a person can sit',
+      'место; сиденье',
+    ),
+    examples: [
+      {
+        english: 'That is my seat.',
+        translations: L(
+          '저기는 제 자리예요.',
+          'Bu mening joyim.',
+          'That is my seat.',
+          'Это моё место.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/siːt/',
+      ttsText: 'seat',
+    },
+    media: {
+      emoji: '💺',
+      imageUrl: '',
+      imageAlt: L('좌석', 'o‘rindiq', 'a seat', 'сиденье'),
+    },
+    tags: ['objects', 'polite-language'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-shop',
+    english: 'shop',
+    senseKey: 'place-where-goods-are-sold',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('가게', 'do‘kon', 'a place where goods are sold', 'магазин'),
+    examples: [
+      {
+        english: 'The village has got a small shop.',
+        translations: L(
+          '그 마을에는 작은 가게가 있어요.',
+          'Qishloqda kichik do‘kon bor.',
+          'The village has got a small shop.',
+          'В деревне есть маленький магазин.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ʃɒp/',
+      ttsText: 'shop',
+    },
+    media: {
+      emoji: '🏪',
+      imageUrl: '',
+      imageAlt: L('가게', 'do‘kon', 'a shop', 'магазин'),
+    },
+    tags: ['places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-sorry',
+    english: 'sorry',
+    senseKey: 'feeling-or-expressing-apology',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '미안한; 미안합니다',
+      'afsus; uzr',
+      'feeling or expressing an apology',
+      'извиняющийся; жаль',
+    ),
+    examples: [
+      {
+        english: 'Sorry I am late.',
+        translations: L(
+          '늦어서 미안해요.',
+          'Kechikkanim uchun uzr.',
+          'Sorry I am late.',
+          'Извините, я опоздал.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsɒri/',
+      ttsText: 'sorry',
+    },
+    media: {
+      emoji: '🙇',
+      imageUrl: '',
+      imageAlt: L(
+        '사과하는 사람',
+        'uzr so‘rayotgan odam',
+        'someone apologizing',
+        'человек извиняется',
+      ),
+    },
+    tags: ['polite-language', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-expression-excuse-me',
     english: 'Excuse me.',
     senseKey: 'polite-attention',
@@ -9500,6 +10692,118 @@ export const EN_S1_UNIT3_NODE4 = {
 // ─────────────────────────────────────────────────────────────
 
 export const EN_S1_UNIT3_NODE5_WORDS = [
+  {
+    code: 'en-time-am',
+    english: 'a.m.',
+    senseKey: 'time-before-midday',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '오전',
+      'ertalab; tushgacha',
+      'used for times between midnight and midday',
+      'до полудня; утра',
+    ),
+    examples: [
+      {
+        english: 'I start work at 8 a.m.',
+        translations: L(
+          '저는 오전 8시에 일을 시작해요.',
+          'Men ishni ertalab soat sakkizda boshlayman.',
+          'I start work at 8 a.m.',
+          'Я начинаю работу в восемь утра.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌeɪ ˈem/',
+      ttsText: 'a.m.',
+    },
+    media: {
+      emoji: '🌅',
+      imageUrl: '',
+      imageAlt: L(
+        '오전 시간',
+        'ertalabki vaqt',
+        'morning time',
+        'утреннее время',
+      ),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-time-pm',
+    english: 'p.m.',
+    senseKey: 'time-after-midday',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '오후',
+      'tushdan keyin; kechqurun',
+      'used for times between midday and midnight',
+      'после полудня; вечера',
+    ),
+    examples: [
+      {
+        english: 'She finishes work at 5 p.m.',
+        translations: L(
+          '그녀는 오후 5시에 일을 끝내요.',
+          'U ishni soat beshda tugatadi.',
+          'She finishes work at 5 p.m.',
+          'Она заканчивает работу в пять вечера.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌpiː ˈem/',
+      ttsText: 'p.m.',
+    },
+    media: {
+      emoji: '🌇',
+      imageUrl: '',
+      imageAlt: L(
+        '오후 시간',
+        'tushdan keyingi vaqt',
+        'afternoon or evening time',
+        'время после полудня',
+      ),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-song',
+    english: 'song',
+    senseKey: 'short-piece-of-music-with-words',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('노래', 'qo‘shiq', 'a short piece of music with words', 'песня'),
+    examples: [
+      {
+        english: 'What is your favourite song?',
+        translations: L(
+          '가장 좋아하는 노래가 뭐예요?',
+          'Sevimli qo‘shig‘ingiz qaysi?',
+          'What is your favourite song?',
+          'Какая у вас любимая песня?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/sɒŋ/',
+      ttsText: 'song',
+    },
+    media: {
+      emoji: '🎵',
+      imageUrl: '',
+      imageAlt: L('노래', 'qo‘shiq', 'a song', 'песня'),
+    },
+    tags: ['music', 'review'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-technology-gadget',
     english: 'gadget',

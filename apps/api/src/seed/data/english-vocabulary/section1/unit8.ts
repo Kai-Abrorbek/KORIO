@@ -11457,6 +11457,698 @@ export const EN_S1_UNIT8_NODE4 = {
 
 export const EN_S1_UNIT8_NODE5_WORDS = [
   {
+    code: 'en-job-actress',
+    english: 'actress',
+    senseKey: 'female-actor',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '여배우',
+      'aktrisa',
+      'a woman who acts in films, television or plays',
+      'актриса',
+    ),
+    examples: [
+      {
+        english: 'Ingrid Bergman was an actress from Sweden.',
+        translations: L(
+          '잉그리드 버그먼은 스웨덴 출신의 여배우였어요.',
+          'Ingrid Bergman Shvetsiyalik aktrisa edi.',
+          'Ingrid Bergman was an actress from Sweden.',
+          'Ингрид Бергман была актрисой из Швеции.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈæktrəs/',
+      ttsText: 'actress',
+    },
+    media: {
+      emoji: '🎭',
+      imageUrl: '',
+      imageAlt: L('여배우', 'aktrisa', 'an actress', 'актриса'),
+    },
+    tags: ['jobs', 'film'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-job-astronaut',
+    english: 'astronaut',
+    senseKey: 'person-who-travels-in-space',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '우주비행사',
+      'astronavt',
+      'a person who travels in space',
+      'космонавт; астронавт',
+    ),
+    examples: [
+      {
+        english: 'His dream was to be an astronaut.',
+        translations: L(
+          '그의 꿈은 우주비행사가 되는 것이었어요.',
+          'Uning orzusi astronavt bo‘lish edi.',
+          'His dream was to be an astronaut.',
+          'Его мечтой было стать астронавтом.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈæstrənɔːt/',
+      ttsText: 'astronaut',
+    },
+    media: {
+      emoji: '🧑‍🚀',
+      imageUrl: '',
+      imageAlt: L('우주비행사', 'astronavt', 'an astronaut', 'астронавт'),
+    },
+    tags: ['jobs', 'space'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-birthday',
+    english: 'birthday',
+    senseKey: 'anniversary-of-birth',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '생일',
+      'tug‘ilgan kun',
+      'the day each year that celebrates when someone was born',
+      'день рождения',
+    ),
+    examples: [
+      {
+        english: 'When is your birthday?',
+        translations: L(
+          '생일이 언제예요?',
+          'Tug‘ilgan kuningiz qachon?',
+          'When is your birthday?',
+          'Когда у вас день рождения?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbɜːθdeɪ/',
+      ttsText: 'birthday',
+    },
+    media: {
+      emoji: '🎂',
+      imageUrl: '',
+      imageAlt: L(
+        '생일 케이크',
+        'tug‘ilgan kun torti',
+        'a birthday cake',
+        'торт на день рождения',
+      ),
+    },
+    tags: ['dates', 'life-events'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-job-boss',
+    english: 'boss',
+    senseKey: 'person-in-charge-at-work',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '상사; 책임자',
+      'boshliq',
+      'a person who is in charge of other people at work',
+      'начальник',
+    ),
+    examples: [
+      {
+        english: 'Bill Gates was the boss of Microsoft.',
+        translations: L(
+          '빌 게이츠는 마이크로소프트의 책임자였어요.',
+          'Bill Gates Microsoftning boshlig‘i edi.',
+          'Bill Gates was the boss of Microsoft.',
+          'Билл Гейтс был руководителем Microsoft.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/bɒs/',
+      ttsText: 'boss',
+    },
+    media: {
+      emoji: '👔',
+      imageUrl: '',
+      imageAlt: L(
+        '회사의 책임자',
+        'kompaniya boshlig‘i',
+        'a boss',
+        'начальник',
+      ),
+    },
+    tags: ['jobs', 'work'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-century',
+    english: 'century',
+    senseKey: 'period-of-one-hundred-years',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '세기; 100년',
+      'asr',
+      'a period of one hundred years',
+      'век; столетие',
+    ),
+    examples: [
+      {
+        english: 'The Brothers Grimm lived in the 19th century.',
+        translations: L(
+          '그림 형제는 19세기에 살았어요.',
+          'Aka-uka Grimmlar 19-asrda yashagan.',
+          'The Brothers Grimm lived in the 19th century.',
+          'Братья Гримм жили в XIX веке.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsentʃəri/',
+      ttsText: 'century',
+    },
+    media: {
+      emoji: '📜',
+      imageUrl: '',
+      imageAlt: L(
+        '역사의 한 세기',
+        'tarixdagi bir asr',
+        'a century in history',
+        'век в истории',
+      ),
+    },
+    tags: ['time', 'history'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-characters',
+    english: 'characters',
+    senseKey: 'people-in-story-plural',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '등장인물들',
+      'qahramonlar',
+      'people in a story, film or play',
+      'персонажи',
+    ),
+    examples: [
+      {
+        english: 'The characters were real children.',
+        translations: L(
+          '등장인물들은 실제 아이들이었어요.',
+          'Qahramonlar haqiqiy bolalar edi.',
+          'The characters were real children.',
+          'Персонажи были настоящими детьми.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈkærəktəz/',
+      ttsText: 'characters',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L(
+        '이야기의 등장인물들',
+        'hikoya qahramonlari',
+        'story characters',
+        'персонажи истории',
+      ),
+    },
+    tags: ['stories', 'people'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-document',
+    english: 'document',
+    senseKey: 'written-or-recorded-information',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '문서; 기록물',
+      'hujjat',
+      'a written, printed or recorded piece of information',
+      'документ',
+    ),
+    examples: [
+      {
+        english: 'The films are important historical documents.',
+        translations: L(
+          '그 영화들은 중요한 역사적 기록물이에요.',
+          'Bu filmlar muhim tarixiy hujjatlardir.',
+          'The films are important historical documents.',
+          'Эти фильмы — важные исторические документы.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈdɒkjəmənt/',
+      ttsText: 'document',
+    },
+    media: {
+      emoji: '📄',
+      imageUrl: '',
+      imageAlt: L('문서', 'hujjat', 'a document', 'документ'),
+    },
+    tags: ['history', 'records'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-dream',
+    english: 'dream',
+    senseKey: 'strong-hope-for-future',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '꿈; 장래 희망',
+      'orzu',
+      'something you strongly hope to do or achieve',
+      'мечта',
+    ),
+    examples: [
+      {
+        english: 'Her dream was to have a family.',
+        translations: L(
+          '그녀의 꿈은 가족을 이루는 것이었어요.',
+          'Uning orzusi oila qurish edi.',
+          'Her dream was to have a family.',
+          'Её мечтой было создать семью.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/driːm/',
+      ttsText: 'dream',
+    },
+    media: {
+      emoji: '💭',
+      imageUrl: '',
+      imageAlt: L(
+        '미래의 꿈',
+        'kelajak orzusi',
+        'a dream for the future',
+        'мечта о будущем',
+      ),
+    },
+    tags: ['life', 'goals'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-foundation',
+    english: 'foundation',
+    senseKey: 'organization-created-to-help-cause',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '재단',
+      'jamg‘arma',
+      'an organization created to support or help a particular cause',
+      'фонд',
+    ),
+    examples: [
+      {
+        english: 'They use the foundation to help poor people.',
+        translations: L(
+          '그들은 가난한 사람들을 돕기 위해 재단을 이용해요.',
+          'Ular kambag‘al odamlarga yordam berish uchun jamg‘armadan foydalanadi.',
+          'They use the foundation to help poor people.',
+          'Они используют фонд, чтобы помогать бедным людям.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/faʊnˈdeɪʃən/',
+      ttsText: 'foundation',
+    },
+    media: {
+      emoji: '🤝',
+      imageUrl: '',
+      imageAlt: L(
+        '사람들을 돕는 재단',
+        'odamlarga yordam beradigan jamg‘arma',
+        'a charitable foundation',
+        'благотворительный фонд',
+      ),
+    },
+    tags: ['organizations', 'charity'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-horse',
+    english: 'horse',
+    senseKey: 'large-animal-used-for-riding',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('말', 'ot', 'a large animal that people can ride', 'лошадь'),
+    examples: [
+      {
+        english: 'She travelled around California on horses.',
+        translations: L(
+          '그녀는 말을 타고 캘리포니아를 여행했어요.',
+          'U Kaliforniya bo‘ylab otda sayohat qilgan.',
+          'She travelled around California on horses.',
+          'Она путешествовала по Калифорнии на лошадях.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/hɔːs/',
+      ttsText: 'horse',
+    },
+    media: {
+      emoji: '🐎',
+      imageUrl: '',
+      imageAlt: L('말', 'ot', 'a horse', 'лошадь'),
+    },
+    tags: ['animals', 'travel'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-last',
+    english: 'last',
+    senseKey: 'previous-time-period',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '지난; 바로 전의',
+      'o‘tgan',
+      'the one immediately before the present one',
+      'прошлый',
+    ),
+    examples: [
+      {
+        english: 'We were on holiday last year.',
+        translations: L(
+          '우리는 작년에 휴가를 갔어요.',
+          'Biz o‘tgan yili ta’tilda edik.',
+          'We were on holiday last year.',
+          'В прошлом году мы были в отпуске.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/lɑːst/',
+      ttsText: 'last',
+    },
+    media: {
+      emoji: '⬅️',
+      imageUrl: '',
+      imageAlt: L(
+        '지난 시간을 나타내는 표시',
+        'o‘tgan vaqt',
+        'a previous time',
+        'прошлое время',
+      ),
+    },
+    tags: ['time', 'determiner'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-real',
+    english: 'real',
+    senseKey: 'actually-existing-not-imaginary',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '실제의; 진짜의',
+      'haqiqiy',
+      'actually existing and not imaginary',
+      'настоящий; реальный',
+    ),
+    examples: [
+      {
+        english: 'The characters were real children.',
+        translations: L(
+          '등장인물들은 실제 아이들이었어요.',
+          'Qahramonlar haqiqiy bolalar edi.',
+          'The characters were real children.',
+          'Персонажи были настоящими детьми.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/rɪəl/',
+      ttsText: 'real',
+    },
+    media: {
+      emoji: '✅',
+      imageUrl: '',
+      imageAlt: L(
+        '실제임을 나타내는 표시',
+        'haqiqiy ekanini bildiruvchi belgi',
+        'something real',
+        'что-то настоящее',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-yesterday',
+    english: 'yesterday',
+    senseKey: 'day-before-today',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('어제', 'kecha', 'on the day before today', 'вчера'),
+    examples: [
+      {
+        english: 'I listened to her for two hours yesterday.',
+        translations: L(
+          '저는 어제 두 시간 동안 그녀의 말을 들었어요.',
+          'Men kecha uni ikki soat tingladim.',
+          'I listened to her for two hours yesterday.',
+          'Вчера я слушал её два часа.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈjestədeɪ/',
+      ttsText: 'yesterday',
+    },
+    media: {
+      emoji: '🗓️',
+      imageUrl: '',
+      imageAlt: L('어제 날짜', 'kechagi sana', 'yesterday', 'вчерашний день'),
+    },
+    tags: ['time', 'past'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-ordinal-eleventh',
+    english: 'eleventh',
+    senseKey: 'ordinal-11',
+    partOfSpeech: WordPartOfSpeech.NUMERAL,
+    meaning: L(
+      '열한 번째',
+      'o‘n birinchi',
+      'number 11 in a series',
+      'одиннадцатый',
+    ),
+    examples: [
+      {
+        english: 'Her birthday is on the eleventh of May.',
+        translations: L(
+          '그녀의 생일은 5월 11일이에요.',
+          'Uning tug‘ilgan kuni o‘n birinchi mayda.',
+          'Her birthday is on the eleventh of May.',
+          'Её день рождения — одиннадцатого мая.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪˈlevənθ/',
+      ttsText: 'eleventh',
+    },
+    media: {
+      emoji: '1️⃣1️⃣',
+      imageUrl: '',
+      imageAlt: L('열한 번째', 'o‘n birinchi', 'eleventh', 'одиннадцатый'),
+    },
+    tags: ['ordinal-numbers', 'dates'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-ordinal-twelfth',
+    english: 'twelfth',
+    senseKey: 'ordinal-12',
+    partOfSpeech: WordPartOfSpeech.NUMERAL,
+    meaning: L(
+      '열두 번째',
+      'o‘n ikkinchi',
+      'number 12 in a series',
+      'двенадцатый',
+    ),
+    examples: [
+      {
+        english: 'Today is the twelfth of June.',
+        translations: L(
+          '오늘은 6월 12일이에요.',
+          'Bugun o‘n ikkinchi iyun.',
+          'Today is the twelfth of June.',
+          'Сегодня двенадцатое июня.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/twelfθ/',
+      ttsText: 'twelfth',
+    },
+    media: {
+      emoji: '1️⃣2️⃣',
+      imageUrl: '',
+      imageAlt: L('열두 번째', 'o‘n ikkinchi', 'twelfth', 'двенадцатый'),
+    },
+    tags: ['ordinal-numbers', 'dates'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-ordinal-twenty-first',
+    english: 'twenty-first',
+    senseKey: 'ordinal-21',
+    partOfSpeech: WordPartOfSpeech.NUMERAL,
+    meaning: L(
+      '스물한 번째',
+      'yigirma birinchi',
+      'number 21 in a series',
+      'двадцать первый',
+    ),
+    examples: [
+      {
+        english: 'My birthday is on the twenty-first of July.',
+        translations: L(
+          '제 생일은 7월 21일이에요.',
+          'Mening tug‘ilgan kunim yigirma birinchi iyulda.',
+          'My birthday is on the twenty-first of July.',
+          'Мой день рождения — двадцать первого июля.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌtwenti ˈfɜːst/',
+      ttsText: 'twenty-first',
+    },
+    media: {
+      emoji: '2️⃣1️⃣',
+      imageUrl: '',
+      imageAlt: L(
+        '스물한 번째',
+        'yigirma birinchi',
+        'twenty-first',
+        'двадцать первый',
+      ),
+    },
+    tags: ['ordinal-numbers', 'dates'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-ordinal-twenty-third',
+    english: 'twenty-third',
+    senseKey: 'ordinal-23',
+    partOfSpeech: WordPartOfSpeech.NUMERAL,
+    meaning: L(
+      '스물세 번째',
+      'yigirma uchinchi',
+      'number 23 in a series',
+      'двадцать третий',
+    ),
+    examples: [
+      {
+        english: 'The event is on the twenty-third of August.',
+        translations: L(
+          '그 행사는 8월 23일이에요.',
+          'Tadbir yigirma uchinchi avgustda.',
+          'The event is on the twenty-third of August.',
+          'Мероприятие состоится двадцать третьего августа.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌtwenti ˈθɜːd/',
+      ttsText: 'twenty-third',
+    },
+    media: {
+      emoji: '2️⃣3️⃣',
+      imageUrl: '',
+      imageAlt: L(
+        '스물세 번째',
+        'yigirma uchinchi',
+        'twenty-third',
+        'двадцать третий',
+      ),
+    },
+    tags: ['ordinal-numbers', 'dates'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-ordinal-thirty-first',
+    english: 'thirty-first',
+    senseKey: 'ordinal-31',
+    partOfSpeech: WordPartOfSpeech.NUMERAL,
+    meaning: L(
+      '서른한 번째',
+      'o‘ttiz birinchi',
+      'number 31 in a series',
+      'тридцать первый',
+    ),
+    examples: [
+      {
+        english: 'December has a thirty-first day.',
+        translations: L(
+          '12월에는 31일이 있어요.',
+          'Dekabrda o‘ttiz birinchi kun bor.',
+          'December has a thirty-first day.',
+          'В декабре есть тридцать первый день.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌθɜːti ˈfɜːst/',
+      ttsText: 'thirty-first',
+    },
+    media: {
+      emoji: '3️⃣1️⃣',
+      imageUrl: '',
+      imageAlt: L(
+        '서른한 번째',
+        'o‘ttiz birinchi',
+        'thirty-first',
+        'тридцать первый',
+      ),
+    },
+    tags: ['ordinal-numbers', 'dates'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-noun-sibling',
     english: 'sibling',
     senseKey: 'brother-or-sister',

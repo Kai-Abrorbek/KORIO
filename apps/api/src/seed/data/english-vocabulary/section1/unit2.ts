@@ -170,7 +170,159 @@ export const EN_S1_UNIT2_NODE1_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-article-a',
+    english: 'a',
+    senseKey: 'indefinite-article-before-consonant-sound',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '하나의; 어떤',
+      'bir',
+      'an indefinite article used before a consonant sound',
+      'неопределённый артикль перед согласным звуком',
+    ),
+    examples: [
+      {
+        english: 'He is a chef.',
+        translations: L(
+          '그는 요리사예요.',
+          'U oshpaz.',
+          'He is a chef.',
+          'Он повар.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ə/',
+      ttsText: 'a',
+    },
+    media: {
+      emoji: '1️⃣',
+      imageUrl: '',
+      imageAlt: L(
+        '하나를 나타내는 표현',
+        'bitta narsani bildiruvchi so‘z',
+        'one unspecified thing',
+        'один неопределённый предмет',
+      ),
+    },
+    tags: ['article', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-article-an',
+    english: 'an',
+    senseKey: 'indefinite-article-before-vowel-sound',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '하나의; 어떤',
+      'bir',
+      'an indefinite article used before a vowel sound',
+      'неопределённый артикль перед гласным звуком',
+    ),
+    examples: [
+      {
+        english: 'She is an engineer.',
+        translations: L(
+          '그녀는 엔지니어예요.',
+          'U muhandis.',
+          'She is an engineer.',
+          'Она инженер.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ən/',
+      ttsText: 'an',
+    },
+    media: {
+      emoji: '1️⃣',
+      imageUrl: '',
+      imageAlt: L(
+        '하나를 나타내는 표현',
+        'bitta narsani bildiruvchi so‘z',
+        'one unspecified thing',
+        'один неопределённый предмет',
+      ),
+    },
+    tags: ['article', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-bag',
+    english: 'bag',
+    senseKey: 'container-for-carrying-things',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '가방; 봉투',
+      'sumka; paket',
+      'a container used for carrying things',
+      'сумка; пакет',
+    ),
+    examples: [
+      {
+        english: 'What is in the bag?',
+        translations: L(
+          '가방 안에 뭐가 있어요?',
+          'Sumkada nima bor?',
+          'What is in the bag?',
+          'Что в сумке?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/bæɡ/',
+      ttsText: 'bag',
+    },
+    media: {
+      emoji: '👜',
+      imageUrl: '',
+      imageAlt: L('가방', 'sumka', 'a bag', 'сумка'),
+    },
+    tags: ['objects'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-object',
+    english: 'object',
+    senseKey: 'physical-thing',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '물건; 물체',
+      'buyum; narsa',
+      'a physical thing that can be seen or touched',
+      'предмет; объект',
+    ),
+    examples: [
+      {
+        english: 'This is an interesting object.',
+        translations: L(
+          '이것은 흥미로운 물건이에요.',
+          'Bu qiziqarli buyum.',
+          'This is an interesting object.',
+          'Это интересный предмет.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɒbdʒɪkt/',
+      ttsText: 'object',
+    },
+    media: {
+      emoji: '📦',
+      imageUrl: '',
+      imageAlt: L('하나의 물건', 'bir buyum', 'an object', 'предмет'),
+    },
+    tags: ['objects'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-object-key',
     english: 'key',
@@ -2926,7 +3078,293 @@ export const EN_S1_UNIT2_NODE2_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-country-argentina',
+    english: 'Argentina',
+    senseKey: 'country-argentina',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '아르헨티나',
+      'Argentina',
+      'a country in South America',
+      'Аргентина',
+    ),
+    examples: [
+      {
+        english: 'She is from Argentina.',
+        translations: L(
+          '그녀는 아르헨티나 출신이에요.',
+          'U Argentinadan.',
+          'She is from Argentina.',
+          'Она из Аргентины.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌɑːdʒənˈtiːnə/',
+      ttsText: 'Argentina',
+    },
+    media: {
+      emoji: '🇦🇷',
+      imageUrl: '',
+      imageAlt: L(
+        '아르헨티나 국기',
+        'Argentina bayrog‘i',
+        'the flag of Argentina',
+        'флаг Аргентины',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-adjective-english',
+    english: 'English',
+    senseKey: 'relating-to-english-language',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '영어의',
+      'ingliz tilidagi',
+      'relating to the English language',
+      'английский',
+    ),
+    examples: [
+      {
+        english: 'We are in an English class together.',
+        translations: L(
+          '우리는 함께 영어 수업을 듣고 있어요.',
+          'Biz birga ingliz tili darsidamiz.',
+          'We are in an English class together.',
+          'Мы вместе на уроке английского.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɪŋɡlɪʃ/',
+      ttsText: 'English',
+    },
+    media: {
+      emoji: '🇬🇧',
+      imageUrl: '',
+      imageAlt: L('영어', 'ingliz tili', 'English', 'английский язык'),
+    },
+    tags: ['languages', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-guy',
+    english: 'guy',
+    senseKey: 'informal-word-for-man',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '남자; 사람',
+      'yigit; erkak',
+      'an informal word for a man or person',
+      'парень; мужчина',
+    ),
+    examples: [
+      {
+        english: 'He is a nice guy.',
+        translations: L(
+          '그는 좋은 사람이에요.',
+          'U yaxshi yigit.',
+          'He is a nice guy.',
+          'Он хороший парень.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡaɪ/',
+      ttsText: 'guy',
+    },
+    media: {
+      emoji: '👨',
+      imageUrl: '',
+      imageAlt: L('한 남자', 'bir yigit', 'a guy', 'парень'),
+    },
+    tags: ['people', 'informal'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-italian',
+    english: 'Italian',
+    senseKey: 'relating-to-italy',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('이탈리아의', 'italyan', 'relating to Italy', 'итальянский'),
+    examples: [
+      {
+        english: 'She is a chef in an Italian restaurant.',
+        translations: L(
+          '그녀는 이탈리아 식당의 요리사예요.',
+          'U italyan restoranida oshpaz.',
+          'She is a chef in an Italian restaurant.',
+          'Она повар в итальянском ресторане.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪˈtæliən/',
+      ttsText: 'Italian',
+    },
+    media: {
+      emoji: '🇮🇹',
+      imageUrl: '',
+      imageAlt: L('이탈리아', 'Italiya', 'Italy', 'Италия'),
+    },
+    tags: ['countries', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-italy',
+    english: 'Italy',
+    senseKey: 'country-italy',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('이탈리아', 'Italiya', 'a country in Europe', 'Италия'),
+    examples: [
+      {
+        english: 'I am Gio from Italy.',
+        translations: L(
+          '저는 이탈리아에서 온 지오예요.',
+          'Men Italiyadan kelgan Gioman.',
+          'I am Gio from Italy.',
+          'Я Джио из Италии.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɪtəli/',
+      ttsText: 'Italy',
+    },
+    media: {
+      emoji: '🇮🇹',
+      imageUrl: '',
+      imageAlt: L(
+        '이탈리아 국기',
+        'Italiya bayrog‘i',
+        'the flag of Italy',
+        'флаг Италии',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-mexico',
+    english: 'Mexico',
+    senseKey: 'country-mexico',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('멕시코', 'Meksika', 'a country in North America', 'Мексика'),
+    examples: [
+      {
+        english: 'He is a teacher at a school in Mexico.',
+        translations: L(
+          '그는 멕시코의 한 학교에서 교사로 일해요.',
+          'U Meksikadagi maktabda o‘qituvchi.',
+          'He is a teacher at a school in Mexico.',
+          'Он учитель в школе в Мексике.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈmeksɪkəʊ/',
+      ttsText: 'Mexico',
+    },
+    media: {
+      emoji: '🇲🇽',
+      imageUrl: '',
+      imageAlt: L(
+        '멕시코 국기',
+        'Meksika bayrog‘i',
+        'the flag of Mexico',
+        'флаг Мексики',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-family-sister',
+    english: 'sister',
+    senseKey: 'female-sibling',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '자매; 누나; 언니; 여동생',
+      'opa; singil',
+      'a female sibling',
+      'сестра',
+    ),
+    examples: [
+      {
+        english: 'She is Tibor’s sister.',
+        translations: L(
+          '그녀는 티보르의 자매예요.',
+          'U Tiborning opasi yoki singlisi.',
+          'She is Tibor’s sister.',
+          'Она сестра Тибора.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsɪstə(r)/',
+      ttsText: 'sister',
+    },
+    media: {
+      emoji: '👧',
+      imageUrl: '',
+      imageAlt: L('자매', 'opa yoki singil', 'a sister', 'сестра'),
+    },
+    tags: ['family'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-pronoun-who',
+    english: 'who',
+    senseKey: 'question-word-asking-about-person',
+    partOfSpeech: WordPartOfSpeech.PRONOUN,
+    meaning: L('누구', 'kim', 'used to ask which person', 'кто'),
+    examples: [
+      {
+        english: 'Who is that?',
+        translations: L(
+          '저 사람은 누구예요?',
+          'U kim?',
+          'Who is that?',
+          'Кто это?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/huː/',
+      ttsText: 'who',
+    },
+    media: {
+      emoji: '❓',
+      imageUrl: '',
+      imageAlt: L(
+        '누구인지 묻는 질문',
+        'kimligini so‘rash',
+        'asking who someone is',
+        'вопрос о человеке',
+      ),
+    },
+    tags: ['question-words', 'people'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-job-doctor',
     english: 'doctor',
@@ -5142,7 +5580,473 @@ export const EN_S1_UNIT2_NODE3_WORDS = [
     ),
     isCore: true,
   },
+  {
+    code: 'en-noun-building',
+    english: 'building',
+    senseKey: 'structure-with-walls-and-roof',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('건물', 'bino', 'a structure with walls and a roof', 'здание'),
+    examples: [
+      {
+        english: 'What is the name of that building over there?',
+        translations: L(
+          '저기 있는 저 건물 이름이 뭐예요?',
+          'U yerdagi binoning nomi nima?',
+          'What is the name of that building over there?',
+          'Как называется то здание?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbɪldɪŋ/',
+      ttsText: 'building',
+    },
+    media: {
+      emoji: '🏢',
+      imageUrl: '',
+      imageAlt: L('건물', 'bino', 'a building', 'здание'),
+    },
+    tags: ['places'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-noun-garden',
+    english: 'garden',
+    senseKey: 'area-of-land-for-plants',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '정원',
+      'bog‘',
+      'an area of land where flowers or plants are grown',
+      'сад',
+    ),
+    examples: [
+      {
+        english: 'It is a small house, but it has got a garden.',
+        translations: L(
+          '작은 집이지만 정원이 있어요.',
+          'Uy kichkina, lekin bog‘i bor.',
+          'It is a small house, but it has got a garden.',
+          'Дом небольшой, но у него есть сад.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɡɑːdn/',
+      ttsText: 'garden',
+    },
+    media: {
+      emoji: '🌳',
+      imageUrl: '',
+      imageAlt: L('집 옆의 정원', 'uy yonidagi bog‘', 'a garden', 'сад'),
+    },
+    tags: ['places', 'home'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-museum',
+    english: 'museum',
+    senseKey: 'place-displaying-historical-artistic-objects',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '박물관',
+      'muzey',
+      'a place where important objects are displayed',
+      'музей',
+    ),
+    examples: [
+      {
+        english: 'The Palace Museum is in Beijing.',
+        translations: L(
+          '고궁박물원은 베이징에 있어요.',
+          'Saroy muzeyi Pekinda.',
+          'The Palace Museum is in Beijing.',
+          'Дворцовый музей находится в Пекине.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/mjuˈziːəm/',
+      ttsText: 'museum',
+    },
+    media: {
+      emoji: '🏛️',
+      imageUrl: '',
+      imageAlt: L('박물관', 'muzey', 'a museum', 'музей'),
+    },
+    tags: ['places', 'city'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-river',
+    english: 'river',
+    senseKey: 'large-natural-flow-of-water',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('강', 'daryo', 'a large natural flow of water', 'река'),
+    examples: [
+      {
+        english: 'London is on the River Thames.',
+        translations: L(
+          '런던은 템스강에 있어요.',
+          'London Temza daryosi bo‘yida.',
+          'London is on the River Thames.',
+          'Лондон находится на Темзе.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈrɪvə(r)/',
+      ttsText: 'river',
+    },
+    media: {
+      emoji: '🏞️',
+      imageUrl: '',
+      imageAlt: L('강', 'daryo', 'a river', 'река'),
+    },
+    tags: ['places', 'nature'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-road',
+    english: 'road',
+    senseKey: 'way-for-cars-and-other-vehicles',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '도로; 길',
+      'yo‘l',
+      'a way used by cars and other vehicles',
+      'дорога',
+    ),
+    examples: [
+      {
+        english: 'Madame Tussauds is on Marylebone Road.',
+        translations: L(
+          '마담 투소는 메릴번 로드에 있어요.',
+          'Madame Tussauds Marylebone Roadda.',
+          'Madame Tussauds is on Marylebone Road.',
+          'Музей мадам Тюссо находится на Мэрилебон-роуд.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/rəʊd/',
+      ttsText: 'road',
+    },
+    media: {
+      emoji: '🛣️',
+      imageUrl: '',
+      imageAlt: L('도로', 'yo‘l', 'a road', 'дорога'),
+    },
+    tags: ['places', 'city'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-romania',
+    english: 'Romania',
+    senseKey: 'country-romania',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('루마니아', 'Ruminiya', 'a country in Europe', 'Румыния'),
+    examples: [
+      {
+        english: 'This is a photo of my house in Romania.',
+        translations: L(
+          '이것은 루마니아에 있는 제 집 사진이에요.',
+          'Bu Ruminiyadagi uyimning surati.',
+          'This is a photo of my house in Romania.',
+          'Это фотография моего дома в Румынии.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ruˈmeɪniə/',
+      ttsText: 'Romania',
+    },
+    media: {
+      emoji: '🇷🇴',
+      imageUrl: '',
+      imageAlt: L(
+        '루마니아 국기',
+        'Ruminiya bayrog‘i',
+        'the flag of Romania',
+        'флаг Румынии',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-square',
+    english: 'square',
+    senseKey: 'open-area-in-town-or-city',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('광장', 'maydon', 'an open area in a town or city', 'площадь'),
+    examples: [
+      {
+        english: 'The restaurant is on Church Square.',
+        translations: L(
+          '그 식당은 처치 스퀘어에 있어요.',
+          'Restoran Church Square maydonida.',
+          'The restaurant is on Church Square.',
+          'Ресторан находится на площади Чёрч-сквер.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/skweə(r)/',
+      ttsText: 'square',
+    },
+    media: {
+      emoji: '🏙️',
+      imageUrl: '',
+      imageAlt: L(
+        '도시의 광장',
+        'shahar maydoni',
+        'a city square',
+        'городская площадь',
+      ),
+    },
+    tags: ['places', 'city'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-station',
+    english: 'station',
+    senseKey: 'place-where-trains-or-buses-stop',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '역; 정거장',
+      'bekat; vokzal',
+      'a place where trains or buses stop',
+      'станция; вокзал',
+    ),
+    examples: [
+      {
+        english: 'Madame Tussauds is near Baker Street Station.',
+        translations: L(
+          '마담 투소는 베이커 스트리트역 근처에 있어요.',
+          'Madame Tussauds Baker Street bekati yaqinida.',
+          'Madame Tussauds is near Baker Street Station.',
+          'Музей мадам Тюссо находится рядом со станцией Бейкер-стрит.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsteɪʃən/',
+      ttsText: 'station',
+    },
+    media: {
+      emoji: '🚉',
+      imageUrl: '',
+      imageAlt: L('기차역', 'vokzal', 'a station', 'станция'),
+    },
+    tags: ['places', 'transport'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-street',
+    english: 'street',
+    senseKey: 'road-in-town-with-buildings',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '거리; 길',
+      'ko‘cha',
+      'a road in a town or city with buildings along it',
+      'улица',
+    ),
+    examples: [
+      {
+        english: 'The Metropolitan Opera is on 65th Street.',
+        translations: L(
+          '메트로폴리탄 오페라는 65번가에 있어요.',
+          'Metropolitan Opera 65-ko‘chada.',
+          'The Metropolitan Opera is on 65th Street.',
+          'Метрополитен-опера находится на 65-й улице.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/striːt/',
+      ttsText: 'street',
+    },
+    media: {
+      emoji: '🏙️',
+      imageUrl: '',
+      imageAlt: L(
+        '도시의 거리',
+        'shahar ko‘chasi',
+        'a city street',
+        'городская улица',
+      ),
+    },
+    tags: ['places', 'city'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-thailand',
+    english: 'Thailand',
+    senseKey: 'country-thailand',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('태국', 'Tailand', 'a country in Southeast Asia', 'Таиланд'),
+    examples: [
+      {
+        english: 'They are in Thailand for a week.',
+        translations: L(
+          '그들은 일주일 동안 태국에 있어요.',
+          'Ular Tailandda bir hafta bo‘lishadi.',
+          'They are in Thailand for a week.',
+          'Они находятся в Таиланде неделю.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈtaɪlænd/',
+      ttsText: 'Thailand',
+    },
+    media: {
+      emoji: '🇹🇭',
+      imageUrl: '',
+      imageAlt: L(
+        '태국 국기',
+        'Tailand bayrog‘i',
+        'the flag of Thailand',
+        'флаг Таиланда',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-there',
+    english: 'there',
+    senseKey: 'in-at-or-to-that-place',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L(
+      '거기에; 거기에서',
+      'u yerda',
+      'in, at or to that place',
+      'там; туда',
+    ),
+    examples: [
+      {
+        english: 'He is there on business.',
+        translations: L(
+          '그는 사업 때문에 거기에 있어요.',
+          'U u yerda ish bilan.',
+          'He is there on business.',
+          'Он там по делам.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ðeə(r)/',
+      ttsText: 'there',
+    },
+    media: {
+      emoji: '👉',
+      imageUrl: '',
+      imageAlt: L(
+        '멀리 있는 장소를 가리키는 모습',
+        'u yerdagi joyni ko‘rsatish',
+        'pointing to a place over there',
+        'указание на место там',
+      ),
+    },
+    tags: ['place', 'adverbs'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-university',
+    english: 'university',
+    senseKey: 'institution-for-higher-education',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '대학교',
+      'universitet',
+      'an institution where people study for degrees',
+      'университет',
+    ),
+    examples: [
+      {
+        english: 'Hannah and David are students at Columbia University.',
+        translations: L(
+          '한나와 데이비드는 컬럼비아대학교 학생이에요.',
+          'Hannah va David Columbia universiteti talabalari.',
+          'Hannah and David are students at Columbia University.',
+          'Ханна и Дэвид — студенты Колумбийского университета.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌjuːnɪˈvɜːsəti/',
+      ttsText: 'university',
+    },
+    media: {
+      emoji: '🎓',
+      imageUrl: '',
+      imageAlt: L('대학교', 'universitet', 'a university', 'университет'),
+    },
+    tags: ['places', 'education'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-week',
+    english: 'week',
+    senseKey: 'period-of-seven-days',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('주; 일주일', 'hafta', 'a period of seven days', 'неделя'),
+    examples: [
+      {
+        english: 'I am in Italy for a week.',
+        translations: L(
+          '저는 일주일 동안 이탈리아에 있어요.',
+          'Men Italiyada bir haftaman.',
+          'I am in Italy for a week.',
+          'Я в Италии на неделю.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/wiːk/',
+      ttsText: 'week',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: '',
+      imageAlt: L(
+        '일주일 달력',
+        'bir haftalik taqvim',
+        'one week on a calendar',
+        'неделя в календаре',
+      ),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-pronoun-you',
     english: 'you',
@@ -7230,7 +8134,154 @@ export const EN_S1_UNIT2_NODE4_WORDS = [
     difficulty: 1,
     isCore: true,
   },
+  {
+    code: 'en-other-about',
+    english: 'about',
+    senseKey: 'concerning-subject-or-person',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '~에 관하여; ~에 대해',
+      'haqida',
+      'concerning a particular subject or person',
+      'о; насчёт',
+    ),
+    examples: [
+      {
+        english: 'Tell me about your family.',
+        translations: L(
+          '가족에 대해 말해 주세요.',
+          'Oilangiz haqida gapirib bering.',
+          'Tell me about your family.',
+          'Расскажите мне о своей семье.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əˈbaʊt/',
+      ttsText: 'about',
+    },
+    media: {
+      emoji: '💬',
+      imageUrl: '',
+      imageAlt: L(
+        '어떤 주제에 대해 이야기하는 모습',
+        'bir mavzu haqida gaplashish',
+        'talking about a subject',
+        'разговор о теме',
+      ),
+    },
+    tags: ['preposition', 'communication'],
+    difficulty: 1,
+    isCore: true,
+  },
 
+  {
+    code: 'en-noun-email',
+    english: 'email',
+    senseKey: 'electronic-message',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '이메일',
+      'elektron xat',
+      'a message sent electronically over the internet',
+      'электронное письмо',
+    ),
+    examples: [
+      {
+        english: 'Thanks for your email.',
+        translations: L(
+          '이메일 고마워요.',
+          'Elektron xatingiz uchun rahmat.',
+          'Thanks for your email.',
+          'Спасибо за ваше письмо.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈiːmeɪl/',
+      ttsText: 'email',
+    },
+    media: {
+      emoji: '📧',
+      imageUrl: '',
+      imageAlt: L('이메일', 'elektron xat', 'an email', 'электронное письмо'),
+    },
+    tags: ['communication', 'writing'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-friend',
+    english: 'friend',
+    senseKey: 'person-you-know-and-like',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('친구', 'do‘st', 'a person you know well and like', 'друг'),
+    examples: [
+      {
+        english: 'This is my friend Pieter.',
+        translations: L(
+          '이 사람은 제 친구 피터예요.',
+          'Bu mening do‘stim Pieter.',
+          'This is my friend Pieter.',
+          'Это мой друг Питер.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/frend/',
+      ttsText: 'friend',
+    },
+    media: {
+      emoji: '🧑‍🤝‍🧑',
+      imageUrl: '',
+      imageAlt: L('친구 두 명', 'ikki do‘st', 'friends', 'друзья'),
+    },
+    tags: ['people', 'relationships'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-oclock',
+    english: "o'clock",
+    senseKey: 'exact-hour-on-clock',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L(
+      '정각; ~시',
+      'soat',
+      'used after a number to say an exact hour',
+      'ровно; часов',
+    ),
+    examples: [
+      {
+        english: 'Is the film at eight o’clock?',
+        translations: L(
+          '영화가 8시예요?',
+          'Film soat sakkizdami?',
+          'Is the film at eight o’clock?',
+          'Фильм в восемь часов?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əˈklɒk/',
+      ttsText: "o'clock",
+    },
+    media: {
+      emoji: '🕗',
+      imageUrl: '',
+      imageAlt: L(
+        '8시 정각의 시계',
+        'soat sakkiz',
+        'a clock showing eight o’clock',
+        'часы показывают восемь',
+      ),
+    },
+    tags: ['time', 'clock'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-event-film',
     english: 'film',
@@ -9691,7 +10742,46 @@ export const EN_S1_UNIT2_NODE5_WORDS = [
     difficulty: 1,
     isCore: true,
   },
-
+  {
+    code: 'en-adjective-nice',
+    english: 'nice',
+    senseKey: 'pleasant-or-enjoyable',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '좋은; 기분 좋은',
+      'yaxshi; yoqimli',
+      'pleasant, enjoyable or kind',
+      'приятный; хороший',
+    ),
+    examples: [
+      {
+        english: 'Have a nice day.',
+        translations: L(
+          '좋은 하루 보내세요.',
+          'Kuningiz yaxshi o‘tsin.',
+          'Have a nice day.',
+          'Хорошего дня.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/naɪs/',
+      ttsText: 'nice',
+    },
+    media: {
+      emoji: '😊',
+      imageUrl: '',
+      imageAlt: L(
+        '기분 좋은 모습',
+        'yoqimli kayfiyat',
+        'something pleasant',
+        'что-то приятное',
+      ),
+    },
+    tags: ['adjectives', 'review'],
+    difficulty: 1,
+    isCore: true,
+  },
   {
     code: 'en-object-table',
     english: 'table',

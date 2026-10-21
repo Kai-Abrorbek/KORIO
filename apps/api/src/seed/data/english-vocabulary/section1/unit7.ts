@@ -10857,6 +10857,901 @@ export const EN_S1_UNIT7_NODE4 = {
 
 export const EN_S1_UNIT7_NODE5_WORDS = [
   {
+    code: 'en-noun-ability',
+    english: 'ability',
+    senseKey: 'skill-or-power-to-do-something',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '능력',
+      'qobiliyat',
+      'the skill or power to do something',
+      'способность',
+    ),
+    examples: [
+      {
+        english: 'Koko has an unusual ability.',
+        translations: L(
+          '코코에게는 특별한 능력이 있어요.',
+          'Kokoning noodatiy qobiliyati bor.',
+          'Koko has an unusual ability.',
+          'У Коко есть необычная способность.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/əˈbɪləti/', ttsText: 'ability' },
+    media: {
+      emoji: '💪',
+      imageUrl: '',
+      imageAlt: L(
+        '특별한 능력',
+        'maxsus qobiliyat',
+        'a special ability',
+        'особая способность',
+      ),
+    },
+    tags: ['skills', 'ability'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-advert',
+    english: 'advert',
+    senseKey: 'advertisement',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('광고', 'reklama', 'an advertisement', 'реклама; объявление'),
+    examples: [
+      {
+        english: 'Look at this job advert.',
+        translations: L(
+          '이 구인 광고를 보세요.',
+          'Bu ish e’loniga qarang.',
+          'Look at this job advert.',
+          'Посмотрите на это объявление о работе.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈædvɜːt/', ttsText: 'advert' },
+    media: {
+      emoji: '📢',
+      imageUrl: '',
+      imageAlt: L('광고', 'reklama', 'an advert', 'объявление'),
+    },
+    tags: ['work', 'communication'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-algeria',
+    english: 'Algeria',
+    senseKey: 'country-algeria',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('알제리', 'Jazoir', 'a country in North Africa', 'Алжир'),
+    examples: [
+      {
+        english: 'I am from Algeria.',
+        translations: L(
+          '저는 알제리 출신이에요.',
+          'Men Jazoirdanman.',
+          'I am from Algeria.',
+          'Я из Алжира.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ælˈdʒɪəriə/', ttsText: 'Algeria' },
+    media: {
+      emoji: '🇩🇿',
+      imageUrl: '',
+      imageAlt: L(
+        '알제리 국기',
+        'Jazoir bayrog‘i',
+        'the flag of Algeria',
+        'флаг Алжира',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-animal',
+    english: 'animal',
+    senseKey: 'living-creature-not-plant',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '동물',
+      'hayvon',
+      'a living creature that is not a plant',
+      'животное',
+    ),
+    examples: [
+      {
+        english: 'She can paint animals.',
+        translations: L(
+          '그녀는 동물을 그릴 수 있어요.',
+          'U hayvonlarni chiza oladi.',
+          'She can paint animals.',
+          'Она умеет рисовать животных.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈænɪməl/', ttsText: 'animal' },
+    media: {
+      emoji: '🐾',
+      imageUrl: '',
+      imageAlt: L('동물', 'hayvon', 'an animal', 'животное'),
+    },
+    tags: ['animals'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-behaviour',
+    english: 'behaviour',
+    senseKey: 'way-person-or-animal-acts',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '행동; 행동 방식',
+      'xulq-atvor',
+      'the way a person or animal acts',
+      'поведение',
+    ),
+    examples: [
+      {
+        english: 'The project studies dolphin behaviour.',
+        translations: L(
+          '그 프로젝트는 돌고래의 행동을 연구해요.',
+          'Loyiha delfinlarning xulq-atvorini o‘rganadi.',
+          'The project studies dolphin behaviour.',
+          'Проект изучает поведение дельфинов.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/bɪˈheɪvjə(r)/', ttsText: 'behaviour' },
+    media: {
+      emoji: '🔍',
+      imageUrl: '',
+      imageAlt: L(
+        '동물 행동 연구',
+        'hayvon xulqini o‘rganish',
+        'studying animal behaviour',
+        'изучение поведения животных',
+      ),
+    },
+    tags: ['research', 'animals'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-bird',
+    english: 'bird',
+    senseKey: 'feathered-animal-with-wings',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('새', 'qush', 'an animal with feathers and wings', 'птица'),
+    examples: [
+      {
+        english: 'Murphy is an amazing bird.',
+        translations: L(
+          '머피는 놀라운 새예요.',
+          'Murphy ajoyib qush.',
+          'Murphy is an amazing bird.',
+          'Мёрфи — удивительная птица.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/bɜːd/', ttsText: 'bird' },
+    media: {
+      emoji: '🐦',
+      imageUrl: '',
+      imageAlt: L('새', 'qush', 'a bird', 'птица'),
+    },
+    tags: ['animals'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-bored',
+    english: 'bored',
+    senseKey: 'feeling-uninterested',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '지루해하는',
+      'zerikkan',
+      'feeling tired and uninterested',
+      'скучающий',
+    ),
+    examples: [
+      {
+        english: 'I am always bored at the weekend.',
+        translations: L(
+          '저는 주말이면 항상 지루해요.',
+          'Men dam olish kunlari doim zerikaman.',
+          'I am always bored at the weekend.',
+          'Мне всегда скучно по выходным.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/bɔːd/', ttsText: 'bored' },
+    media: {
+      emoji: '🥱',
+      imageUrl: '',
+      imageAlt: L(
+        '지루해하는 사람',
+        'zerikkan odam',
+        'a bored person',
+        'скучающий человек',
+      ),
+    },
+    tags: ['feelings', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-boring',
+    english: 'boring',
+    senseKey: 'making-someone-bored',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('지루한', 'zerikarli', 'not interesting', 'скучный'),
+    examples: [
+      {
+        english: 'Watching football is boring.',
+        translations: L(
+          '축구를 보는 건 지루해요.',
+          'Futbol ko‘rish zerikarli.',
+          'Watching football is boring.',
+          'Смотреть футбол скучно.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈbɔːrɪŋ/', ttsText: 'boring' },
+    media: {
+      emoji: '😐',
+      imageUrl: '',
+      imageAlt: L(
+        '지루한 활동',
+        'zerikarli mashg‘ulot',
+        'a boring activity',
+        'скучное занятие',
+      ),
+    },
+    tags: ['adjectives', 'feelings'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-cost',
+    english: 'cost',
+    senseKey: 'have-particular-price',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '가격이 ~이다; 비용이 들다',
+      'turmoq; narxi bo‘lmoq',
+      'to have a particular price',
+      'стоить',
+    ),
+    examples: [
+      {
+        english: 'How much does it cost?',
+        translations: L(
+          '얼마예요?',
+          'Bu qancha turadi?',
+          'How much does it cost?',
+          'Сколько это стоит?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/kɒst/', ttsText: 'cost' },
+    media: {
+      emoji: '💰',
+      imageUrl: '',
+      imageAlt: L('가격표', 'narx yorlig‘i', 'a price tag', 'ценник'),
+    },
+    tags: ['shopping', 'money'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-dolphin',
+    english: 'dolphin',
+    senseKey: 'intelligent-sea-mammal',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('돌고래', 'delfin', 'an intelligent sea mammal', 'дельфин'),
+    examples: [
+      {
+        english: 'Dolphins can understand many words.',
+        translations: L(
+          '돌고래는 많은 단어를 이해할 수 있어요.',
+          'Delfinlar ko‘p so‘zlarni tushuna oladi.',
+          'Dolphins can understand many words.',
+          'Дельфины могут понимать много слов.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈdɒlfɪn/', ttsText: 'dolphin' },
+    media: {
+      emoji: '🐬',
+      imageUrl: '',
+      imageAlt: L('돌고래', 'delfin', 'a dolphin', 'дельфин'),
+    },
+    tags: ['animals', 'sea'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-enthusiastic',
+    english: 'enthusiastic',
+    senseKey: 'very-interested-and-excited',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '열정적인',
+      'g‘ayratli; ishtiyoqli',
+      'very interested and excited about something',
+      'увлечённый; полный энтузиазма',
+    ),
+    examples: [
+      {
+        english: 'We want enthusiastic English teachers.',
+        translations: L(
+          '우리는 열정적인 영어 선생님을 원해요.',
+          'Biz g‘ayratli ingliz tili o‘qituvchilarini xohlaymiz.',
+          'We want enthusiastic English teachers.',
+          'Нам нужны увлечённые преподаватели английского.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ɪnˌθjuːziˈæstɪk/', ttsText: 'enthusiastic' },
+    media: {
+      emoji: '🤩',
+      imageUrl: '',
+      imageAlt: L(
+        '열정적인 사람',
+        'g‘ayratli odam',
+        'an enthusiastic person',
+        'увлечённый человек',
+      ),
+    },
+    tags: ['adjectives', 'personality'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-fast',
+    english: 'fast',
+    senseKey: 'able-to-do-something-quickly',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('빠른', 'tez', 'able to move, learn or work quickly', 'быстрый'),
+    examples: [
+      {
+        english: 'I am a fast learner.',
+        translations: L(
+          '저는 빨리 배우는 사람이에요.',
+          'Men tez o‘rganaman.',
+          'I am a fast learner.',
+          'Я быстро учусь.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/fɑːst/', ttsText: 'fast' },
+    media: {
+      emoji: '⚡',
+      imageUrl: '',
+      imageAlt: L(
+        '빠른 학습',
+        'tez o‘rganish',
+        'fast learning',
+        'быстрое обучение',
+      ),
+    },
+    tags: ['adjectives', 'skills'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-gorilla',
+    english: 'gorilla',
+    senseKey: 'large-african-ape',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('고릴라', 'gorilla', 'a large African ape', 'горилла'),
+    examples: [
+      {
+        english: 'Koko is a gorilla.',
+        translations: L(
+          '코코는 고릴라예요.',
+          'Koko gorilla.',
+          'Koko is a gorilla.',
+          'Коко — горилла.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ɡəˈrɪlə/', ttsText: 'gorilla' },
+    media: {
+      emoji: '🦍',
+      imageUrl: '',
+      imageAlt: L('고릴라', 'gorilla', 'a gorilla', 'горилла'),
+    },
+    tags: ['animals'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-job-guide',
+    english: 'guide',
+    senseKey: 'person-who-shows-visitors-around',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '가이드; 안내원',
+      'gid',
+      'a person who shows visitors around a place',
+      'гид',
+    ),
+    examples: [
+      {
+        english: 'My mother is a tour guide.',
+        translations: L(
+          '우리 어머니는 관광 가이드예요.',
+          'Onam sayohat gididir.',
+          'My mother is a tour guide.',
+          'Моя мама работает гидом.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ɡaɪd/', ttsText: 'guide' },
+    media: {
+      emoji: '🗺️',
+      imageUrl: '',
+      imageAlt: L('관광 가이드', 'sayohat gidi', 'a tour guide', 'экскурсовод'),
+    },
+    tags: ['jobs', 'travel'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-interest',
+    english: 'interest',
+    senseKey: 'activity-or-subject-person-likes',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '관심사; 흥미',
+      'qiziqish',
+      'a subject or activity that you enjoy',
+      'интерес; увлечение',
+    ),
+    examples: [
+      {
+        english: 'Do you have a lot of interests?',
+        translations: L(
+          '관심사가 많아요?',
+          'Qiziqishlaringiz ko‘pmi?',
+          'Do you have a lot of interests?',
+          'У вас много интересов?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈɪntrəst/', ttsText: 'interest' },
+    media: {
+      emoji: '💡',
+      imageUrl: '',
+      imageAlt: L('관심사', 'qiziqish', 'an interest', 'интерес'),
+    },
+    tags: ['hobbies', 'interests'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-know',
+    english: 'know',
+    senseKey: 'have-information-or-understanding',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '알다',
+      'bilmoq',
+      'to have information or understanding about something',
+      'знать',
+    ),
+    examples: [
+      {
+        english: 'Do you know any clever animals?',
+        translations: L(
+          '똑똑한 동물을 알고 있어요?',
+          'Aqlli hayvonlarni bilasizmi?',
+          'Do you know any clever animals?',
+          'Вы знаете каких-нибудь умных животных?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/nəʊ/', ttsText: 'know' },
+    media: {
+      emoji: '🧠',
+      imageUrl: '',
+      imageAlt: L(
+        '무언가를 알고 있는 모습',
+        'bilish',
+        'knowing something',
+        'знание',
+      ),
+    },
+    tags: ['verbs', 'knowledge'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-lebanon',
+    english: 'Lebanon',
+    senseKey: 'country-lebanon',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('레바논', 'Livan', 'a country in the Middle East', 'Ливан'),
+    examples: [
+      {
+        english: 'He is from Lebanon.',
+        translations: L(
+          '그는 레바논 출신이에요.',
+          'U Livandan.',
+          'He is from Lebanon.',
+          'Он из Ливана.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈlebənən/', ttsText: 'Lebanon' },
+    media: {
+      emoji: '🇱🇧',
+      imageUrl: '',
+      imageAlt: L(
+        '레바논 국기',
+        'Livan bayrog‘i',
+        'the flag of Lebanon',
+        'флаг Ливана',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-pronoun-nobody',
+    english: 'nobody',
+    senseKey: 'no-person',
+    partOfSpeech: WordPartOfSpeech.PRONOUN,
+    meaning: L('아무도 ~않다', 'hech kim', 'no person', 'никто'),
+    examples: [
+      {
+        english: 'Nobody goes to work by ferry.',
+        translations: L(
+          '아무도 페리로 출근하지 않아요.',
+          'Hech kim ishga paromda bormaydi.',
+          'Nobody goes to work by ferry.',
+          'Никто не ездит на работу на пароме.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈnəʊbədi/', ttsText: 'nobody' },
+    media: {
+      emoji: '🚫',
+      imageUrl: '',
+      imageAlt: L('아무도 없는 모습', 'hech kim yo‘q', 'nobody', 'никого нет'),
+    },
+    tags: ['pronouns', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-paintbrush',
+    english: 'paintbrush',
+    senseKey: 'brush-used-for-painting',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('붓', 'mo‘yqalam', 'a brush used for painting', 'кисть'),
+    examples: [
+      {
+        english: 'Koko can use a paintbrush.',
+        translations: L(
+          '코코는 붓을 사용할 수 있어요.',
+          'Koko mo‘yqalamdan foydalana oladi.',
+          'Koko can use a paintbrush.',
+          'Коко умеет пользоваться кистью.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈpeɪntbrʌʃ/', ttsText: 'paintbrush' },
+    media: {
+      emoji: '🖌️',
+      imageUrl: '',
+      imageAlt: L('붓', 'mo‘yqalam', 'a paintbrush', 'кисть'),
+    },
+    tags: ['art', 'objects'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-animal-parrot',
+    english: 'parrot',
+    senseKey: 'colourful-bird-that-can-copy-sounds',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '앵무새',
+      'to‘tiqush',
+      'a colourful bird that can copy sounds',
+      'попугай',
+    ),
+    examples: [
+      {
+        english: 'My neighbours have a parrot.',
+        translations: L(
+          '우리 이웃은 앵무새를 키워요.',
+          'Qo‘shnilarimning to‘tiqushi bor.',
+          'My neighbours have a parrot.',
+          'У моих соседей есть попугай.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈpærət/', ttsText: 'parrot' },
+    media: {
+      emoji: '🦜',
+      imageUrl: '',
+      imageAlt: L('앵무새', 'to‘tiqush', 'a parrot', 'попугай'),
+    },
+    tags: ['animals', 'birds'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-picture',
+    english: 'picture',
+    senseKey: 'image-drawing-or-photo',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '그림; 사진',
+      'rasm',
+      'an image, drawing or photograph',
+      'картина; изображение',
+    ),
+    examples: [
+      {
+        english: 'Koko can paint a picture of a bird.',
+        translations: L(
+          '코코는 새 그림을 그릴 수 있어요.',
+          'Koko qushning rasmini chiza oladi.',
+          'Koko can paint a picture of a bird.',
+          'Коко умеет рисовать птицу.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈpɪktʃə(r)/', ttsText: 'picture' },
+    media: {
+      emoji: '🖼️',
+      imageUrl: '',
+      imageAlt: L('그림', 'rasm', 'a picture', 'картина'),
+    },
+    tags: ['art', 'images'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-sign',
+    english: 'sign',
+    senseKey: 'gesture-or-symbol-with-meaning',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '기호; 몸짓; 수화 기호',
+      'belgi; imo-ishora',
+      'a gesture or symbol that has a meaning',
+      'знак; жест',
+    ),
+    examples: [
+      {
+        english: 'She can use over one thousand signs.',
+        translations: L(
+          '그녀는 천 개가 넘는 기호를 사용할 수 있어요.',
+          'U mingdan ortiq ishoradan foydalana oladi.',
+          'She can use over one thousand signs.',
+          'Она может использовать более тысячи знаков.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/saɪn/', ttsText: 'sign' },
+    media: {
+      emoji: '🤟',
+      imageUrl: '',
+      imageAlt: L(
+        '손으로 하는 기호',
+        'qo‘l ishorasi',
+        'a hand sign',
+        'жест рукой',
+      ),
+    },
+    tags: ['communication', 'sign-language'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-skill',
+    english: 'skill',
+    senseKey: 'ability-learned-through-practice',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '기술; 능력',
+      'ko‘nikma',
+      'an ability learned through practice',
+      'навык; умение',
+    ),
+    examples: [
+      {
+        english: 'It is important to learn new skills.',
+        translations: L(
+          '새로운 기술을 배우는 것은 중요해요.',
+          'Yangi ko‘nikmalarni o‘rganish muhim.',
+          'It is important to learn new skills.',
+          'Важно приобретать новые навыки.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/skɪl/', ttsText: 'skill' },
+    media: {
+      emoji: '🛠️',
+      imageUrl: '',
+      imageAlt: L(
+        '새로운 기술',
+        'yangi ko‘nikma',
+        'a new skill',
+        'новый навык',
+      ),
+    },
+    tags: ['skills', 'learning'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-spanish',
+    english: 'Spanish',
+    senseKey: 'spanish-language',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '스페인어',
+      'ispan tili',
+      'the Spanish language',
+      'испанский язык',
+    ),
+    examples: [
+      {
+        english: 'I can speak Spanish.',
+        translations: L(
+          '저는 스페인어를 할 수 있어요.',
+          'Men ispan tilida gapira olaman.',
+          'I can speak Spanish.',
+          'Я умею говорить по-испански.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈspænɪʃ/', ttsText: 'Spanish' },
+    media: {
+      emoji: '🇪🇸',
+      imageUrl: '',
+      imageAlt: L('스페인어', 'ispan tili', 'Spanish', 'испанский язык'),
+    },
+    tags: ['languages'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-person-swimmer',
+    english: 'swimmer',
+    senseKey: 'person-who-swims',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '수영하는 사람; 수영 선수',
+      'suzuvchi',
+      'a person who swims',
+      'пловец',
+    ),
+    examples: [
+      {
+        english: 'Is Jack a good swimmer?',
+        translations: L(
+          '잭은 수영을 잘해요?',
+          'Jack yaxshi suzuvchimi?',
+          'Is Jack a good swimmer?',
+          'Джек хорошо плавает?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈswɪmə(r)/', ttsText: 'swimmer' },
+    media: {
+      emoji: '🏊',
+      imageUrl: '',
+      imageAlt: L('수영하는 사람', 'suzuvchi', 'a swimmer', 'пловец'),
+    },
+    tags: ['sports', 'people'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-uruguay',
+    english: 'Uruguay',
+    senseKey: 'country-uruguay',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('우루과이', 'Urugvay', 'a country in South America', 'Уругвай'),
+    examples: [
+      {
+        english: 'He is from Uruguay.',
+        translations: L(
+          '그는 우루과이 출신이에요.',
+          'U Urugvaydan.',
+          'He is from Uruguay.',
+          'Он из Уругвая.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈjʊərəɡwaɪ/', ttsText: 'Uruguay' },
+    media: {
+      emoji: '🇺🇾',
+      imageUrl: '',
+      imageAlt: L(
+        '우루과이 국기',
+        'Urugvay bayrog‘i',
+        'the flag of Uruguay',
+        'флаг Уругвая',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-video',
+    english: 'video',
+    senseKey: 'recorded-moving-images',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '영상; 비디오',
+      'video',
+      'a recording of moving images',
+      'видео',
+    ),
+    examples: [
+      {
+        english: 'We watch Koko in a video.',
+        translations: L(
+          '우리는 영상에서 코코를 봐요.',
+          'Biz Kokoni videoda ko‘ramiz.',
+          'We watch Koko in a video.',
+          'Мы смотрим видео с Коко.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈvɪdiəʊ/', ttsText: 'video' },
+    media: {
+      emoji: '🎥',
+      imageUrl: '',
+      imageAlt: L('영상', 'video', 'a video', 'видео'),
+    },
+    tags: ['media'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-verb-throw',
     english: 'throw',
     senseKey: 'send-object-through-air-by-hand',

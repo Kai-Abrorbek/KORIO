@@ -10882,6 +10882,754 @@ export const EN_S1_UNIT9_NODE4 = {
 
 export const EN_S1_UNIT9_NODE5_WORDS = [
   {
+    code: 'en-adverb-ago',
+    english: 'ago',
+    senseKey: 'before-now',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('~전에', 'oldin', 'before now', 'назад'),
+    examples: [
+      {
+        english: 'The train left an hour ago.',
+        translations: L(
+          '기차는 한 시간 전에 출발했어요.',
+          'Poyezd bir soat oldin jo‘nab ketdi.',
+          'The train left an hour ago.',
+          'Поезд ушёл час назад.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əˈɡəʊ/',
+      ttsText: 'ago',
+    },
+    media: {
+      emoji: '⏪',
+      imageUrl: '',
+      imageAlt: L(
+        '과거 시간을 나타내는 표시',
+        'o‘tgan vaqt belgisi',
+        'a time in the past',
+        'время в прошлом',
+      ),
+    },
+    tags: ['time', 'past'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-come',
+    english: 'come',
+    senseKey: 'move-towards-place-or-person',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '오다',
+      'kelmoq',
+      'to move towards a place or person',
+      'приходить; приезжать',
+    ),
+    examples: [
+      {
+        english: 'Deborah often came to England.',
+        translations: L(
+          '데버라는 영국에 자주 왔어요.',
+          'Deborah Angliyaga tez-tez kelardi.',
+          'Deborah often came to England.',
+          'Дебора часто приезжала в Англию.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kʌm/',
+      ttsText: 'come',
+    },
+    media: {
+      emoji: '➡️',
+      imageUrl: '',
+      imageAlt: L(
+        '어떤 장소로 오는 모습',
+        'bir joyga kelish',
+        'coming to a place',
+        'прибытие в место',
+      ),
+    },
+    tags: ['verbs', 'movement'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-cost',
+    english: 'cost',
+    senseKey: 'amount-of-money-needed',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '비용; 가격',
+      'narx; xarajat',
+      'the amount of money needed to buy or do something',
+      'стоимость; цена',
+    ),
+    examples: [
+      {
+        english: 'The tip is about ten percent of the cost of the meal.',
+        translations: L(
+          '팁은 식사 비용의 약 10퍼센트예요.',
+          'Choychaqa ovqat narxining taxminan o‘n foizini tashkil qiladi.',
+          'The tip is about ten percent of the cost of the meal.',
+          'Чаевые составляют около десяти процентов от стоимости еды.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kɒst/',
+      ttsText: 'cost',
+    },
+    media: {
+      emoji: '💵',
+      imageUrl: '',
+      imageAlt: L(
+        '비용을 나타내는 돈',
+        'xarajatni bildiruvchi pul',
+        'the cost of something',
+        'стоимость чего-либо',
+      ),
+    },
+    tags: ['money', 'restaurant'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-difficult',
+    english: 'difficult',
+    senseKey: 'not-easy',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '어려운',
+      'qiyin',
+      'not easy to do or understand',
+      'трудный; сложный',
+    ),
+    examples: [
+      {
+        english: 'Life was very difficult for them.',
+        translations: L(
+          '그들에게 삶은 매우 힘들었어요.',
+          'Ular uchun hayot juda qiyin edi.',
+          'Life was very difficult for them.',
+          'Жизнь была для них очень трудной.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈdɪfɪkəlt/',
+      ttsText: 'difficult',
+    },
+    media: {
+      emoji: '😣',
+      imageUrl: '',
+      imageAlt: L(
+        '어려운 일을 하는 모습',
+        'qiyin ish',
+        'something difficult',
+        'что-то сложное',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-event',
+    english: 'event',
+    senseKey: 'something-that-happens',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '사건; 행사',
+      'voqea; tadbir',
+      'something that happens, especially something important',
+      'событие; мероприятие',
+    ),
+    examples: [
+      {
+        english: 'Lots of events happened last year.',
+        translations: L(
+          '작년에 많은 일이 있었어요.',
+          'O‘tgan yili ko‘p voqealar bo‘ldi.',
+          'Lots of events happened last year.',
+          'В прошлом году произошло много событий.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɪˈvent/',
+      ttsText: 'event',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: '',
+      imageAlt: L('중요한 행사', 'muhim tadbir', 'an event', 'событие'),
+    },
+    tags: ['events', 'past'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-fall',
+    english: 'fall',
+    senseKey: 'move-down-suddenly',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '떨어지다; 넘어지다',
+      'yiqilmoq; tushmoq',
+      'to move down suddenly',
+      'падать',
+    ),
+    examples: [
+      {
+        english: 'The fridge fell on me.',
+        translations: L(
+          '냉장고가 제 위로 넘어졌어요.',
+          'Muzlatgich ustimga yiqildi.',
+          'The fridge fell on me.',
+          'Холодильник упал на меня.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/fɔːl/',
+      ttsText: 'fall',
+    },
+    media: {
+      emoji: '⬇️',
+      imageUrl: '',
+      imageAlt: L(
+        '물건이 떨어지는 모습',
+        'narsaning yiqilishi',
+        'something falling',
+        'падающий предмет',
+      ),
+    },
+    tags: ['verbs', 'past-events'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-get-transport',
+    english: 'get',
+    senseKey: 'take-or-use-transport',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '타다; 이용하다',
+      'transportga chiqmoq',
+      'to take or use a form of transport',
+      'садиться на; ехать на транспорте',
+    ),
+    examples: [
+      {
+        english: 'Why did you get the bus today?',
+        translations: L(
+          '오늘 왜 버스를 탔어요?',
+          'Bugun nega avtobusga chiqdingiz?',
+          'Why did you get the bus today?',
+          'Почему сегодня вы поехали на автобусе?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡet/',
+      ttsText: 'get',
+    },
+    media: {
+      emoji: '🚌',
+      imageUrl: '',
+      imageAlt: L(
+        '버스를 타는 모습',
+        'avtobusga chiqish',
+        'getting the bus',
+        'посадка на автобус',
+      ),
+    },
+    tags: ['verbs', 'transport'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-happen',
+    english: 'happen',
+    senseKey: 'take-place',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '일어나다; 발생하다',
+      'sodir bo‘lmoq',
+      'to take place',
+      'происходить; случаться',
+    ),
+    examples: [
+      {
+        english: 'When did it happen?',
+        translations: L(
+          '그 일이 언제 일어났어요?',
+          'Bu qachon sodir bo‘ldi?',
+          'When did it happen?',
+          'Когда это произошло?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈhæpən/',
+      ttsText: 'happen',
+    },
+    media: {
+      emoji: '❓',
+      imageUrl: '',
+      imageAlt: L(
+        '무슨 일이 일어난 모습',
+        'sodir bo‘lgan voqea',
+        'something happening',
+        'произошедшее событие',
+      ),
+    },
+    tags: ['verbs', 'events'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-keep',
+    english: 'keep',
+    senseKey: 'cause-to-remain-in-condition',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '~한 상태로 유지하다',
+      'holatda saqlamoq',
+      'to make someone or something stay in a particular condition',
+      'сохранять; поддерживать в состоянии',
+    ),
+    examples: [
+      {
+        english: 'He gave him a jacket to keep him warm.',
+        translations: L(
+          '그는 그가 따뜻하게 있을 수 있도록 재킷을 줬어요.',
+          'Uni issiq tutish uchun unga kurtka berdi.',
+          'He gave him a jacket to keep him warm.',
+          'Он дал ему куртку, чтобы тот не замёрз.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kiːp/',
+      ttsText: 'keep',
+    },
+    media: {
+      emoji: '🧥',
+      imageUrl: '',
+      imageAlt: L(
+        '따뜻하게 유지하는 옷',
+        'issiq tutadigan kiyim',
+        'keeping someone warm',
+        'сохранение тепла',
+      ),
+    },
+    tags: ['verbs', 'states'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-knife',
+    english: 'knife',
+    senseKey: 'tool-with-sharp-blade',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '칼',
+      'pichoq',
+      'a tool with a sharp blade used for cutting',
+      'нож',
+    ),
+    examples: [
+      {
+        english: 'He saw a boy with a knife.',
+        translations: L(
+          '그는 칼을 든 소년을 봤어요.',
+          'U qo‘lida pichoq bor bolani ko‘rdi.',
+          'He saw a boy with a knife.',
+          'Он увидел мальчика с ножом.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/naɪf/',
+      ttsText: 'knife',
+    },
+    media: {
+      emoji: '🔪',
+      imageUrl: '',
+      imageAlt: L('칼', 'pichoq', 'a knife', 'нож'),
+    },
+    tags: ['objects'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-lose',
+    english: 'lose',
+    senseKey: 'no-longer-have-something',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '잃다; 잃어버리다',
+      'yo‘qotmoq',
+      'to no longer have something',
+      'терять',
+    ),
+    examples: [
+      {
+        english: 'He lost his memory.',
+        translations: L(
+          '그는 기억을 잃었어요.',
+          'U xotirasini yo‘qotdi.',
+          'He lost his memory.',
+          'Он потерял память.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/luːz/',
+      ttsText: 'lose',
+    },
+    media: {
+      emoji: '❌',
+      imageUrl: '',
+      imageAlt: L(
+        '무언가를 잃은 모습',
+        'biror narsani yo‘qotish',
+        'losing something',
+        'потеря чего-либо',
+      ),
+    },
+    tags: ['verbs', 'memory'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-meat',
+    english: 'meat',
+    senseKey: 'animal-flesh-eaten-as-food',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('고기', 'go‘sht', 'the flesh of animals eaten as food', 'мясо'),
+    examples: [
+      {
+        english: 'We need some meat for the barbecue.',
+        translations: L(
+          '바비큐에 쓸 고기가 좀 필요해요.',
+          'Barbekyu uchun biroz go‘sht kerak.',
+          'We need some meat for the barbecue.',
+          'Нам нужно мясо для барбекю.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/miːt/',
+      ttsText: 'meat',
+    },
+    media: {
+      emoji: '🥩',
+      imageUrl: '',
+      imageAlt: L('고기', 'go‘sht', 'meat', 'мясо'),
+    },
+    tags: ['food'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-realize',
+    english: 'realize',
+    senseKey: 'suddenly-understand',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '깨닫다; 알아차리다',
+      'anglab yetmoq',
+      'to suddenly understand or become aware of something',
+      'осознавать; понимать',
+    ),
+    examples: [
+      {
+        english: 'He realized his mistake later.',
+        translations: L(
+          '그는 나중에 자신의 실수를 깨달았어요.',
+          'U keyinroq xatosini anglab yetdi.',
+          'He realized his mistake later.',
+          'Позже он понял свою ошибку.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈrɪəlaɪz/',
+      ttsText: 'realize',
+    },
+    media: {
+      emoji: '💡',
+      imageUrl: '',
+      imageAlt: L(
+        '무언가를 깨닫는 모습',
+        'bir narsani anglash',
+        'realizing something',
+        'осознание',
+      ),
+    },
+    tags: ['verbs', 'thinking'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-service',
+    english: 'service',
+    senseKey: 'help-provided-to-customer',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '서비스; 응대',
+      'xizmat',
+      'help or work provided for a customer',
+      'обслуживание; сервис',
+    ),
+    examples: [
+      {
+        english: 'The waiter got a big tip for his service.',
+        translations: L(
+          '그 웨이터는 좋은 서비스 덕분에 큰 팁을 받았어요.',
+          'Ofitsiant yaxshi xizmati uchun katta choychaqa oldi.',
+          'The waiter got a big tip for his service.',
+          'Официант получил большие чаевые за хорошее обслуживание.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsɜːvɪs/',
+      ttsText: 'service',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: '',
+      imageAlt: L(
+        '식당 서비스',
+        'restoran xizmati',
+        'restaurant service',
+        'обслуживание в ресторане',
+      ),
+    },
+    tags: ['restaurant', 'service'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-story',
+    english: 'story',
+    senseKey: 'description-of-events-real-or-imaginary',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '이야기',
+      'hikoya',
+      'a description of real or imaginary events',
+      'история; рассказ',
+    ),
+    examples: [
+      {
+        english: 'You wrote a story.',
+        translations: L(
+          '당신은 이야기를 썼어요.',
+          'Siz hikoya yozdingiz.',
+          'You wrote a story.',
+          'Вы написали рассказ.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈstɔːri/',
+      ttsText: 'story',
+    },
+    media: {
+      emoji: '📖',
+      imageUrl: '',
+      imageAlt: L('이야기책', 'hikoya', 'a story', 'рассказ'),
+    },
+    tags: ['stories', 'writing'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-subtropical',
+    english: 'subtropical',
+    senseKey: 'relating-to-warm-region-near-tropics',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '아열대의',
+      'subtropik',
+      'relating to a warm region near the tropics',
+      'субтропический',
+    ),
+    examples: [
+      {
+        english: 'Auckland has subtropical weather.',
+        translations: L(
+          '오클랜드는 아열대 기후예요.',
+          'Oklendda subtropik ob-havo mavjud.',
+          'Auckland has subtropical weather.',
+          'В Окленде субтропический климат.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌsʌbˈtrɒpɪkəl/',
+      ttsText: 'subtropical',
+    },
+    media: {
+      emoji: '🌴',
+      imageUrl: '',
+      imageAlt: L(
+        '따뜻한 아열대 지역',
+        'iliq subtropik hudud',
+        'a subtropical region',
+        'субтропический регион',
+      ),
+    },
+    tags: ['weather', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-sunny',
+    english: 'sunny',
+    senseKey: 'bright-with-lots-of-sun',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '맑은; 햇빛이 나는',
+      'quyoshli',
+      'bright with a lot of sunshine',
+      'солнечный',
+    ),
+    examples: [
+      {
+        english: 'It was sunny in London.',
+        translations: L(
+          '런던은 날씨가 맑았어요.',
+          'Londonda havo quyoshli edi.',
+          'It was sunny in London.',
+          'В Лондоне было солнечно.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈsʌni/',
+      ttsText: 'sunny',
+    },
+    media: {
+      emoji: '☀️',
+      imageUrl: '',
+      imageAlt: L(
+        '맑은 날씨',
+        'quyoshli ob-havo',
+        'sunny weather',
+        'солнечная погода',
+      ),
+    },
+    tags: ['weather', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-terrible',
+    english: 'terrible',
+    senseKey: 'very-bad',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '끔찍한; 아주 나쁜',
+      'juda yomon; dahshatli',
+      'very bad or unpleasant',
+      'ужасный; очень плохой',
+    ),
+    examples: [
+      {
+        english: 'I had a terrible day yesterday.',
+        translations: L(
+          '어제 정말 끔찍한 하루였어요.',
+          'Kecha kunim juda yomon o‘tdi.',
+          'I had a terrible day yesterday.',
+          'Вчера у меня был ужасный день.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈterəbəl/',
+      ttsText: 'terrible',
+    },
+    media: {
+      emoji: '😖',
+      imageUrl: '',
+      imageAlt: L(
+        '아주 나쁜 하루',
+        'juda yomon kun',
+        'a terrible day',
+        'ужасный день',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-job-waitress',
+    english: 'waitress',
+    senseKey: 'woman-serving-customers-in-restaurant',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '여성 종업원; 웨이트리스',
+      'ofitsiantka',
+      'a woman who serves customers in a restaurant or cafe',
+      'официантка',
+    ),
+    examples: [
+      {
+        english: 'The waitress got a tip from the customer.',
+        translations: L(
+          '그 여성 종업원은 손님에게 팁을 받았어요.',
+          'Ofitsiantka mijozdan choychaqa oldi.',
+          'The waitress got a tip from the customer.',
+          'Официантка получила чаевые от клиента.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈweɪtrəs/',
+      ttsText: 'waitress',
+    },
+    media: {
+      emoji: '👩‍🍳',
+      imageUrl: '',
+      imageAlt: L(
+        '식당의 여성 종업원',
+        'restorandagi ofitsiantka',
+        'a waitress',
+        'официантка',
+      ),
+    },
+    tags: ['jobs', 'restaurant'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-noun-countryside',
     english: 'countryside',
     senseKey: 'land-outside-towns-and-cities',

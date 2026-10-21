@@ -11465,6 +11465,478 @@ export const EN_S1_UNIT10_NODE4 = {
 
 export const EN_S1_UNIT10_NODE5_WORDS = [
   {
+    code: 'en-noun-chance',
+    english: 'chance',
+    senseKey: 'opportunity-to-do-something',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '기회',
+      'imkoniyat',
+      'an opportunity to do something',
+      'шанс; возможность',
+    ),
+    examples: [
+      {
+        english: 'Next year, she has a chance to go to Europe.',
+        translations: L(
+          '내년에 그녀는 유럽에 갈 기회가 있어요.',
+          'Kelasi yili uning Yevropaga borish imkoniyati bor.',
+          'Next year, she has a chance to go to Europe.',
+          'В следующем году у неё будет возможность поехать в Европу.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/tʃɑːns/',
+      ttsText: 'chance',
+    },
+    media: {
+      emoji: '🌟',
+      imageUrl: '',
+      imageAlt: L(
+        '새로운 기회',
+        'yangi imkoniyat',
+        'a new opportunity',
+        'новая возможность',
+      ),
+    },
+    tags: ['future', 'opportunity'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-food-chips',
+    english: 'chips',
+    senseKey: 'fried-potato-pieces-british',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '감자튀김',
+      'fri kartoshka',
+      'pieces of potato fried in oil',
+      'картофель фри',
+    ),
+    examples: [
+      {
+        english: 'Fish and chips is a traditional British dinner.',
+        translations: L(
+          '피시 앤 칩스는 전통적인 영국 음식이에요.',
+          'Fish and chips an’anaviy Britaniya taomidir.',
+          'Fish and chips is a traditional British dinner.',
+          'Рыба с картофелем фри — традиционное британское блюдо.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/tʃɪps/',
+      ttsText: 'chips',
+    },
+    media: {
+      emoji: '🍟',
+      imageUrl: '',
+      imageAlt: L('감자튀김', 'fri kartoshka', 'chips', 'картофель фри'),
+    },
+    tags: ['food', 'cafe'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-food-cupcake',
+    english: 'cupcake',
+    senseKey: 'small-cake-for-one-person',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '컵케이크',
+      'kapkeyk',
+      'a small cake made for one person',
+      'капкейк',
+    ),
+    examples: [
+      {
+        english: 'Try a colourful cupcake with your coffee.',
+        translations: L(
+          '커피와 함께 알록달록한 컵케이크를 먹어 보세요.',
+          'Qahvangiz bilan rang-barang kapkeyk tatib ko‘ring.',
+          'Try a colourful cupcake with your coffee.',
+          'Попробуйте яркий капкейк с кофе.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈkʌpkeɪk/',
+      ttsText: 'cupcake',
+    },
+    media: {
+      emoji: '🧁',
+      imageUrl: '',
+      imageAlt: L('컵케이크', 'kapkeyk', 'a cupcake', 'капкейк'),
+    },
+    tags: ['food', 'dessert'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-other-during',
+    english: 'during',
+    senseKey: 'throughout-particular-period',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L(
+      '~동안',
+      'davomida',
+      'throughout or at some time in a particular period',
+      'во время; в течение',
+    ),
+    examples: [
+      {
+        english: 'They cannot pay for hotels during the tour.',
+        translations: L(
+          '그들은 여행 중 호텔 비용을 낼 수 없어요.',
+          'Ular sayohat davomida mehmonxona uchun to‘lay olmaydi.',
+          'They cannot pay for hotels during the tour.',
+          'Они не могут платить за отели во время тура.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈdjʊərɪŋ/',
+      ttsText: 'during',
+    },
+    media: {
+      emoji: '⏳',
+      imageUrl: '',
+      imageAlt: L(
+        '어떤 기간 동안',
+        'ma’lum vaqt davomida',
+        'during a period of time',
+        'в течение периода времени',
+      ),
+    },
+    tags: ['preposition', 'time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-food',
+    english: 'food',
+    senseKey: 'things-people-eat',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '음식',
+      'ovqat; oziq-ovqat',
+      'things that people eat',
+      'еда; пища',
+    ),
+    examples: [
+      {
+        english: 'There was interesting food from all over the world.',
+        translations: L(
+          '전 세계의 다양한 흥미로운 음식이 있었어요.',
+          'Dunyoning turli joylaridan qiziqarli taomlar bor edi.',
+          'There was interesting food from all over the world.',
+          'Там была интересная еда со всего мира.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/fuːd/',
+      ttsText: 'food',
+    },
+    media: {
+      emoji: '🍽️',
+      imageUrl: '',
+      imageAlt: L(
+        '여러 가지 음식',
+        'turli taomlar',
+        'different kinds of food',
+        'разная еда',
+      ),
+    },
+    tags: ['food'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-international',
+    english: 'international',
+    senseKey: 'involving-more-than-one-country',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '국제적인',
+      'xalqaro',
+      'involving more than one country',
+      'международный',
+    ),
+    examples: [
+      {
+        english: 'There is an international coffee expo every year.',
+        translations: L(
+          '매년 국제 커피 박람회가 열려요.',
+          'Har yili xalqaro qahva ko‘rgazmasi bo‘ladi.',
+          'There is an international coffee expo every year.',
+          'Каждый год проходит международная кофейная выставка.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌɪntəˈnæʃənəl/',
+      ttsText: 'international',
+    },
+    media: {
+      emoji: '🌍',
+      imageUrl: '',
+      imageAlt: L(
+        '여러 나라가 참여하는 행사',
+        'turli davlatlar qatnashadigan tadbir',
+        'an international event',
+        'международное мероприятие',
+      ),
+    },
+    tags: ['adjectives', 'countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-island',
+    english: 'island',
+    senseKey: 'land-surrounded-by-water',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('섬', 'orol', 'an area of land surrounded by water', 'остров'),
+    examples: [
+      {
+        english: 'We are going to live on another island.',
+        translations: L(
+          '우리는 다른 섬에서 살 예정이에요.',
+          'Biz boshqa orolda yashamoqchimiz.',
+          'We are going to live on another island.',
+          'Мы собираемся жить на другом острове.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈaɪlənd/',
+      ttsText: 'island',
+    },
+    media: {
+      emoji: '🏝️',
+      imageUrl: '',
+      imageAlt: L('섬', 'orol', 'an island', 'остров'),
+    },
+    tags: ['places', 'nature'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-join',
+    english: 'join',
+    senseKey: 'become-member-of-group',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '가입하다; 합류하다',
+      'qo‘shilmoq',
+      'to become a member of a group or take part with other people',
+      'присоединяться; вступать',
+    ),
+    examples: [
+      {
+        english: 'My friend and I are going to join a group.',
+        translations: L(
+          '친구와 저는 그룹에 가입할 예정이에요.',
+          'Do‘stim bilan men guruhga qo‘shilmoqchimiz.',
+          'My friend and I are going to join a group.',
+          'Мы с другом собираемся присоединиться к группе.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/dʒɔɪn/',
+      ttsText: 'join',
+    },
+    media: {
+      emoji: '🤝',
+      imageUrl: '',
+      imageAlt: L(
+        '그룹에 합류하는 사람',
+        'guruhga qo‘shilayotgan odam',
+        'joining a group',
+        'присоединение к группе',
+      ),
+    },
+    tags: ['verbs', 'groups'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-order',
+    english: 'order',
+    senseKey: 'request-for-food-or-drink',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '주문',
+      'buyurtma',
+      'a request for food or drink in a restaurant or cafe',
+      'заказ',
+    ),
+    examples: [
+      {
+        english: 'Can I take your order?',
+        translations: L(
+          '주문하시겠어요?',
+          'Buyurtmangizni olsam bo‘ladimi?',
+          'Can I take your order?',
+          'Могу я принять ваш заказ?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɔːdə(r)/',
+      ttsText: 'order',
+    },
+    media: {
+      emoji: '📝',
+      imageUrl: '',
+      imageAlt: L('음식 주문', 'ovqat buyurtmasi', 'a food order', 'заказ еды'),
+    },
+    tags: ['restaurant', 'cafe', 'noun'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-food-rice',
+    english: 'rice',
+    senseKey: 'small-white-or-brown-grains-food',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '쌀; 밥',
+      'guruch',
+      'small grains that are cooked and eaten as food',
+      'рис',
+    ),
+    examples: [
+      {
+        english: 'Japanese food has got a lot of rice in it.',
+        translations: L(
+          '일본 음식에는 쌀이 많이 들어가요.',
+          'Yapon taomlarida guruch ko‘p ishlatiladi.',
+          'Japanese food has got a lot of rice in it.',
+          'В японской кухне используется много риса.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/raɪs/',
+      ttsText: 'rice',
+    },
+    media: {
+      emoji: '🍚',
+      imageUrl: '',
+      imageAlt: L('밥', 'guruch', 'rice', 'рис'),
+    },
+    tags: ['food'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-sweet',
+    english: 'sweet',
+    senseKey: 'tasting-like-sugar',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('단; 달콤한', 'shirin', 'having a taste like sugar', 'сладкий'),
+    examples: [
+      {
+        english: 'I love sweet food.',
+        translations: L(
+          '저는 단 음식을 좋아해요.',
+          'Men shirin taomlarni yaxshi ko‘raman.',
+          'I love sweet food.',
+          'Я люблю сладкую еду.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/swiːt/',
+      ttsText: 'sweet',
+    },
+    media: {
+      emoji: '🍬',
+      imageUrl: '',
+      imageAlt: L('달콤한 음식', 'shirin taom', 'sweet food', 'сладкая еда'),
+    },
+    tags: ['food', 'adjectives', 'taste'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-today',
+    english: 'today',
+    senseKey: 'on-present-day',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('오늘', 'bugun', 'on this present day', 'сегодня'),
+    examples: [
+      {
+        english: 'You are not going to buy a new skirt today.',
+        translations: L(
+          '오늘은 새 치마를 사지 않을 거예요.',
+          'Siz bugun yangi yubka sotib olmaysiz.',
+          'You are not going to buy a new skirt today.',
+          'Сегодня вы не собираетесь покупать новую юбку.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/təˈdeɪ/',
+      ttsText: 'today',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: '',
+      imageAlt: L('오늘 날짜', 'bugungi sana', 'today', 'сегодняшний день'),
+    },
+    tags: ['time', 'future'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-tomorrow',
+    english: 'tomorrow',
+    senseKey: 'on-day-after-today',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('내일', 'ertaga', 'on the day after today', 'завтра'),
+    examples: [
+      {
+        english: 'The children are going to sing tomorrow.',
+        translations: L(
+          '아이들은 내일 노래할 예정이에요.',
+          'Bolalar ertaga qo‘shiq aytadi.',
+          'The children are going to sing tomorrow.',
+          'Дети будут петь завтра.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/təˈmɒrəʊ/',
+      ttsText: 'tomorrow',
+    },
+    media: {
+      emoji: '➡️📅',
+      imageUrl: '',
+      imageAlt: L('내일 날짜', 'ertangi sana', 'tomorrow', 'завтрашний день'),
+    },
+    tags: ['time', 'future'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-person-owner',
     english: 'owner',
     senseKey: 'person-who-owns-business-or-thing',

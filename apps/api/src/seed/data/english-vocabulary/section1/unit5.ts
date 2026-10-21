@@ -11995,6 +11995,1424 @@ export const EN_S1_UNIT5_NODE4 = {
 
 export const EN_S1_UNIT5_NODE5_WORDS = [
   {
+    code: 'en-noun-adult',
+    english: 'adult',
+    senseKey: 'grown-person',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('성인', 'katta yoshli odam', 'a fully grown person', 'взрослый'),
+    examples: [
+      {
+        english: 'The museum costs £10 for adults.',
+        translations: L(
+          '박물관은 성인 요금이 10파운드예요.',
+          'Muzey kattalar uchun 10 funt turadi.',
+          'The museum costs £10 for adults.',
+          'Вход в музей для взрослых стоит 10 фунтов.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈædʌlt/', ttsText: 'adult' },
+    media: {
+      emoji: '🧑',
+      imageUrl: '',
+      imageAlt: L('성인', 'katta odam', 'an adult', 'взрослый'),
+    },
+    tags: ['people'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-basic',
+    english: 'basic',
+    senseKey: 'simple-and-most-important',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '기본적인',
+      'asosiy',
+      'simple and containing the most important parts',
+      'основной; базовый',
+    ),
+    examples: [
+      {
+        english: 'There are four basic types of clothes.',
+        translations: L(
+          '옷에는 네 가지 기본 유형이 있어요.',
+          'Kiyimlarning to‘rtta asosiy turi bor.',
+          'There are four basic types of clothes.',
+          'Есть четыре основных типа одежды.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈbeɪsɪk/', ttsText: 'basic' },
+    media: {
+      emoji: '🔹',
+      imageUrl: '',
+      imageAlt: L(
+        '기본 항목',
+        'asosiy narsa',
+        'something basic',
+        'что-то основное',
+      ),
+    },
+    tags: ['adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-other-because',
+    english: 'because',
+    senseKey: 'give-reason',
+    partOfSpeech: WordPartOfSpeech.OTHER,
+    meaning: L('~이기 때문에', 'chunki', 'used to give a reason', 'потому что'),
+    examples: [
+      {
+        english: 'I like these clothes because they are different.',
+        translations: L(
+          '이 옷들은 달라서 좋아해요.',
+          'Bu kiyimlarni yoqtiraman, chunki ular boshqacha.',
+          'I like these clothes because they are different.',
+          'Мне нравится эта одежда, потому что она необычная.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/bɪˈkɒz/', ttsText: 'because' },
+    media: {
+      emoji: '➡️',
+      imageUrl: '',
+      imageAlt: L(
+        '이유를 설명하는 표현',
+        'sabab',
+        'giving a reason',
+        'объяснение причины',
+      ),
+    },
+    tags: ['connector', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-bolivia',
+    english: 'Bolivia',
+    senseKey: 'country-bolivia',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('볼리비아', 'Boliviya', 'a country in South America', 'Боливия'),
+    examples: [
+      {
+        english: 'The Chola women of Bolivia are famous for their style.',
+        translations: L(
+          '볼리비아의 촐라 여성들은 그들의 스타일로 유명해요.',
+          'Boliviyadagi Chola ayollari uslubi bilan mashhur.',
+          'The Chola women of Bolivia are famous for their style.',
+          'Женщины чола в Боливии известны своим стилем.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/bəˈlɪviə/', ttsText: 'Bolivia' },
+    media: {
+      emoji: '🇧🇴',
+      imageUrl: '',
+      imageAlt: L(
+        '볼리비아 국기',
+        'Boliviya bayrog‘i',
+        'the flag of Bolivia',
+        'флаг Боливии',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-change',
+    english: 'change',
+    senseKey: 'become-or-make-different',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '바꾸다; 변하다',
+      'o‘zgartirmoq; o‘zgarmoq',
+      'to become different or make something different',
+      'менять; изменяться',
+    ),
+    examples: [
+      {
+        english: 'The stadium changes colour.',
+        translations: L(
+          '그 경기장은 색이 바뀌어요.',
+          'Stadion rangini o‘zgartiradi.',
+          'The stadium changes colour.',
+          'Стадион меняет цвет.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/tʃeɪndʒ/', ttsText: 'change' },
+    media: {
+      emoji: '🔄',
+      imageUrl: '',
+      imageAlt: L('변화', 'o‘zgarish', 'a change', 'изменение'),
+    },
+    tags: ['verbs', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-close',
+    english: 'close',
+    senseKey: 'stop-being-open',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L('닫다; 문을 닫다', 'yopmoq', 'to stop being open', 'закрывать'),
+    examples: [
+      {
+        english: 'When do the shops close?',
+        translations: L(
+          '가게들은 언제 문을 닫아요?',
+          'Do‘konlar qachon yopiladi?',
+          'When do the shops close?',
+          'Когда закрываются магазины?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/kləʊz/', ttsText: 'close' },
+    media: {
+      emoji: '🔒',
+      imageUrl: '',
+      imageAlt: L(
+        '닫힌 가게',
+        'yopiq do‘kon',
+        'a closed shop',
+        'закрытый магазин',
+      ),
+    },
+    tags: ['verbs', 'opening-times'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-colour',
+    english: 'colour',
+    senseKey: 'appearance-red-blue-green-etc',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '색; 색깔',
+      'rang',
+      'the appearance of something such as red, blue or green',
+      'цвет',
+    ),
+    examples: [
+      {
+        english: 'What is your favourite colour?',
+        translations: L(
+          '가장 좋아하는 색깔이 뭐예요?',
+          'Sevimli rangingiz qaysi?',
+          'What is your favourite colour?',
+          'Какой ваш любимый цвет?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈkʌlə(r)/', ttsText: 'colour' },
+    media: {
+      emoji: '🎨',
+      imageUrl: '',
+      imageAlt: L(
+        '여러 색깔',
+        'turli ranglar',
+        'different colours',
+        'разные цвета',
+      ),
+    },
+    tags: ['colours'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-comment',
+    english: 'comment',
+    senseKey: 'written-or-spoken-opinion',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '댓글; 의견',
+      'izoh',
+      'something you say or write to express an opinion',
+      'комментарий',
+    ),
+    examples: [
+      {
+        english: 'I sometimes write comments on websites.',
+        translations: L(
+          '저는 가끔 웹사이트에 댓글을 써요.',
+          'Men ba’zan saytlarda izoh yozaman.',
+          'I sometimes write comments on websites.',
+          'Я иногда пишу комментарии на сайтах.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈkɒment/', ttsText: 'comment' },
+    media: {
+      emoji: '💬',
+      imageUrl: '',
+      imageAlt: L('댓글', 'izoh', 'a comment', 'комментарий'),
+    },
+    tags: ['internet', 'communication'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-job-designer',
+    english: 'designer',
+    senseKey: 'person-who-designs-things',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '디자이너',
+      'dizayner',
+      'a person whose job is to design things',
+      'дизайнер',
+    ),
+    examples: [
+      {
+        english: 'Emma is a clothes designer.',
+        translations: L(
+          '에마는 의류 디자이너예요.',
+          'Emma kiyim dizayneri.',
+          'Emma is a clothes designer.',
+          'Эмма — дизайнер одежды.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/dɪˈzaɪnə(r)/', ttsText: 'designer' },
+    media: {
+      emoji: '✏️',
+      imageUrl: '',
+      imageAlt: L('디자이너', 'dizayner', 'a designer', 'дизайнер'),
+    },
+    tags: ['jobs', 'fashion'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-eat',
+    english: 'eat',
+    senseKey: 'put-food-in-mouth-and-swallow',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '먹다',
+      'yemoq',
+      'to put food in your mouth and swallow it',
+      'есть',
+    ),
+    examples: [
+      {
+        english: 'When does your family eat dinner?',
+        translations: L(
+          '가족은 언제 저녁을 먹어요?',
+          'Oilangiz kechki ovqatni qachon yeydi?',
+          'When does your family eat dinner?',
+          'Когда ваша семья ужинает?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/iːt/', ttsText: 'eat' },
+    media: {
+      emoji: '🍽️',
+      imageUrl: '',
+      imageAlt: L(
+        '음식을 먹는 모습',
+        'ovqat yeyish',
+        'eating food',
+        'приём пищи',
+      ),
+    },
+    tags: ['verbs', 'food'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-europe',
+    english: 'Europe',
+    senseKey: 'continent-europe',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('유럽', 'Yevropa', 'the continent of Europe', 'Европа'),
+    examples: [
+      {
+        english: 'People in Europe wear many different styles.',
+        translations: L(
+          '유럽 사람들은 다양한 스타일의 옷을 입어요.',
+          'Yevropadagi odamlar turli uslubdagi kiyimlarni kiyadi.',
+          'People in Europe wear many different styles.',
+          'В Европе люди носят одежду разных стилей.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈjʊərəp/', ttsText: 'Europe' },
+    media: {
+      emoji: '🌍',
+      imageUrl: '',
+      imageAlt: L('유럽', 'Yevropa', 'Europe', 'Европа'),
+    },
+    tags: ['places', 'continents'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-example',
+    english: 'example',
+    senseKey: 'thing-showing-what-something-is-like',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '예; 예시',
+      'misol',
+      'something that shows what a thing or idea is like',
+      'пример',
+    ),
+    examples: [
+      {
+        english: 'Our neighbours are a good example.',
+        translations: L(
+          '우리 이웃들이 좋은 예예요.',
+          'Qo‘shnilarimiz yaxshi misol.',
+          'Our neighbours are a good example.',
+          'Наши соседи — хороший пример.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ɪɡˈzɑːmpəl/', ttsText: 'example' },
+    media: {
+      emoji: '💡',
+      imageUrl: '',
+      imageAlt: L('예시', 'misol', 'an example', 'пример'),
+    },
+    tags: ['general'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-famous',
+    english: 'famous',
+    senseKey: 'known-by-many-people',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('유명한', 'mashhur', 'known by many people', 'известный'),
+    examples: [
+      {
+        english: 'The town is famous for its festival.',
+        translations: L(
+          '그 마을은 축제로 유명해요.',
+          'Shahar festivali bilan mashhur.',
+          'The town is famous for its festival.',
+          'Город известен своим фестивалем.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈfeɪməs/', ttsText: 'famous' },
+    media: {
+      emoji: '⭐',
+      imageUrl: '',
+      imageAlt: L(
+        '유명한 장소',
+        'mashhur joy',
+        'a famous place',
+        'известное место',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-feature',
+    english: 'feature',
+    senseKey: 'important-or-interesting-part',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '특징',
+      'xususiyat',
+      'an important or interesting part of something',
+      'особенность',
+    ),
+    examples: [
+      {
+        english: 'The building has an interesting design feature.',
+        translations: L(
+          '그 건물에는 흥미로운 디자인 특징이 있어요.',
+          'Binoning qiziqarli dizayn xususiyati bor.',
+          'The building has an interesting design feature.',
+          'У здания есть интересная особенность дизайна.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈfiːtʃə(r)/', ttsText: 'feature' },
+    media: {
+      emoji: '✨',
+      imageUrl: '',
+      imageAlt: L(
+        '특별한 특징',
+        'maxsus xususiyat',
+        'a special feature',
+        'особенность',
+      ),
+    },
+    tags: ['design', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-floor',
+    english: 'floor',
+    senseKey: 'level-of-building',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('층', 'qavat', 'a level of a building', 'этаж'),
+    examples: [
+      {
+        english: 'There is a restaurant on the top floor.',
+        translations: L(
+          '맨 위층에 식당이 있어요.',
+          'Yuqori qavatda restoran bor.',
+          'There is a restaurant on the top floor.',
+          'На верхнем этаже есть ресторан.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/flɔː(r)/', ttsText: 'floor' },
+    media: {
+      emoji: '🏢',
+      imageUrl: '',
+      imageAlt: L(
+        '건물의 한 층',
+        'bino qavati',
+        'a floor of a building',
+        'этаж здания',
+      ),
+    },
+    tags: ['buildings', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-flower',
+    english: 'flower',
+    senseKey: 'colourful-part-of-plant',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('꽃', 'gul', 'the colourful part of a plant', 'цветок'),
+    examples: [
+      {
+        english: 'They put flowers on their heads.',
+        translations: L(
+          '그들은 머리에 꽃을 올려요.',
+          'Ular boshlariga gullar qo‘yadi.',
+          'They put flowers on their heads.',
+          'Они кладут цветы на голову.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈflaʊə(r)/', ttsText: 'flower' },
+    media: {
+      emoji: '🌸',
+      imageUrl: '',
+      imageAlt: L('꽃', 'gul', 'a flower', 'цветок'),
+    },
+    tags: ['nature', 'style'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-france',
+    english: 'France',
+    senseKey: 'country-france',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('프랑스', 'Fransiya', 'a country in western Europe', 'Франция'),
+    examples: [
+      {
+        english: 'My friend has a house in France.',
+        translations: L(
+          '제 친구는 프랑스에 집이 있어요.',
+          'Do‘stimning Fransiyada uyi bor.',
+          'My friend has a house in France.',
+          'У моего друга есть дом во Франции.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/frɑːns/', ttsText: 'France' },
+    media: {
+      emoji: '🇫🇷',
+      imageUrl: '',
+      imageAlt: L(
+        '프랑스 국기',
+        'Fransiya bayrog‘i',
+        'the flag of France',
+        'флаг Франции',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-important',
+    english: 'important',
+    senseKey: 'having-great-value-or-effect',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('중요한', 'muhim', 'having great value or importance', 'важный'),
+    examples: [
+      {
+        english: 'Clothes are not important to me.',
+        translations: L(
+          '저에게 옷은 중요하지 않아요.',
+          'Men uchun kiyim muhim emas.',
+          'Clothes are not important to me.',
+          'Одежда для меня не важна.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ɪmˈpɔːtənt/', ttsText: 'important' },
+    media: {
+      emoji: '❗',
+      imageUrl: '',
+      imageAlt: L(
+        '중요한 것',
+        'muhim narsa',
+        'something important',
+        'что-то важное',
+      ),
+    },
+    tags: ['adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-indian',
+    english: 'Indian',
+    senseKey: 'relating-to-india',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('인도의', 'hind', 'relating to India', 'индийский'),
+    examples: [
+      {
+        english: 'Where do Indian women put henna?',
+        translations: L(
+          '인도 여성들은 헤나를 어디에 해요?',
+          'Hind ayollari xinnani qayerga surtadi?',
+          'Where do Indian women put henna?',
+          'Куда индийские женщины наносят хну?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈɪndiən/', ttsText: 'Indian' },
+    media: {
+      emoji: '🇮🇳',
+      imageUrl: '',
+      imageAlt: L('인도', 'Hindiston', 'India', 'Индия'),
+    },
+    tags: ['countries', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-information',
+    english: 'information',
+    senseKey: 'facts-or-details-about-something',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '정보',
+      'ma’lumot',
+      'facts or details about something',
+      'информация',
+    ),
+    examples: [
+      {
+        english: 'I have my travel information in an email.',
+        translations: L(
+          '여행 정보가 이메일에 있어요.',
+          'Sayohat ma’lumotlarim elektron xatda.',
+          'I have my travel information in an email.',
+          'Информация о поездке у меня в письме.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˌɪnfəˈmeɪʃən/', ttsText: 'information' },
+    media: {
+      emoji: 'ℹ️',
+      imageUrl: '',
+      imageAlt: L('정보', 'ma’lumot', 'information', 'информация'),
+    },
+    tags: ['travel', 'communication'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-late',
+    english: 'late',
+    senseKey: 'after-expected-time',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '늦은',
+      'kech',
+      'after the expected or usual time',
+      'поздний; опоздавший',
+    ),
+    examples: [
+      {
+        english: 'Eight o’clock is late.',
+        translations: L(
+          '8시는 늦어요.',
+          'Soat sakkiz kech.',
+          'Eight o’clock is late.',
+          'Восемь часов — поздно.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/leɪt/', ttsText: 'late' },
+    media: {
+      emoji: '⏰',
+      imageUrl: '',
+      imageAlt: L('늦은 시간', 'kech vaqt', 'a late time', 'позднее время'),
+    },
+    tags: ['time', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-leather',
+    english: 'leather',
+    senseKey: 'made-from-animal-skin',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('가죽으로 된', 'charmdan', 'made from leather', 'кожаный'),
+    examples: [
+      {
+        english: 'David often wears leather jackets.',
+        translations: L(
+          '데이비드는 가죽 재킷을 자주 입어요.',
+          'David ko‘pincha charm kurtka kiyadi.',
+          'David often wears leather jackets.',
+          'Дэвид часто носит кожаные куртки.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈleðə(r)/', ttsText: 'leather' },
+    media: {
+      emoji: '🧥',
+      imageUrl: '',
+      imageAlt: L(
+        '가죽 재킷',
+        'charm kurtka',
+        'a leather jacket',
+        'кожаная куртка',
+      ),
+    },
+    tags: ['clothes', 'materials'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-location',
+    english: 'location',
+    senseKey: 'place-where-something-is',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '위치; 장소',
+      'joylashuv',
+      'the place where something is',
+      'местоположение',
+    ),
+    examples: [
+      {
+        english: 'What is the location of the hotel?',
+        translations: L(
+          '호텔 위치가 어디예요?',
+          'Mehmonxonaning joylashuvi qayerda?',
+          'What is the location of the hotel?',
+          'Где находится отель?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ləʊˈkeɪʃən/', ttsText: 'location' },
+    media: {
+      emoji: '📍',
+      imageUrl: '',
+      imageAlt: L('위치', 'joylashuv', 'a location', 'местоположение'),
+    },
+    tags: ['places', 'travel'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-long',
+    english: 'long',
+    senseKey: 'great-distance-from-end-to-end',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '긴',
+      'uzun',
+      'measuring a great distance from one end to the other',
+      'длинный',
+    ),
+    examples: [
+      {
+        english: 'Some women wear very long skirts.',
+        translations: L(
+          '어떤 여성들은 아주 긴 치마를 입어요.',
+          'Ba’zi ayollar juda uzun yubka kiyadi.',
+          'Some women wear very long skirts.',
+          'Некоторые женщины носят очень длинные юбки.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/lɒŋ/', ttsText: 'long' },
+    media: {
+      emoji: '📏',
+      imageUrl: '',
+      imageAlt: L('긴 물건', 'uzun narsa', 'something long', 'что-то длинное'),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-lunch',
+    english: 'lunch',
+    senseKey: 'midday-meal',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '점심',
+      'tushlik',
+      'the meal eaten around the middle of the day',
+      'обед',
+    ),
+    examples: [
+      {
+        english: 'Do you want to meet for lunch?',
+        translations: L(
+          '점심 먹으러 만날래요?',
+          'Tushlik uchun uchrashishni xohlaysizmi?',
+          'Do you want to meet for lunch?',
+          'Хотите встретиться за обедом?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/lʌntʃ/', ttsText: 'lunch' },
+    media: {
+      emoji: '🥪',
+      imageUrl: '',
+      imageAlt: L('점심', 'tushlik', 'lunch', 'обед'),
+    },
+    tags: ['food', 'time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-magazine',
+    english: 'magazine',
+    senseKey: 'publication-with-articles-and-pictures',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '잡지',
+      'jurnal',
+      'a publication containing articles and pictures',
+      'журнал',
+    ),
+    examples: [
+      {
+        english: 'Fashion magazines often have young people in them.',
+        translations: L(
+          '패션 잡지에는 젊은 사람들이 자주 나와요.',
+          'Moda jurnallarida ko‘pincha yosh odamlar bo‘ladi.',
+          'Fashion magazines often have young people in them.',
+          'В модных журналах часто изображают молодых людей.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˌmæɡəˈziːn/', ttsText: 'magazine' },
+    media: {
+      emoji: '📰',
+      imageUrl: '',
+      imageAlt: L('잡지', 'jurnal', 'a magazine', 'журнал'),
+    },
+    tags: ['media', 'fashion'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-midday',
+    english: 'midday',
+    senseKey: 'twelve-oclock-middle-of-day',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '정오',
+      'tush payti',
+      'twelve o’clock in the middle of the day',
+      'полдень',
+    ),
+    examples: [
+      {
+        english: 'The restaurant is open from midday.',
+        translations: L(
+          '그 식당은 정오부터 문을 열어요.',
+          'Restoran tush paytidan ochiq.',
+          'The restaurant is open from midday.',
+          'Ресторан открыт с полудня.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˌmɪdˈdeɪ/', ttsText: 'midday' },
+    media: {
+      emoji: '☀️',
+      imageUrl: '',
+      imageAlt: L('정오', 'tush payti', 'midday', 'полдень'),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-night',
+    english: 'night',
+    senseKey: 'dark-part-of-day',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('밤', 'tun', 'the dark part of the day', 'ночь'),
+    examples: [
+      {
+        english: 'The bar is open at night.',
+        translations: L(
+          '그 바는 밤에 문을 열어요.',
+          'Bar tunda ochiq.',
+          'The bar is open at night.',
+          'Бар открыт ночью.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/naɪt/', ttsText: 'night' },
+    media: {
+      emoji: '🌙',
+      imageUrl: '',
+      imageAlt: L('밤', 'tun', 'night', 'ночь'),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-open',
+    english: 'open',
+    senseKey: 'begin-business-for-customers',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '열다; 문을 열다',
+      'ochmoq',
+      'to begin operating or allowing people to enter',
+      'открывать',
+    ),
+    examples: [
+      {
+        english: 'What time does the museum open?',
+        translations: L(
+          '박물관은 몇 시에 문을 열어요?',
+          'Muzey soat nechada ochiladi?',
+          'What time does the museum open?',
+          'Во сколько открывается музей?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈəʊpən/', ttsText: 'open' },
+    media: {
+      emoji: '🔓',
+      imageUrl: '',
+      imageAlt: L(
+        '문을 여는 가게',
+        'ochilayotgan do‘kon',
+        'a shop opening',
+        'открывающийся магазин',
+      ),
+    },
+    tags: ['verbs', 'opening-times'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-orange-color',
+    english: 'orange',
+    senseKey: 'colour-between-red-and-yellow',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '주황색의',
+      'to‘q sariq',
+      'having the colour between red and yellow',
+      'оранжевый',
+    ),
+    examples: [
+      {
+        english: 'Sometimes the colour is orange.',
+        translations: L(
+          '가끔 색이 주황색이에요.',
+          'Ba’zan rang to‘q sariq bo‘ladi.',
+          'Sometimes the colour is orange.',
+          'Иногда цвет бывает оранжевым.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈɒrɪndʒ/', ttsText: 'orange' },
+    media: {
+      emoji: '🟠',
+      imageUrl: '',
+      imageAlt: L('주황색', 'to‘q sariq', 'orange', 'оранжевый'),
+    },
+    tags: ['colours', 'adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-outside',
+    english: 'outside',
+    senseKey: 'not-inside-building',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L(
+      '밖에서; 밖으로',
+      'tashqarida',
+      'not inside a building or place',
+      'снаружи; на улице',
+    ),
+    examples: [
+      {
+        english: 'They wear it outside.',
+        translations: L(
+          '그들은 그것을 밖에서 입어요.',
+          'Ular uni tashqarida kiyadi.',
+          'They wear it outside.',
+          'Они носят это на улице.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˌaʊtˈsaɪd/', ttsText: 'outside' },
+    media: {
+      emoji: '🌳',
+      imageUrl: '',
+      imageAlt: L('밖', 'tashqari', 'outside', 'снаружи'),
+    },
+    tags: ['adverbs', 'place'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-public',
+    english: 'public',
+    senseKey: 'people-in-general',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '일반 대중',
+      'jamoatchilik',
+      'people in general',
+      'общественность; публика',
+    ),
+    examples: [
+      {
+        english: 'Is it open to the public?',
+        translations: L(
+          '일반인에게 공개되어 있나요?',
+          'U jamoatchilik uchun ochiqmi?',
+          'Is it open to the public?',
+          'Это открыто для публики?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈpʌblɪk/', ttsText: 'public' },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L('일반 대중', 'jamoatchilik', 'the public', 'публика'),
+    },
+    tags: ['people', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-reason',
+    english: 'reason',
+    senseKey: 'cause-or-explanation',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '이유',
+      'sabab',
+      'a cause or explanation for something',
+      'причина',
+    ),
+    examples: [
+      {
+        english: 'What is the reason that you are late?',
+        translations: L(
+          '늦은 이유가 뭐예요?',
+          'Kechikishingizning sababi nima?',
+          'What is the reason that you are late?',
+          'По какой причине вы опоздали?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈriːzən/', ttsText: 'reason' },
+    media: {
+      emoji: '❓',
+      imageUrl: '',
+      imageAlt: L('이유', 'sabab', 'a reason', 'причина'),
+    },
+    tags: ['communication'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-strange',
+    english: 'strange',
+    senseKey: 'unusual-or-unexpected',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('이상한; 낯선', 'g‘alati', 'unusual or unexpected', 'странный'),
+    examples: [
+      {
+        english: 'It is really strange to see this.',
+        translations: L(
+          '이걸 보는 것은 정말 이상해요.',
+          'Buni ko‘rish juda g‘alati.',
+          'It is really strange to see this.',
+          'Это действительно странно видеть.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/streɪndʒ/', ttsText: 'strange' },
+    media: {
+      emoji: '🤔',
+      imageUrl: '',
+      imageAlt: L(
+        '이상한 것',
+        'g‘alati narsa',
+        'something strange',
+        'что-то странное',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-strong',
+    english: 'strong',
+    senseKey: 'having-great-power-or-force',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L('강한', 'kuchli', 'having a lot of power or force', 'сильный'),
+    examples: [
+      {
+        english: 'The sun and wind are very strong.',
+        translations: L(
+          '햇빛과 바람이 아주 강해요.',
+          'Quyosh va shamol juda kuchli.',
+          'The sun and wind are very strong.',
+          'Солнце и ветер очень сильные.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/strɒŋ/', ttsText: 'strong' },
+    media: {
+      emoji: '💪',
+      imageUrl: '',
+      imageAlt: L('강한 힘', 'kuch', 'something strong', 'сила'),
+    },
+    tags: ['adjectives', 'weather'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-sun',
+    english: 'sun',
+    senseKey: 'star-earth-orbits',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '태양; 해',
+      'quyosh',
+      'the star that gives Earth light and heat',
+      'солнце',
+    ),
+    examples: [
+      {
+        english: 'The sun is strong in the Sahara.',
+        translations: L(
+          '사하라에서는 햇빛이 강해요.',
+          'Saharada quyosh kuchli.',
+          'The sun is strong in the Sahara.',
+          'В Сахаре очень сильное солнце.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/sʌn/', ttsText: 'sun' },
+    media: {
+      emoji: '☀️',
+      imageUrl: '',
+      imageAlt: L('태양', 'quyosh', 'the sun', 'солнце'),
+    },
+    tags: ['nature', 'weather'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-team',
+    english: 'team',
+    senseKey: 'group-playing-or-working-together',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '팀',
+      'jamoa',
+      'a group of people who play or work together',
+      'команда',
+    ),
+    examples: [
+      {
+        english: 'Different teams play football there.',
+        translations: L(
+          '그곳에서는 여러 팀이 축구를 해요.',
+          'U yerda turli jamoalar futbol o‘ynaydi.',
+          'Different teams play football there.',
+          'Там играют разные футбольные команды.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/tiːm/', ttsText: 'team' },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L(
+        '스포츠 팀',
+        'sport jamoasi',
+        'a sports team',
+        'спортивная команда',
+      ),
+    },
+    tags: ['sports', 'people'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-think',
+    english: 'think',
+    senseKey: 'have-opinion-or-idea',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L('생각하다', 'o‘ylamoq', 'to have an opinion or idea', 'думать'),
+    examples: [
+      {
+        english: 'They think shoes are bad for their feet.',
+        translations: L(
+          '그들은 신발이 발에 좋지 않다고 생각해요.',
+          'Ular oyoq kiyim oyoqlari uchun yomon deb o‘ylaydi.',
+          'They think shoes are bad for their feet.',
+          'Они считают, что обувь вредна для ног.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/θɪŋk/', ttsText: 'think' },
+    media: {
+      emoji: '🤔',
+      imageUrl: '',
+      imageAlt: L('생각하는 모습', 'o‘ylash', 'thinking', 'размышление'),
+    },
+    tags: ['verbs', 'opinions'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-travel',
+    english: 'travel',
+    senseKey: 'go-from-one-place-to-another',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '여행하다; 이동하다',
+      'sayohat qilmoq',
+      'to go from one place to another',
+      'путешествовать',
+    ),
+    examples: [
+      {
+        english: 'I travel by bus a lot.',
+        translations: L(
+          '저는 버스로 많이 이동해요.',
+          'Men avtobusda ko‘p sayohat qilaman.',
+          'I travel by bus a lot.',
+          'Я часто езжу на автобусе.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈtrævəl/', ttsText: 'travel' },
+    media: {
+      emoji: '🧳',
+      imageUrl: '',
+      imageAlt: L('여행', 'sayohat', 'travel', 'путешествие'),
+    },
+    tags: ['travel', 'verbs'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-type',
+    english: 'type',
+    senseKey: 'kind-or-category',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '종류; 유형',
+      'tur',
+      'a kind or category of something',
+      'тип; вид',
+    ),
+    examples: [
+      {
+        english: 'There are many different types of clothes.',
+        translations: L(
+          '옷에는 여러 종류가 있어요.',
+          'Kiyimlarning ko‘p xil turlari bor.',
+          'There are many different types of clothes.',
+          'Есть много разных типов одежды.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/taɪp/', ttsText: 'type' },
+    media: {
+      emoji: '🗂️',
+      imageUrl: '',
+      imageAlt: L(
+        '여러 종류',
+        'turli turlar',
+        'different types',
+        'разные типы',
+      ),
+    },
+    tags: ['general', 'categories'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-useful',
+    english: 'useful',
+    senseKey: 'helpful-for-purpose',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '유용한',
+      'foydali',
+      'helpful for doing or achieving something',
+      'полезный',
+    ),
+    examples: [
+      {
+        english: 'Why is English a useful language?',
+        translations: L(
+          '영어는 왜 유용한 언어예요?',
+          'Nega ingliz tili foydali til?',
+          'Why is English a useful language?',
+          'Почему английский — полезный язык?',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/ˈjuːsfəl/', ttsText: 'useful' },
+    media: {
+      emoji: '🛠️',
+      imageUrl: '',
+      imageAlt: L(
+        '유용한 도구',
+        'foydali narsa',
+        'something useful',
+        'полезная вещь',
+      ),
+    },
+    tags: ['adjectives'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-wind',
+    english: 'wind',
+    senseKey: 'moving-air-outdoors',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('바람', 'shamol', 'moving air outside', 'ветер'),
+    examples: [
+      {
+        english: 'The wind is very strong in the Arctic.',
+        translations: L(
+          '북극에서는 바람이 아주 강해요.',
+          'Arktikada shamol juda kuchli.',
+          'The wind is very strong in the Arctic.',
+          'В Арктике очень сильный ветер.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/wɪnd/', ttsText: 'wind' },
+    media: {
+      emoji: '💨',
+      imageUrl: '',
+      imageAlt: L('강한 바람', 'kuchli shamol', 'strong wind', 'сильный ветер'),
+    },
+    tags: ['weather', 'nature'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-wood',
+    english: 'wood',
+    senseKey: 'hard-material-from-trees',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '나무; 목재',
+      'yog‘och',
+      'the hard material that comes from trees',
+      'дерево; древесина',
+    ),
+    examples: [
+      {
+        english: 'They wear big shoes made of wood.',
+        translations: L(
+          '그들은 나무로 만든 큰 신발을 신어요.',
+          'Ular yog‘ochdan yasalgan katta oyoq kiyim kiyadi.',
+          'They wear big shoes made of wood.',
+          'Они носят большие деревянные башмаки.',
+        ),
+      },
+    ],
+    pronunciation: { ipa: '/wʊd/', ttsText: 'wood' },
+    media: {
+      emoji: '🪵',
+      imageUrl: '',
+      imageAlt: L('목재', 'yog‘och', 'wood', 'древесина'),
+    },
+    tags: ['materials'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-place-canal',
     english: 'canal',
     senseKey: 'man-made-waterway',

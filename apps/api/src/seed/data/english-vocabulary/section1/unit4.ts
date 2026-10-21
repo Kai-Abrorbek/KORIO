@@ -9125,6 +9125,714 @@ export const EN_S1_UNIT4_NODE4 = {
 
 export const EN_S1_UNIT4_NODE5_WORDS = [
   {
+    code: 'en-job-actor',
+    english: 'actor',
+    senseKey: 'person-who-acts-in-films-or-plays',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '배우',
+      'aktyor',
+      'a person who acts in films, television or plays',
+      'актёр',
+    ),
+    examples: [
+      {
+        english: 'Matt Damon is a film actor.',
+        translations: L(
+          '맷 데이먼은 영화배우예요.',
+          'Matt Damon kino aktyori.',
+          'Matt Damon is a film actor.',
+          'Мэтт Дэймон — киноактёр.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈæktə(r)/',
+      ttsText: 'actor',
+    },
+    media: {
+      emoji: '🎭',
+      imageUrl: '',
+      imageAlt: L('배우', 'aktyor', 'an actor', 'актёр'),
+    },
+    tags: ['jobs', 'film'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-sport-baseball',
+    english: 'baseball',
+    senseKey: 'sport-played-with-bat-and-ball',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '야구',
+      'beysbol',
+      'a sport played with a bat and ball',
+      'бейсбол',
+    ),
+    examples: [
+      {
+        english: 'He watches baseball at the weekend.',
+        translations: L(
+          '그는 주말에 야구를 봐요.',
+          'U dam olish kunlari beysbol ko‘radi.',
+          'He watches baseball at the weekend.',
+          'По выходным он смотрит бейсбол.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbeɪsbɔːl/',
+      ttsText: 'baseball',
+    },
+    media: {
+      emoji: '⚾',
+      imageUrl: '',
+      imageAlt: L('야구', 'beysbol', 'baseball', 'бейсбол'),
+    },
+    tags: ['sports', 'free-time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-sport-basketball',
+    english: 'basketball',
+    senseKey: 'sport-with-ball-and-baskets',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '농구',
+      'basketbol',
+      'a sport in which players throw a ball through a basket',
+      'баскетбол',
+    ),
+    examples: [
+      {
+        english: 'He plays basketball when he has time.',
+        translations: L(
+          '그는 시간이 있을 때 농구를 해요.',
+          'U vaqti bo‘lsa basketbol o‘ynaydi.',
+          'He plays basketball when he has time.',
+          'Когда у него есть время, он играет в баскетбол.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈbɑːskɪtbɔːl/',
+      ttsText: 'basketball',
+    },
+    media: {
+      emoji: '🏀',
+      imageUrl: '',
+      imageAlt: L('농구', 'basketbol', 'basketball', 'баскетбол'),
+    },
+    tags: ['sports', 'free-time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-call',
+    english: 'call',
+    senseKey: 'contact-someone-by-phone',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '전화하다',
+      'telefon qilmoq',
+      'to contact someone by phone',
+      'звонить',
+    ),
+    examples: [
+      {
+        english: 'Call me when you get to the hotel.',
+        translations: L(
+          '호텔에 도착하면 전화해 주세요.',
+          'Mehmonxonaga yetib borganingizda menga telefon qiling.',
+          'Call me when you get to the hotel.',
+          'Позвони мне, когда доберёшься до отеля.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/kɔːl/',
+      ttsText: 'call',
+    },
+    media: {
+      emoji: '📞',
+      imageUrl: '',
+      imageAlt: L(
+        '전화하는 모습',
+        'telefon qilish',
+        'making a phone call',
+        'телефонный звонок',
+      ),
+    },
+    tags: ['communication', 'verbs'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-money-cent',
+    english: 'cent',
+    senseKey: 'one-hundredth-of-dollar-or-euro',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '센트',
+      'sent',
+      'a unit of money equal to one hundredth of a dollar or euro',
+      'цент',
+    ),
+    examples: [
+      {
+        english: 'It is two dollars fifty cents.',
+        translations: L(
+          '2달러 50센트예요.',
+          'Bu ikki dollar ellik sent.',
+          'It is two dollars fifty cents.',
+          'Это два доллара пятьдесят центов.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/sent/',
+      ttsText: 'cent',
+    },
+    media: {
+      emoji: '🪙',
+      imageUrl: '',
+      imageAlt: L('동전', 'tanga', 'a coin', 'монета'),
+    },
+    tags: ['money', 'prices'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-media-comics',
+    english: 'comics',
+    senseKey: 'stories-told-with-pictures-and-words',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '만화',
+      'komikslar',
+      'stories told using pictures and words',
+      'комиксы',
+    ),
+    examples: [
+      {
+        english: 'He likes Spider-Man comics.',
+        translations: L(
+          '그는 스파이더맨 만화를 좋아해요.',
+          'U Spider-Man komikslarini yoqtiradi.',
+          'He likes Spider-Man comics.',
+          'Ему нравятся комиксы о Человеке-пауке.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈkɒmɪks/',
+      ttsText: 'comics',
+    },
+    media: {
+      emoji: '📚',
+      imageUrl: '',
+      imageAlt: L('만화책', 'komikslar', 'comics', 'комиксы'),
+    },
+    tags: ['media', 'free-time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-denmark',
+    english: 'Denmark',
+    senseKey: 'country-denmark',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('덴마크', 'Daniya', 'a country in northern Europe', 'Дания'),
+    examples: [
+      {
+        english: 'A lot of people cycle to work in Denmark.',
+        translations: L(
+          '덴마크에서는 많은 사람들이 자전거로 출근해요.',
+          'Daniyada ko‘p odamlar ishga velosipedda boradi.',
+          'A lot of people cycle to work in Denmark.',
+          'В Дании многие ездят на работу на велосипеде.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈdenmɑːk/',
+      ttsText: 'Denmark',
+    },
+    media: {
+      emoji: '🇩🇰',
+      imageUrl: '',
+      imageAlt: L(
+        '덴마크 국기',
+        'Daniya bayrog‘i',
+        'the flag of Denmark',
+        'флаг Дании',
+      ),
+    },
+    tags: ['countries', 'transport'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-early',
+    english: 'early',
+    senseKey: 'before-usual-or-expected-time',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L('일찍', 'erta', 'before the usual or expected time', 'рано'),
+    examples: [
+      {
+        english: 'Does she get up early?',
+        translations: L(
+          '그녀는 일찍 일어나요?',
+          'U erta turadimi?',
+          'Does she get up early?',
+          'Она рано встаёт?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɜːli/',
+      ttsText: 'early',
+    },
+    media: {
+      emoji: '🌅',
+      imageUrl: '',
+      imageAlt: L('이른 아침', 'erta tong', 'early morning', 'раннее утро'),
+    },
+    tags: ['time', 'routine'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-place-factory',
+    english: 'factory',
+    senseKey: 'building-where-goods-are-made',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '공장',
+      'zavod',
+      'a building where goods are made',
+      'фабрика; завод',
+    ),
+    examples: [
+      {
+        english: 'John works in a car factory.',
+        translations: L(
+          '존은 자동차 공장에서 일해요.',
+          'John avtomobil zavodida ishlaydi.',
+          'John works in a car factory.',
+          'Джон работает на автомобильном заводе.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈfæktri/',
+      ttsText: 'factory',
+    },
+    media: {
+      emoji: '🏭',
+      imageUrl: '',
+      imageAlt: L('공장', 'zavod', 'a factory', 'завод'),
+    },
+    tags: ['places', 'work'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-favourite',
+    english: 'favourite',
+    senseKey: 'liked-more-than-others',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '가장 좋아하는',
+      'eng sevimli',
+      'liked more than all others',
+      'любимый',
+    ),
+    examples: [
+      {
+        english: 'My favourite day is Saturday.',
+        translations: L(
+          '제가 가장 좋아하는 요일은 토요일이에요.',
+          'Mening eng sevimli kunim shanba.',
+          'My favourite day is Saturday.',
+          'Мой любимый день — суббота.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈfeɪvərɪt/',
+      ttsText: 'favourite',
+    },
+    media: {
+      emoji: '❤️',
+      imageUrl: '',
+      imageAlt: L(
+        '가장 좋아하는 것을 나타내는 하트',
+        'eng sevimli narsani bildiruvchi yurak',
+        'a favourite thing',
+        'любимая вещь',
+      ),
+    },
+    tags: ['adjectives', 'preferences'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-music-guitar',
+    english: 'guitar',
+    senseKey: 'stringed-musical-instrument',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('기타', 'gitara', 'a musical instrument with strings', 'гитара'),
+    examples: [
+      {
+        english: 'My sister plays the guitar.',
+        translations: L(
+          '제 자매는 기타를 쳐요.',
+          'Singlim gitara chaladi.',
+          'My sister plays the guitar.',
+          'Моя сестра играет на гитаре.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡɪˈtɑː(r)/',
+      ttsText: 'guitar',
+    },
+    media: {
+      emoji: '🎸',
+      imageUrl: '',
+      imageAlt: L('기타', 'gitara', 'a guitar', 'гитара'),
+    },
+    tags: ['music', 'free-time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-kenya',
+    english: 'Kenya',
+    senseKey: 'country-kenya',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('케냐', 'Keniya', 'a country in East Africa', 'Кения'),
+    examples: [
+      {
+        english: 'She lives in Nairobi in Kenya.',
+        translations: L(
+          '그녀는 케냐 나이로비에 살아요.',
+          'U Keniyaning Nayrobi shahrida yashaydi.',
+          'She lives in Nairobi in Kenya.',
+          'Она живёт в Найроби, Кения.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈkenjə/',
+      ttsText: 'Kenya',
+    },
+    media: {
+      emoji: '🇰🇪',
+      imageUrl: '',
+      imageAlt: L(
+        '케냐 국기',
+        'Keniya bayrog‘i',
+        'the flag of Kenya',
+        'флаг Кении',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-lives',
+    english: 'lives',
+    senseKey: 'plural-of-life',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '삶들; 생활 방식',
+      'hayotlar; turmush tarzlari',
+      'the plural of life; the ways people live',
+      'жизни; образ жизни',
+    ),
+    examples: [
+      {
+        english: 'They have very different lives.',
+        translations: L(
+          '그들은 아주 다른 삶을 살아요.',
+          'Ularning hayotlari juda boshqacha.',
+          'They have very different lives.',
+          'У них очень разные жизни.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/laɪvz/',
+      ttsText: 'lives',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L(
+        '서로 다른 삶을 사는 사람들',
+        'turli hayot kechirayotgan odamlar',
+        'people with different lives',
+        'люди с разным образом жизни',
+      ),
+    },
+    tags: ['life', 'plural'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-named',
+    english: 'named',
+    senseKey: 'having-particular-name',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '~라는 이름의',
+      'ismli; deb atalgan',
+      'having a particular name',
+      'по имени; названный',
+    ),
+    examples: [
+      {
+        english: 'She has a daughter named Akinyi.',
+        translations: L(
+          '그녀에게는 아키니라는 이름의 딸이 있어요.',
+          'Uning Akinyi ismli qizi bor.',
+          'She has a daughter named Akinyi.',
+          'У неё есть дочь по имени Акиньи.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/neɪmd/',
+      ttsText: 'named',
+    },
+    media: {
+      emoji: '🏷️',
+      imageUrl: '',
+      imageAlt: L(
+        '이름표',
+        'ism yozilgan yorliq',
+        'a name label',
+        'именная табличка',
+      ),
+    },
+    tags: ['names', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-same',
+    english: 'same',
+    senseKey: 'not-different',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '같은',
+      'bir xil',
+      'not different; exactly alike',
+      'одинаковый; тот же',
+    ),
+    examples: [
+      {
+        english: 'They have the same father.',
+        translations: L(
+          '그들은 아버지가 같아요.',
+          'Ularning otasi bir.',
+          'They have the same father.',
+          'У них один и тот же отец.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/seɪm/',
+      ttsText: 'same',
+    },
+    media: {
+      emoji: '🟰',
+      imageUrl: '',
+      imageAlt: L(
+        '같음을 나타내는 표시',
+        'bir xillik belgisi',
+        'two things that are the same',
+        'две одинаковые вещи',
+      ),
+    },
+    tags: ['adjectives', 'comparison'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-switzerland',
+    english: 'Switzerland',
+    senseKey: 'country-switzerland',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '스위스',
+      'Shveytsariya',
+      'a country in central Europe',
+      'Швейцария',
+    ),
+    examples: [
+      {
+        english: 'A lot of people in Switzerland go to work by train.',
+        translations: L(
+          '스위스에서는 많은 사람들이 기차로 출근해요.',
+          'Shveytsariyada ko‘p odamlar ishga poyezdda boradi.',
+          'A lot of people in Switzerland go to work by train.',
+          'В Швейцарии многие ездят на работу на поезде.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈswɪtsələnd/',
+      ttsText: 'Switzerland',
+    },
+    media: {
+      emoji: '🇨🇭',
+      imageUrl: '',
+      imageAlt: L(
+        '스위스 국기',
+        'Shveytsariya bayrog‘i',
+        'the flag of Switzerland',
+        'флаг Швейцарии',
+      ),
+    },
+    tags: ['countries', 'transport'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-sport-tennis',
+    english: 'tennis',
+    senseKey: 'sport-played-with-rackets-and-ball',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '테니스',
+      'tennis',
+      'a sport played with rackets and a ball',
+      'теннис',
+    ),
+    examples: [
+      {
+        english: 'Valentina plays tennis at the weekend.',
+        translations: L(
+          '발렌티나는 주말에 테니스를 쳐요.',
+          'Valentina dam olish kunlari tennis o‘ynaydi.',
+          'Valentina plays tennis at the weekend.',
+          'Валентина играет в теннис по выходным.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈtenɪs/',
+      ttsText: 'tennis',
+    },
+    media: {
+      emoji: '🎾',
+      imageUrl: '',
+      imageAlt: L('테니스', 'tennis', 'tennis', 'теннис'),
+    },
+    tags: ['sports', 'free-time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adverb-together',
+    english: 'together',
+    senseKey: 'with-another-person-or-people',
+    partOfSpeech: WordPartOfSpeech.ADVERB,
+    meaning: L(
+      '함께',
+      'birga',
+      'with another person or other people',
+      'вместе',
+    ),
+    examples: [
+      {
+        english: 'We have dinner together.',
+        translations: L(
+          '우리는 함께 저녁을 먹어요.',
+          'Biz kechki ovqatni birga yeymiz.',
+          'We have dinner together.',
+          'Мы ужинаем вместе.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/təˈɡeðə(r)/',
+      ttsText: 'together',
+    },
+    media: {
+      emoji: '👥',
+      imageUrl: '',
+      imageAlt: L(
+        '함께 있는 사람들',
+        'birga turgan odamlar',
+        'people together',
+        'люди вместе',
+      ),
+    },
+    tags: ['adverbs', 'routine'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-country-vietnam',
+    english: 'Vietnam',
+    senseKey: 'country-vietnam',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('베트남', 'Vyetnam', 'a country in Southeast Asia', 'Вьетнам'),
+    examples: [
+      {
+        english: 'My grandparents live in Vietnam.',
+        translations: L(
+          '제 조부모님은 베트남에 살아요.',
+          'Buvim va bobom Vyetnamda yashaydi.',
+          'My grandparents live in Vietnam.',
+          'Мои бабушка и дедушка живут во Вьетнаме.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˌvjetˈnæm/',
+      ttsText: 'Vietnam',
+    },
+    media: {
+      emoji: '🇻🇳',
+      imageUrl: '',
+      imageAlt: L(
+        '베트남 국기',
+        'Vyetnam bayrog‘i',
+        'the flag of Vietnam',
+        'флаг Вьетнама',
+      ),
+    },
+    tags: ['countries'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-routine-cook-dinner',
     english: 'cook dinner',
     senseKey: 'prepare-evening-meal',

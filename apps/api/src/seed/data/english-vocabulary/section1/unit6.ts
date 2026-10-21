@@ -12557,6 +12557,713 @@ export const EN_S1_UNIT6_NODE4 = {
 
 export const EN_S1_UNIT6_NODE5_WORDS = [
   {
+    code: 'en-noun-access',
+    english: 'access',
+    senseKey: 'right-or-opportunity-to-use-place',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '이용 권한; 접근',
+      'kirish huquqi; foydalanish imkoniyati',
+      'the right or opportunity to enter or use something',
+      'доступ',
+    ),
+    examples: [
+      {
+        english: 'Guests have 24-hour access to the hotel.',
+        translations: L(
+          '투숙객은 24시간 호텔을 이용할 수 있어요.',
+          'Mehmonlar mehmonxonaga 24 soat kira oladi.',
+          'Guests have 24-hour access to the hotel.',
+          'Гости имеют круглосуточный доступ в отель.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈækses/',
+      ttsText: 'access',
+    },
+    media: {
+      emoji: '🔑',
+      imageUrl: '',
+      imageAlt: L(
+        '출입 권한',
+        'kirish huquqi',
+        'access to a place',
+        'доступ в помещение',
+      ),
+    },
+    tags: ['hotel', 'facilities'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-all',
+    english: 'all',
+    senseKey: 'every-member-of-group',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '모든',
+      'barcha',
+      'every person or thing in a group',
+      'все; весь',
+    ),
+    examples: [
+      {
+        english: 'All the flats have got balconies.',
+        translations: L(
+          '모든 아파트에 발코니가 있어요.',
+          'Barcha kvartiralarda balkon bor.',
+          'All the flats have got balconies.',
+          'Во всех квартирах есть балконы.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɔːl/',
+      ttsText: 'all',
+    },
+    media: {
+      emoji: '⭕',
+      imageUrl: '',
+      imageAlt: L(
+        '모두를 나타내는 여러 항목',
+        'barcha narsalar',
+        'all of a group',
+        'вся группа',
+      ),
+    },
+    tags: ['determiner', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-another',
+    english: 'another',
+    senseKey: 'one-more-or-different-one',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '또 하나의; 다른',
+      'yana bir; boshqa',
+      'one more or a different one',
+      'ещё один; другой',
+    ),
+    examples: [
+      {
+        english: 'You can have another room.',
+        translations: L(
+          '다른 방을 이용할 수 있어요.',
+          'Siz boshqa xona olishingiz mumkin.',
+          'You can have another room.',
+          'Вы можете получить другую комнату.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əˈnʌðə(r)/',
+      ttsText: 'another',
+    },
+    media: {
+      emoji: '➕',
+      imageUrl: '',
+      imageAlt: L(
+        '하나를 더 추가하는 모습',
+        'yana bittasini qo‘shish',
+        'one more',
+        'ещё один',
+      ),
+    },
+    tags: ['determiner', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-area',
+    english: 'area',
+    senseKey: 'particular-part-of-place',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '구역; 공간',
+      'hudud; joy',
+      'a particular part of a place',
+      'зона; область',
+    ),
+    examples: [
+      {
+        english: 'There is one dining area for all the students.',
+        translations: L(
+          '모든 학생이 사용하는 식사 공간이 하나 있어요.',
+          'Barcha talabalar uchun bitta ovqatlanish joyi bor.',
+          'There is one dining area for all the students.',
+          'Для всех студентов есть одна обеденная зона.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈeəriə/',
+      ttsText: 'area',
+    },
+    media: {
+      emoji: '📍',
+      imageUrl: '',
+      imageAlt: L(
+        '특정 공간',
+        'ma’lum hudud',
+        'a particular area',
+        'определённая зона',
+      ),
+    },
+    tags: ['places', 'home'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-book',
+    english: 'book',
+    senseKey: 'reserve-room-or-service',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '예약하다',
+      'band qilmoq',
+      'to arrange to have or use something at a particular time',
+      'бронировать',
+    ),
+    examples: [
+      {
+        english: 'It looks great. Let’s book it.',
+        translations: L(
+          '좋아 보여요. 예약해요.',
+          'Zo‘r ko‘rinadi. Uni band qilaylik.',
+          'It looks great. Let’s book it.',
+          'Выглядит отлично. Давайте забронируем.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/bʊk/',
+      ttsText: 'book',
+    },
+    media: {
+      emoji: '📅',
+      imageUrl: '',
+      imageAlt: L(
+        '숙소를 예약하는 모습',
+        'joyni band qilish',
+        'booking accommodation',
+        'бронирование жилья',
+      ),
+    },
+    tags: ['hotel', 'verbs', 'reservation'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-determiner-each',
+    english: 'each',
+    senseKey: 'every-one-separately',
+    partOfSpeech: WordPartOfSpeech.DETERMINER,
+    meaning: L(
+      '각각의; 각',
+      'har bir',
+      'every one of two or more things considered separately',
+      'каждый',
+    ),
+    examples: [
+      {
+        english: 'Has each flat got a kitchen?',
+        translations: L(
+          '각 아파트마다 주방이 있어요?',
+          'Har bir kvartirada oshxona bormi?',
+          'Has each flat got a kitchen?',
+          'В каждой квартире есть кухня?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/iːtʃ/',
+      ttsText: 'each',
+    },
+    media: {
+      emoji: '🔢',
+      imageUrl: '',
+      imageAlt: L(
+        '각각의 항목',
+        'har bir narsa',
+        'each item',
+        'каждый предмет',
+      ),
+    },
+    tags: ['determiner', 'grammar'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-fishing',
+    english: 'fishing',
+    senseKey: 'activity-catching-fish',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '낚시',
+      'baliq ovlash',
+      'the activity of catching fish',
+      'рыбалка',
+    ),
+    examples: [
+      {
+        english: 'There are lots of things to do, including fishing.',
+        translations: L(
+          '낚시를 포함해서 할 일이 많아요.',
+          'Baliq ovlash bilan birga qiladigan ishlar ko‘p.',
+          'There are lots of things to do, including fishing.',
+          'Здесь много занятий, включая рыбалку.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈfɪʃɪŋ/',
+      ttsText: 'fishing',
+    },
+    media: {
+      emoji: '🎣',
+      imageUrl: '',
+      imageAlt: L(
+        '낚시하는 사람',
+        'baliq ovlayotgan odam',
+        'a person fishing',
+        'человек на рыбалке',
+      ),
+    },
+    tags: ['activities', 'outdoors'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-forest',
+    english: 'forest',
+    senseKey: 'large-area-covered-with-trees',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('숲', 'o‘rmon', 'a large area covered with trees', 'лес'),
+    examples: [
+      {
+        english: 'People walk in the forest.',
+        translations: L(
+          '사람들은 숲에서 걸어요.',
+          'Odamlar o‘rmonda sayr qiladi.',
+          'People walk in the forest.',
+          'Люди гуляют в лесу.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈfɒrɪst/',
+      ttsText: 'forest',
+    },
+    media: {
+      emoji: '🌲',
+      imageUrl: '',
+      imageAlt: L('숲', 'o‘rmon', 'a forest', 'лес'),
+    },
+    tags: ['nature', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-give',
+    english: 'give',
+    senseKey: 'hand-something-to-someone',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L('주다', 'bermoq', 'to hand something to someone', 'давать'),
+    examples: [
+      {
+        english: 'Please give me the code.',
+        translations: L(
+          '코드를 알려 주세요.',
+          'Iltimos, menga kodni bering.',
+          'Please give me the code.',
+          'Пожалуйста, дайте мне код.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ɡɪv/',
+      ttsText: 'give',
+    },
+    media: {
+      emoji: '🤲',
+      imageUrl: '',
+      imageAlt: L(
+        '무언가를 건네주는 모습',
+        'biror narsani berish',
+        'giving something',
+        'передача предмета',
+      ),
+    },
+    tags: ['verbs', 'communication'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-internet',
+    english: 'internet',
+    senseKey: 'global-computer-network',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L('인터넷', 'internet', 'the global computer network', 'интернет'),
+    examples: [
+      {
+        english: 'Are you on the internet?',
+        translations: L(
+          '인터넷에 연결되어 있어요?',
+          'Internetga ulanganmisiz?',
+          'Are you on the internet?',
+          'Вы в интернете?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈɪntənet/',
+      ttsText: 'internet',
+    },
+    media: {
+      emoji: '🌐',
+      imageUrl: '',
+      imageAlt: L(
+        '인터넷 연결',
+        'internet aloqasi',
+        'an internet connection',
+        'интернет-соединение',
+      ),
+    },
+    tags: ['technology'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-link',
+    english: 'link',
+    senseKey: 'internet-address-connecting-page',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '링크',
+      'havola',
+      'a connection that takes you to another page or website',
+      'ссылка',
+    ),
+    examples: [
+      {
+        english: 'I’ll send you the link to the flats.',
+        translations: L(
+          '아파트 링크를 보내 줄게요.',
+          'Sizga kvartiralar havolasini yuboraman.',
+          'I’ll send you the link to the flats.',
+          'Я отправлю вам ссылку на квартиры.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/lɪŋk/',
+      ttsText: 'link',
+    },
+    media: {
+      emoji: '🔗',
+      imageUrl: '',
+      imageAlt: L(
+        '인터넷 링크',
+        'internet havolasi',
+        'an internet link',
+        'интернет-ссылка',
+      ),
+    },
+    tags: ['technology', 'internet'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-lucky',
+    english: 'lucky',
+    senseKey: 'having-good-things-happen',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '운이 좋은',
+      'omadli',
+      'having good things happen to you',
+      'удачливый; везучий',
+    ),
+    examples: [
+      {
+        english: 'We are very lucky.',
+        translations: L(
+          '우리는 정말 운이 좋아요.',
+          'Biz juda omadlimiz.',
+          'We are very lucky.',
+          'Нам очень повезло.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈlʌki/',
+      ttsText: 'lucky',
+    },
+    media: {
+      emoji: '🍀',
+      imageUrl: '',
+      imageAlt: L(
+        '행운의 네잎클로버',
+        'omadli to‘rt bargli beda',
+        'a lucky four-leaf clover',
+        'счастливый четырёхлистный клевер',
+      ),
+    },
+    tags: ['adjectives', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-minute',
+    english: 'minute',
+    senseKey: 'unit-of-time-sixty-seconds',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '분',
+      'daqiqa',
+      'a unit of time equal to sixty seconds',
+      'минута',
+    ),
+    examples: [
+      {
+        english: 'The flat is twenty minutes from the city centre.',
+        translations: L(
+          '그 아파트는 도심에서 20분 거리예요.',
+          'Kvartira shahar markazidan yigirma daqiqa uzoqlikda.',
+          'The flat is twenty minutes from the city centre.',
+          'Квартира находится в двадцати минутах от центра города.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈmɪnɪt/',
+      ttsText: 'minute',
+    },
+    media: {
+      emoji: '⏱️',
+      imageUrl: '',
+      imageAlt: L('시간의 1분', 'bir daqiqa', 'one minute', 'одна минута'),
+    },
+    tags: ['time'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-adjective-own',
+    english: 'own',
+    senseKey: 'belonging-to-particular-person',
+    partOfSpeech: WordPartOfSpeech.ADJECTIVE,
+    meaning: L(
+      '자기 자신의',
+      'o‘zining',
+      'belonging to a particular person and no one else',
+      'собственный',
+    ),
+    examples: [
+      {
+        english: 'Have all the flats got their own kitchen?',
+        translations: L(
+          '모든 아파트에 각자의 주방이 있어요?',
+          'Barcha kvartiralarning o‘z oshxonasi bormi?',
+          'Have all the flats got their own kitchen?',
+          'Во всех квартирах есть собственная кухня?',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/əʊn/',
+      ttsText: 'own',
+    },
+    media: {
+      emoji: '🔐',
+      imageUrl: '',
+      imageAlt: L(
+        '자기만의 공간',
+        'o‘ziga tegishli joy',
+        'a private space of your own',
+        'собственное пространство',
+      ),
+    },
+    tags: ['adjectives', 'possessions'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-pizza',
+    english: 'pizza',
+    senseKey: 'flat-round-food-with-toppings',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '피자',
+      'pitsa',
+      'a flat round food with cheese and other toppings',
+      'пицца',
+    ),
+    examples: [
+      {
+        english: 'There is a great pizza restaurant on my street.',
+        translations: L(
+          '우리 거리에는 좋은 피자 식당이 있어요.',
+          'Ko‘chamda yaxshi pitsa restorani bor.',
+          'There is a great pizza restaurant on my street.',
+          'На моей улице есть отличный ресторан с пиццей.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/ˈpiːtsə/',
+      ttsText: 'pizza',
+    },
+    media: {
+      emoji: '🍕',
+      imageUrl: '',
+      imageAlt: L('피자', 'pitsa', 'a pizza', 'пицца'),
+    },
+    tags: ['food'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-reception',
+    english: 'reception',
+    senseKey: 'hotel-area-for-guests',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '프런트; 접수처',
+      'qabulxona',
+      'the area in a hotel where guests are received',
+      'стойка регистрации; ресепшен',
+    ),
+    examples: [
+      {
+        english: 'There is free Wi-Fi in reception.',
+        translations: L(
+          '프런트에는 무료 Wi-Fi가 있어요.',
+          'Qabulxonada bepul Wi-Fi bor.',
+          'There is free Wi-Fi in reception.',
+          'На стойке регистрации есть бесплатный Wi-Fi.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/rɪˈsepʃn/',
+      ttsText: 'reception',
+    },
+    media: {
+      emoji: '🛎️',
+      imageUrl: '',
+      imageAlt: L(
+        '호텔 프런트',
+        'mehmonxona qabulxonasi',
+        'hotel reception',
+        'стойка регистрации в отеле',
+      ),
+    },
+    tags: ['hotel', 'places'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-noun-theme',
+    english: 'theme',
+    senseKey: 'main-style-or-subject',
+    partOfSpeech: WordPartOfSpeech.NOUN,
+    meaning: L(
+      '테마; 주제',
+      'mavzu',
+      'the main subject or style of something',
+      'тема',
+    ),
+    examples: [
+      {
+        english: 'Each room has a car theme.',
+        translations: L(
+          '각 방에는 자동차 테마가 있어요.',
+          'Har bir xonaning avtomobil mavzusi bor.',
+          'Each room has a car theme.',
+          'У каждой комнаты автомобильная тема.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/θiːm/',
+      ttsText: 'theme',
+    },
+    media: {
+      emoji: '🎨',
+      imageUrl: '',
+      imageAlt: L(
+        '특정 테마로 꾸민 방',
+        'ma’lum mavzudagi xona',
+        'a themed room',
+        'комната с определённой темой',
+      ),
+    },
+    tags: ['hotel', 'description'],
+    difficulty: 1,
+    isCore: true,
+  },
+
+  {
+    code: 'en-verb-try',
+    english: 'try',
+    senseKey: 'attempt-or-check-possibility',
+    partOfSpeech: WordPartOfSpeech.VERB,
+    meaning: L(
+      '시도하다; 확인해 보다',
+      'urinmoq; sinab ko‘rmoq',
+      'to attempt something or check whether something works',
+      'пробовать; попытаться',
+    ),
+    examples: [
+      {
+        english: 'Try in the cupboard near the window.',
+        translations: L(
+          '창문 근처 찬장을 확인해 보세요.',
+          'Deraza yonidagi shkafdan qarab ko‘ring.',
+          'Try in the cupboard near the window.',
+          'Попробуйте посмотреть в шкафу возле окна.',
+        ),
+      },
+    ],
+    pronunciation: {
+      ipa: '/traɪ/',
+      ttsText: 'try',
+    },
+    media: {
+      emoji: '🔍',
+      imageUrl: '',
+      imageAlt: L(
+        '찾아보는 모습',
+        'qidirib ko‘rish',
+        'trying to find something',
+        'попытка что-то найти',
+      ),
+    },
+    tags: ['verbs', 'problems'],
+    difficulty: 1,
+    isCore: true,
+  },
+  {
     code: 'en-home-bookcase',
     english: 'bookcase',
     senseKey: 'furniture-for-books',
