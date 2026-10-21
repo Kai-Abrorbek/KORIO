@@ -17,7 +17,7 @@ export interface GameWord {
   difficulty?: number;
 }
 
-export function useGameWords(count = 40, maxLen = 5, session?: GameSession) {
+export function useGameWords(count = 40, maxLen = 5, session?: GameSession, minimum = 4) {
   const { request, user } = useTelegramAuth();
   const requestRef = useRef(request);
   requestRef.current = request;
@@ -42,13 +42,13 @@ export function useGameWords(count = 40, maxLen = 5, session?: GameSession) {
     void requester<{ words: GameWord[] }>(session ? gameRequestPath(path, session) : path)
       .then((response) => {
         if (current !== generation.current) return;
-        if ((response.words?.length ?? 0) < Math.min(4, count)) setFailed(true);
+        if ((response.words?.length ?? 0) < Math.min(minimum, count)) setFailed(true);
         else setWords(response.words);
       })
       .catch(() => {
         if (current === generation.current) setFailed(true);
       });
-  }, [count, maxLen, legacyRequest, session, unavailable]);
+  }, [count, maxLen, legacyRequest, minimum, session, unavailable]);
 
   useEffect(() => {
     load();

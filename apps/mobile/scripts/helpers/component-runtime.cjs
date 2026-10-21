@@ -173,6 +173,7 @@ function componentRuntime(mocks = {}) {
     throw new Error("Component did not stabilize");
   }
   return {
+    hooks: react,
     load,
     render,
     mount(component, p = {}) {

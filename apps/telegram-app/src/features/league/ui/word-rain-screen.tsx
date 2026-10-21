@@ -1,10 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
+import { gameWordMeaning, playableGameWords } from "../../../../../../shared/word-games";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import type { GameWord } from "../model/use-game-words";
-import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
+import { useGameWords } from "../model/use-game-words";
+import { createGameSession } from "../model/game-session";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./word-rain-screen.module.css";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
@@ -23,12 +27,13 @@ function shuffle<T>(items: T[]) {
   return result;
 }
 
-function meaningOf(word: GameWord) {
-  return meaningOfGameWord(word);
-}
-
 export function WordRainScreen() {
-  const { words: pool, loading, failed, reload } = useGameWords(40, 5);
+  const { user } = useTelegramAuth();
+  const searchParams = useSearchParams();
+  const [session] = useState(() => createGameSession(searchParams.get("targetLanguage"), user?.learnCourse));
+  const { words: rawPool, loading, failed, reload } = useGameWords(40, 5, session, 3);
+  const pool = useMemo(() => playableGameWords(rawPool ?? [], session.lang, session.targetLanguage), [rawPool, session]);
+  const meaningOf = useCallback((word: GameWord) => gameWordMeaning(word, session.lang), [session]);
   const { finish, isChallenge } = useLeagueChallenge();
   const [word, setWord] = useState<GameWord | null>(null);
   const [options, setOptions] = useState<string[]>([]);
@@ -48,6 +53,8 @@ export function WordRainScreen() {
   const fallAnimation = useRef<Animation | null>(null);
   const nextTimer = useRef<number | null>(null);
   const flashTimer = useRef<number | null>(null);
+  const flashFrame = useRef<number | null>(null);
+  const exited = useRef(false);
   const fallMs = useRef(START_FALL_MS);
   const heartsRef = useRef(MAX_HEARTS);
   const comboRef = useRef(0);
@@ -55,28 +62,46 @@ export function WordRainScreen() {
   const startedRef = useRef(false);
   const startDropRef = useRef<() => void>(() => undefined);
 
+  const cancelPending = useCallback(() => {
+    if (fallAnimation.current) {
+      fallAnimation.current.onfinish = null;
+      fallAnimation.current.cancel();
+      fallAnimation.current = null;
+    }
+    if (nextTimer.current !== null) window.clearTimeout(nextTimer.current);
+    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
+    if (flashFrame.current !== null) window.cancelAnimationFrame(flashFrame.current);
+    nextTimer.current = null;
+    flashTimer.current = null;
+    flashFrame.current = null;
+  }, []);
+
   const pickNext = useCallback(() => {
     if (!pool?.length) return;
     const next = pool[Math.floor(Math.random() * pool.length)]!;
     const wrong = shuffle(pool.filter((item) => item.id !== next.id)).slice(0, 2);
     setWord(next);
     setOptions(shuffle([next, ...wrong].map(meaningOf)));
-  }, [pool]);
+  }, [meaningOf, pool]);
 
   const startDrop = useCallback(() => {
-    if (heartsRef.current <= 0 || areaHeight <= 0) return;
+    if (exited.current || heartsRef.current <= 0 || areaHeight <= 0 || pool.length < 3) return;
     if (nextTimer.current !== null) window.clearTimeout(nextTimer.current);
     lockRef.current = false;
     setPopping(false);
     pickNext();
     setDropId((value) => value + 1);
-  }, [areaHeight, pickNext]);
+  }, [areaHeight, pickNext, pool.length]);
   startDropRef.current = startDrop;
 
   const loseHeart = useCallback(() => {
+    if (exited.current) return;
     window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("error");
     setFlashing(false);
-    window.requestAnimationFrame(() => setFlashing(true));
+    if (flashFrame.current !== null) window.cancelAnimationFrame(flashFrame.current);
+    flashFrame.current = window.requestAnimationFrame(() => {
+      if (!exited.current) setFlashing(true);
+    });
     if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
     flashTimer.current = window.setTimeout(() => setFlashing(false), 380);
     comboRef.current = 0;
@@ -97,7 +122,7 @@ export function WordRainScreen() {
     const observer = new ResizeObserver(updateHeight);
     observer.observe(playArea.current);
     return () => observer.disconnect();
-  }, [loading, failed]);
+  }, [loading, failed, pool.length]);
 
   useEffect(() => {
     if (areaHeight <= 0 || startedRef.current) return;
@@ -118,7 +143,7 @@ export function WordRainScreen() {
     );
     fallAnimation.current = animation;
     animation.onfinish = () => {
-      if (lockRef.current) return;
+      if (exited.current || lockRef.current) return;
       lockRef.current = true;
       loseHeart();
     };
@@ -128,11 +153,13 @@ export function WordRainScreen() {
     };
   }, [areaHeight, dropId, loseHeart]);
 
-  useEffect(() => () => {
-    fallAnimation.current?.cancel();
-    if (nextTimer.current !== null) window.clearTimeout(nextTimer.current);
-    if (flashTimer.current !== null) window.clearTimeout(flashTimer.current);
-  }, []);
+  useEffect(() => {
+    exited.current = false;
+    return () => {
+      exited.current = true;
+      cancelPending();
+    };
+  }, [cancelPending]);
 
   const freezeFall = () => {
     const animation = fallAnimation.current;
@@ -148,7 +175,7 @@ export function WordRainScreen() {
   };
 
   const onPick = (option: string) => {
-    if (!word || lockRef.current || over) return;
+    if (exited.current || !word || lockRef.current || over) return;
     lockRef.current = true;
     freezeFall();
     if (option === meaningOf(word)) {
@@ -168,6 +195,7 @@ export function WordRainScreen() {
   };
 
   const restart = () => {
+    cancelPending();
     fallMs.current = START_FALL_MS;
     heartsRef.current = MAX_HEARTS;
     comboRef.current = 0;
@@ -181,7 +209,9 @@ export function WordRainScreen() {
   };
 
   const exit = () => {
-    fallAnimation.current?.cancel();
+    exited.current = true;
+    lockRef.current = true;
+    cancelPending();
     void finish(score);
   };
   // 텔레그램 헤더/하드웨어 뒤로가기도 X 와 같게 — 도전 모드면 결과(finish)까지 간다 (앱은 게임 중 뒤로 스와이프를 막는다)
@@ -194,7 +224,7 @@ export function WordRainScreen() {
     [hearts],
   );
 
-  if (loading || failed) {
+  if (loading || failed || pool.length < 3) {
     return (
       <main className={styles.page}>
         <div className={styles.gate}>
@@ -219,7 +249,7 @@ export function WordRainScreen() {
       <div className={styles.playArea} ref={playArea}>
         {word && !over ? (
           <div className={styles.fallTrack} key={dropId} ref={fallTrack}>
-            <div className={`${styles.fallingWord} ${popping ? styles.popping : ""}`}>{word.ko}</div>
+            <div className={`${styles.fallingWord} ${popping ? styles.popping : ""}`} data-no-translate>{word.ko}</div>
           </div>
         ) : null}
         <div className={styles.floor} />
@@ -227,7 +257,7 @@ export function WordRainScreen() {
 
       <div className={styles.options}>
         {options.map((option, index) => (
-          <button disabled={over} key={`${option}-${index}`} onClick={() => onPick(option)} type="button">{option}</button>
+          <button data-no-translate disabled={over} key={`${option}-${index}`} onClick={() => onPick(option)} type="button">{option}</button>
         ))}
       </div>
 

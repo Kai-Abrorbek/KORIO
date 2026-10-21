@@ -76,6 +76,7 @@
     "test:pronunciation": "node --test scripts/pronunciation.test.cjs",
     "test:match-game": "node --test scripts/match-game.test.cjs",
     "test:memory-game": "node --test scripts/memory-game.test.cjs",
+    "test:word-rain": "node --test scripts/word-rain.test.cjs",
     "gen:reading-images": "node ./scripts/gen-reading-images.mjs"
   },
   "private": true

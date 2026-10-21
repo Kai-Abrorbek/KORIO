@@ -366,7 +366,7 @@ test("the same games hub keeps all Korean games and routes only the verified Eng
     const cards = nodes(runtime.tree).filter(
       (n) => n.type?.name === "GameCard",
     );
-    assert.equal(cards.length, language === "en" ? 2 : 7);
+    assert.equal(cards.length, language === "en" ? 3 : 7);
     const match = cards.find((card) => card.props.game.id === "matchGame");
     const cardTree = match.type(match.props);
     nodes(cardTree)

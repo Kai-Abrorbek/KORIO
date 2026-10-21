@@ -16,6 +16,7 @@ export function useGameWords(
   count = 40,
   maxLen = 5,
   session?: { targetLanguage: GameLanguage },
+  minimum = 4,
 ) {
   const course = useSettingsStore((state) => state.learnCourse);
   const targetLanguage = session?.targetLanguage ?? course;
@@ -36,13 +37,13 @@ export function useGameWords(
         if (current !== generation.current) return;
         // 판을 못 채울 만큼 적게 오면 실패로 본다 — 카드가 모자란 게임판은
         // 게임이 아니다
-        if ((r.words?.length ?? 0) < Math.min(4, count)) setFailed(true);
+        if ((r.words?.length ?? 0) < Math.min(minimum, count)) setFailed(true);
         else setWords(r.words);
       })
       .catch(() => {
         if (current === generation.current) setFailed(true);
       });
-  }, [count, maxLen, targetLanguage, unavailable]);
+  }, [count, maxLen, targetLanguage, unavailable, minimum]);
 
   useEffect(() => {
     load();

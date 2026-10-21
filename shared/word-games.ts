@@ -71,10 +71,32 @@ export function matchingPool(
   });
 }
 
+/** Keep the original records (emoji/difficulty included) for the other games. */
+export function playableGameWords<T extends GameWordRecord>(
+  words: T[],
+  locale: string,
+  language: GameLanguage,
+): T[] {
+  return matchingPool([], words, locale, language).flatMap((pair) => {
+    const source = words.find(
+      (word) =>
+        word.id === pair.id &&
+        word.ko === pair.ko &&
+        gameWordMeaning(word, locale) === pair.native,
+    );
+    return source ? [source] : [];
+  });
+}
+
 /** Enable each English game only after that game's implementation is verified. */
 export function isWordGameAvailable(
   id: string,
   language: GameLanguage,
 ): boolean {
-  return language === "ko" || id === "matchGame" || id === "wordMemory";
+  return (
+    language === "ko" ||
+    id === "matchGame" ||
+    id === "wordMemory" ||
+    id === "wordRain"
+  );
 }

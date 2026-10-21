@@ -240,15 +240,15 @@ test("the reused game keeps correct, wrong and replacement animation timing in b
   }
 });
 
-test("English games hub exposes only the two implemented games; Korean keeps all seven and Hangul", () => {
-  for (const [language, query, expected] of [["en", "", 2], ["ko", "", 7], ["ko", "targetLanguage=en", 2], ["en", "targetLanguage=ko", 7]]) {
+test("English games hub exposes only the three implemented games; Korean keeps all seven and Hangul", () => {
+  for (const [language, query, expected] of [["en", "", 3], ["ko", "", 7], ["ko", "targetLanguage=en", 3], ["en", "targetLanguage=ko", 7]]) {
     const f = fixture({ language, query });
     const tree = f.renderHub();
     const cards = tree.filter((node) => hasClass(node, "card"));
     assert.equal(cards.length, expected);
     assert.equal(tree.some((node) => hasClass(node, "hangulCard")), expected === 7);
     cards[0].props.onClick();
-    assert.equal(f.routes[0], `/match-game?targetLanguage=${expected === 2 ? "en" : "ko"}`);
+    assert.equal(f.routes[0], `/match-game?targetLanguage=${expected === 3 ? "en" : "ko"}`);
     f.unmount();
   }
 });

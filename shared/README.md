@@ -6,14 +6,17 @@
 matching uses the same five-pair board, 60-second clock, feedback animations and
 reward rules as Korean. Memory uses the existing five levels (5/7/10/12/15 pairs),
 preview times, flip cards and star rules. Its word list is stable during a level,
-and it checks for 15 distinct pairs before starting. The legacy API field `ko`
-still holds the headword, even in an explicitly English game pool; `meaningKo`
-holds its Korean meaning.
+and it checks for 15 distinct pairs before starting. Word Rain reuses the same
+three-choice falling-word engine, three hearts, combo score and speed progression
+(6000ms down to 2600ms), with at least three distinct playable words. The legacy
+API field `ko` still holds the headword, even in an explicitly English game pool;
+`meaningKo` holds its Korean meaning.
 
 Use learned words first, then fill from that course's server pool. Freeze the
 target and explanation languages at game entry, deduplicate ambiguous labels and
 never substitute Korean mock words after an English request fails. Games not yet
 ported stay unavailable in English until their own implementation and commit.
+English word-chain is deferred; its API and Korean rules are unchanged.
 
 Deploy the API before the Telegram release or mobile OTA. No seed write, database
 migration, production dependency or native build is required.
@@ -21,8 +24,10 @@ migration, production dependency or native build is required.
 ```powershell
 pnpm --filter mobile test:match-game
 pnpm --filter mobile test:memory-game
+pnpm --filter mobile test:word-rain
 pnpm --filter telegram-app test:word-games
 pnpm --filter telegram-app test:memory-game
+pnpm --filter telegram-app test:word-rain
 pnpm --filter api exec jest --runInBand words-game-pool.spec.ts game-words.util.spec.ts words-course.spec.ts
 ```
 

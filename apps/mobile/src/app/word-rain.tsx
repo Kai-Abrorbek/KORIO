@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,11 +19,14 @@ import Animated, {
 import { useTheme } from "@/hooks/useTheme";
 import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
-import { meaningOfWord as meaningOf } from "@/services/game-words.service";
+import {
+  gameWordMeaning as meaningOf,
+  playableGameWords,
+} from "../../../../shared/word-games";
 import { useGameWords } from "@/features/games/useGameWords";
 import { GameWordsGate } from "@/features/games/GameWordsGate";
 import type { GameWord as WordPair } from "@/services/game-words.service";
-import { useContentLang } from "@/store/settings.store";
+import { useGameSession } from "@/features/games/useGameSession";
 
 const MAX_HEARTS = 3;
 const START_FALL_MS = 6000;
@@ -34,15 +36,20 @@ const SPEEDUP_MS = 220;
 export default function WordRainScreen() {
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
   const { isChallenge, finish } = useLeagueChallenge();
-  const router = useRouter();
   const { t } = useTranslation();
-  const contentLang = useContentLang();
+  const session = useGameSession();
+  const contentLang = session.contentLanguage;
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
 
   // 하드코딩 목록 대신 서버가 이 사람 진도로 뽑아준 단어들
-  const { words: pool, loading, failed, reload } = useGameWords(40, 5);
+  const { words: rawPool, loading, failed, reload } = useGameWords(40, 5, session, 3);
+  const pool = useMemo(
+    () => playableGameWords(rawPool ?? [], contentLang, session.language),
+    [rawPool, contentLang, session.language],
+  );
+  const unavailable = failed || (!loading && pool.length < 3);
   const [word, setWord] = useState<WordPair | null>(null);
   const [options, setOptions] = useState<string[]>([]);
   const [hearts, setHearts] = useState(MAX_HEARTS);
@@ -56,6 +63,8 @@ export default function WordRainScreen() {
   const fallMs = useRef(START_FALL_MS);
   const heartsRef = useRef(MAX_HEARTS);
   const lockRef = useRef(false);
+  const nextTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exited = useRef(false);
 
   const fallY = useSharedValue(-70);
   const wordScale = useSharedValue(1);
@@ -89,7 +98,8 @@ export default function WordRainScreen() {
 
   // 새 단어 낙하 시작
   const drop = useCallback(() => {
-    if (heartsRef.current <= 0 || areaH === 0) return;
+    if (exited.current || heartsRef.current <= 0 || areaH === 0 || pool.length < 3)
+      return;
     lockRef.current = false;
     wordScale.value = 1;
     wordOpacity.value = 1;
@@ -102,11 +112,11 @@ export default function WordRainScreen() {
         if (finished) runOnJS(onLanded)();
       },
     );
-  }, [areaH, pickNext]);
+  }, [areaH, pickNext, pool.length]);
 
   // 바닥 도착 = 미스
   const onLanded = () => {
-    if (lockRef.current) return;
+    if (exited.current || lockRef.current) return;
     lockRef.current = true;
     loseHeart();
   };
@@ -123,7 +133,7 @@ export default function WordRainScreen() {
     if (heartsRef.current <= 0) {
       setOver(true);
     } else {
-      setTimeout(drop, 600);
+      nextTimer.current = setTimeout(drop, 600);
     }
   };
 
@@ -146,7 +156,7 @@ export default function WordRainScreen() {
       setCaught((c) => c + 1);
       setScore((sc) => sc + 10 + Math.min(nextCombo, 10) * 2);
       fallMs.current = Math.max(MIN_FALL_MS, fallMs.current - SPEEDUP_MS);
-      setTimeout(drop, 420);
+      nextTimer.current = setTimeout(drop, 420);
     } else {
       loseHeart();
     }
@@ -154,9 +164,19 @@ export default function WordRainScreen() {
 
   // 시작
   useEffect(() => {
-    if (areaH > 0 && !over) drop();
+    if (areaH > 0 && !over && !unavailable) drop();
     return () => cancelAnimation(fallY);
   }, [areaH]);
+
+  useEffect(() => {
+    exited.current = false;
+    return () => {
+      exited.current = true;
+      lockRef.current = true;
+      if (nextTimer.current) clearTimeout(nextTimer.current);
+      cancelAnimation(fallY);
+    };
+  }, [fallY]);
 
   const restart = () => {
     fallMs.current = START_FALL_MS;
@@ -167,10 +187,14 @@ export default function WordRainScreen() {
     setBestCombo(0);
     setCaught(0);
     setOver(false);
-    setTimeout(drop, 300);
+    if (nextTimer.current) clearTimeout(nextTimer.current);
+    nextTimer.current = setTimeout(drop, 300);
   };
 
   const exit = () => {
+    exited.current = true;
+    lockRef.current = true;
+    if (nextTimer.current) clearTimeout(nextTimer.current);
     cancelAnimation(fallY);
     // 챌린지면 점수를 제출하고 결과 화면으로, 아니면 그냥 뒤로
     void finish(score);
@@ -178,10 +202,10 @@ export default function WordRainScreen() {
 
   // 단어를 못 받으면 게임을 시작하지 않는다. 가짜 단어로 채우면 유저는
   // 자기가 배운 게 아닌 걸로 연습하면서 그걸 모른다
-  if (loading || failed) {
+  if (loading || unavailable) {
     return (
       <View style={s.container}>
-        <GameWordsGate loading={loading} failed={failed} onRetry={reload}>
+        <GameWordsGate loading={loading} failed={unavailable} onRetry={reload}>
           {null}
         </GameWordsGate>
       </View>
