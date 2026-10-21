@@ -71,6 +71,20 @@ function textWidth(text: string, size: number) {
 }
 
 /**
+ * 한 줄로 그려야 하는 글의 최소 너비.
+ *
+ * 안드로이드는 글 너비를 잰 값보다 그릴 때 받은 너비가 소수점만큼 좁을 때가 있다.
+ * 그러면 마지막 어절이 다음 줄로 넘어가는데 칸 높이는 한 줄이라 그 어절이 통째로
+ * 안 보인다 — 한국어는 글자가 아니라 어절(구) 단위로 줄을 바꿔서 "의사입니까" 가
+ * "의사" 만 남는다. 한글 폭을 넉넉히 잡은 예상 너비를 최소 너비로 줘서 줄바꿈 자체가
+ * 안 일어나게 한다. 예상이 실제보다 작으면 잰 값이 이기니 지금보다 나빠지진 않는다.
+ * 카드 한 줄보다 길면 한 줄 너비까지만 (그 이상은 원래대로 줄을 바꾼다).
+ */
+function oneLineWidth(text: string, size: number, max: number) {
+  return Math.min(max, Math.ceil(textWidth(text, size)) + 4);
+}
+
+/**
  * 문법 빈칸 문제 (grammar_blank).
  * 채점·피드백·XP 는 레슨 엔진이 하고 여기서는 입력만 받아 onAnswer 로 넘긴다.
  */
@@ -259,6 +273,11 @@ export default function GrammarBlank({
     fontSize: fit.sent,
     lineHeight: Math.round(fit.sent * 1.35),
   };
+  // 문장 한 줄 너비 (스크롤 여백 18*2 + 카드 안쪽 18*2 — fit 과 같은 값)
+  const rowWidth = width - 36 - 36;
+  const keepLine = (text: string) => ({
+    minWidth: oneLineWidth(text, fit.sent, rowWidth),
+  });
 
   return (
     <LinearGradient colors={[C.bgTop, C.bgBot]} style={{ flex: 1 }}>
@@ -339,7 +358,17 @@ export default function GrammarBlank({
               {/* 정답 문장 + 인라인 입력칸 */}
               <View style={st.answerRow}>
                 {!!q.prefix && (
-                  <Text style={[st.answerFix, sentSize]}>{q.prefix}</Text>
+                  // 앞부분은 빈칸 쪽(오른쪽)에 붙인다 — 여유 너비는 왼쪽으로
+                  <Text
+                    style={[
+                      st.answerFix,
+                      sentSize,
+                      keepLine(q.prefix),
+                      { textAlign: "right" },
+                    ]}
+                  >
+                    {q.prefix}
+                  </Text>
                 )}
                 <Pressable
                   onPress={focusInput}
@@ -351,7 +380,15 @@ export default function GrammarBlank({
                 >
                   {/* 배경 힌트 (흐리게) — 입력 없을 때만 */}
                   {input.length === 0 && hintLevel > 0 && (
-                    <Text style={[st.slotText, sentSize, st.hintGhost]}>
+                    <Text
+                      style={[
+                        st.slotText,
+                        sentSize,
+                        st.hintGhost,
+                        keepLine(revealed()),
+                        { textAlign: "right" },
+                      ]}
+                    >
                       {revealed()}
                     </Text>
                   )}
@@ -362,6 +399,9 @@ export default function GrammarBlank({
                       style={[
                         st.slotText,
                         sentSize,
+                        keepLine(input),
+                        // 입력 중엔 커서에 붙이고, 다 맞히면 칸 가운데
+                        { textAlign: isOk ? "center" : "right" },
                         isOk && { color: C.greenInk },
                       ]}
                     >
@@ -378,7 +418,9 @@ export default function GrammarBlank({
                 </Pressable>
 
                 {!!q.suffix && (
-                  <Text style={[st.answerFix, sentSize]}>{q.suffix}</Text>
+                  <Text style={[st.answerFix, sentSize, keepLine(q.suffix)]}>
+                    {q.suffix}
+                  </Text>
                 )}
               </View>
 
