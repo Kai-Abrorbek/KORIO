@@ -105,9 +105,9 @@ export function learnModePath(
     case "vocabulary":
       return "/roadmap";
     // 회화는 AI 음성 튜터와 실제로 말해보는 것이다. 문제 풀이가 아니라
-    // 대화라서 로드맵이 없다.
+    // 대화라서 로드맵이 없다. 영어 코스면 영어 튜터
     case "conversation":
-      return "/voice-tutor";
+      return course === "en" ? ("/voice-tutor?lang=en" as Href) : "/voice-tutor";
     // 글자 학습 — 한글 화면이 코스 언어(lang)에 맞춰 알파벳으로 바뀐다
     case "alphabet":
       return `/hangul?lang=${course}` as Href;

@@ -32,6 +32,7 @@ const ENGLISH_CATEGORIES: readonly string[] = [
   "wordCard",
   "pronunciation",
   "games",
+  "conversation",
 ];
 
 const LEARN_MODES: LearnMode[] = [
@@ -147,7 +148,7 @@ export function CourseCategoriesScreen() {
       return;
     }
 
-    const destination = learningDestination(category.category);
+    const destination = learningDestination(category.category, "1", course);
     if (!destination) return;
     const shortcut = [
       "hangul",
@@ -351,7 +352,7 @@ export function CourseCategoriesScreen() {
           onTaster={
             hasLearningTaster(lockedCategory.feature)
               ? () => {
-                  const destination = learningDestination(lockedCategory.category);
+                  const destination = learningDestination(lockedCategory.category, "1", course);
                   if (destination) router.push(destination);
                 }
               : undefined

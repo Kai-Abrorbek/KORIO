@@ -8,6 +8,7 @@ import type {
   VoiceTutorSession,
   VoiceTutorSessionDetail,
   VoiceTutorSettings,
+  VoiceTutorTarget,
   VoiceTutorTopicCard,
 } from "../model/voice-tutor";
 
@@ -27,16 +28,21 @@ const json = (body: unknown): RequestInit => ({
 export const VoiceTutorApi = {
   quota: (request: AuthenticatedRequest) =>
     request<VoiceTutorQuota>("/voice-tutor/quota"),
-  topics: (request: AuthenticatedRequest) =>
+  topics: (request: AuthenticatedRequest, target: VoiceTutorTarget = "ko") =>
     request<{ topics: VoiceTutorTopicCard[] }>(
-      `/voice-tutor/topics?lang=${encodeURIComponent(getContentLang())}`,
+      `/voice-tutor/topics?lang=${encodeURIComponent(getContentLang())}&targetLanguage=${target}`,
     ),
   options: (request: AuthenticatedRequest) =>
     request<VoiceTutorOptions>("/voice-tutor/options"),
-  settings: (request: AuthenticatedRequest) =>
-    request<VoiceTutorSettings>("/voice-tutor/settings"),
-  updateSettings: (request: AuthenticatedRequest, settings: VoiceTutorSettings) =>
-    request<VoiceTutorSettings>("/voice-tutor/settings", {
+  // 목소리·성격·말투는 튜터 공통, 수업 언어·수준은 배우는 언어마다 따로 저장된다
+  settings: (request: AuthenticatedRequest, target: VoiceTutorTarget = "ko") =>
+    request<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`),
+  updateSettings: (
+    request: AuthenticatedRequest,
+    settings: VoiceTutorSettings,
+    target: VoiceTutorTarget = "ko",
+  ) =>
+    request<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`, {
       body: JSON.stringify(settings),
       method: "PATCH",
     }),
@@ -44,10 +50,11 @@ export const VoiceTutorApi = {
     request: AuthenticatedRequest,
     settings: VoiceTutorSettings,
     topicId?: string,
+    target: VoiceTutorTarget = "ko",
   ) =>
     request<VoiceTutorSession>(
       "/voice-tutor/sessions",
-      json({ settings, ...(topicId ? { topicId } : {}) }),
+      json({ settings, ...(topicId ? { topicId } : {}), targetLanguage: target }),
     ),
   getSession: (request: AuthenticatedRequest, sessionId: string) =>
     request<VoiceTutorSessionDetail>(

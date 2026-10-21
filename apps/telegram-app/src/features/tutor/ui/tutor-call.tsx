@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from "react";
 
 import { romanize } from "../../../shared/lib/romanize";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import type { TutorState, VoiceTutorEmotion } from "../model/voice-tutor";
 import { TUTOR_STATE_LABELS, hexA, tutorErrorText } from "./tutor-labels";
@@ -84,6 +85,8 @@ export interface TutorCallProps {
   /** 이번 주제에서 써 볼 표현 (주제 수업일 때만) */
   targets: string[];
   teacherName?: string;
+  /** 배우는 언어 — 헤더의 "koreys/ingliz tili ustozi" */
+  targetLanguage?: "ko" | "en";
   /** 성격 이름 (우즈벡어 원문) */
   teacherPersonality?: string;
   toggleMic: () => void;
@@ -239,7 +242,11 @@ export function TutorCall(p: TutorCallProps) {
                 <i>·</i>
               </>
             ) : null}
-            <span>Koreys tili ustozi</span>
+            {p.targetLanguage === "en" ? (
+              <span data-i18n="voiceTutor.english.roleLabel">{uzt("voiceTutor.english.roleLabel")}</span>
+            ) : (
+              <span>Koreys tili ustozi</span>
+            )}
           </p>
         </div>
 
@@ -250,15 +257,18 @@ export function TutorCall(p: TutorCallProps) {
               {fmt(remain ?? p.elapsedSec)}
             </span>
           ) : null}
-          <button
-            aria-label="Lotin yozuvi"
-            aria-pressed={roman}
-            className={`${styles.tune} ${roman ? styles.tuneOn : ""}`}
-            onClick={() => setRoman((value) => !value)}
-            type="button"
-          >
-            <MobileIcon name="options-outline" size={18} />
-          </button>
+          {/* 로마자 표기는 한글에만 — 영어 튜터는 이미 라틴 문자다 */}
+          {p.targetLanguage !== "en" ? (
+            <button
+              aria-label="Lotin yozuvi"
+              aria-pressed={roman}
+              className={`${styles.tune} ${roman ? styles.tuneOn : ""}`}
+              onClick={() => setRoman((value) => !value)}
+              type="button"
+            >
+              <MobileIcon name="options-outline" size={18} />
+            </button>
+          ) : null}
         </div>
       </header>
 
@@ -341,7 +351,7 @@ export function TutorCall(p: TutorCallProps) {
             </button>
             <button className={styles.cardTextWrap} onClick={() => play(focus, false)} type="button">
               <strong data-no-translate="">{focus}</strong>
-              {roman ? <small data-no-translate="">{romanize(focus)}</small> : null}
+              {roman && p.targetLanguage !== "en" ? <small data-no-translate="">{romanize(focus)}</small> : null}
             </button>
             <button aria-label="Nusxalash" className={`${styles.cardCopy} ${copied ? styles.cardCopied : ""}`} onClick={() => void copy()} type="button">
               <MobileIcon name={copied ? "checkmark" : "copy-outline"} size={18} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
@@ -48,7 +48,9 @@ export function TutorScreen() {
   const { accessToken, request } = useTelegramAuth();
   const { speak, stop: stopSpeech } = useKoreanSpeech(request);
   const speechFinishRef = useRef<(() => void) | null>(null);
-  const tutor = useVoiceTutor(request, accessToken);
+  // 영어 코스에서 열면(?lang=en) 영어 튜터. 그 밖엔 원래의 한국어 튜터
+  const target = useSearchParams().get("lang") === "en" ? "en" : "ko";
+  const tutor = useVoiceTutor(request, accessToken, target);
   const { end } = tutor;
   /** 이번 수업 주제. 통화 화면 진도 카드용 */
   const [topic, setTopic] = useState<VoiceTutorTopicCard | null>(null);
@@ -67,6 +69,8 @@ export function TutorScreen() {
         };
         speechFinishRef.current = finish;
         speak(text, {
+          // 영어 튜터의 표현은 영어 목소리로 (기본은 한국어)
+          ...(target === "en" ? { language: "en-US" as const } : {}),
           onEnd: finish,
           rate: slow ? Math.max(0.25, savedSpeechRate() * SLOW_FACTOR) : undefined,
         });
@@ -74,7 +78,7 @@ export function TutorScreen() {
         window.setTimeout(finish, 15_000);
       });
     },
-    [speak],
+    [speak, target],
   );
 
   useEffect(
@@ -144,6 +148,7 @@ export function TutorScreen() {
         quota={tutor.quota}
         request={request}
         settings={tutor.settings}
+        targetLanguage={target}
       />
     );
   }
@@ -178,6 +183,7 @@ export function TutorScreen() {
 
   return (
     <TutorCall
+      targetLanguage={target}
       active={inCall || (tutor.phase === "ending" && !!tutor.error)}
       analyzing={tutor.phase === "ending" && !tutor.error}
       audioBlocked={tutor.audioBlocked}

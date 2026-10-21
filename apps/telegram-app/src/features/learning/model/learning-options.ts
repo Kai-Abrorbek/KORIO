@@ -37,7 +37,8 @@ export const LEARN_COURSES: Record<
       "topik",
     ],
   },
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary"] },
+  // conversation = AI 음성 튜터 (영어 튜터)
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "conversation"] },
 };
 
 export const DEFAULT_LEARNING_COURSES = {
@@ -266,9 +267,11 @@ export function canUseLearningFeature(
 export function learningDestination(
   category: string,
   topikLevel: "1" | "2" = "1",
+  course: LearnCourse = "ko",
 ): string | null {
   const destinations: Record<string, string> = {
-    conversation: "/tutor",
+    // 회화는 코스마다 다른 튜터다 — 영어 코스면 영어 튜터
+    conversation: course === "en" ? "/tutor?lang=en" : "/tutor",
     expression: "/expressions",
     games: "/games",
     grammar: "/grammar-list",
@@ -311,7 +314,11 @@ export function continueLearningDestination(user: {
     return guidedDestination(user.hasPickedLevel, learnCourseOf(user.learnCourse));
   }
   return (
-    learningDestination(user.learnMode, user.topikLevel ?? "1") ??
+    learningDestination(
+      user.learnMode,
+      user.topikLevel ?? "1",
+      learnCourseOf(user.learnCourse),
+    ) ??
     "/course-categories"
   );
 }

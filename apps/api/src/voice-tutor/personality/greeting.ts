@@ -107,6 +107,120 @@ function withTopic(greeting: string, line: string): string {
   return `${greeting.slice(0, cut + 1)} ${line}${greeting.slice(cut + 1)}`;
 }
 
+/** The English tutor's fallback, in whichever language it teaches in. */
+const ENGLISH_TUTOR_GREETINGS: Record<
+  TutorSettings['explanationLanguage'],
+  Record<Personality, Record<Style, string>>
+> = {
+  en: {
+    friendly: {
+      polite:
+        'Hi! Let’s practice some English today. To warm up, tell me how your day is going!',
+      casual:
+        'Hi! Let’s practice some English today. To warm up, tell me how your day is going!',
+    },
+    close_friend: {
+      polite:
+        'Hey, you made it! Ready for some English? Tell me one thing about your day!',
+      casual:
+        'Hey, you made it! Ready for some English? Tell me one thing about your day!',
+    },
+    savage: {
+      polite:
+        'Oh, you actually showed up. Let’s put your English to work. First sentence — go.',
+      casual:
+        'Oh, you actually showed up. Let’s put your English to work. First sentence — go.',
+    },
+    chaotic_savage: {
+      polite:
+        'All right, English time. Hit me with your first sentence and TRY to impress me!',
+      casual:
+        'All right, English time. Hit me with your first sentence and TRY to impress me!',
+    },
+  },
+  ru: {
+    friendly: {
+      polite:
+        'Здравствуйте! Сегодня потренируем английский. Для начала расскажите, как проходит ваш день — по-английски, если получится!',
+      casual:
+        'Привет! Сегодня потренируем английский. Для начала расскажи, как проходит твой день — по-английски, если получится!',
+    },
+    close_friend: {
+      polite:
+        'О, вы тут! Здравствуйте! Английский ждёт. Скажите одну фразу про свой день — попробуйте по-английски!',
+      casual:
+        'О, ты тут! Привет! Английский ждёт. Скажи одну фразу про свой день — попробуй по-английски!',
+    },
+    savage: {
+      polite:
+        'О, вы всё-таки здесь. Проверим ваш английский в деле. Первая фраза — прошу.',
+      casual:
+        'О, ты всё-таки здесь. Проверим твой английский в деле. Первая фраза — давай.',
+    },
+    chaotic_savage: {
+      polite:
+        'Ну что, время английского! Давайте первую фразу — и попробуйте меня удивить!',
+      casual:
+        'Ну что, время английского! Давай первую фразу — и попробуй меня удивить!',
+    },
+  },
+  uz: {
+    friendly: {
+      polite:
+        'Assalomu alaykum! Bugun birga ingliz tilini mashq qilamiz. Boshlash uchun kuningiz qanday o‘tayotganini aytib bering — iloji bo‘lsa, inglizcha!',
+      casual:
+        'Salom! Bugun birga ingliz tilini mashq qilamiz. Boshlash uchun kuning qanday o‘tayotganini aytib ber — iloji bo‘lsa, inglizcha!',
+    },
+    close_friend: {
+      polite:
+        'Keldingizmi! Salom! Inglizchaga tayyormisiz? Bugungi kuningiz haqida bitta gap ayting — inglizcha urinib ko‘ring!',
+      casual:
+        'Keldingmi! Salom! Inglizchaga tayyormisan? Bugungi kuning haqida bitta gap ayt — inglizcha urinib ko‘r!',
+    },
+    savage: {
+      polite:
+        'Oho, keldingizmi. Inglizchangizni amalda sinab ko‘ramiz. Birinchi gap — qani.',
+      casual:
+        'Oho, keldingmi. Inglizchangni amalda sinab ko‘ramiz. Birinchi gap — qani.',
+    },
+    chaotic_savage: {
+      polite:
+        'Qani, ingliz tili vaqti! Birinchi gapingizni ayting — meni hayron qoldirishga urinib ko‘ring!',
+      casual:
+        'Qani, ingliz tili vaqti! Birinchi gapingni ayt — meni hayron qoldirishga urinib ko‘r!',
+    },
+  },
+  ko: {
+    friendly: {
+      polite:
+        '안녕하세요! 오늘은 영어로 이야기해 봐요. 먼저 오늘 하루가 어땠는지 영어로 한마디 해 보실래요?',
+      casual:
+        '안녕! 오늘은 영어로 이야기해 보자. 먼저 오늘 하루 어땠는지 영어로 한마디 해 볼래?',
+    },
+    close_friend: {
+      polite:
+        '오셨어요! 영어 할 준비 됐어요? 오늘 있었던 일 하나만 영어로 말해 보세요!',
+      casual: '왔네! 영어 할 준비 됐지? 오늘 있었던 일 하나만 영어로 말해 봐!',
+    },
+    savage: {
+      polite: '오, 진짜 오셨네요. 영어 실력 좀 볼까요? 첫 문장, 시작하세요.',
+      casual: '오, 진짜 왔네. 영어 실력 좀 보자. 첫 문장, 시작.',
+    },
+    chaotic_savage: {
+      polite: '자, 영어 시간이에요! 첫 문장으로 저를 놀라게 해 보세요!',
+      casual: '자, 영어 시간이다! 첫 문장으로 나 좀 놀라게 해 봐!',
+    },
+  },
+};
+
+const ENGLISH_TOPIC_LINE: Record<
+  TutorSettings['explanationLanguage'],
+  (title: string) => string
+> = {
+  ...TOPIC_LINE,
+  ko: (title) => `오늘의 주제: ${title}.`,
+};
+
 export function voiceTutorGreeting(
   settings: TutorSettings,
   plan: TutorPlan,
@@ -114,6 +228,16 @@ export function voiceTutorGreeting(
   topicTitle?: string,
 ): string {
   const language = settings.explanationLanguage;
+  if (settings.targetLanguage === 'en') {
+    const byPersonality =
+      ENGLISH_TUTOR_GREETINGS[language][settings.personality] ??
+      ENGLISH_TUTOR_GREETINGS[language].friendly;
+    const greeting =
+      byPersonality[settings.speechStyle] ?? byPersonality.polite;
+    return topicTitle
+      ? withTopic(greeting, ENGLISH_TOPIC_LINE[language](topicTitle))
+      : greeting;
+  }
   if (language !== 'ko') {
     const byPersonality =
       FOREIGN_GREETINGS[language][settings.personality] ??

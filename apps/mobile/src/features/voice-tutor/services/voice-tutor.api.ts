@@ -36,13 +36,18 @@ export type VoiceTutorDelivery =
   | "laugh"
   | "dramatic";
 
+/** 배우는 언어 (코스). 한국어 튜터 / 영어 튜터 */
+export type VoiceTutorTarget = "ko" | "en";
+
 export interface VoiceTutorSettings {
   voiceId: string;
   speechStyle: string;
   explanationLanguage: string;
+  /** 배우는 언어의 수준 (영어 튜터면 영어 수준). 이름은 서버 계약 그대로 */
   koreanLevel: string;
   personality: VoiceTutorPersonality;
   characterId: VoiceTutorCharacterId;
+  targetLanguage?: VoiceTutorTarget;
 }
 
 export interface VoiceTutorOptions {
@@ -130,7 +135,8 @@ export interface VoiceTutorSessionDetail {
 /** 회화 주제 카드 (서버 topics/voice-tutor-topics.ts). 제목·설명은 요청한 언어로 온다 */
 export interface VoiceTutorTopicCard {
   id: string;
-  category: "daily" | "korea";
+  /** korea = 한국 생활 (한국어 튜터), abroad = 해외 상황 (영어 튜터) */
+  category: "daily" | "korea" | "abroad";
   level: string;
   icon: string;
   color: string;
@@ -154,18 +160,25 @@ export interface VoiceTutorQuota {
 
 export const VoiceTutorApi = {
   quota: () => api.get<VoiceTutorQuota>("/voice-tutor/quota"),
-  topics: (lang: string) =>
+  topics: (lang: string, target: VoiceTutorTarget = "ko") =>
     api.get<{ topics: VoiceTutorTopicCard[] }>(
-      `/voice-tutor/topics?lang=${encodeURIComponent(lang)}`,
+      `/voice-tutor/topics?lang=${encodeURIComponent(lang)}&targetLanguage=${target}`,
     ),
   options: () => api.get<VoiceTutorOptions>("/voice-tutor/options"),
-  settings: () => api.get<VoiceTutorSettings>("/voice-tutor/settings"),
-  updateSettings: (settings: VoiceTutorSettings) =>
-    api.patch<VoiceTutorSettings>("/voice-tutor/settings", settings),
-  createSession: (settings: VoiceTutorSettings, topicId?: string) =>
+  // 목소리·성격·말투는 튜터 공통, 수업 언어·수준은 배우는 언어마다 따로 저장된다
+  settings: (target: VoiceTutorTarget = "ko") =>
+    api.get<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`),
+  updateSettings: (settings: VoiceTutorSettings, target: VoiceTutorTarget = "ko") =>
+    api.patch<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`, settings),
+  createSession: (
+    settings: VoiceTutorSettings,
+    topicId?: string,
+    target: VoiceTutorTarget = "ko",
+  ) =>
     api.post<VoiceTutorSession>("/voice-tutor/sessions", {
       settings,
       ...(topicId ? { topicId } : {}),
+      targetLanguage: target,
     }),
   getSession: (sessionId: string) =>
     api.get<VoiceTutorSessionDetail>(

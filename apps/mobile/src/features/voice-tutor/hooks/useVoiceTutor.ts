@@ -22,6 +22,7 @@ import {
   type VoiceTutorProgress,
   type VoiceTutorQuota,
   type VoiceTutorSettings,
+  type VoiceTutorTarget,
   type VoiceTutorVoice,
 } from "../services/voice-tutor.api";
 
@@ -47,7 +48,8 @@ const AGENT_PHASE: Record<LiveKitAgentState, VoiceTutorPhase> = {
   speaking: "speaking",
 };
 
-export function useVoiceTutor() {
+/** target = 배우는 언어. 영어 코스에서 열면 영어 튜터 */
+export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
   const [options, setOptions] = useState<VoiceTutorOptions | null>(null);
   const [settings, setSettings] = useState<VoiceTutorSettings | null>(null);
   const [messages, setMessages] = useState<VoiceTutorMessage[]>([]);
@@ -109,7 +111,7 @@ export function useVoiceTutor() {
     try {
       const [available, saved] = await Promise.all([
         VoiceTutorApi.options(),
-        VoiceTutorApi.settings(),
+        VoiceTutorApi.settings(target),
       ]);
       if (!mounted.current) return;
       setOptions(available);
@@ -128,7 +130,7 @@ export function useVoiceTutor() {
     } finally {
       if (mounted.current) setLoading(false);
     }
-  }, []);
+  }, [target]);
 
   useEffect(() => {
     mounted.current = true;
@@ -292,8 +294,12 @@ export function useVoiceTutor() {
         const permission = existing.granted ? existing : await requestRecordingPermissionsAsync();
         if (!permission.granted) throw new Error("MIC_PERMISSION_DENIED");
       }
-      await VoiceTutorApi.updateSettings(settings);
-      const created = await VoiceTutorApi.createSession(settings, topicId ?? undefined);
+      await VoiceTutorApi.updateSettings(settings, target);
+      const created = await VoiceTutorApi.createSession(
+        settings,
+        topicId ?? undefined,
+        target,
+      );
       if (!mounted.current) {
         void VoiceTutorApi.endSession(created.sessionId).catch(() => undefined);
         return;
@@ -354,7 +360,7 @@ export function useVoiceTutor() {
     } finally {
       actionBusy.current = false;
     }
-  }, [onTranscript, settings, stopPlayback, syncMessages]);
+  }, [onTranscript, settings, stopPlayback, syncMessages, target]);
 
   const toggleMic = useCallback(() => {
     if (!connection.current || closing.current) return;

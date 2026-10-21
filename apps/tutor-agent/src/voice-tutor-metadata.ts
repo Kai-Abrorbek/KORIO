@@ -20,6 +20,8 @@ const dispatchMetadataSchema = z
     explanationLanguage: z.enum(["ko", "en", "ru", "uz"]).optional(),
     // 이번 수업 목표 단어 — 받아쓰기 keywords 로 넘긴다
     sttKeywords: z.array(z.string().min(1).max(40)).max(30).optional(),
+    // 배우는 언어. 영어 튜터만 보낸다 — 없으면 한국어
+    targetLanguage: z.enum(["en"]).optional(),
   })
   .strict();
 

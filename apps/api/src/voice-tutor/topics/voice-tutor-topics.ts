@@ -20,7 +20,11 @@
  * 4~6개로 제한한다 — 10분 대화에 그 이상은 못 담는다.
  */
 
-export type VoiceTutorTopicCategory = 'daily' | 'korea';
+import type { TutorTargetLanguage } from '../voice-tutor.config';
+import { ENGLISH_VOICE_TUTOR_TOPICS } from './voice-tutor-english-topics';
+
+/** korea = 한국 생활 (한국어 튜터), abroad = 해외 상황 (영어 튜터) */
+export type VoiceTutorTopicCategory = 'daily' | 'korea' | 'abroad';
 export type VoiceTutorTopicLevel = 'beginner' | 'intermediate' | 'advanced';
 
 export interface VoiceTutorI18nText {
@@ -438,7 +442,33 @@ export const VOICE_TUTOR_TOPICS: VoiceTutorTopic[] = [
 ];
 
 export const VOICE_TUTOR_TOPIC_BY_ID = new Map(VOICE_TUTOR_TOPICS.map((t) => [t.id, t]));
-export const VOICE_TUTOR_TOPIC_IDS = VOICE_TUTOR_TOPICS.map((t) => t.id);
+
+/** 배우는 언어별 카탈로그. 영어 주제는 voice-tutor-english-topics.ts */
+export const VOICE_TUTOR_TOPICS_BY_LANGUAGE: Record<
+  TutorTargetLanguage,
+  VoiceTutorTopic[]
+> = {
+  ko: VOICE_TUTOR_TOPICS,
+  en: ENGLISH_VOICE_TUTOR_TOPICS,
+};
+
+export function voiceTutorTopic(
+  targetLanguage: TutorTargetLanguage,
+  id: string,
+) {
+  return VOICE_TUTOR_TOPICS_BY_LANGUAGE[targetLanguage].find(
+    (t) => t.id === id,
+  );
+}
+
+/** 요청 검증용 — 어느 언어의 주제인지는 세션의 배우는 언어로 다시 찾는다 */
+export const VOICE_TUTOR_TOPIC_IDS = [
+  ...new Set(
+    Object.values(VOICE_TUTOR_TOPICS_BY_LANGUAGE)
+      .flat()
+      .map((t) => t.id),
+  ),
+];
 
 /** 화면용 — 무거운 지시문(opener)은 빼고 보낸다 */
 export function toVoiceTutorTopicCard(t: VoiceTutorTopic, lang: string) {

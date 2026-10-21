@@ -31,7 +31,8 @@ export const LEARNING_COURSES = [
     targetLanguage: 'en',
     speechLocale: 'en-US',
     title: { ko: '영어', uz: 'Ingliz tili', en: 'English', ru: 'Английский' },
-    modes: ['vocabulary', 'alphabet'],
+    // conversation = AI 음성 튜터 (영어 튜터)
+    modes: ['vocabulary', 'alphabet', 'conversation'],
   },
 ] as const;
 

@@ -31,7 +31,9 @@ import {
 import {
   VOICE_TUTOR_PROGRESS_INTERVAL,
   VOICE_TUTOR_RECENT_MESSAGES,
+  tutorTargetLanguage,
   voiceTutorVoices,
+  type TutorTargetLanguage,
 } from './voice-tutor.config';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
 import { VoiceTutorQuotaService } from './voice-tutor-quota.service';
@@ -42,7 +44,7 @@ import {
   planForTopic,
   sttKeywordsFromPlan,
 } from './voice-tutor-turn-helpers';
-import { VOICE_TUTOR_TOPIC_BY_ID } from './topics/voice-tutor-topics';
+import { voiceTutorTopic } from './topics/voice-tutor-topics';
 import {
   VoiceTutorLiveKitService,
   type VoiceTutorLiveKitGrant,
@@ -57,6 +59,15 @@ import type {
 const MAX_SESSION_TURNS = 60;
 const MAX_SESSION_AGE_MS = 60 * 60 * 1000;
 const STALE_PROCESSING_MS = 2 * 60 * 1000;
+
+/** Sessions created before the English tutor carry no language: Korean. */
+const sessionLanguage = (session: {
+  targetLanguage?: string;
+  settings?: TutorSettings;
+}): TutorTargetLanguage =>
+  tutorTargetLanguage(
+    session.targetLanguage ?? session.settings?.targetLanguage,
+  );
 
 @Injectable()
 export class VoiceTutorService {
@@ -85,39 +96,48 @@ export class VoiceTutorService {
   options() {
     return this.profile.options();
   }
-  settings(userId: string) {
-    return this.profile.getSettings(userId);
+  settings(userId: string, targetLanguage?: TutorTargetLanguage) {
+    return this.profile.getSettings(userId, targetLanguage);
   }
-  updateSettings(userId: string, patch: UpdateVoiceTutorSettingsDto) {
-    return this.profile.updateSettings(userId, patch);
+  updateSettings(
+    userId: string,
+    patch: UpdateVoiceTutorSettingsDto,
+    targetLanguage?: TutorTargetLanguage,
+  ) {
+    return this.profile.updateSettings(userId, patch, targetLanguage);
   }
 
   async start(
     userId: string,
     overrides?: UpdateVoiceTutorSettingsDto,
     topicId?: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ) {
     const settings =
       overrides && Object.keys(overrides).length
-        ? await this.profile.updateSettings(userId, overrides)
-        : await this.profile.getSettings(userId);
+        ? await this.profile.updateSettings(userId, overrides, targetLanguage)
+        : await this.profile.getSettings(userId, targetLanguage);
     const voice = this.assertVoice(settings);
-    // 가장 비싼 기능 — 한도는 세션 발급 지점에서 막는다
+    // 가장 비싼 기능 — 한도는 세션 발급 지점에서 막는다 (한국어·영어 튜터가 같이 쓴다)
     const quota = await this.quota.assertCanStart(userId);
-    const memory = await this.profile.getMemory(userId);
-    let plan = await this.profile.latestPlan(userId);
+    const memory = await this.profile.getMemory(userId, targetLanguage);
+    let plan = await this.profile.latestPlan(userId, targetLanguage);
     if (!plan) {
       try {
         plan = await this.agents.plan(settings, memory, null, null);
       } catch {
-        plan = defaultVoiceTutorPlan(memory);
+        plan = defaultVoiceTutorPlan(memory, targetLanguage);
       }
-      await this.profile.savePlan(userId, null, plan);
+      await this.profile.savePlan(userId, null, plan, targetLanguage);
     }
     // 주제를 골랐으면 이번 수업만 그 주제로. 저장된 "다음 수업 계획" 은
     // 건드리지 않는다 — 주제 수업이 끝나면 원래 계획으로 돌아간다
-    const topic = topicId ? VOICE_TUTOR_TOPIC_BY_ID.get(topicId) : undefined;
-    if (topic) plan = planForTopic(plan, topic);
+    const topic = topicId
+      ? voiceTutorTopic(targetLanguage, topicId)
+      : undefined;
+    if (topicId && !topic)
+      throw new BadRequestException('VOICE_TUTOR_UNKNOWN_TOPIC');
+    if (topic) plan = planForTopic(plan, topic, targetLanguage);
     let opening: TutorReaction;
     try {
       // Generate before creating the timed session, without fabricating a user turn.
@@ -149,6 +169,7 @@ export class VoiceTutorService {
       status: 'active',
       settings,
       plan,
+      targetLanguage,
       topicId: topic?.id ?? null,
       allowedSec: quota.allowedSec,
       tier: quota.tier,
@@ -172,10 +193,11 @@ export class VoiceTutorService {
           displayText: initialMessage.displayText ?? initialMessage.text,
           speechText: initialMessage.speechText ?? initialMessage.text,
         },
-        // 워커의 받아쓰기(STT) 언어 힌트용. 학습자가 한국어와 모국어를 섞어 말한다
+        // 워커의 받아쓰기(STT) 언어 힌트용. 학습자가 배우는 말과 모국어를 섞어 말한다
         settings.explanationLanguage,
-        sttKeywordsFromPlan(plan, opening.taught),
+        sttKeywordsFromPlan(plan, opening.taught, targetLanguage),
         quota.allowedSec,
+        targetLanguage,
       );
     } catch (error) {
       await Promise.all([
@@ -408,7 +430,7 @@ export class VoiceTutorService {
             language: detectTranscriptLanguage(transcript),
             audioId: null,
           }),
-        this.profile.getMemory(userId),
+        this.profile.getMemory(userId, sessionLanguage(session)),
         this.messages
           .find({ sessionId: session._id })
           .sort({ createdAt: -1, _id: -1 })
@@ -548,6 +570,7 @@ export class VoiceTutorService {
             userId,
             reply.correction.wrong,
             reply.correction.correct,
+            sessionLanguage(session),
           )
           .catch((error: Error) =>
             this.logger.warn(
@@ -592,7 +615,7 @@ export class VoiceTutorService {
         sessionId,
         status: 'ended' as const,
         progress: await this.profile.latestProgress(sessionId),
-        plan: await this.profile.latestPlan(userId),
+        plan: await this.profile.latestPlan(userId, sessionLanguage(prior)),
       };
     }
     let session: VoiceTutorSessionDocument;
@@ -625,7 +648,7 @@ export class VoiceTutorService {
         );
       }
       const [memory, progress] = await Promise.all([
-        this.profile.getMemory(userId),
+        this.profile.getMemory(userId, sessionLanguage(session)),
         this.profile.latestProgress(sessionId),
       ]);
       let plan: TutorPlan;
@@ -638,9 +661,16 @@ export class VoiceTutorService {
         );
       } catch {
         // Keep the learner's last useful plan if planning is temporarily down.
-        plan = session.plan ?? defaultVoiceTutorPlan(memory);
+        plan =
+          session.plan ??
+          defaultVoiceTutorPlan(memory, sessionLanguage(session));
       }
-      await this.profile.savePlan(userId, sessionId, plan);
+      await this.profile.savePlan(
+        userId,
+        sessionId,
+        plan,
+        sessionLanguage(session),
+      );
       await this.sessions.updateOne(
         { _id: session._id },
         {
@@ -652,7 +682,7 @@ export class VoiceTutorService {
           },
         },
       );
-      await this.profile.markLessonComplete(userId);
+      await this.profile.markLessonComplete(userId, sessionLanguage(session));
       return { sessionId, status: 'ended' as const, progress, plan };
     } finally {
       await this.sessions.updateOne(
@@ -705,13 +735,22 @@ export class VoiceTutorService {
           : [];
       });
       if (!batch.some(({ role }) => role === 'user')) break;
-      const memory = await this.profile.getMemory(userId);
+      const memory = await this.profile.getMemory(
+        userId,
+        sessionLanguage(session),
+      );
       const result = await this.agents.analyzeProgress(
         session.settings,
         memory,
         batch,
       );
-      await this.profile.saveProgress(userId, sessionId, next, result);
+      await this.profile.saveProgress(
+        userId,
+        sessionId,
+        next,
+        result,
+        sessionLanguage(session),
+      );
       await this.sessions.updateOne(
         { _id: session._id },
         { $max: { progressAnalyzedTurns: next } },

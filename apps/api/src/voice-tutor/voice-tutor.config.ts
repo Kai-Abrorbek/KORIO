@@ -25,6 +25,19 @@ export const TEACHING_LANGUAGE_NAMES: Record<ExplanationLanguage, string> = {
   ru: 'Russian',
   uz: 'Uzbek',
 };
+/**
+ * The language being LEARNED (the course), a different axis from the teaching
+ * language above. Korean keeps the original top-level fields; every other tutor
+ * stores its settings and memory under courses.<language>.
+ */
+export const VOICE_TUTOR_TARGET_LANGUAGES = ['ko', 'en'] as const;
+export type TutorTargetLanguage = (typeof VOICE_TUTOR_TARGET_LANGUAGES)[number];
+
+/** Anything missing or unknown is the original Korean tutor. */
+export function tutorTargetLanguage(value: unknown): TutorTargetLanguage {
+  return value === 'en' ? 'en' : 'ko';
+}
+
 export const VOICE_TUTOR_STYLES = ['polite', 'casual'] as const;
 export const VOICE_TUTOR_MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 export const VOICE_TUTOR_PROGRESS_INTERVAL = 6;

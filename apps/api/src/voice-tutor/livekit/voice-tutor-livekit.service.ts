@@ -11,7 +11,10 @@ import {
   TrackSource,
 } from 'livekit-server-sdk';
 import { voiceTutorLiveKitEnv as liveKitEnv } from './livekit-env';
-import type { ExplanationLanguage } from '../voice-tutor.config';
+import type {
+  ExplanationLanguage,
+  TutorTargetLanguage,
+} from '../voice-tutor.config';
 
 const AGENT_TOKEN_TTL_SEC = 65 * 60;
 const PARTICIPANT_TOKEN_TTL_SEC = 15 * 60;
@@ -29,6 +32,8 @@ export interface VoiceTutorDispatchMetadata {
   explanationLanguage?: ExplanationLanguage;
   /** 이번 수업 목표 단어 — 받아쓰기가 학습자 발음을 엉뚱한 단어로 듣지 않게 */
   sttKeywords?: string[];
+  /** 배우는 언어. 영어 튜터만 보낸다 — 없으면 한국어 (옛 워커도 한국어 수업은 그대로 받는다) */
+  targetLanguage?: 'en';
 }
 
 export interface VoiceTutorLiveKitGrant {
@@ -48,6 +53,7 @@ export class VoiceTutorLiveKitService {
     explanationLanguage?: ExplanationLanguage,
     sttKeywords: string[] = [],
     maxDurationSec: number = VOICE_TUTOR_MAX_DURATION_SEC,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ): Promise<VoiceTutorLiveKitGrant> {
     const env = liveKitEnv();
     if (!env.url || !env.apiKey || !env.apiSecret) {
@@ -72,6 +78,7 @@ export class VoiceTutorLiveKitService {
       ),
       ...(explanationLanguage ? { explanationLanguage } : {}),
       ...(sttKeywords.length ? { sttKeywords } : {}),
+      ...(targetLanguage === 'en' ? { targetLanguage } : {}),
     };
     try {
       const dispatch = new AgentDispatchClient(

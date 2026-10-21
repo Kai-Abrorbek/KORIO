@@ -251,7 +251,11 @@ function makeGo(
       if (c.category === "wordCard") {
         commitLearnMode("vocabulary", undefined, language === "en" ? "en" : "ko");
       }
-      router.push(SHORTCUTS[c.category] as any);
+      // 회화는 코스마다 다른 튜터다 — 영어 코스면 영어 튜터
+      router.push({
+        pathname: SHORTCUTS[c.category] as any,
+        params: c.category === "conversation" && language === "en" ? { lang: "en" } : {},
+      });
       return;
     }
     // 토픽은 급수를 골라야 해서 모달을 먼저 띄운다 (모드 저장도 거기서)
@@ -454,7 +458,7 @@ export default function CourseCategories() {
           (c) =>
             // 영어도 같은 발음 카드 UI를 사용한다. 로드가 덮는 어휘만 뺀다.
             (!isEnglish ||
-              ["hangul", "vocabulary", "wordCard", "pronunciation", "games"].includes(c.category)) &&
+              ["hangul", "vocabulary", "wordCard", "pronunciation", "games", "conversation"].includes(c.category)) &&
             (mode === "free" || c.guided),
         ).map((c, i) => (
           <CategoryCard

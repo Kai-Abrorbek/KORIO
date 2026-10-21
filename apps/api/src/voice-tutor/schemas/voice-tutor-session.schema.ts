@@ -11,6 +11,8 @@ export class VoiceTutorSession {
     | 'ended';
   @Prop({ type: Object, required: true }) settings: TutorSettings;
   @Prop({ type: Object, required: true }) plan: TutorPlan;
+  /** 배우는 언어. 영어 튜터 전에 만든 세션에는 없다 = 한국어 */
+  @Prop({ type: String, default: undefined }) targetLanguage?: string;
   /** 학습자가 고른 회화 주제 (topics/voice-tutor-topics.ts). null = 자유 대화 */
   @Prop({ type: String, default: null }) topicId: string | null;
   /** 이번 수업에서 이미 가르친 한국어 (최근 60개). 같은 걸 또 새로 가르치지 않게 */

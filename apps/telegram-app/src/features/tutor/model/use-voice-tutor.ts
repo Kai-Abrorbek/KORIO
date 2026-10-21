@@ -22,6 +22,7 @@ import type {
   VoiceTutorProgress,
   VoiceTutorQuota,
   VoiceTutorSettings,
+  VoiceTutorTarget,
   VoiceTutorVoice,
 } from "./voice-tutor";
 
@@ -53,7 +54,12 @@ function errorCode(cause: unknown): string {
  *  - 앱 백그라운드 대신 visibilitychange / pagehide 에서 수업을 끝낸다
  *  - 브라우저 자동재생이 막히면 audioBlocked → "탭해서 듣기"
  */
-export function useVoiceTutor(request: AuthenticatedRequest, accessToken: string | null) {
+/** target = 배우는 언어. 영어 코스에서 열면 영어 튜터 */
+export function useVoiceTutor(
+  request: AuthenticatedRequest,
+  accessToken: string | null,
+  target: VoiceTutorTarget = "ko",
+) {
   const [options, setOptions] = useState<VoiceTutorOptions | null>(null);
   const [settings, setSettings] = useState<VoiceTutorSettings | null>(null);
   const [messages, setMessages] = useState<VoiceTutorMessage[]>([]);
@@ -143,7 +149,7 @@ export function useVoiceTutor(request: AuthenticatedRequest, accessToken: string
     try {
       const [available, saved] = await Promise.all([
         VoiceTutorApi.options(request),
-        VoiceTutorApi.settings(request),
+        VoiceTutorApi.settings(request, target),
       ]);
       if (!mounted.current) return;
       setOptions(available);
@@ -164,7 +170,7 @@ export function useVoiceTutor(request: AuthenticatedRequest, accessToken: string
     } finally {
       if (mounted.current) setLoading(false);
     }
-  }, [request]);
+  }, [request, target]);
 
   const previewVoice = useCallback(
     async (voice: VoiceTutorVoice) => {
@@ -279,8 +285,13 @@ export function useVoiceTutor(request: AuthenticatedRequest, accessToken: string
       setPhase("starting");
       try {
         stopPlayback();
-        await VoiceTutorApi.updateSettings(request, settings);
-        const created = await VoiceTutorApi.createSession(request, settings, topicId ?? undefined);
+        await VoiceTutorApi.updateSettings(request, settings, target);
+        const created = await VoiceTutorApi.createSession(
+          request,
+          settings,
+          topicId ?? undefined,
+          target,
+        );
         if (!mounted.current) {
           void VoiceTutorApi.endSession(request, created.sessionId).catch(() => undefined);
           return;
@@ -345,7 +356,7 @@ export function useVoiceTutor(request: AuthenticatedRequest, accessToken: string
         actionBusy.current = false;
       }
     },
-    [onTranscript, request, settings, stopPlayback, syncMessages],
+    [onTranscript, request, settings, stopPlayback, syncMessages, target],
   );
 
   const toggleMic = useCallback(() => {

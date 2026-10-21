@@ -28,11 +28,14 @@ import {
   VoiceTutorAgentTurnDto,
 } from './dto/voice-tutor.dto';
 import { supportedAudioMime } from './providers/openai-stt.provider';
-import { VOICE_TUTOR_MAX_AUDIO_BYTES } from './voice-tutor.config';
+import {
+  VOICE_TUTOR_MAX_AUDIO_BYTES,
+  tutorTargetLanguage,
+} from './voice-tutor.config';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
 import { VoiceTutorService } from './voice-tutor.service';
 import {
-  VOICE_TUTOR_TOPICS,
+  VOICE_TUTOR_TOPICS_BY_LANGUAGE,
   toVoiceTutorTopicCard,
 } from './topics/voice-tutor-topics';
 
@@ -61,27 +64,45 @@ export class VoiceTutorController {
     return this.tutor.getQuota(request.user._id.toString());
   }
 
-  /** 회화 주제 카드. lang = 카드 제목·설명 언어 (앱 언어) */
+  /**
+   * 회화 주제 카드. lang = 카드 제목·설명 언어 (앱 언어),
+   * targetLanguage = 배우는 언어 (없으면 한국어 — 옛 앱)
+   */
   @Get('topics')
-  topics(@Query('lang') lang = 'uz') {
+  topics(
+    @Query('lang') lang = 'uz',
+    @Query('targetLanguage') targetLanguage?: string,
+  ) {
     return {
-      topics: VOICE_TUTOR_TOPICS.map((topic) =>
-        toVoiceTutorTopicCard(topic, lang),
-      ),
+      topics: VOICE_TUTOR_TOPICS_BY_LANGUAGE[
+        tutorTargetLanguage(targetLanguage)
+      ].map((topic) => toVoiceTutorTopicCard(topic, lang)),
     };
   }
 
+  /** 목소리·성격·말투는 튜터 공통, 수업 언어·레벨은 배우는 언어별 */
   @Get('settings')
-  settings(@Request() request: { user: { _id: { toString(): string } } }) {
-    return this.tutor.settings(request.user._id.toString());
+  settings(
+    @Request() request: { user: { _id: { toString(): string } } },
+    @Query('targetLanguage') targetLanguage?: string,
+  ) {
+    return this.tutor.settings(
+      request.user._id.toString(),
+      tutorTargetLanguage(targetLanguage),
+    );
   }
 
   @Patch('settings')
   updateSettings(
     @Request() request: { user: { _id: { toString(): string } } },
     @Body() dto: UpdateVoiceTutorSettingsDto,
+    @Query('targetLanguage') targetLanguage?: string,
   ) {
-    return this.tutor.updateSettings(request.user._id.toString(), dto);
+    return this.tutor.updateSettings(
+      request.user._id.toString(),
+      dto,
+      tutorTargetLanguage(targetLanguage),
+    );
   }
 
   @Post('sessions')
@@ -94,6 +115,7 @@ export class VoiceTutorController {
       request.user._id.toString(),
       dto?.settings,
       dto?.topicId,
+      dto?.targetLanguage,
     );
   }
 

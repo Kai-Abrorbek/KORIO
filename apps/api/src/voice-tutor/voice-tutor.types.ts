@@ -1,13 +1,20 @@
-import type { ExplanationLanguage, SpeechStyle } from './voice-tutor.config';
+import type {
+  ExplanationLanguage,
+  SpeechStyle,
+  TutorTargetLanguage,
+} from './voice-tutor.config';
 import type { TutorPersonality } from './personality/voice-tutor-personalities';
 
 export interface TutorSettings {
   voiceId: string;
   speechStyle: SpeechStyle;
   explanationLanguage: ExplanationLanguage;
+  /** Level in the language being learned (kept as koreanLevel on the wire). */
   koreanLevel: string;
   personality: TutorPersonality;
   characterId: 'female_01' | 'male_01';
+  /** Language being learned; absent on sessions saved before the English tutor. */
+  targetLanguage?: TutorTargetLanguage;
 }
 
 export interface TutorPlan {

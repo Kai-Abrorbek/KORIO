@@ -15,6 +15,7 @@ import {
   type VoiceTutorDispatchMetadata,
 } from "./voice-tutor-metadata.js";
 import { VoiceTutorElevenLabsTTS } from "./voice-tutor-elevenlabs-tts.js";
+import { buttonRequest, sttLanguageOptions, sttPrompt } from "./voice-tutor-stt.js";
 import {
   AudioTagStripper,
   LaughNotationTransformer,
@@ -30,13 +31,6 @@ const AGENT_NAME =
 const WAIT_FOR_LEARNER_SEC = 30;
 const TURN_TIMEOUT_MS = 60_000;
 
-/** App buttons → a learner turn the lesson agent recognises as a button press. */
-const BUTTON_REQUESTS: Record<string, string> = {
-  slower:
-    "[[button: slower]] Say your last line again, slowly and clearly, with the same words. Then wait for me.",
-  explain:
-    "[[button: explain]] I didn't get that. Explain what you just said (especially the Korean part) briefly in my teaching language, then give me the Korean again.",
-};
 /**
  * API 콜백이 끝내 실패했을 때 대신 하는 말.
  *
@@ -61,19 +55,6 @@ function describeError(error: unknown): string {
 }
 
 /**
- * 받아쓰기 언어 힌트.
- *
- * ⚠️ OpenAI 실시간 받아쓰기는 **우즈벡어(uz)를 힌트로 받지 않는다.** 예전엔
- *    ["ko", "uz"] 를 고정으로 넘겨서 첫 오디오에서 "Invalid value: 'uz'" 가 났고,
- *    STT 에러는 복구 불가라 AgentSession 이 통째로 닫혔다 — 인사말까지 중간에
- *    끊기고(AbortError) 그 뒤 학습자 말은 아무 데도 안 갔다.
- *
- * 러시아어·영어 학습자는 ko + 모국어 힌트. 우즈벡어 학습자는 힌트 없이 자동 감지 —
- * ["ko"] 만 주면 우즈벡어로 한 말이 한글 소리표기로 적혀 GPT 가 못 알아듣는다.
- */
-const STT_HINT_LANGUAGES = new Set(["en", "ru"]);
-
-/**
  * 받아쓰기 방식.
  *
  * 기본은 **구간 받아쓰기** — 세션 VAD(silero)가 말 한 덩어리를 잘라서
@@ -96,55 +77,8 @@ const ENDPOINTING_MAX_MS = (() => {
   return Number.isFinite(value) && value >= 1000 && value <= 6000 ? value : 2500;
 })();
 
-function sttLanguageOptions(
-  explanationLanguage: VoiceTutorDispatchMetadata["explanationLanguage"],
-): { language: string[]; detectLanguage: boolean } {
-  // 한국어 몰입 수업: 한국어만 기대한다 — 힌트를 좁힐수록 한국어 인식이 정확하다
-  if (explanationLanguage === "ko") return { language: ["ko"], detectLanguage: false };
-  if (explanationLanguage && STT_HINT_LANGUAGES.has(explanationLanguage)) {
-    return { language: ["ko", explanationLanguage], detectLanguage: false };
-  }
-  return { language: ["ko"], detectLanguage: true };
-}
-
-const STT_LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  ru: "Russian (Cyrillic)",
-  uz: "Uzbek (Latin script)",
-};
-
-/**
- * 받아쓰기 문맥. "학습자 발음을 제멋대로 다른 단어로 듣는다" 대책.
- *
- * - 한국어 수업이고 어떤 언어가 섞이는지 알려 준다
- * - 억양이 센 학습자도 있으니 **하려던 한국어 단어**로 적되, 확실히 다른 말·지어낸
- *   말·다른 언어는 들은 그대로 둔다 (드립 소재는 살리고, 발음 탓 오인식은 줄인다)
- * - 선생님이 방금 한 말을 붙인다 — 학습자는 거기에 대답하는 중이라 이게 가장
- *   강한 힌트다 ("배고파라고 말해 봐" 뒤의 "배코파" → "배고파")
- * 끄려면 VOICE_TUTOR_STT_PROMPT=false.
- */
+/** 받아쓰기 문맥 프롬프트 (voice-tutor-stt). 끄려면 VOICE_TUTOR_STT_PROMPT=false. */
 const STT_PROMPT_ENABLED = process.env.VOICE_TUTOR_STT_PROMPT?.trim() !== "false";
-
-function sttPrompt(
-  explanationLanguage: VoiceTutorDispatchMetadata["explanationLanguage"],
-  teacherJustSaid?: string,
-): string | undefined {
-  if (!STT_PROMPT_ENABLED) return undefined;
-  const other =
-    explanationLanguage && explanationLanguage !== "ko"
-      ? STT_LANGUAGE_NAMES[explanationLanguage]
-      : undefined;
-  const base = other
-    ? `A Korean language lesson. The learner speaks Korean mixed with ${other}, often with a foreign accent. Write Korean in Hangul and ${other} as spoken. For accented Korean, write the Korean word the learner is trying to say; keep clearly different words, made-up words and other languages exactly as said.`
-    : "A Korean language lesson. The learner speaks Korean, often with a foreign accent. Write the Korean word the learner is trying to say in Hangul; keep clearly different words, made-up words and other languages exactly as said.";
-  const context = teacherJustSaid
-    ?.replace(/[\s"]+/g, " ")
-    .trim()
-    .slice(-220);
-  return context
-    ? `${base} The teacher just said: "${context}" — the learner is answering that.`
-    : base;
-}
 
 function requiredEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -484,13 +418,14 @@ export default defineAgent({
     const log = (message: string) =>
       console.log(`[voice-tutor ${metadata.sessionId}] ${message}`);
 
-    const sttLanguages = sttLanguageOptions(metadata.explanationLanguage);
+    const learned = metadata.targetLanguage ?? "ko";
+    const sttLanguages = sttLanguageOptions(metadata.explanationLanguage, learned);
     log(
       `Job accepted; api=${baseUrl.origin} voice=…${metadata.voiceId.slice(-4)} stt=${STT_MODEL}/${
         STT_REALTIME ? "realtime" : "segment"
       }/${sttLanguages.detectLanguage ? "auto" : sttLanguages.language.join("+")} keywords=${
         metadata.sttKeywords?.length ?? 0
-      } teach=${metadata.explanationLanguage ?? "?"} endpointing=${ENDPOINTING_MIN_MS}-${ENDPOINTING_MAX_MS}ms`,
+      } learn=${learned} teach=${metadata.explanationLanguage ?? "?"} endpointing=${ENDPOINTING_MIN_MS}-${ENDPOINTING_MAX_MS}ms`,
     );
     // 콜백을 받을 API 가 살아 있는지 먼저 본다. 여기서 틀리면 인사만 하고
     // 그 뒤로는 학습자가 무슨 말을 해도 대답이 없다
@@ -519,8 +454,10 @@ export default defineAgent({
       apiKey: openaiKey,
       model: STT_MODEL,
       useRealtime: STT_REALTIME,
-      ...sttLanguageOptions(metadata.explanationLanguage),
-      prompt: sttPrompt(metadata.explanationLanguage),
+      ...sttLanguages,
+      prompt: STT_PROMPT_ENABLED
+        ? sttPrompt(metadata.explanationLanguage, undefined, learned)
+        : undefined,
       // keywords 는 gpt-transcribe 계열만 받는다 (다른 모델이면 플러그인이 throw)
       ...(metadata.sttKeywords?.length &&
       /^gpt-(live-)?transcribe/.test(STT_MODEL)
@@ -583,7 +520,7 @@ export default defineAgent({
         if (!STT_PROMPT_ENABLED) return;
         try {
           stt.updateOptions({
-            prompt: sttPrompt(metadata.explanationLanguage, said),
+            prompt: sttPrompt(metadata.explanationLanguage, said, learned),
           });
         } catch (error) {
           log(`STT context update skipped: ${describeError(error)}`);
@@ -613,7 +550,7 @@ export default defineAgent({
       async ({ callerIdentity, payload }) => {
         if (callerIdentity !== learner.identity)
           throw new Error("Only the learner can ask the tutor");
-        const request = BUTTON_REQUESTS[payload.trim()];
+        const request = buttonRequest(payload, learned);
         if (!request) throw new Error("Unknown tutor request");
         try {
           await session.interrupt({ force: true });

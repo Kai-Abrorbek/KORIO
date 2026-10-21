@@ -24,13 +24,18 @@ export type VoiceTutorEmotion =
   | "excited"
   | "explaining";
 
+/** 배우는 언어 (코스). 한국어 튜터 / 영어 튜터 */
+export type VoiceTutorTarget = "ko" | "en";
+
 export interface VoiceTutorSettings {
   voiceId: string;
   speechStyle: string;
   explanationLanguage: string;
+  /** 배우는 언어의 수준 (영어 튜터면 영어 수준). 이름은 서버 계약 그대로 */
   koreanLevel: string;
   personality: VoiceTutorPersonality;
   characterId: VoiceTutorCharacterId;
+  targetLanguage?: VoiceTutorTarget;
 }
 
 export interface VoiceTutorOptions {
@@ -106,7 +111,8 @@ export interface VoiceTutorSessionDetail {
 
 export interface VoiceTutorTopicCard {
   id: string;
-  category: "daily" | "korea";
+  /** korea = 한국 생활 (한국어 튜터), abroad = 해외 상황 (영어 튜터) */
+  category: "daily" | "korea" | "abroad";
   level: string;
   icon: string;
   color: string;

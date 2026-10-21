@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 
+import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { VoiceTutorApi, type AuthenticatedRequest } from "../api/voice-tutor";
 import type {
@@ -9,6 +10,7 @@ import type {
   VoiceTutorPersonality,
   VoiceTutorQuota,
   VoiceTutorSettings,
+  VoiceTutorTarget,
   VoiceTutorTopicCard,
   VoiceTutorVoice,
 } from "../model/voice-tutor";
@@ -39,6 +41,8 @@ const ADDRESS_EXAMPLE: Record<string, string> = {
 
 export const TOPIC_ICONS: Record<string, IoniconName> = {
   airplane: "airplane",
+  chatbubbles: "chatbubbles",
+  key: "key",
   basket: "basket",
   briefcase: "briefcase",
   cafe: "cafe",
@@ -70,6 +74,8 @@ interface TutorSetupProps {
   quota: VoiceTutorQuota | null;
   request: AuthenticatedRequest;
   settings: VoiceTutorSettings;
+  /** 배우는 언어. 주제 목록·수준 이름·안내 문구가 이걸 따른다 */
+  targetLanguage: VoiceTutorTarget;
 }
 
 /**
@@ -87,10 +93,11 @@ export function TutorSetup(p: TutorSetupProps) {
 
   const load = useCallback(() => {
     setFailed(false);
-    VoiceTutorApi.topics(p.request)
+    VoiceTutorApi.topics(p.request, p.targetLanguage)
       .then((result) => setTopics(result.topics ?? []))
       .catch(() => setFailed(true));
-  }, [p.request]);
+  }, [p.request, p.targetLanguage]);
+  const english = p.targetLanguage === "en";
 
   useEffect(load, [load]);
 
@@ -117,7 +124,11 @@ export function TutorSetup(p: TutorSetupProps) {
       <button aria-label="Yopish" className={styles.iconButton} onClick={p.onClose} type="button">
         <MobileIcon name="chevron-down" size={26} />
       </button>
-      <h1>AI koreys tili ustozi</h1>
+      {english ? (
+        <h1 data-i18n="voiceTutor.english.setupTitle">{uzt("voiceTutor.english.setupTitle")}</h1>
+      ) : (
+        <h1>AI koreys tili ustozi</h1>
+      )}
       <i className={styles.iconButton} />
     </header>
   );
@@ -146,8 +157,14 @@ export function TutorSetup(p: TutorSetupProps) {
   }
 
   const groups = [
-    { key: "korea", title: "Koreyada hayot", items: topics.filter((item) => item.category === "korea") },
+    // 한국어 튜터는 "한국 생활" 이 먼저, 영어 튜터는 일상 다음에 "해외에서"
+    ...(english
+      ? []
+      : [{ key: "korea", title: "Koreyada hayot", items: topics.filter((item) => item.category === "korea") }]),
     { key: "daily", title: "Kundalik suhbat", items: topics.filter((item) => item.category === "daily") },
+    ...(english
+      ? [{ key: "abroad", title: uzt("voiceTutor.setup.topicGroup.abroad"), items: topics.filter((item) => item.category === "abroad") }]
+      : []),
   ].filter((group) => group.items.length > 0);
 
   // daily(MAX) 는 하루·한 달 상한을 다 반영한 allowedSec 이 실제 남은 시간이다
@@ -186,9 +203,15 @@ export function TutorSetup(p: TutorSetupProps) {
               );
             })}
           </div>
-          <p className={styles.sectionHint}>
-            O‘qituvchi koreys tilini shu tilda o‘rgatadi. Faqat koreyscha dars uchun koreys tilini tanlang.
-          </p>
+          {english ? (
+            <p className={styles.sectionHint} data-i18n="voiceTutor.english.teachingLanguageHint">
+              {uzt("voiceTutor.english.teachingLanguageHint")}
+            </p>
+          ) : (
+            <p className={styles.sectionHint}>
+              O‘qituvchi koreys tilini shu tilda o‘rgatadi. Faqat koreyscha dars uchun koreys tilini tanlang.
+            </p>
+          )}
         </section>
 
         {/* ── 2. 선생님 (목소리) ── */}
@@ -301,7 +324,11 @@ export function TutorSetup(p: TutorSetupProps) {
 
         {/* ── 5. 한국어 수준 ── */}
         <section className={styles.section}>
-          <h2>Koreys tili darajasi</h2>
+          {english ? (
+            <h2 data-i18n="voiceTutor.english.level">{uzt("voiceTutor.english.level")}</h2>
+          ) : (
+            <h2>Koreys tili darajasi</h2>
+          )}
           <div className={styles.langRow}>
             {levels.map((level) => {
               const on = p.settings.koreanLevel === level;

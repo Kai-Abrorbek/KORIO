@@ -31,7 +31,8 @@ export const LEARN_COURSES: Record<LearnCourse, LearnCourseMeta> = {
       "topik",
     ],
   },
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary"] },
+  // conversation = AI 음성 튜터 (영어 튜터)
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "conversation"] },
 };
 
 /** UI language selection and curriculum identity are different axes. */

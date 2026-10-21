@@ -1,4 +1,7 @@
-import type { ExplanationLanguage } from './voice-tutor.config';
+import type {
+  ExplanationLanguage,
+  TutorTargetLanguage,
+} from './voice-tutor.config';
 import type { TutorPlan } from './voice-tutor.types';
 import type { VoiceTutorTopic } from './topics/voice-tutor-topics';
 
@@ -7,19 +10,29 @@ import type { VoiceTutorTopic } from './topics/voice-tutor-topics';
  * without loading the Mongoose schemas the service pulls in.
  */
 
+/** A keyword the recognizer can use: a short word or phrase in the learned script. */
+const KEYWORD: Record<TutorTargetLanguage, RegExp> = {
+  ko: /^[가-힣][가-힣\s]{0,19}$/,
+  en: /^[A-Za-z][A-Za-z' -]{0,29}$/,
+};
+
 /**
  * Words this lesson is about, for the worker's speech recognizer. Without them
  * a learner's slightly-off "배고파" can come back as some other real word.
- * Hangul-only, short, capped — the recognizer takes literal terms, not prose.
+ * Learned-script only, short, capped — the recognizer takes literal terms, not prose.
  */
 export function sttKeywordsFromPlan(
   plan: TutorPlan,
   introduced: string[] = [],
+  targetLanguage: TutorTargetLanguage = 'ko',
 ): string[] {
   const words = [...introduced, ...plan.targetVocabulary, ...plan.reviewTopics]
-    .flatMap((item) => item.split(/[,/·~]/))
+    // English phrases end in ?/!/. — cut those off too ("How much is this?").
+    .flatMap((item) =>
+      item.split(targetLanguage === 'en' ? /[,/·~?!.]/ : /[,/·~]/),
+    )
     .map((item) => item.trim())
-    .filter((item) => /^[가-힣][가-힣\s]{0,19}$/.test(item));
+    .filter((item) => KEYWORD[targetLanguage].test(item));
   return [...new Set(words)].slice(0, 30);
 }
 
@@ -92,17 +105,21 @@ export function connectionFallback(
 export function planForTopic(
   plan: TutorPlan,
   topic: VoiceTutorTopic,
+  targetLanguage: TutorTargetLanguage = 'ko',
 ): TutorPlan {
   const core = topic.targetExpressions;
+  // The goal is written in the language being learned, like the planner's.
+  const own = targetLanguage === 'en' ? 'en' : 'ko';
   return {
-    lessonGoal: `${topic.title.ko} — ${topic.blurb.ko}`,
+    lessonGoal: `${topic.title[own]} — ${topic.blurb[own]}`,
     reviewTopics: plan.reviewTopics.slice(0, 2),
-    newTopics: [topic.title.ko],
+    newTopics: [topic.title[own]],
     targetVocabulary: [...core, ...topic.hints].slice(0, 8),
     grammarFocus: topic.targetGrammar,
     conversationScenario: `Role-play idea once they have some words: ${topic.opener}`,
     difficulty: plan.difficulty || topic.level,
-    topic: `${topic.title.ko} (${topic.title.en})`,
+    topic:
+      own === 'en' ? topic.title.en : `${topic.title.ko} (${topic.title.en})`,
   };
 }
 

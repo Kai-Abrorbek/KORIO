@@ -26,6 +26,7 @@ import {
   type VoiceTutorPersonality,
   type VoiceTutorQuota,
   type VoiceTutorSettings,
+  type VoiceTutorTarget,
   type VoiceTutorTopicCard,
   type VoiceTutorVoice,
 } from "../services/voice-tutor.api";
@@ -72,6 +73,8 @@ export interface VoiceTutorSetupScreenProps {
   error: string | null;
   /** 서버 한도. null 이면 아직 모름 (시작은 막지 않는다 — 서버가 다시 본다) */
   quota: VoiceTutorQuota | null;
+  /** 배우는 언어. 주제 목록·수준 이름·안내 문구가 이걸 따른다 */
+  targetLanguage: VoiceTutorTarget;
   onUpsell: () => void;
   onClose: () => void;
   onStart: (topic: VoiceTutorTopicCard | null) => void;
@@ -102,10 +105,10 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
 
   const load = useCallback(() => {
     setFailed(false);
-    VoiceTutorApi.topics(contentLang)
+    VoiceTutorApi.topics(contentLang, p.targetLanguage)
       .then((r) => setTopics(r.topics ?? []))
       .catch(() => setFailed(true));
-  }, [contentLang]);
+  }, [contentLang, p.targetLanguage]);
 
   useEffect(load, [load]);
 
@@ -129,7 +132,7 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
   if (failed) {
     return (
       <View style={[s.container, { paddingTop: insets.top + 6 }]}>
-        <Header onClose={p.onClose} theme={theme} />
+        <Header onClose={p.onClose} theme={theme} english={p.targetLanguage === "en"} />
         <View style={s.center}>
           <Text style={s.errorText}>{t("common.loadFailed")}</Text>
           <Pressable onPress={load} style={s.retry} hitSlop={8}>
@@ -143,7 +146,7 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
   if (!topics) {
     return (
       <View style={[s.container, { paddingTop: insets.top + 6 }]}>
-        <Header onClose={p.onClose} theme={theme} />
+        <Header onClose={p.onClose} theme={theme} english={p.targetLanguage === "en"} />
         <View style={s.center}>
           <ActivityIndicator size="large" color={theme.primary} />
         </View>
@@ -151,12 +154,15 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
     );
   }
 
-  const korea = topics.filter((x) => x.category === "korea");
-  const daily = topics.filter((x) => x.category === "daily");
+  const english = p.targetLanguage === "en";
+  // 한국어 튜터는 "한국 생활" 이 먼저, 영어 튜터는 일상 다음에 "해외에서"
+  const groups = (english ? (["daily", "abroad"] as const) : (["korea", "daily"] as const)).map(
+    (key) => ({ key, items: topics.filter((x) => x.category === key) }),
+  );
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 6 }]}>
-      <Header onClose={p.onClose} theme={theme} />
+      <Header onClose={p.onClose} theme={theme} english={p.targetLanguage === "en"} />
 
       <ScrollView
         contentContainerStyle={s.scroll}
@@ -186,7 +192,9 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
               );
             })}
           </View>
-          <Text style={s.sectionHint}>{t("voiceTutor.teachingLanguageHint")}</Text>
+          <Text style={s.sectionHint}>
+            {t(english ? "voiceTutor.english.teachingLanguageHint" : "voiceTutor.teachingLanguageHint")}
+          </Text>
         </Section>
 
         {/* ── 2. 선생님 (목소리) ── */}
@@ -284,7 +292,7 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
         </Section>
 
         {/* ── 5. 한국어 수준 ── */}
-        <Section title={t("voiceTutor.koreanLevel")} theme={theme}>
+        <Section title={t(english ? "voiceTutor.english.level" : "voiceTutor.koreanLevel")} theme={theme}>
           <View style={s.langRow}>
             {levels.map((level) => {
               const on = p.settings.koreanLevel === level;
@@ -323,10 +331,7 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
             )}
           </Pressable>
 
-          {[
-            { key: "korea" as const, items: korea },
-            { key: "daily" as const, items: daily },
-          ].map(
+          {groups.map(
             (g) =>
               g.items.length > 0 && (
                 <View key={g.key} style={s.group}>
@@ -442,9 +447,11 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
 function Header({
   onClose,
   theme,
+  english,
 }: {
   onClose: () => void;
   theme: ThemeColors;
+  english: boolean;
 }) {
   const { t } = useTranslation();
   const s = styles(theme);
@@ -453,7 +460,7 @@ function Header({
       <Pressable onPress={onClose} style={s.iconBtn} hitSlop={8}>
         <Ionicons name="chevron-down" size={26} color={theme.text} />
       </Pressable>
-      <Text style={s.title}>{t("voiceTutor.setup.title")}</Text>
+      <Text style={s.title}>{t(english ? "voiceTutor.english.setupTitle" : "voiceTutor.setup.title")}</Text>
       <View style={s.iconBtn} />
     </View>
   );

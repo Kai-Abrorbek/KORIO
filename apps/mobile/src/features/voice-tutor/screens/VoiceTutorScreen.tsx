@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/useTheme";
@@ -45,7 +45,10 @@ export default function VoiceTutorScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const s = useMemo(() => styles(theme), [theme]);
-  const tutor = useVoiceTutor();
+  // 영어 코스에서 열면(lang=en) 영어 튜터. 그 밖엔 원래의 한국어 튜터
+  const { lang } = useLocalSearchParams<{ lang?: string }>();
+  const target = lang === "en" ? "en" : "ko";
+  const tutor = useVoiceTutor(target);
   const endSession = tutor.end;
   /** 이번 수업 주제. 통화 화면 진도 카드용 */
   const [topic, setTopic] = useState<VoiceTutorTopicCard | null>(null);
@@ -104,6 +107,7 @@ export default function VoiceTutorScreen() {
         busy={tutor.phase === "starting"}
         error={tutor.error ? errorText(tutor.error, t) : null}
         quota={tutor.quota}
+        targetLanguage={target}
         onUpsell={() => router.dismissTo("/premium")}
         onClose={close}
         onStart={(picked) => {
@@ -138,6 +142,7 @@ export default function VoiceTutorScreen() {
       focusHint={lastTeacher?.correction?.correct ?? ""}
       targets={topic ? (tutor.plan?.targetVocabulary ?? []) : []}
       teacherName={voice?.name}
+      targetLanguage={target}
       teacherPersonality={t(`voiceTutor.personality.${tutor.settings.personality}.name`)}
       teacherColor="#776ee2"
       topicTitle={topic?.title}

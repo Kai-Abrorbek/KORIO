@@ -17,6 +17,23 @@ export class VoiceTutorMemory {
   @Prop({ type: [String], default: [] }) weakPoints: string[];
   @Prop({ default: '' }) notes: string;
   @Prop({ default: 0 }) lessonsCompleted: number;
+  /** Memory of each non-Korean tutor (courses.en), same fields as above. */
+  @Prop({ type: Object, default: undefined })
+  courses?: Partial<Record<'en', VoiceTutorCourseMemory>>;
+}
+
+export interface VoiceTutorCourseMemory {
+  summary?: string;
+  estimatedLevel?: string;
+  grammarMistakes?: string[];
+  repeatedMistakes?: string[];
+  recurringMistakes?: { wrong: string; correct: string; count: number }[];
+  learnedVocabulary?: string[];
+  weakVocabulary?: string[];
+  strongPoints?: string[];
+  weakPoints?: string[];
+  notes?: string;
+  lessonsCompleted?: number;
 }
 
 export type VoiceTutorMemoryDocument = HydratedDocument<VoiceTutorMemory>;

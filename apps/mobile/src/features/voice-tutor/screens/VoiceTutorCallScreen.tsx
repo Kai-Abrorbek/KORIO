@@ -101,6 +101,8 @@ export interface VoiceTutorCallScreenProps {
   /** 이번 주제에서 써 볼 표현 (주제 수업일 때만) */
   targets: string[];
   teacherName?: string;
+  /** 배우는 언어 — 헤더의 "한국어/영어 선생님" */
+  targetLanguage?: "ko" | "en";
   /** 헤더 부제 앞부분 — 이미 번역된 성격 이름 */
   teacherPersonality?: string;
   teacherColor: string;
@@ -137,6 +139,7 @@ export interface VoiceTutorCallScreenProps {
  */
 export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
   const { t } = useTranslation();
+  const roleKey = p.targetLanguage === "en" ? "voiceTutor.english.roleLabel" : "voiceTutor.call.roleLabel";
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { speak, speakSlow } = useSpeech();
@@ -190,11 +193,11 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
           resolve();
         };
         const play = slow ? speakSlow : speak;
-        play(text, "ko-KR", { onDone: fin, onError: fin, onStopped: fin });
+        play(text, p.targetLanguage === "en" ? "en-US" : "ko-KR", { onDone: fin, onError: fin, onStopped: fin });
         // 콜백이 안 오는 경우를 대비한 빗장. 마이크가 영영 닫혀 있으면 안 된다.
         setTimeout(fin, 15_000);
       }),
-    [speak, speakSlow],
+    [speak, speakSlow, p.targetLanguage],
   );
 
   /** 지금 화면에서 "따라 할 한 문장" */
@@ -261,8 +264,8 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
           </View>
           <Text style={st.idRole} numberOfLines={1}>
             {p.teacherPersonality
-              ? `${p.teacherPersonality} · ${t("voiceTutor.call.roleLabel")}`
-              : t("voiceTutor.call.roleLabel")}
+              ? `${p.teacherPersonality} · ${t(roleKey)}`
+              : t(roleKey)}
           </Text>
         </View>
 
@@ -279,17 +282,20 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
               </Text>
             </View>
           )}
-          <Pressable
-            onPress={() => setRoman((v) => !v)}
-            hitSlop={10}
-            style={[st.tune, roman && st.tuneOn]}
-          >
-            <Ionicons
-              name="options-outline"
-              size={18}
-              color={roman ? "#fff" : INK_SOFT}
-            />
-          </Pressable>
+          {/* 로마자 표기는 한글에만 — 영어 튜터는 이미 라틴 문자다 */}
+          {p.targetLanguage !== "en" && (
+            <Pressable
+              onPress={() => setRoman((v) => !v)}
+              hitSlop={10}
+              style={[st.tune, roman && st.tuneOn]}
+            >
+              <Ionicons
+                name="options-outline"
+                size={18}
+                color={roman ? "#fff" : INK_SOFT}
+              />
+            </Pressable>
+          )}
         </View>
       </View>
 
@@ -397,7 +403,7 @@ export function VoiceTutorCallScreen(p: VoiceTutorCallScreenProps) {
               <Text style={st.cardKo} numberOfLines={2}>
                 {focus}
               </Text>
-              {roman && (
+              {roman && p.targetLanguage !== "en" && (
                 <Text style={st.cardRoman} numberOfLines={1}>
                   {romanize(focus)}
                 </Text>

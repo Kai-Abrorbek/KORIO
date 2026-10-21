@@ -11,7 +11,9 @@ import {
 import {
   VOICE_TUTOR_LANGUAGES,
   VOICE_TUTOR_STYLES,
+  VOICE_TUTOR_TARGET_LANGUAGES,
   type ExplanationLanguage,
+  type TutorTargetLanguage,
 } from '../voice-tutor.config';
 import { VOICE_TUTOR_PERSONALITY_IDS } from '../personality/voice-tutor-personalities';
 import { VOICE_TUTOR_TOPIC_IDS } from '../topics/voice-tutor-topics';
@@ -54,6 +56,11 @@ export class CreateVoiceTutorSessionDto {
   @IsOptional()
   @IsIn(VOICE_TUTOR_TOPIC_IDS)
   topicId?: string;
+
+  /** 배우는 언어. 없으면 한국어 (옛 앱) */
+  @IsOptional()
+  @IsIn(VOICE_TUTOR_TARGET_LANGUAGES)
+  targetLanguage?: TutorTargetLanguage;
 }
 
 export class VoiceTutorAgentTurnDto {

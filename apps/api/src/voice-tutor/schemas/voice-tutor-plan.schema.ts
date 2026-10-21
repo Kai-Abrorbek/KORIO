@@ -9,6 +9,8 @@ export class VoiceTutorPlan {
   @Prop({ type: Types.ObjectId, ref: 'VoiceTutorSession', default: null })
   fromSessionId: Types.ObjectId | null;
   @Prop({ type: Object, required: true }) plan: TutorPlan;
+  /** Language this plan teaches. Missing on plans saved before English = Korean. */
+  @Prop({ type: String, default: undefined }) targetLanguage?: string;
 }
 
 export type VoiceTutorPlanDocument = HydratedDocument<VoiceTutorPlan>;

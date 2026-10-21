@@ -22,6 +22,17 @@ export class VoiceTutorSettings {
   personality: TutorPersonality;
   @Prop({ type: String, enum: ['female_01', 'male_01'], default: 'female_01' })
   characterId: 'female_01' | 'male_01';
+  /**
+   * Teaching language and level per non-Korean tutor (courses.en). Voice,
+   * personality and speech style are shared; the fields above stay Korean's.
+   */
+  @Prop({ type: Object, default: undefined })
+  courses?: Partial<
+    Record<
+      'en',
+      { explanationLanguage?: ExplanationLanguage; koreanLevel?: string }
+    >
+  >;
 }
 
 export type VoiceTutorSettingsDocument = HydratedDocument<VoiceTutorSettings>;

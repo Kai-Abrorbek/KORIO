@@ -168,6 +168,7 @@ describe('VoiceTutorService lifecycle', () => {
           ? expect.arrayContaining(['물 주세요'])
           : expect.any(Array),
         1200,
+        'ko',
       );
     },
   );
@@ -417,6 +418,7 @@ describe('VoiceTutorService lifecycle', () => {
       userId,
       '오이시',
       '맛있어',
+      'ko',
     );
   });
 
@@ -490,7 +492,12 @@ describe('VoiceTutorService lifecycle', () => {
 
     expect(result.status).toBe('ended');
     expect(result.plan).toEqual(plan);
-    expect(profile.savePlan).toHaveBeenCalledWith(userId, sessionId, plan);
+    expect(profile.savePlan).toHaveBeenCalledWith(
+      userId,
+      sessionId,
+      plan,
+      'ko',
+    );
   });
 
   it('catches up missed progress in six-turn batches without skipping old turns', async () => {
@@ -561,6 +568,7 @@ describe('VoiceTutorService lifecycle', () => {
       sessionId,
       6,
       progress,
+      'ko',
     );
     expect(profile.saveProgress).toHaveBeenNthCalledWith(
       2,
@@ -568,6 +576,7 @@ describe('VoiceTutorService lifecycle', () => {
       sessionId,
       12,
       progress,
+      'ko',
     );
   });
 });

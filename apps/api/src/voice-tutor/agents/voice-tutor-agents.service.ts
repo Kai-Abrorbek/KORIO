@@ -5,13 +5,17 @@ import type { StudentMemorySnapshot } from '../memory/voice-tutor-profile.servic
 import { lessonAgentInstructions } from '../prompts/lesson-agent.prompt';
 import { LessonStreamParser } from './lesson-stream';
 import type { LessonPromptContext } from '../prompts/lesson-agent.prompt';
-import { PLANNING_AGENT_INSTRUCTIONS } from '../prompts/planning-agent.prompt';
-import { PROGRESS_AGENT_INSTRUCTIONS } from '../prompts/progress-agent.prompt';
+import { planningAgentInstructions } from '../prompts/planning-agent.prompt';
+import { progressAgentInstructions } from '../prompts/progress-agent.prompt';
 import { OpenAiTutorLlmProvider } from '../providers/openai-llm.provider';
 import { personalityInstructions } from '../personality/personality-instructions';
 import { performTutorReaction } from '../personality/reaction-engine';
 import { VoiceTutorProviderError } from '../providers/provider-error';
-import { voiceTutorModels } from '../voice-tutor.config';
+import {
+  tutorTargetLanguage,
+  voiceTutorModels,
+  type TutorTargetLanguage,
+} from '../voice-tutor.config';
 import type {
   TutorMessage,
   TutorPlan,
@@ -21,6 +25,10 @@ import type {
 } from '../voice-tutor.types';
 
 type TextTurn = Pick<TutorMessage, 'role' | 'text'>;
+
+/** The language being learned picks the subject; old sessions are Korean. */
+const subject = (settings: TutorSettings) =>
+  tutorTargetLanguage(settings.targetLanguage);
 export type TutorReactionMeta = Pick<
   TutorReaction,
   'emotion' | 'delivery' | 'intensity' | 'gesture'
@@ -39,7 +47,7 @@ export class VoiceTutorAgentsService {
   ): Promise<TutorReaction> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().lesson,
-      `${lessonAgentInstructions()}\n${personalityInstructions(settings.personality)}`,
+      `${lessonAgentInstructions('json', subject(settings))}\n${personalityInstructions(settings.personality, 'json', subject(settings))}`,
       buildLessonInput(
         {
           settings,
@@ -96,7 +104,7 @@ export class VoiceTutorAgentsService {
     try {
       for await (const delta of this.llm.streamText(
         voiceTutorModels().lesson,
-        `${lessonAgentInstructions('stream')}\n${personalityInstructions(settings.personality, 'stream')}`,
+        `${lessonAgentInstructions('stream', subject(settings))}\n${personalityInstructions(settings.personality, 'stream', subject(settings))}`,
         buildLessonInput(
           {
             settings,
@@ -149,7 +157,7 @@ export class VoiceTutorAgentsService {
   ): Promise<TutorProgress> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().progress,
-      PROGRESS_AGENT_INSTRUCTIONS,
+      progressAgentInstructions(subject(settings)),
       JSON.stringify({
         explanationLanguage: settings.explanationLanguage,
         previousLevel: previous.estimatedLevel,
@@ -171,9 +179,9 @@ export class VoiceTutorAgentsService {
   ): Promise<TutorPlan> {
     const raw = await this.llm.completeJson(
       voiceTutorModels().planning,
-      PLANNING_AGENT_INSTRUCTIONS,
+      planningAgentInstructions(subject(settings)),
       JSON.stringify({
-        koreanLevel: settings.koreanLevel,
+        level: settings.koreanLevel,
         previousPlan,
         memory: {
           summary: memory.summary.slice(-1000),
@@ -194,8 +202,21 @@ export class VoiceTutorAgentsService {
 
 export function defaultVoiceTutorPlan(
   memory: StudentMemorySnapshot,
+  targetLanguage: TutorTargetLanguage = 'ko',
 ): TutorPlan {
   const review = memory.weakPoints.slice(-2);
+  if (targetLanguage === 'en')
+    return {
+      lessonGoal: review.length
+        ? `Use "${review[0]}" naturally in conversation`
+        : 'Talk about everyday life and introduce yourself naturally',
+      reviewTopics: review,
+      newTopics: ['Everyday conversation'],
+      targetVocabulary: [],
+      grammarFocus: [],
+      conversationScenario: 'Casual everyday conversation',
+      difficulty: memory.estimatedLevel || 'beginner',
+    };
   return {
     lessonGoal: review.length
       ? `${review[0]} 표현을 대화에서 자연스럽게 사용하기`

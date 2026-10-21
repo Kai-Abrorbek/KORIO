@@ -25,6 +25,7 @@ import {
   VOICE_TUTOR_STYLES,
   tutorLanguageEnabled,
   voiceTutorVoices,
+  type TutorTargetLanguage,
 } from '../voice-tutor.config';
 import type {
   TutorPlan,
@@ -111,34 +112,63 @@ export class VoiceTutorProfileService {
     };
   }
 
-  async getSettings(userId: string): Promise<TutorSettings> {
+  /**
+   * Voice, personality and speech style are one choice for every tutor; the
+   * teaching language and level belong to the language being learned (Korean's
+   * stay in the original top-level fields, others under courses.<language>).
+   */
+  async getSettings(
+    userId: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
+  ): Promise<TutorSettings> {
     const stored = await this.settings
       .findOne({ userId: new Types.ObjectId(userId) })
       .lean();
     const voices = voiceTutorVoices();
+    const course =
+      targetLanguage === 'ko' ? stored : stored?.courses?.[targetLanguage];
+    const learning = course?.explanationLanguage
+      ? {
+          explanationLanguage: tutorLanguageEnabled(course.explanationLanguage)
+            ? course.explanationLanguage
+            : ('en' as const),
+          koreanLevel: course.koreanLevel ?? 'beginner',
+        }
+      : await this.defaultLearning(userId, targetLanguage);
     if (stored)
       return {
         voiceId: voices.some((voice) => voice.id === stored.voiceId)
           ? stored.voiceId
           : (voices[0]?.id ?? ''),
         speechStyle: stored.speechStyle,
-        explanationLanguage: tutorLanguageEnabled(stored.explanationLanguage)
-          ? stored.explanationLanguage
-          : 'en',
-        koreanLevel: stored.koreanLevel,
+        ...learning,
         personality: VOICE_TUTOR_PERSONALITY_IDS.includes(stored.personality)
           ? stored.personality
           : 'friendly',
         characterId: stored.characterId === 'male_01' ? 'male_01' : 'female_01',
+        targetLanguage,
       };
+    return {
+      voiceId: voices[0]?.id ?? '',
+      speechStyle: 'polite',
+      ...learning,
+      personality: 'friendly',
+      characterId: 'female_01',
+      targetLanguage,
+    };
+  }
+
+  /** First-time defaults: explain in the app's language; the level is per language. */
+  private async defaultLearning(
+    userId: string,
+    targetLanguage: TutorTargetLanguage,
+  ): Promise<Pick<TutorSettings, 'explanationLanguage' | 'koreanLevel'>> {
     const user = await this.users
       .findById(userId)
       .select('appLanguage selfReportedLevel level')
       .lean();
     const language = user?.appLanguage;
     return {
-      voiceId: voices[0]?.id ?? '',
-      speechStyle: 'polite',
       explanationLanguage:
         (language === 'en' ||
           language === 'ru' ||
@@ -147,15 +177,18 @@ export class VoiceTutorProfileService {
         tutorLanguageEnabled(language)
           ? language
           : 'en',
-      koreanLevel: String(user?.selfReportedLevel ?? user?.level ?? 'beginner'),
-      personality: 'friendly',
-      characterId: 'female_01',
+      // The onboarding level is the Korean one; another language starts fresh.
+      koreanLevel:
+        targetLanguage === 'ko'
+          ? String(user?.selfReportedLevel ?? user?.level ?? 'beginner')
+          : 'beginner',
     };
   }
 
   async updateSettings(
     userId: string,
     patch: UpdateVoiceTutorSettingsDto,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ): Promise<TutorSettings> {
     const voices = voiceTutorVoices();
     if (
@@ -170,32 +203,58 @@ export class VoiceTutorProfileService {
     ) {
       throw new BadRequestException('VOICE_TUTOR_UNSUPPORTED_LANGUAGE');
     }
-    const merged = { ...(await this.getSettings(userId)), ...patch };
+    const merged: TutorSettings = {
+      ...(await this.getSettings(userId, targetLanguage)),
+      ...patch,
+      targetLanguage,
+    };
+    const { explanationLanguage, koreanLevel, ...shared } = merged;
+    delete shared.targetLanguage;
+    const update =
+      targetLanguage === 'ko'
+        ? { $set: { ...shared, explanationLanguage, koreanLevel } }
+        : {
+            $set: {
+              ...shared,
+              [`courses.${targetLanguage}.explanationLanguage`]:
+                explanationLanguage,
+              [`courses.${targetLanguage}.koreanLevel`]: koreanLevel,
+            },
+            // A first save from another tutor must not freeze Korean's
+            // top-level fields at the schema defaults.
+            $setOnInsert: await this.defaultLearning(userId, 'ko'),
+          };
     await this.settings.findOneAndUpdate(
       { userId: new Types.ObjectId(userId) },
-      { $set: merged },
+      update,
       { upsert: true, new: true },
     );
     return merged;
   }
 
-  async getMemory(userId: string): Promise<StudentMemorySnapshot> {
+  async getMemory(
+    userId: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
+  ): Promise<StudentMemorySnapshot> {
     const row = await this.memories
       .findOne({ userId: new Types.ObjectId(userId) })
       .lean();
-    if (!row) return emptyMemory();
+    const source =
+      targetLanguage === 'ko' ? row : row?.courses?.[targetLanguage];
+    if (!source) return emptyMemory();
+    const empty = emptyMemory();
     return {
-      summary: row.summary,
-      estimatedLevel: row.estimatedLevel,
-      grammarMistakes: row.grammarMistakes,
-      repeatedMistakes: row.repeatedMistakes,
-      recurringMistakes: row.recurringMistakes ?? [],
-      learnedVocabulary: row.learnedVocabulary,
-      weakVocabulary: row.weakVocabulary,
-      strongPoints: row.strongPoints,
-      weakPoints: row.weakPoints,
-      notes: row.notes,
-      lessonsCompleted: row.lessonsCompleted,
+      summary: source.summary ?? empty.summary,
+      estimatedLevel: source.estimatedLevel ?? empty.estimatedLevel,
+      grammarMistakes: source.grammarMistakes ?? [],
+      repeatedMistakes: source.repeatedMistakes ?? [],
+      recurringMistakes: source.recurringMistakes ?? [],
+      learnedVocabulary: source.learnedVocabulary ?? [],
+      weakVocabulary: source.weakVocabulary ?? [],
+      strongPoints: source.strongPoints ?? [],
+      weakPoints: source.weakPoints ?? [],
+      notes: source.notes ?? empty.notes,
+      lessonsCompleted: source.lessonsCompleted ?? 0,
     };
   }
 
@@ -204,9 +263,10 @@ export class VoiceTutorProfileService {
     sessionId: string,
     analyzedTurns: number,
     result: TutorProgress,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ) {
     const identity = { userId: new Types.ObjectId(userId) };
-    const current = await this.getMemory(userId);
+    const current = await this.getMemory(userId, targetLanguage);
     await this.progress.create({
       ...identity,
       sessionId: new Types.ObjectId(sessionId),
@@ -242,7 +302,7 @@ export class VoiceTutorProfileService {
     delete (progressFields as Partial<StudentMemorySnapshot>).lessonsCompleted;
     await this.memories.findOneAndUpdate(
       identity,
-      { $set: progressFields },
+      { $set: memoryFields(progressFields, targetLanguage) },
       { upsert: true },
     );
   }
@@ -251,6 +311,7 @@ export class VoiceTutorProfileService {
     userId: string,
     wrong: string,
     correct: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ): Promise<void> {
     const normalizedWrong = wrong.trim().slice(0, 120);
     const normalizedCorrect = correct.trim().slice(0, 120);
@@ -260,7 +321,7 @@ export class VoiceTutorProfileService {
       normalizedWrong === normalizedCorrect
     )
       return;
-    const current = await this.getMemory(userId);
+    const current = await this.getMemory(userId, targetLanguage);
     const recurringMistakes = current.recurringMistakes.filter(
       (item) =>
         item.wrong !== normalizedWrong || item.correct !== normalizedCorrect,
@@ -276,15 +337,23 @@ export class VoiceTutorProfileService {
     });
     await this.memories.findOneAndUpdate(
       { userId: new Types.ObjectId(userId) },
-      { $set: { recurringMistakes: recurringMistakes.slice(-30) } },
+      {
+        $set: memoryFields(
+          { recurringMistakes: recurringMistakes.slice(-30) },
+          targetLanguage,
+        ),
+      },
       { upsert: true },
     );
   }
 
-  async markLessonComplete(userId: string): Promise<void> {
+  async markLessonComplete(
+    userId: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
+  ): Promise<void> {
     await this.memories.findOneAndUpdate(
       { userId: new Types.ObjectId(userId) },
-      { $inc: { lessonsCompleted: 1 } },
+      { $inc: memoryFields({ lessonsCompleted: 1 }, targetLanguage) },
       { upsert: true },
     );
   }
@@ -297,9 +366,17 @@ export class VoiceTutorProfileService {
     return row?.progress ?? null;
   }
 
-  async latestPlan(userId: string): Promise<TutorPlan | null> {
+  async latestPlan(
+    userId: string,
+    targetLanguage: TutorTargetLanguage = 'ko',
+  ): Promise<TutorPlan | null> {
     const row = await this.plans
-      .findOne({ userId: new Types.ObjectId(userId) })
+      .findOne({
+        userId: new Types.ObjectId(userId),
+        // Plans saved before the English tutor have no language: Korean.
+        targetLanguage:
+          targetLanguage === 'ko' ? { $in: [null, 'ko'] } : targetLanguage,
+      })
       .sort({ createdAt: -1 })
       .lean();
     return row?.plan ?? null;
@@ -309,11 +386,27 @@ export class VoiceTutorProfileService {
     userId: string,
     sessionId: string | null,
     plan: TutorPlan,
+    targetLanguage: TutorTargetLanguage = 'ko',
   ): Promise<void> {
     await this.plans.create({
       userId: new Types.ObjectId(userId),
       fromSessionId: sessionId ? new Types.ObjectId(sessionId) : null,
       plan,
+      targetLanguage,
     });
   }
+}
+
+/** Korean memory keeps its top-level fields; another language writes under courses.<language>. */
+function memoryFields(
+  fields: Record<string, unknown>,
+  targetLanguage: TutorTargetLanguage,
+): Record<string, unknown> {
+  if (targetLanguage === 'ko') return fields;
+  return Object.fromEntries(
+    Object.entries(fields).map(([key, value]) => [
+      `courses.${targetLanguage}.${key}`,
+      value,
+    ]),
+  );
 }
