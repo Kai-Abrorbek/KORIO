@@ -254,10 +254,14 @@ export function CourseCategoriesScreen() {
                 </span>
               ) : null}
               <span
-                className={styles.categoryIcon}
-                style={{ backgroundColor: category.color }}
+                className={`${styles.categoryIcon} ${category.category === "topik" ? styles.topikIcon : ""}`}
+                style={category.category === "topik" ? undefined : { backgroundColor: category.color }}
               >
-                <LearningIcon name={category.icon} size={23} />
+                {category.category === "topik" ? (
+                  <span className={styles.topikLogo} role="img" aria-label="TOPIK" />
+                ) : (
+                  <LearningIcon name={category.icon} size={23} />
+                )}
               </span>
               {isEnglish && category.category === "hangul" ? (
                 <>

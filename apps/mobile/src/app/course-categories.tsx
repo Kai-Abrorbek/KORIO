@@ -1,6 +1,7 @@
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   ScrollView,
 } from "react-native";
@@ -202,8 +203,16 @@ function CategoryCard({
             <Ionicons name="lock-closed" size={10} color="#fff" />
           </View>
         )}
-        <View style={[s.catIcon, { backgroundColor: c.color }]}>
-          {c.key === "conversation" ? (
+        <View style={[s.catIcon, c.key === "topik" ? s.topikIcon : { backgroundColor: c.color }]}>
+          {c.key === "topik" ? (
+            // Official TOPIK wordmark: https://www.topik.go.kr/asset/image/logo_header.png
+            <Image
+              source={require("../../assets/images/topik/official-logo.png")}
+              style={s.topikLogo}
+              resizeMode="contain"
+              accessibilityLabel="TOPIK"
+            />
+          ) : c.key === "conversation" ? (
             // 실전 회화 = AI 음성 튜터. 튜터 화면의 마스코트를 그대로 아이콘으로 쓴다
             <TutorMascotIcon size={26} />
           ) : (
@@ -676,6 +685,14 @@ const getStyles = (theme: ThemeColors) =>
       borderRadius: 13,
       alignItems: "center",
       justifyContent: "center",
+    },
+    topikIcon: {
+      width: 80,
+      backgroundColor: "#fff",
+    },
+    topikLogo: {
+      width: 70,
+      height: 30,
     },
     catLabel: { fontSize: 15, fontWeight: "800", color: theme.text },
     catDesc: {

@@ -544,6 +544,19 @@
   width: 42px;
 }
 
+.topikIcon {
+  background: #fff;
+  width: 80px;
+}
+
+.topikLogo {
+  /* Official TOPIK wordmark: https://www.topik.go.kr/asset/image/logo_header.png */
+  background: center / contain no-repeat url("/topik/official-logo.png");
+  display: block;
+  height: 30px;
+  width: 70px;
+}
+
 .categoryCard > strong {
   font-size: 15px;
   font-weight: 800;
