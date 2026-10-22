@@ -8,6 +8,8 @@
 (() => {
   const config = window.__PROMO_CONFIG ?? { mocks: [], user: null };
   localStorage.setItem("korio-language", "uz");
+  // 처음 온 사람용 홈 안내 말풍선은 이미 본 것으로
+  localStorage.setItem("korio-tour-seen", JSON.stringify({ "home.v1": true }));
   localStorage.setItem(
     "korio-sound-settings",
     JSON.stringify({ sfxVolume: 1, keyVolume: 1, uiSoundsEnabled: true, startMuted: false }),

@@ -52,8 +52,9 @@ function speechEnd(file) {
 const audio = join(PUBLIC, "audio");
 const voices = Object.fromEntries(
   readdirSync(audio)
-    .filter((name) => name.startsWith("narr-") && name.endsWith(".mp3"))
-    .map((name) => [name.slice("narr-".length, -".mp3".length), Number(speechEnd(join(audio, name)).toFixed(3))]),
+    // 소개 영상 내레이션 narr-<이름>, 런치 영상 내레이션 launch-<이름> (음악 제외)
+    .filter((name) => /^(narr|launch)-/.test(name) && !name.includes("music") && name.endsWith(".mp3"))
+    .map((name) => [name.replace(/^narr-/, "").slice(0, -".mp3".length), Number(speechEnd(join(audio, name)).toFixed(3))]),
 );
 const clipFrames = Object.fromEntries(
   (existsSync(clips) ? readdirSync(clips) : [])
@@ -67,5 +68,12 @@ const clipFrames = Object.fromEntries(
       ),
     ]),
 );
-writeFileSync(join(ROOT, "src", "media.generated.json"), JSON.stringify({ voices, clips: clipFrames }, null, 1));
+// 런치 영상 화면 사진의 크기·카드 자리 (capture/stills-launch.sh)
+const stillsDir = join(PUBLIC, "stills");
+const stills = Object.fromEntries(
+  (existsSync(stillsDir) ? readdirSync(stillsDir) : [])
+    .filter((name) => name.endsWith(".json"))
+    .map((name) => [name.slice(0, -".json".length), JSON.parse(readFileSync(join(stillsDir, name), "utf8"))]),
+);
+writeFileSync(join(ROOT, "src", "media.generated.json"), JSON.stringify({ voices, clips: clipFrames, stills }, null, 1));
 console.log("✓ public/brand · public/fonts · public/sfx · src/cues.generated.json · src/media.generated.json");

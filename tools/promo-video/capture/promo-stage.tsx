@@ -26,6 +26,9 @@ import { CoursesScreen } from "../../src/features/learning/ui/courses-screen";
 import { LessonScreen } from "../../src/features/lesson/ui/lesson-screen";
 import { TopikPracticeScreen } from "../../src/features/topik/ui/topik-practice-screen";
 import { StickersScreen } from "../../src/features/profile/ui/stickers-screen";
+import { HomeScreen } from "../../src/features/home/ui/home-screen";
+import { CourseCategoriesScreen } from "../../src/features/learning/ui/course-categories-screen";
+import { StatsScreen } from "../../src/features/stats/ui/stats-screen";
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
@@ -155,6 +158,12 @@ function Scene({ name }: { name: string }): ReactNode {
       return <TopikPracticeScreen />;
     case "stickers":
       return <StickersScreen />;
+    case "home":
+      return <HomeScreen />;
+    case "categories":
+      return <CourseCategoriesScreen />;
+    case "stats":
+      return <StatsScreen />;
     default:
       return <p>unknown scene {name}</p>;
   }

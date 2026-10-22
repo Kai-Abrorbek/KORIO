@@ -9,7 +9,9 @@
     "studio": "remotion studio src/index.ts",
     "render": "node prepare.mjs && remotion render src/index.ts KorioIntroUz out/korio-intro-uz.raw.mp4 && ffmpeg -y -loglevel error -i out/korio-intro-uz.raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart out/korio-intro-uz.mp4",
     "assets": "node prepare.mjs",
-    "shoot": "bash capture/shoot-all.sh"
+    "shoot": "bash capture/shoot-all.sh",
+    "render:launch": "node prepare.mjs && remotion render src/index.ts KorioLaunchUz out/korio-launch-uz.raw.mp4 && ffmpeg -y -loglevel error -i out/korio-launch-uz.raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart out/korio-launch-uz.mp4",
+    "stills:launch": "bash capture/stills-launch.sh"
   },
   "dependencies": {
     "@remotion/cli": "4.0.537",

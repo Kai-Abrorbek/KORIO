@@ -9,6 +9,8 @@
  * 쓰는 법 (텔레그램 dev 서버가 3002 에 떠 있어야 한다. 무대 파일은 stage.mjs 가 깐다):
  *   node capture/capture.mjs probe <scene> [ms] [query]   # 한 장만 → frames/probe-<scene>.png
  *   node capture/capture.mjs shoot <scene> <ms> [query]   # 30fps → public/clips/<scene>.mp4 (+ .sounds.json)
+ *   node capture/capture.mjs still <scene> <ms> [query]   # 한 장 → public/stills/<PROMO_NAME|scene>.png + .json
+ *     PROMO_BOXES='{"card":"button.card"}' 이면 그 요소들의 자리(x,y,w,h·글자)를 .json 에 적는다 — 편집이 카드를 떼어 낸다
  */
 import { chromium } from "playwright";
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -20,8 +22,9 @@ import { USER, mocksFor } from "./mocks.mjs";
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = process.env.PROMO_BASE ?? "http://localhost:3002/zz-promo";
 const FPS = 30;
-const VIEW = { width: 390, height: 844 };
-const SCALE = 2;
+// 긴 화면을 한 장에 담을 때는 PROMO_HEIGHT 로 세로를 늘린다 (still)
+const VIEW = { width: 390, height: Number(process.env.PROMO_HEIGHT ?? 844) };
+const SCALE = Number(process.env.PROMO_SCALE ?? 2);
 
 const [mode, scene, msArg, query = ""] = process.argv.slice(2);
 if (!mode || !scene) {
@@ -118,6 +121,40 @@ if (mode === "probe") {
   await page.screenshot({ path: out });
   const info = await page.evaluate(() => window.__promo);
   console.log(JSON.stringify({ out, unmocked: info?.unmocked, sounds: info?.sounds?.length }, null, 1));
+} else if (mode === "still") {
+  for (let t = 0; t < durationMs; t += 100) {
+    await advance(100);
+    await runActions();
+  }
+  const name = process.env.PROMO_NAME ?? scene;
+  const stills = join(ROOT, "public", "stills");
+  mkdirSync(stills, { recursive: true });
+  await page.screenshot({ path: join(stills, `${name}.png`) });
+  const selectors = JSON.parse(process.env.PROMO_BOXES ?? "{}");
+  // 값이 문자열이면 CSS 선택자, { css, text, minWidth } 면 그 글자를 담은 가장 작은 요소 하나
+  const boxes = await page.evaluate((selectors) => {
+    const box = (el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, w: r.width, h: r.height, text: (el.textContent ?? "").trim().slice(0, 60) };
+    };
+    const out = {};
+    for (const [key, spec] of Object.entries(selectors)) {
+      if (typeof spec === "string") {
+        out[key] = [...document.querySelectorAll(spec)].map(box);
+        continue;
+      }
+      const found = [...document.querySelectorAll(spec.css ?? "*")]
+        .filter((el) => (el.textContent ?? "").includes(spec.text))
+        .map(box)
+        .filter((b) => b.w >= (spec.minWidth ?? 0) && b.x >= 0)
+        .sort((a, b) => a.w * a.h - b.w * b.h);
+      out[key] = found.slice(0, 1);
+    }
+    return out;
+  }, selectors);
+  writeFileSync(join(stills, `${name}.json`), JSON.stringify({ width: VIEW.width, height: VIEW.height, scale: SCALE, boxes }, null, 1));
+  const info = await page.evaluate(() => window.__promo);
+  console.log(JSON.stringify({ name, boxes: Object.fromEntries(Object.entries(boxes).map(([k, v]) => [k, v.length])), unmocked: info?.unmocked }));
 } else {
   const dir = join(ROOT, "frames", scene);
   rmSync(dir, { recursive: true, force: true });

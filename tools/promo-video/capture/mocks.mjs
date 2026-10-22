@@ -183,6 +183,10 @@ export function mocksFor(scene) {
         },
       ];
     }
+    case "home":
+      return [...common, ...homeMocks()];
+    case "stats":
+      return [...common, ...statsMocks()];
     default:
       return common;
   }
@@ -268,6 +272,155 @@ function lessonMocks(questions) {
           { word: "정말", accuracy: 93, errorType: "None" },
           { word: "맛있어요", accuracy: 96, errorType: "None" },
         ],
+      },
+    },
+  ];
+}
+
+/** 최근 7일 (10월 16~22일) — 매일 공부, 분야가 고르게 */
+const WEEK = ["2026-10-16", "2026-10-17", "2026-10-18", "2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22"];
+const MINUTES = [18, 26, 22, 31, 24, 35, 28];
+
+function homeMocks() {
+  return [
+    {
+      pattern: "^/retention/summary",
+      body: {
+        gems: USER.gems,
+        streak: USER.streak,
+        freeze: { owned: 2, max: 3, price: 200, superWeekly: 1, notice: null },
+        quests: {
+          day: "2026-10-22",
+          items: [],
+          slots: [
+            { id: "easy", slot: "easy", kind: "xp", category: null, promo: false, course: null, target: 30, progress: 30, done: true, claimed: true, gems: 5 },
+            { id: "normal", slot: "normal", kind: "correct", category: null, promo: false, course: "ko", target: 20, progress: 14, done: false, claimed: false, gems: 10 },
+            { id: "hard", slot: "hard", kind: "minutes", category: null, promo: false, course: null, target: 15, progress: 9, done: false, claimed: false, gems: 15 },
+          ],
+          rerolls: { used: 0, max: 1, left: 1 },
+          chest: { gems: 20, ready: false, claimed: false },
+        },
+        checkin: null,
+        comeback: null,
+        xpBoost: null,
+        streakGoal: { options: [], streakChest: { everyDays: 7, gems: 30 }, active: { days: 60, gems: 120, progress: 30, startDay: "2026-09-23" }, result: null },
+      },
+    },
+    {
+      pattern: "^/learn-progress",
+      body: { progress: { course: "ko", mode: "vocabulary", scope: "section", scopeNumber: 3, title: null, unit: "lesson", done: 14, total: 20, percent: 70 } },
+    },
+    {
+      pattern: "^/users/me/stats/weekly",
+      body: {
+        days: WEEK.map((date, i) => ({
+          date,
+          studyTimeSeconds: MINUTES[i] * 60,
+          totalQuestions: 40 + i * 6,
+          correctQuestions: 36 + i * 5,
+          xpEarned: 120 + i * 15,
+          categories: { vocab: 14 + i, grammar: 8 + (i % 3) * 2, expression: 5, conversation: 3 + (i % 2), listening: 6, topik: i % 2 ? 4 : 0 },
+        })),
+      },
+    },
+    { pattern: "^/notifications/unread-count", body: { count: 0 } },
+  ];
+}
+
+function statsMocks() {
+  const label = (date) => ["Ya", "Du", "Se", "Ch", "Pa", "Ju", "Sh"][new Date(date).getDay()];
+  const heatmap = Array.from({ length: 364 }, (_, i) => {
+    const date = new Date(Date.UTC(2025, 9, 24) + i * 86400000).toISOString().slice(0, 10);
+    const recent = i > 300;
+    return { date, intensity: recent ? ((i * 7) % 4) + 1 : i % 5 === 0 ? 0 : (i * 13) % 5 };
+  });
+  return [
+    {
+      pattern: "^/users/me/stats/period",
+      body: {
+        heatmap,
+        range: "week",
+        studiedLanguages: ["ko", "en"],
+        targetLanguage: "ko",
+        studyTime: {
+          avgPerDayLabel: "26 daq",
+          rangeLabel: "16–22 oktabr",
+          points: WEEK.map((date, i) => ({ date, label: label(date), minutes: MINUTES[i] })),
+        },
+        studyVolume: {
+          avgPerDay: 58,
+          points: WEEK.map((date, i) => ({
+            date, label: label(date),
+            vocab: 18 + i * 2, grammar: 9 + (i % 3) * 3, expression: 6 + (i % 2) * 2, conversation: 4 + i, listening: 7, topik: i % 2 ? 6 : 2, other: 1,
+          })),
+        },
+        today: {
+          avgProblems: 58,
+          avgTimeLabel: "26 daq",
+          studyTimeLabel: "28 daq",
+          totalQuestions: 64,
+          weekdayIndex: 4,
+          categories: [
+            { category: "vocab", newCount: 12, reviewAccuracy: 94, reviewCount: 18, total: 30 },
+            { category: "grammar", newCount: 4, reviewAccuracy: 88, reviewCount: 8, total: 12 },
+            { category: "conversation", newCount: 6, reviewAccuracy: null, reviewCount: 0, total: 6 },
+            { category: "listening", newCount: 5, reviewAccuracy: 90, reviewCount: 3, total: 8 },
+            { category: "topik", newCount: 8, reviewAccuracy: null, reviewCount: 0, total: 8 },
+          ],
+        },
+        todayHasData: true,
+      },
+    },
+    {
+      pattern: "^/users/me/stats/category",
+      body: {
+        chart: WEEK.map((date, i) => ({ date, label: label(date), newWords: 10 + (i % 3) * 3, knownWords: 120 + i * 14, reviewWords: 12 + i * 2 })),
+        knownWordsToday: 214,
+        newWordsToday: 12,
+        reviewAccuracy: 94,
+        reviewWordsToday: 18,
+        todayTime: "28 daq",
+        totalProblems: 2140,
+        totalTime: "41 soat",
+        trophyLevel: 3,
+      },
+    },
+    {
+      pattern: "^/users/me/stats/skills",
+      body: {
+        diagnosis: { category: "listening", key: "weakSpot", spread: 22, strongest: "vocab", weakest: "listening" },
+        rangeDays: 90,
+        totalAttempted: 2140,
+        skills: [
+          { category: "vocab", accuracy: 0.93, attempted: 820, correct: 763, daysSinceLast: 0, reliable: true, score: 92 },
+          { category: "grammar", accuracy: 0.86, attempted: 410, correct: 353, daysSinceLast: 0, reliable: true, score: 84 },
+          { category: "expression", accuracy: 0.88, attempted: 260, correct: 229, daysSinceLast: 1, reliable: true, score: 80 },
+          { category: "conversation", accuracy: 0.81, attempted: 190, correct: 154, daysSinceLast: 0, reliable: true, score: 76 },
+          { category: "listening", accuracy: 0.74, attempted: 230, correct: 170, daysSinceLast: 2, reliable: true, score: 70 },
+          { category: "topik", accuracy: 0.79, attempted: 230, correct: 182, daysSinceLast: 0, reliable: true, score: 74 },
+        ],
+      },
+    },
+    {
+      pattern: "^/study-path(\\?|$)",
+      body: {
+        courseId: "ko-general", levelPicked: true, currentDayIndex: 13, currentLevel: 2, currentSection: 3,
+        days: Array.from({ length: 20 }, (_, i) => ({
+          dayNumber: i + 1, id: `d${i + 1}`, phase: 1, section: 3, sectionStart: i === 0, unit: Math.floor(i / 5) + 1,
+          status: i < 13 ? "completed" : i === 13 ? "current" : "locked", title: `${i + 1}-kun`,
+          nodes: ["words", "grammar", "vocabQuiz"].map((kind, k) => {
+            const done = i < 13 || (i === 13 && k === 0);
+            return {
+              count: 10, done, group: k + 1, groupCount: 3, id: `d${i + 1}-${kind}`, kind,
+              lessonCount: 2, lessonsDone: done ? 2 : 0, nextLesson: done ? 2 : 0,
+              status: done ? "completed" : i === 13 && k === 1 ? "current" : "locked",
+            };
+          }),
+        })),
+        levelExam: { available: false, passed: false },
+        nextLevel: { description: "", level: 3, title: "3-daraja" },
+        pendingChests: 0,
+        score: 1240,
       },
     },
   ];

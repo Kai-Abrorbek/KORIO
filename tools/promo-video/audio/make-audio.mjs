@@ -135,3 +135,62 @@ for (const loop of LOOPS) {
   writeFileSync(out, audio);
   console.log(`✓ ${loop.file} (${Math.round(audio.length / 1024)} KB)`);
 }
+
+/**
+ * 런치 영상(KorioLaunchUz) — 짧은 내레이션 + 게임 느낌 없는 세련된 배경음악.
+ * 내레이션은 같은 목소리(Liam), 파일 이름 launch-<장면>.mp3 (src/launch/timeline 의 voice).
+ */
+const LAUNCH_NARRATION = {
+  hook: { text: "Nimani oʻrganmoqchisiz?", speed: 1 },
+  home: "Hammasi — bitta ilovada.",
+  langs: "Koreys va ingliz tili.",
+  "modes-ko": { text: "Har bir koʻnikma uchun — alohida mashgʻulot.", speed: 1 },
+  "modes-en": "Ingliz tilida ham.",
+  // "Oʻsishingizni" 는 받아쓰기마다 뭉개져서 또렷한 말로
+  stats: { text: "Natijalaringizni kuzating.", speed: 1 },
+  // "Ey-Ay" 는 "ey-ey" 로 들린다 — 우즈벡어 그대로
+  tutor: { text: "Sunʼiy intellekt ustoz bilan jonli suhbat.", speed: 1.05 },
+  speaking: "Talaffuzingiz darhol baholanadi.",
+  topik: "TOPIK imtihoniga tayyorgarlik.",
+  punch: { text: "Bugun boshlang.", speed: 1 },
+  end: "Korio. Hoziroq yuklab oling.",
+};
+for (const [name, line] of Object.entries(LAUNCH_NARRATION)) {
+  const out = join(OUT, `launch-${name}.mp3`);
+  if (!force && existsSync(out)) continue;
+  const { text, speed = 1.05 } = typeof line === "string" ? { text: line } : line;
+  const audio = await post(`https://api.elevenlabs.io/v1/text-to-speech/${NARRATOR}?output_format=mp3_44100_128`, {
+    text,
+    model_id: "eleven_v4_turbo",
+    language_code: "uz",
+    voice_settings: { stability: 0.45, similarity_boost: 0.8, style: 0.5, use_speaker_boost: true, speed },
+  });
+  writeFileSync(out, audio);
+  console.log(`✓ launch-${name}.mp3 (${Math.round(audio.length / 1024)} KB)`);
+}
+
+const LAUNCH_LOOPS = [
+  {
+    file: "launch-music-a.mp3",
+    text:
+      "Modern minimal electronic product launch music, warm analog synth chords, tight punchy kick, crisp claps, " +
+      "subtle plucks, confident and inspiring, 115 BPM, no vocals, polished tech commercial, seamless loop",
+  },
+  {
+    file: "launch-music-b.mp3",
+    text:
+      "Uplifting modern electronic tech commercial music, bright synth piano stabs, driving four-on-the-floor beat, " +
+      "airy pads, inspiring and premium, 115 BPM, no vocals, seamless loop",
+  },
+];
+for (const loop of LAUNCH_LOOPS) {
+  const out = join(OUT, loop.file);
+  if (!force && existsSync(out)) continue;
+  const audio = await post("https://api.elevenlabs.io/v1/sound-generation?output_format=mp3_44100_128", {
+    text: loop.text,
+    duration_seconds: 22,
+    prompt_influence: 0.6,
+  });
+  writeFileSync(out, audio);
+  console.log(`✓ ${loop.file} (${Math.round(audio.length / 1024)} KB)`);
+}
