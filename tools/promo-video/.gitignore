@@ -1,0 +1,9 @@
+node_modules/
+# 촬영 중간물 · 결과 영상 — 다시 만들 수 있다
+frames/
+out/
+public/clips/
+public/brand/
+public/fonts/
+public/sfx/
+src/cues.generated.json
