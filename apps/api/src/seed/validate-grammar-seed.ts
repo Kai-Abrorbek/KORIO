@@ -204,6 +204,8 @@ for (const node of nodes) {
   }
   for (const lesson of node.lessons ?? []) {
     const grammarCode = lesson.grammarCode;
+    let grammarFocusBlanks = 0;
+    let contextFocusBlanks = 0;
     if (!knownGrammar.has(grammarCode)) {
       fail(
         grammarCode ?? 'lesson',
@@ -244,6 +246,23 @@ for (const node of nodes) {
         }
       }
       if (question.type === 'grammar_blank') {
+        const hasGrammarFocus = question.tags?.includes('blank-focus-grammar');
+        const hasContextFocus = question.tags?.includes('blank-focus-context');
+        if (hasGrammarFocus) {
+          grammarFocusBlanks += 1;
+        }
+        if (hasContextFocus) {
+          contextFocusBlanks += 1;
+        }
+        if (
+          scope.targetLanguage === 'en' &&
+          hasGrammarFocus === hasContextFocus
+        ) {
+          fail(
+            questionCode,
+            '빈칸 초점 태그는 문법 또는 문맥 중 하나여야 한다',
+          );
+        }
         const rebuilt = `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`;
         if (
           question.answerTranslation?.en &&
@@ -275,8 +294,28 @@ for (const node of nodes) {
           if (!row.options?.includes(row.correct)) {
             fail(questionCode, `buildRows[${index}] 보기에 정답이 없다`);
           }
+          const tokens = [row.correct, ...(row.options ?? [])];
+          if (
+            tokens.some(
+              (token) => typeof token !== 'string' || !/^\S+$/u.test(token),
+            )
+          ) {
+            fail(
+              questionCode,
+              `buildRows[${index}] 는 공백 없는 영어 토큰 한 개씩이어야 한다`,
+            );
+          }
         }
       }
+    }
+    if (
+      scope.targetLanguage === 'en' &&
+      (grammarFocusBlanks !== 5 || contextFocusBlanks !== 5)
+    ) {
+      fail(
+        grammarCode,
+        `빈칸 초점이 문법 ${grammarFocusBlanks}개·문맥 ${contextFocusBlanks}개다 (5개씩 필요)`,
+      );
     }
   }
 }

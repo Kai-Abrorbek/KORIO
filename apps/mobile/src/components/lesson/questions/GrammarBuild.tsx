@@ -434,11 +434,11 @@ export default function GrammarBuild({
         </View>
       ) : (
         <View style={st.pickArea}>
-          {/* 단어 스택 (뒤=위, 앞=아래) */}
+          {/* 긴 문장도 화면을 넘지 않도록 현재 행과 다음 세 행만 보여 준다. */}
           <View style={st.stack}>
-            {q.rows.map((row, i) => {
-              if (i < currentRow) return null;
-              const depth = i - currentRow;
+            {q.rows.slice(currentRow, currentRow + 4).map((row, offset) => {
+              const i = currentRow + offset;
+              const depth = offset;
               const active = depth === 0;
               return (
                 <Animated.View

@@ -198,9 +198,9 @@ export function GrammarBuild({ answerState, onAnswer, onNext, question }: Questi
           </>
         ) : (
           <div className={styles.stack}>
-            {rows.map((row, index) => {
-              if (index < currentRow) return null;
-              const depth = index - currentRow;
+            {rows.slice(currentRow, currentRow + 4).map((row, offset) => {
+              const index = currentRow + offset;
+              const depth = offset;
               const active = depth === 0;
               return (
                 <div
