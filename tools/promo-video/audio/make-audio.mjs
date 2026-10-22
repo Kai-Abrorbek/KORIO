@@ -66,6 +66,47 @@ for (const line of LINES) {
 }
 
 /**
+ * 내레이션 — 화면 자막을 그대로 읽는다 (src/timeline 의 voice 이름과 같다).
+ * 튜터와 다른 목소리: ElevenLabs 기본 목소리 "Liam". 우즈벡어는 v4 turbo + uz.
+ * 소리 나는 대로 적은 곳: AI → "Ey-Ay", 20 → "yigirma", oʻ/gʻ 는 우즈벡 글자 ʻ(U+02BB).
+ */
+const NARRATOR = "TX3LPaxmHKxFdv7VOQHJ";
+const NARRATION = {
+  // 첫 문장은 또박또박 (빠르면 "Koreys" 가 "Ko'rish" 로 들린다)
+  hook: { text: "Koreys tilini — oʻyin kabi oʻrganing!", speed: 1 },
+  "tutor-1": "Jonli Ey-Ay ustoz! Ovozli suhbat, oʻzbekcha tushuntiradi.",
+  "tutor-2": "Xato qilsangiz — hazil bilan tuzatadi!",
+  lesson: "Qisqa va qiziqarli darslar — rasm, ovoz va oʻyinlar bilan.",
+  speaking: "Talaffuzingizni Ey-Ay baholaydi. Gapiring — darhol ball oling!",
+  stamp: "Har bir dars — kichik gʻalaba!",
+  hangul: "Hangul alifbosini noldan — harfma-harf, oson.",
+  topik: "TOPIK imtihoniga tayyorgarlik — haqiqiy imtihon uslubidagi savollar.",
+  streak: "Har kuni oʻrganing, olovni oʻchirmang!",
+  league: "Haftalik liga — yigirma kishi bilan bellashing!",
+  leagueResult: "Yuqori ligaga koʻtariling!",
+  jackpot: "Sovgʻalar va kutilmagan bonuslar!",
+  avatar: "Oʻz qahramoningizni yarating — kiyim, soch, uy hayvoni...",
+  stickers: "...va undan Telegram stikerlari! Koreyscha soʻzlar bilan, faqat sizniki.",
+  rocket: "Darajangiz oʻsib boradi!",
+  "telegram-1": "Telegramda ham ishlaydi — hech narsa yuklamasdan!",
+  "telegram-2": "Koreys va ingliz tili — bitta ilovada.",
+  cta: "Korio! Hoziroq yuklab oling — App Store, Google Play yoki Telegramda!",
+};
+for (const [name, line] of Object.entries(NARRATION)) {
+  const { text, speed = 1.08 } = typeof line === "string" ? { text: line } : line;
+  const out = join(OUT, `narr-${name}.mp3`);
+  if (!force && existsSync(out)) continue;
+  const audio = await post(`https://api.elevenlabs.io/v1/text-to-speech/${NARRATOR}?output_format=mp3_44100_128`, {
+    text,
+    model_id: "eleven_v4_turbo",
+    language_code: "uz",
+    voice_settings: { stability: 0.4, similarity_boost: 0.8, style: 0.6, use_speaker_boost: true, speed },
+  });
+  writeFileSync(out, audio);
+  console.log(`✓ narr-${name}.mp3 (${Math.round(audio.length / 1024)} KB)`);
+}
+
+/**
  * 배경음악 — 이 키에는 음악 생성 권한이 없어서 효과음 생성(최대 22초)으로 루프를 만든다.
  * 편집에서 이어 붙인다 (src 의 MusicBed).
  */

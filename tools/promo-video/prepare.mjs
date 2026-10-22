@@ -5,9 +5,11 @@
  *   public/fonts  Ionicons 글꼴 (텔레그램 앱과 같은 아이콘)
  *   public/sfx    앱 효과음 (촬영 때 기록한 clips/*.sounds.json 이 가리키는 것)
  *   src/cues.generated.json  장면별 효과음 시각
+ *   src/media.generated.json 내레이션·클립 길이
  */
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 
 const ROOT = import.meta.dirname;
 const REPO = join(ROOT, "..", "..");
@@ -33,4 +35,37 @@ for (const name of existsSync(clips) ? readdirSync(clips) : []) {
     .map((s) => ({ ...s, file: `sfx/${s.file.slice("/sounds/".length)}` }));
 }
 writeFileSync(join(ROOT, "src", "cues.generated.json"), JSON.stringify(cues, null, 1));
-console.log("✓ public/brand · public/fonts · public/sfx · src/cues.generated.json");
+
+// 길이 — 내레이션은 말이 끝나는 곳(뒤 무음 뺌, 초), 클립은 프레임 수. 구성표가 이걸로 장면 길이를 잡는다
+function speechEnd(file) {
+  const log = spawnSync("ffmpeg", ["-hide_banner", "-i", file, "-af", "silencedetect=noise=-40dB:d=0.15", "-f", "null", "-"], {
+    encoding: "utf8",
+  }).stderr;
+  const [, h, m, s] = log.match(/Duration: (\d+):(\d+):([\d.]+)/);
+  const duration = Number(h) * 3600 + Number(m) * 60 + Number(s);
+  const events = [...log.matchAll(/silence_(start|end): ([\d.]+)/g)].map(([, kind, t]) => ({ kind, t: Number(t) }));
+  const last = events.at(-1);
+  if (last?.kind === "start") return last.t;
+  if (last?.kind === "end" && duration - last.t < 0.05) return events.at(-2)?.t ?? duration;
+  return duration;
+}
+const audio = join(PUBLIC, "audio");
+const voices = Object.fromEntries(
+  readdirSync(audio)
+    .filter((name) => name.startsWith("narr-") && name.endsWith(".mp3"))
+    .map((name) => [name.slice("narr-".length, -".mp3".length), Number(speechEnd(join(audio, name)).toFixed(3))]),
+);
+const clipFrames = Object.fromEntries(
+  (existsSync(clips) ? readdirSync(clips) : [])
+    .filter((name) => name.endsWith(".mp4"))
+    .map((name) => [
+      name.slice(0, -".mp4".length),
+      Number(
+        spawnSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-count_packets", "-show_entries", "stream=nb_read_packets", "-of", "csv=p=0", join(clips, name)], {
+          encoding: "utf8",
+        }).stdout.trim(),
+      ),
+    ]),
+);
+writeFileSync(join(ROOT, "src", "media.generated.json"), JSON.stringify({ voices, clips: clipFrames }, null, 1));
+console.log("✓ public/brand · public/fonts · public/sfx · src/cues.generated.json · src/media.generated.json");

@@ -14,7 +14,8 @@ shoot() {
 }
 ONLY=("$@")
 
-shoot tutor 10500
+# 질문만 떠 있는 4.5초 + 대화 10초 + 마지막 내레이션 동안 3초
+shoot tutor 17500
 shoot lesson 3600 "lessonId=promo&category=vocabulary" '[{"at":800,"click":"button:has-text(\"사과\")"},{"at":1500,"click":"button:has-text(\"Tekshirish\")"}]'
 shoot speaking 4800 "lessonId=promo&category=vocabulary" '[{"at":700,"click":"button[aria-label=\"Gapirish\"]","wait":1800},{"at":1900,"click":"button[aria-label=\"Gapirish\"]","wait":600}]'
 shoot stamp 4500 "xp=45&accuracy=96&time=154"

@@ -4,12 +4,13 @@ import { FONT, HIGHLIGHT, INK } from "./theme";
 /**
  * 튜터 통화 위에 띄우는 큰 말풍선 — 휴대폰 안 글씨는 작아서 대화를 크게 다시 보여 준다.
  * 시각은 촬영 각본(capture/promo-stage TUTOR_SCRIPT)과 같다: 400ms · 1100ms · 6000ms · 6800ms.
+ * 마지막 두 풍선은 장면 끝(둘째 내레이션)까지 남는다.
  */
 const LINES = [
   { at: 12, until: 172, who: "Siz", side: "right", text: "Oishii!" },
   { at: 33, until: 172, who: "AI ustoz", side: "left", text: "OISHII?! Bu yaponcha-ku!\nKoreyschada — 맛있어요!", speak: 141 },
-  { at: 180, until: 300, who: "Siz", side: "right", text: "맛있어요!" },
-  { at: 204, until: 300, who: "AI ustoz", side: "left", text: "Ana! Zo‘r! 😄", speak: 48 },
+  { at: 180, until: 999, who: "Siz", side: "right", text: "맛있어요!" },
+  { at: 204, until: 999, who: "AI ustoz", side: "left", text: "Ana! Zo‘r! 😄", speak: 48 },
 ] as const;
 
 function Bubble({ line }: { line: (typeof LINES)[number] }) {

@@ -55,6 +55,8 @@ export function Captions() {
     <>
       {SECTIONS.flatMap((section) =>
         section.captions.map((caption, i) => {
+          // 훅·마지막 화면은 자기 글자가 있다 — 내레이션만
+          if (caption.hidden) return null;
           const start = section.from + (caption.at ?? 0);
           const next = section.captions[i + 1];
           const end = next ? section.from + (next.at ?? 0) : section.from + section.dur;

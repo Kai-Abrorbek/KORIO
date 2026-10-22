@@ -5,11 +5,11 @@ import { Cta } from "./Cta";
 import { Hook } from "./Hook";
 import { Phone } from "./Phone";
 import { Soundtrack } from "./Soundtrack";
-import { section } from "./timeline";
+import { section, TUTOR_LEAD } from "./timeline";
 import { TutorDialogue } from "./TutorDialogue";
 import { useIconFont } from "./theme";
 
-/** KORIO 소개 영상 (우즈벡어 · 9:16 · 60초) */
+/** KORIO 소개 영상 (우즈벡어 자막+내레이션 · 9:16 · 길이는 내레이션에 맞춰 timeline 이 정한다) */
 export function KorioIntro() {
   useIconFont();
   const hook = section("hook");
@@ -22,7 +22,11 @@ export function KorioIntro() {
         <Hook exitAt={hook.dur - 10} />
       </Sequence>
       <Phone />
-      <Sequence durationInFrames={tutor.dur} from={tutor.from} name="tutor dialogue">
+      <Sequence
+        durationInFrames={tutor.dur - TUTOR_LEAD}
+        from={tutor.from + TUTOR_LEAD}
+        name="tutor dialogue"
+      >
         <TutorDialogue />
       </Sequence>
       <Captions />

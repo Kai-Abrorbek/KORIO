@@ -61,14 +61,18 @@ const TUTOR_SCRIPT: {
   { at: 9700, state: "listening" },
 ];
 
+/** 대화 전에 질문만 떠 있는 시간 — 편집에서 이 동안 "Jonli AI ustoz" 내레이션이 나온다 (src/timeline TUTOR_IDLE) */
+const TUTOR_IDLE_MS = 4500;
+
 function TutorScene() {
-  const [t, setT] = useState(0);
+  const [clock, setClock] = useState(0);
   useEffect(() => {
     // 촬영 시계(가짜 시계)로 33ms 마다 — 자막이 말하는 속도로 한 글자씩
-    const id = window.setInterval(() => setT((value) => value + 33), 33);
+    const id = window.setInterval(() => setClock((value) => value + 33), 33);
     return () => window.clearInterval(id);
   }, []);
-  const steps = TUTOR_SCRIPT.filter((step) => step.at <= t);
+  const t = clock - TUTOR_IDLE_MS;
+  const steps = TUTOR_SCRIPT.filter((step) => step.at <= Math.max(0, t));
   const now = steps.at(-1) ?? TUTOR_SCRIPT[0];
   const lines = steps.filter((step) => step.teacher);
   const last = lines.at(-1);
@@ -91,7 +95,7 @@ function TutorScene() {
       canReplay
       caption={shown(last)}
       captionPrev={shown(prev)}
-      elapsedSec={42 + Math.floor(t / 1000)}
+      elapsedSec={42 + Math.floor(clock / 1000)}
       emotion={now.state === "speaking" ? now.emotion : undefined}
       error={null}
       focusHint={focus}
