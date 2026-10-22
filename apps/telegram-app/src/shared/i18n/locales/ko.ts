@@ -1211,6 +1211,12 @@ export default {
       great: "거의 다 맞혔어요",
       good: "끝까지 해냈어요",
     },
+    /** 영어 코스의 도장 (Excellent! · Well done! · Good job!) 뜻풀이 */
+    stampEn: {
+      perfect: "“훌륭해요!” — 모두 맞혔어요",
+      great: "“잘했어요!” — 거의 다 맞혔어요",
+      good: "“수고했어요!” — 끝까지 해냈어요",
+    },
     labels: {
       perfect: "완벽해요",
       excellent: "훌륭해요",

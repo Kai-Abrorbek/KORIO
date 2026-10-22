@@ -4,9 +4,19 @@ import { useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { createCinemaAudio } from "../../shared/browser/cinema-audio";
 import { cinemaHaptic, prefersReducedMotion, runCinemaClock } from "../../shared/browser/cinema-clock";
-import { BOLT_PATH, cinemaAt, fountainAt, starPath } from "../../shared/model/cinema";
+import { useCinemaLanguage } from "../../shared/browser/use-cinema-language";
+import {
+  BOLT_PATH,
+  cinemaAt,
+  cinemaVoices,
+  fountainAt,
+  starPath,
+  type CinemaLanguage,
+} from "../../shared/model/cinema";
 import {
   JACKPOT,
+  JACKPOT_WORD,
+  SLOT_LETTERS,
   JACKPOT_TRACK,
   SLOT_SYMBOLS,
   bulbOn,
@@ -33,6 +43,10 @@ const SOURCES: Record<JackpotSound, string> = {
   voJackpot: "/sounds/energy/vo-jackpot.mp3",
   collect: "/sounds/energy/collect.mp3",
 };
+/** 영어 코스 — "Jackpot!" */
+const VOICES_EN: Partial<Record<JackpotSound, string>> = {
+  voJackpot: "/sounds/energy/vo-jackpot-en.mp3",
+};
 const GAIN: Partial<Record<JackpotSound, number>> = { slotSpin: 0.55, slotStop: 0.9, jackpot: 0.75, collect: 0.7 };
 const CUES = jackpotCues() as { t: number; sound: JackpotSound }[];
 
@@ -54,7 +68,7 @@ const BULB_SPOTS = Array.from({ length: BULBS }, (_, index) => {
   return { x: 0, y: CAB_H - (d - 2 * CAB_W - CAB_H) };
 });
 
-function SymbolFace({ symbol }: { symbol: SlotSymbol }) {
+function SymbolFace({ symbol, language }: { symbol: SlotSymbol; language: CinemaLanguage }) {
   if (symbol === "bolt") {
     return (
       <svg height={50} viewBox="0 0 100 100" width={50}>
@@ -78,7 +92,7 @@ function SymbolFace({ symbol }: { symbol: SlotSymbol }) {
       </svg>
     );
   }
-  return <b className={styles.symbolText}>{symbol}</b>;
+  return <b className={styles.symbolText}>{SLOT_LETTERS[language][symbol]}</b>;
 }
 
 /**
@@ -92,6 +106,8 @@ export function EnergyJackpot({ amount, onDone, subtitle }: { amount: number; on
   const [{ W, H }] = useState(() => ({ W: window.innerWidth, H: window.innerHeight }));
   const coinCount = jackpotCoinCount(amount);
   const coins = useMemo(() => jackpotCoins(coinCount, 110), [coinCount]);
+  // 간판 글씨 · 릴의 글자 · 외침은 배우는 말로 (영어 코스는 JACKPOT · A · E)
+  const language = useCinemaLanguage();
   const distances = useMemo(() => JACKPOT.stops.map(reelDistance), []);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
@@ -113,7 +129,7 @@ export function EnergyJackpot({ amount, onDone, subtitle }: { amount: number; on
     const trayY = H / 2 + CAB_H / 2 - 22;
     const target = energyBadgePoint();
     const end = jackpotEnd(coinCount);
-    const audio = createCinemaAudio({ sources: SOURCES, gains: GAIN, cues: CUES });
+    const audio = createCinemaAudio({ sources: cinemaVoices(SOURCES, VOICES_EN, language), gains: GAIN, cues: CUES });
     audio.preload();
     // 동작 줄이기면 잭팟 순간부터
     const reduce = prefersReducedMotion();
@@ -180,7 +196,7 @@ export function EnergyJackpot({ amount, onDone, subtitle }: { amount: number; on
       // 마지막 동전 소리는 닫히는 순간에도 울리고 있다 — 끊지 않는다
       audio.release();
     };
-  }, [W, H, coinCount, coins, distances]);
+  }, [W, H, coinCount, coins, distances, language]);
 
   return (
     <div aria-live="polite" className={styles.overlay}>
@@ -209,7 +225,7 @@ export function EnergyJackpot({ amount, onDone, subtitle }: { amount: number; on
 
             {/* 위 간판 */}
             <div className={styles.marquee}>
-              <b data-no-translate>잭팟</b>
+              <b data-no-translate>{JACKPOT_WORD[language]}</b>
             </div>
 
             {/* 세 칸 */}
@@ -225,7 +241,7 @@ export function EnergyJackpot({ amount, onDone, subtitle }: { amount: number; on
                   >
                     {Array.from({ length: N * 3 }, (_, j) => (
                       <div className={styles.symbol} data-no-translate key={j}>
-                        <SymbolFace symbol={SLOT_SYMBOLS[j % N] as SlotSymbol} />
+                        <SymbolFace language={language} symbol={SLOT_SYMBOLS[j % N] as SlotSymbol} />
                       </div>
                     ))}
                   </div>

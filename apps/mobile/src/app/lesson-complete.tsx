@@ -16,8 +16,12 @@ import { ThemeColors, themes } from "@/constants/theme";
 import { ReferralApi } from "@/services/referral.service";
 import { reportQuestEvent } from "@/features/retention/questActions";
 import { Pressable } from "@/components/ui/Pressables";
-import { cinemaAt, shakeAt } from "@/components/cinema/cinema";
-import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import { cinemaAt, cinemaVoices, shakeAt } from "@/components/cinema/cinema";
+import {
+  useCinemaAudio,
+  useCinemaClock,
+  useCinemaLanguage,
+} from "@/components/cinema/useCinema";
 import Confetti from "@/components/lesson-complete/Confetti";
 import StatCard from "@/components/lesson-complete/StatCard";
 import StampCinema from "@/components/lesson-complete/StampCinema";
@@ -40,6 +44,13 @@ const STAMP_SOURCES: Record<StampSound, number> = {
   voPerfect: require("../../assets/sounds/lesson/vo-perfect.mp3"),
   voGreat: require("../../assets/sounds/lesson/vo-great.mp3"),
   voGood: require("../../assets/sounds/lesson/vo-good.mp3"),
+};
+
+/** 영어 코스 — 같은 선생님이 영어 도장을 읽는다 */
+const STAMP_VOICES_EN: Partial<Record<StampSound, number>> = {
+  voPerfect: require("../../assets/sounds/lesson/vo-perfect-en.mp3"),
+  voGreat: require("../../assets/sounds/lesson/vo-great-en.mp3"),
+  voGood: require("../../assets/sounds/lesson/vo-good-en.mp3"),
 };
 
 /** 목소리가 효과음에 묻히지 않게 */
@@ -95,7 +106,12 @@ export default function LessonCompleteScreen() {
   const stageSize = Math.min(screenW * 0.66, screenH * 0.36, 270);
   const isDark = theme.bg === themes.dark.bg;
   const { clock, run } = useCinemaClock(STAMP_CINEMA.end);
-  const audio = useCinemaAudio(STAMP_SOURCES, STAMP_GAIN);
+  // 도장 글씨와 목소리는 배우는 말로 — 영어 코스는 "Excellent!"
+  const language = useCinemaLanguage();
+  const audio = useCinemaAudio(
+    cinemaVoices(STAMP_SOURCES, STAMP_VOICES_EN, language),
+    STAMP_GAIN,
+  );
   const haptics = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // 순차 애니: 현재 몇 번째 카드까지 진행 (-1 = 도장이 아직 안 끝남)
@@ -309,6 +325,7 @@ export default function LessonCompleteScreen() {
           <StampCinema
             clock={clock}
             tier={tier}
+            language={language}
             size={stageSize}
             ink={isDark ? "#9D8DFF" : "#5B4DD4"}
             paper={theme.surface}
@@ -318,7 +335,7 @@ export default function LessonCompleteScreen() {
         </Pressable>
 
         <Animated.Text style={[styles.caption, captionStyle]} numberOfLines={2}>
-          {t(`lessonComplete.stamp.${tier}`)}
+          {t(`lessonComplete.${language === "en" ? "stampEn" : "stamp"}.${tier}`)}
         </Animated.Text>
 
         <View style={styles.statsRow}>

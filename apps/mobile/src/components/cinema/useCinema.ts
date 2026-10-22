@@ -9,7 +9,12 @@ import {
 import { useSettingsStore } from "@/store/settings.store";
 import { activatePlaybackAudio } from "@/utils/audio-session";
 import { isUiSoundCaptureActive } from "@/utils/ui-sound-capture";
-import type { CinemaCue } from "./cinema";
+import { cinemaLanguageOf, type CinemaCue, type CinemaLanguage } from "./cinema";
+
+/** 연출의 목소리·글자 언어 = 지금 배우는 코스. 영어 코스면 영어 목소리·글씨 */
+export function useCinemaLanguage(): CinemaLanguage {
+  return cinemaLanguageOf(useSettingsStore((s) => s.learnCourse));
+}
 
 /**
  * 연출 시계 — 0 에서 end(ms) 까지 한 번 곧게 흐른다. 부위마다 이 값으로 자기 자리를 계산한다

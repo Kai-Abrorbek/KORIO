@@ -52,6 +52,19 @@ export const LEVEL_UP_AUDIO: CinemaAudioConfig<CinemaSound> = {
   cues: CINEMA_SOUND_CUES,
 };
 
+/** 영어 코스 — 같은 목소리가 "Three! Two! One! Liftoff!" (앱 level-up 화면과 같다) */
+export const LEVEL_UP_AUDIO_EN: CinemaAudioConfig<CinemaSound> = {
+  ...LEVEL_UP_AUDIO,
+  sources: {
+    ...LEVEL_UP_AUDIO.sources,
+    vo3: "/sounds/levelup/vo-3-en.mp3",
+    vo2: "/sounds/levelup/vo-2-en.mp3",
+    vo1: "/sounds/levelup/vo-1-en.mp3",
+    voGo: "/sounds/levelup/vo-go-en.mp3",
+    voArrive: "/sounds/levelup/vo-arrive-en.mp3",
+  },
+};
+
 export function createCinemaAudio<S extends string>({ sources, gains = {}, cues = [] }: CinemaAudioConfig<S>) {
   const ctx = sfxAudioContext();
   const buffers = new Map<S, Promise<AudioBuffer | null>>();

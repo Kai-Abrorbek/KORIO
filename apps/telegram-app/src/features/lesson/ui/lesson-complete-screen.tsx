@@ -14,7 +14,8 @@ import { StampCinema, type StampCinemaHandle } from "./stamp-cinema";
 import { playSfx, preloadSfx } from "../../../shared/browser/sfx";
 import { createCinemaAudio, type CinemaAudio } from "../../../shared/browser/cinema-audio";
 import { cinemaHaptic, prefersReducedMotion, runCinemaClock, type CinemaClock } from "../../../shared/browser/cinema-clock";
-import { cinemaAt, shakeAt } from "../../../shared/model/cinema";
+import { useCinemaLanguage } from "../../../shared/browser/use-cinema-language";
+import { cinemaAt, cinemaVoices, shakeAt } from "../../../shared/model/cinema";
 import {
   STAMP_CINEMA,
   STAMP_SHAKE,
@@ -39,6 +40,13 @@ const STAMP_SOURCES: Record<StampSound, string> = {
   voPerfect: "/sounds/lesson/vo-perfect.mp3",
   voGreat: "/sounds/lesson/vo-great.mp3",
   voGood: "/sounds/lesson/vo-good.mp3",
+};
+
+/** 영어 코스 — 같은 선생님이 영어 도장을 읽는다 (앱과 같다) */
+const STAMP_VOICES_EN: Partial<Record<StampSound, string>> = {
+  voPerfect: "/sounds/lesson/vo-perfect-en.mp3",
+  voGreat: "/sounds/lesson/vo-great-en.mp3",
+  voGood: "/sounds/lesson/vo-good-en.mp3",
 };
 
 /** 목소리가 효과음에 묻히지 않게 */
@@ -176,9 +184,16 @@ function StampContent({ accuracy, time, xp }: { accuracy: number; time: string; 
     return () => window.removeEventListener("resize", measure);
   }, []);
 
+  // 도장 글씨와 목소리는 배우는 말로 — 영어 코스는 "Excellent!"
+  const language = useCinemaLanguage();
+
   // 한 번만 — 들어온 순간의 결과로 돈다 (그리기 전에 첫 장면을 맞춘다)
   useLayoutEffect(() => {
-    const sound = createCinemaAudio({ sources: STAMP_SOURCES, gains: STAMP_GAIN, cues: stampSoundCues(tier) });
+    const sound = createCinemaAudio({
+      sources: cinemaVoices(STAMP_SOURCES, STAMP_VOICES_EN, language),
+      gains: STAMP_GAIN,
+      cues: stampSoundCues(tier),
+    });
     sound.preload();
     audio.current = sound;
     const reduce = prefersReducedMotion();
@@ -227,7 +242,7 @@ function StampContent({ accuracy, time, xp }: { accuracy: number; time: string; 
       sound.dispose();
       audio.current = null;
     };
-  }, [tier]);
+  }, [tier, language]);
 
   // 기록 카드가 하나 찍힐 때마다 톡
   useEffect(() => {
@@ -243,7 +258,7 @@ function StampContent({ accuracy, time, xp }: { accuracy: number; time: string; 
     current.seek(STAMP_CINEMA.end);
   };
 
-  const captionKey = `lessonComplete.stamp.${tier}`;
+  const captionKey = `lessonComplete.${language === "en" ? "stampEn" : "stamp"}.${tier}`;
 
   return (
     <section className={`${styles.completeContent} ${styles.stampContent}`} ref={content}>
@@ -254,6 +269,7 @@ function StampContent({ accuracy, time, xp }: { accuracy: number; time: string; 
         <StampCinema
           grid={isDark ? "#33333D" : "#F0EEFA"}
           ink={isDark ? "#9D8DFF" : "#5B4DD4"}
+          language={language}
           ref={stamp}
           size={stageSize}
           tier={tier}

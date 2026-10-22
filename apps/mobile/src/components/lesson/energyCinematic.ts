@@ -14,6 +14,7 @@ import {
   type CinemaCue,
   type CinemaKey,
   type FountainItem,
+  type CinemaLanguage,
 } from "@/components/cinema/cinema";
 
 export type EnergySound =
@@ -175,6 +176,18 @@ export const JACKPOT = {
 } as const;
 
 export const SLOT_SYMBOLS = ["bolt", "가", "star", "한", "gem"] as const;
+
+/** 릴의 글자 칸 — 영어 코스면 한글 대신 알파벳 (가 → A, 한 → E) */
+export const SLOT_LETTERS: Record<CinemaLanguage, Record<"가" | "한", string>> = {
+  ko: { 가: "가", 한: "한" },
+  en: { 가: "A", 한: "E" },
+};
+
+/** 잭팟 간판 글씨 */
+export const JACKPOT_WORD: Record<CinemaLanguage, string> = {
+  ko: "잭팟",
+  en: "JACKPOT",
+};
 export type SlotSymbol = (typeof SLOT_SYMBOLS)[number];
 /** 동전(에너지) 수 — 받은 양과 상관없이 넘치지 않게 */
 export function jackpotCoinCount(amount: number) {

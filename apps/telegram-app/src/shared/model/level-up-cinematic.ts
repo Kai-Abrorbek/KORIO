@@ -187,10 +187,16 @@ export function countWord(start: number, hold = 470, scaleFrom = 1.35): { opacit
 }
 
 export const COUNT_WORDS = [
-  { ko: "셋", sub: "3", ...countWord(600) },
-  { ko: "둘", sub: "2", ...countWord(1200) },
-  { ko: "하나", sub: "1", ...countWord(1800) },
+  { ko: "셋", en: "Three", sub: "3", ...countWord(600) },
+  { ko: "둘", en: "Two", sub: "2", ...countWord(1200) },
+  { ko: "하나", en: "One", sub: "1", ...countWord(1800) },
 ] as const;
+
+/** 발사 외침 — 배우는 말로 (영어 코스는 목소리도 "Liftoff!"). 키는 cinema.ts 의 CinemaLanguage */
+export const GO_TEXT: Record<"ko" | "en", string> = {
+  ko: "출발!",
+  en: "Liftoff!",
+};
 
 export const GO_WORD = countWord(2400, 600, 1.6);
 

@@ -14,6 +14,7 @@ import {
   CLOUD_SHAPES,
   CLOUDS,
   COUNT_WORDS,
+  GO_TEXT,
   FLAG_BOX,
   FLAG_SHAPES,
   FLAME_BOX,
@@ -42,7 +43,8 @@ import {
   puffAt,
   warpY,
 } from "../../../shared/model/level-up-cinematic";
-import { LEVEL_UP_AUDIO, createCinemaAudio } from "../../../shared/browser/cinema-audio";
+import { LEVEL_UP_AUDIO, LEVEL_UP_AUDIO_EN, createCinemaAudio } from "../../../shared/browser/cinema-audio";
+import { useCinemaLanguage } from "../../../shared/browser/use-cinema-language";
 import { useAppLanguage } from "../../../shared/i18n/language-context";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
@@ -61,6 +63,8 @@ export function LevelUpScreen() {
   const router = useRouter();
   const { user } = useTelegramAuth();
   const { language } = useAppLanguage();
+  // 카운트다운 글씨와 목소리는 배우는 말로 (영어 코스는 Three · Two · One · Liftoff!)
+  const spoken = useCinemaLanguage();
   const [payload] = useState<LevelUpPayload | null>(() => currentLevelUp());
   const stageRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 390, h: 844 });
@@ -129,7 +133,7 @@ export function LevelUpScreen() {
   // 그리기 전에 첫 장면을 맞춘다 (안 그러면 한 프레임 동안 로켓이 맨 위·불꽃이 다 켜진 채 보인다)
   useLayoutEffect(() => {
     if (!payload) return;
-    const audio = createCinemaAudio(LEVEL_UP_AUDIO);
+    const audio = createCinemaAudio(spoken === "en" ? LEVEL_UP_AUDIO_EN : LEVEL_UP_AUDIO);
     audio.preload();
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     let start = performance.now() - (reduce ? CINEMA.reveal : 0);
@@ -233,7 +237,7 @@ export function LevelUpScreen() {
       skipRef.current = null;
       audio.dispose();
     };
-  }, [payload, H, W, rocketH, planetPx, exhaust]);
+  }, [payload, H, W, rocketH, planetPx, exhaust, spoken]);
 
   if (!payload) return null;
 
@@ -450,7 +454,7 @@ export function LevelUpScreen() {
       </div>
 
       {/* 카운트다운 — 셋 · 둘 · 하나 · 출발! */}
-      <div className={styles.countBox}>
+      <div className={`${styles.countBox} ${spoken === "en" ? styles.countEn : ""}`}>
         {COUNT_WORDS.map((word, i) => (
           <div
             className={styles.count}
@@ -460,13 +464,13 @@ export function LevelUpScreen() {
               words.current[i] = el;
             }}
           >
-            <strong>{word.ko}</strong>
+            <strong>{word[spoken]}</strong>
             <span>{word.sub}</span>
           </div>
         ))}
         <div className={styles.count} ref={go}>
-          <strong data-no-translate>출발!</strong>
-          {language === "ko" ? null : <span data-i18n="levelUp.go">{uzt("levelUp.go")}</span>}
+          <strong data-no-translate>{GO_TEXT[spoken]}</strong>
+          {language === spoken ? null : <span data-i18n="levelUp.go">{uzt("levelUp.go")}</span>}
         </div>
       </div>
 

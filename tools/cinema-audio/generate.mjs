@@ -31,7 +31,9 @@ const outDirs = (set) => [
 const NO_VOICE = "No music, no voice.";
 
 /**
- * 세트별 소리. voice 는 한국어 목소리, sfx 는 효과음 (duration = 초).
+ * 세트별 소리. voice 는 목소리, sfx 는 효과음 (duration = 초).
+ * 목소리는 코스마다 따로다 — 한국어 코스는 한국어, 영어 코스는 *-en.mp3 (lang: "en").
+ * 같은 목소리(같은 선생님)가 두 언어로 말한다.
  * 길이는 각 연출 시간표(*Cinematic.ts 의 *_SOUND_CUES)에 맞춘다.
  */
 const CATALOG = {
@@ -43,6 +45,9 @@ const CATALOG = {
     { file: "vo-perfect.mp3", voice: "[excited] 참 잘했어요!" },
     { file: "vo-great.mp3", voice: "[cheerfully] 잘했어요!" },
     { file: "vo-good.mp3", voice: "[warmly] 수고했어요!" },
+    { file: "vo-perfect-en.mp3", voice: "[excited] Excellent!", lang: "en" },
+    { file: "vo-great-en.mp3", voice: "[cheerfully] Well done!", lang: "en" },
+    { file: "vo-good-en.mp3", voice: "[warmly] Good job!", lang: "en" },
   ],
   chest: [
     { file: "rattle.mp3", sfx: `A small wooden treasure chest being shaken: knocking wood and coins jingling inside, short. ${NO_VOICE}`, duration: 0.7 },
@@ -50,6 +55,8 @@ const CATALOG = {
     { file: "gem-ding.mp3", sfx: "One bright crystal gem clink, a short high glassy ding for collecting a gem in a mobile game. No music.", duration: 0.5 },
     { file: "vo-wow.mp3", voice: "[excited] 우와!" },
     { file: "vo-daebak.mp3", voice: "[shouting] [excited] 대박!" },
+    { file: "vo-wow-en.mp3", voice: "[excited] Wow!", lang: "en" },
+    { file: "vo-daebak-en.mp3", voice: "[shouting] [excited] Awesome!", lang: "en" },
   ],
   energy: [
     { file: "thunder.mp3", sfx: `A sharp cartoon lightning strike: an electric crack followed by a short crackling zap. Playful, not scary. ${NO_VOICE}`, duration: 1.2 },
@@ -62,6 +69,7 @@ const CATALOG = {
     { file: "slot-stop.mp3", sfx: `One slot machine reel stopping: a firm mechanical clunk with a tiny bell tick. ${NO_VOICE}`, duration: 0.5 },
     { file: "jackpot.mp3", sfx: "A slot machine jackpot win in a cheerful arcade: ringing bells, cascading coins and a short triumphant fanfare. No voice.", duration: 2.5 },
     { file: "vo-jackpot.mp3", voice: "[shouting] [excited] 잭팟!" },
+    { file: "vo-jackpot-en.mp3", voice: "[shouting] [excited] Jackpot!", lang: "en" },
   ],
   streak: [
     { file: "catch.mp3", sfx: `A small flame catching: a short soft fwump with a tiny crackle, like a candle being lit. ${NO_VOICE}`, duration: 0.5 },
@@ -76,6 +84,12 @@ const CATALOG = {
     { file: "vo-100.mp3", voice: "[shouting] [excited] 100일 연속! 대단해요!" },
     { file: "vo-365.mp3", voice: "[shouting] [excited] 1년 연속! 전설이에요!" },
     { file: "vo-record.mp3", voice: "[shouting] [excited] 대기록이에요!" },
+    { file: "vo-day-en.mp3", voice: "[excited] You kept the fire burning!", lang: "en" },
+    { file: "vo-7-en.mp3", voice: "[excited] One week in a row!", lang: "en" },
+    { file: "vo-30-en.mp3", voice: "[shouting] [excited] Thirty days in a row!", lang: "en" },
+    { file: "vo-100-en.mp3", voice: "[shouting] [excited] One hundred days in a row! Amazing!", lang: "en" },
+    { file: "vo-365-en.mp3", voice: "[shouting] [excited] A whole year in a row! You're a legend!", lang: "en" },
+    { file: "vo-record-en.mp3", voice: "[shouting] [excited] New record!", lang: "en" },
   ],
   league: [
     { file: "crack.mp3", sfx: `A glass crystal cracking under stress: a few sharp crackles, tense but light. ${NO_VOICE}`, duration: 0.8 },
@@ -83,6 +97,9 @@ const CATALOG = {
     { file: "vo-promote.mp3", voice: "[excited] 승급! 축하해요!" },
     { file: "vo-stay.mp3", voice: "[cheerfully] 리그를 지켰어요!" },
     { file: "vo-demote.mp3", voice: "[warmly] 괜찮아요, 다음 주에 다시 올라가요!" },
+    { file: "vo-promote-en.mp3", voice: "[excited] Promoted! Congratulations!", lang: "en" },
+    { file: "vo-stay-en.mp3", voice: "[cheerfully] You held your league!", lang: "en" },
+    { file: "vo-demote-en.mp3", voice: "[warmly] It's okay, you'll climb back up next week!", lang: "en" },
   ],
 };
 
@@ -153,7 +170,7 @@ async function post(url, body) {
   return Buffer.from(await response.arrayBuffer());
 }
 
-async function speak(text, voiceId) {
+async function speak(text, voiceId, lang = "ko") {
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`;
   const body = {
     text,
@@ -161,8 +178,8 @@ async function speak(text, voiceId) {
     voice_settings: { stability: 0.4, similarity_boost: 0.8, style: 0.6, use_speaker_boost: true },
   };
   try {
-    // 한국어로 읽게 못 박는다 — 모델이 language_code 를 모르면 빼고 다시
-    return await post(url, { ...body, language_code: "ko" });
+    // 그 언어로 읽게 못 박는다 — 모델이 language_code 를 모르면 빼고 다시
+    return await post(url, { ...body, language_code: lang });
   } catch (error) {
     if (!/language/i.test(String(error))) throw error;
     return await post(url, body);
@@ -193,7 +210,7 @@ for (const set of sets) {
       if (item.voice) {
         voiceId ||= pickVoice();
         if (!voiceId) throw new Error("목소리 ID 가 없다 — CINEMA_VOICE_ID 를 주어라");
-        audio = await speak(item.voice, voiceId);
+        audio = await speak(item.voice, voiceId, item.lang);
       } else {
         audio = await sound(item.sfx, item.duration);
       }

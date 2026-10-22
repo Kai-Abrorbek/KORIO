@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createCinemaAudio, type CinemaAudio } from "../../../shared/browser/cinema-audio";
 import { cinemaHaptic, prefersReducedMotion, runCinemaClock, type CinemaClock } from "../../../shared/browser/cinema-clock";
 import { uzt } from "../../../shared/i18n/uz-text";
-import { cinemaAt, shakeAt, type CinemaKey } from "../../../shared/model/cinema";
+import { useCinemaLanguage } from "../../../shared/browser/use-cinema-language";
+import { cinemaAt, cinemaVoices, shakeAt, type CinemaKey } from "../../../shared/model/cinema";
 import {
   IGNITE_SPARKS,
   IGNITE_TRACK,
@@ -37,6 +38,16 @@ const STREAK_SOURCES: Record<StreakSound, string> = {
   vo100: "/sounds/streak/vo-100.mp3",
   vo365: "/sounds/streak/vo-365.mp3",
   voRecord: "/sounds/streak/vo-record.mp3",
+};
+
+/** 영어 코스 — "One week in a row!" … */
+const STREAK_VOICES_EN: Partial<Record<StreakSound, string>> = {
+  voDay: "/sounds/streak/vo-day-en.mp3",
+  vo7: "/sounds/streak/vo-7-en.mp3",
+  vo30: "/sounds/streak/vo-30-en.mp3",
+  vo100: "/sounds/streak/vo-100-en.mp3",
+  vo365: "/sounds/streak/vo-365-en.mp3",
+  voRecord: "/sounds/streak/vo-record-en.mp3",
 };
 
 /** 목소리가 효과음에 묻히지 않게 */
@@ -129,10 +140,16 @@ export function StreakDayScreen() {
   const hop = useRef<HTMLElement>(null);
   const fireball = useRef<HTMLElement>(null);
 
+  const language = useCinemaLanguage();
+
   // 그리기 전에 첫 장면을 맞춘다. 한 번만 — 들어온 순간의 창으로 돈다
   useLayoutEffect(() => {
     const ignite = tl.ignite;
-    const sound = createCinemaAudio({ sources: STREAK_SOURCES, gains: STREAK_GAIN, cues: tl.cues });
+    const sound = createCinemaAudio({
+      sources: cinemaVoices(STREAK_SOURCES, STREAK_VOICES_EN, language),
+      gains: STREAK_GAIN,
+      cues: tl.cues,
+    });
     sound.preload();
     audio.current = sound;
     const reduce = prefersReducedMotion();
@@ -301,7 +318,7 @@ export function StreakDayScreen() {
       sound.dispose();
       audio.current = null;
     };
-  }, [days, tl]);
+  }, [days, tl, language]);
 
   /** 화면을 누르면 끝 장면으로 (남은 효과음은 끊는다) */
   const skip = () => {

@@ -3,6 +3,7 @@
  * 레벨업 연출(한글 로켓) 소리를 ElevenLabs 로 만든다.
  *
  *   목소리 (한국어) : 셋! · 둘! · 하나! · 출발! · 도착! 축하해요!
+ *   목소리 (영어)   : Three! · Two! · One! · Liftoff! · We made it! (*-en.mp3, 영어 코스)
  *   효과음          : 엔진 굉음(rumble) · 발사 휙(launch)
  *
  * 만든 mp3 는 두 앱에 똑같이 들어간다 —
@@ -13,6 +14,7 @@
  * 쓰는 법 (레포 루트에서, Git Bash):
  *   node tools/levelup-audio/generate.mjs              # 목소리 + 효과음 전부
  *   node tools/levelup-audio/generate.mjs --voice-only # 목소리만 (효과음은 임시 합성음 유지)
+ *   node tools/levelup-audio/generate.mjs --lang=en    # 영어 목소리만
  *
  * 키·목소리는 환경 변수 → 없으면 apps/api/.env · apps/tutor-agent/.env 에서 읽는다 (화면에 안 찍는다).
  *   ELEVENLABS_API_KEY            필수
@@ -36,6 +38,12 @@ const VOICE_LINES = [
   { file: "vo-1.mp3", text: "[excited] 하나!" },
   { file: "vo-go.mp3", text: "[shouting] [excited] 출발!" },
   { file: "vo-arrive.mp3", text: "[cheerfully] 도착! 축하해요!" },
+  // 영어 코스 — 같은 목소리가 영어로 센다
+  { file: "vo-3-en.mp3", text: "[excited] Three!", lang: "en" },
+  { file: "vo-2-en.mp3", text: "[excited] Two!", lang: "en" },
+  { file: "vo-1-en.mp3", text: "[excited] One!", lang: "en" },
+  { file: "vo-go-en.mp3", text: "[shouting] [excited] Liftoff!", lang: "en" },
+  { file: "vo-arrive-en.mp3", text: "[cheerfully] We made it! Congratulations!", lang: "en" },
 ];
 
 /** 효과음 — 길이는 연출 시간표(level-up-cinematic CINEMA_SOUND_CUES)에 맞춘다 */
@@ -121,8 +129,11 @@ function save(file, data) {
 }
 
 const voiceOnly = process.argv.includes("--voice-only");
+// --lang=en → 그 언어 목소리만 (효과음은 건드리지 않는다)
+const langOnly = process.argv.find((a) => a.startsWith("--lang="))?.split("=")[1] ?? "";
 
 for (const line of VOICE_LINES) {
+  if (langOnly && (line.lang ?? "ko") !== langOnly) continue;
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`;
   const body = {
     text: line.text,
@@ -131,8 +142,8 @@ for (const line of VOICE_LINES) {
   };
   let audio;
   try {
-    // 한국어로 읽게 못 박는다 — 모델이 language_code 를 모르면 빼고 다시
-    audio = await post(url, { ...body, language_code: "ko" });
+    // 그 언어로 읽게 못 박는다 — 모델이 language_code 를 모르면 빼고 다시
+    audio = await post(url, { ...body, language_code: line.lang ?? "ko" });
   } catch (error) {
     if (!/language/i.test(String(error))) throw error;
     audio = await post(url, body);
@@ -140,7 +151,7 @@ for (const line of VOICE_LINES) {
   save(line.file, audio);
 }
 
-if (!voiceOnly) {
+if (!voiceOnly && !langOnly) {
   for (const sfx of SFX) {
     const audio = await post("https://api.elevenlabs.io/v1/sound-generation", {
       text: sfx.text,

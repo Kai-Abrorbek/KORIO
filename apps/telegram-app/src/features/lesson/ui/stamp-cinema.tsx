@@ -4,7 +4,7 @@ import Image from "next/image";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 
 import { WearShapes } from "../../league/ui/generated-avatar";
-import { cinemaAt, starPath } from "../../../shared/model/cinema";
+import { cinemaAt, starPath, type CinemaLanguage } from "../../../shared/model/cinema";
 import {
   BURST_STARS,
   IMPRINT_BOX,
@@ -16,6 +16,7 @@ import {
   STAMP_SHAPES,
   STAMP_TRACK,
   STAMP_WORDS,
+  stampWordScale,
   burstStarAt,
   dropAt,
   imprintShapes,
@@ -34,6 +35,8 @@ export interface StampCinemaHandle {
 
 interface Props {
   tier: StampTier;
+  /** 도장 글씨의 말 = 배우는 코스 */
+  language: CinemaLanguage;
   size: number;
   /** 잉크 색 (어두운 테마는 밝은 보라) */
   ink: string;
@@ -54,14 +57,14 @@ const IMPRINT = 0.86;
 const PRESS_Y = 0.3;
 const STAR = starPath(50, 50, 48, 20);
 
-export const StampCinema = forwardRef<StampCinemaHandle, Props>(function StampCinema({ tier, size: S, ink, grid }, ref) {
+export const StampCinema = forwardRef<StampCinemaHandle, Props>(function StampCinema({ tier, language, size: S, ink, grid }, ref) {
   const D = S * IMPRINT;
   const stampScale = (D * (192 / IMPRINT_BOX.size)) / STAMP_BOX.faceWidth;
   const stampW = STAMP_BOX.width * stampScale;
   const stampH = STAMP_BOX.height * stampScale;
   const stampRestTop = S / 2 + PRESS_Y * S - STAMP_BOX.faceY * stampScale;
-  const word = STAMP_WORDS[tier];
-  const wordSize = D * Math.min(0.16, 0.68 / word.length);
+  const word = STAMP_WORDS[language][tier];
+  const wordSize = D * stampWordScale(word);
   const perfect = tier === "perfect";
 
   // 부위들 (apply 가 직접 만진다)

@@ -8,7 +8,8 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { playSfx, preloadSfx, suppressDefaultButtonSound } from "../../../shared/browser/sfx";
 import { createCinemaAudio, type CinemaAudio } from "../../../shared/browser/cinema-audio";
 import { cinemaHaptic, prefersReducedMotion, runCinemaClock, type CinemaClock } from "../../../shared/browser/cinema-clock";
-import { shakeAt, starPath } from "../../../shared/model/cinema";
+import { useCinemaLanguage } from "../../../shared/browser/use-cinema-language";
+import { cinemaVoices, shakeAt, starPath } from "../../../shared/model/cinema";
 import {
   CHEST_CINEMA,
   RATTLE_RATE,
@@ -39,6 +40,12 @@ const CHEST_SOURCES: Record<ChestSound, string> = {
   gemDing: "/sounds/chest/gem-ding.mp3",
   voWow: "/sounds/chest/vo-wow.mp3",
   voDaebak: "/sounds/chest/vo-daebak.mp3",
+};
+
+/** 영어 코스 — "Wow!" · "Awesome!" */
+const CHEST_VOICES_EN: Partial<Record<ChestSound, string>> = {
+  voWow: "/sounds/chest/vo-wow-en.mp3",
+  voDaebak: "/sounds/chest/vo-daebak-en.mp3",
 };
 
 /** 원래 열림 소리(chest-open*) 위에 겹치므로 터지는 소리는 조금 작게 */
@@ -210,8 +217,13 @@ export function ChestRewardScreen() {
 
   useEffect(() => preloadSfx("click", "chest-open", "chest-open-rare"), []);
 
+  const language = useCinemaLanguage();
   useEffect(() => {
-    const sound = createCinemaAudio({ sources: CHEST_SOURCES, gains: CHEST_GAIN, cues: chestSoundCues(grade) });
+    const sound = createCinemaAudio({
+      sources: cinemaVoices(CHEST_SOURCES, CHEST_VOICES_EN, language),
+      gains: CHEST_GAIN,
+      cues: chestSoundCues(grade),
+    });
     sound.preload();
     audio.current = sound;
     return () => {
@@ -221,7 +233,7 @@ export function ChestRewardScreen() {
       sound.dispose();
       audio.current = null;
     };
-  }, [grade]);
+  }, [grade, language]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setReady(true), 200);

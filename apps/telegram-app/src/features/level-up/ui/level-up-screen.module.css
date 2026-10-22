@@ -190,6 +190,12 @@
   text-shadow: 0 6px 0 #554cb5, 0 0 34px rgba(183, 174, 255, 0.65);
 }
 
+/* 영어 카운트다운 (Three · Liftoff!) 은 한글보다 길다 — 한 줄에 들어가게 */
+.countEn .count strong {
+  font-size: min(19vw, 96px);
+  white-space: nowrap;
+}
+
 .count span {
   color: #e9e4ff;
   font-size: 18px;

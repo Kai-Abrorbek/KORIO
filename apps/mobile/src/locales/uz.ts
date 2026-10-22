@@ -1241,6 +1241,12 @@ export default {
       great: "«Yaxshi!» — deyarli hammasi to'g'ri",
       good: "«Barakalla!» — darsni oxirigacha qildingiz",
     },
+    /** 영어 코스의 도장 (Excellent! · Well done! · Good job!) 뜻풀이 */
+    stampEn: {
+      perfect: "«A’lo!» — hammasi to‘g‘ri",
+      great: "«Barakalla!» — deyarli hammasi to‘g‘ri",
+      good: "«Yaxshi ish!» — darsni oxirigacha qildingiz",
+    },
     labels: {
       perfect: "Zo'r",
       excellent: "Ajoyib",

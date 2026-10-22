@@ -28,8 +28,12 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useSound } from "@/hooks/useSound";
 import Confetti from "@/components/lesson-complete/Confetti";
 import ChestBurstLayer from "@/components/chest-reward/ChestBurstLayer";
-import { shakeAt } from "@/components/cinema/cinema";
-import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import { cinemaVoices, shakeAt } from "@/components/cinema/cinema";
+import {
+  useCinemaAudio,
+  useCinemaClock,
+  useCinemaLanguage,
+} from "@/components/cinema/useCinema";
 import {
   CHEST_CINEMA,
   RATTLE_RATE,
@@ -47,6 +51,12 @@ const CHEST_SOURCES: Record<ChestSound, number> = {
   gemDing: require("../../assets/sounds/chest/gem-ding.mp3"),
   voWow: require("../../assets/sounds/chest/vo-wow.mp3"),
   voDaebak: require("../../assets/sounds/chest/vo-daebak.mp3"),
+};
+
+/** 영어 코스 — "Wow!" · "Awesome!" */
+const CHEST_VOICES_EN: Partial<Record<ChestSound, number>> = {
+  voWow: require("../../assets/sounds/chest/vo-wow-en.mp3"),
+  voDaebak: require("../../assets/sounds/chest/vo-daebak-en.mp3"),
 };
 
 /** 원래 열림 소리(chestOpen*) 위에 겹치므로 터지는 소리는 조금 작게 */
@@ -114,7 +124,11 @@ export default function ChestRewardScreen() {
   const chestBoxRef = useRef<View>(null);
   const counterRef = useRef<View>(null);
   const reducedMotion = useReducedMotion();
-  const audio = useCinemaAudio(CHEST_SOURCES, CHEST_GAIN);
+  const language = useCinemaLanguage();
+  const audio = useCinemaAudio(
+    cinemaVoices(CHEST_SOURCES, CHEST_VOICES_EN, language),
+    CHEST_GAIN,
+  );
   const gemCount = flyingGemCount(gemsAmount);
   const { clock, run } = useCinemaClock(chestEnd(gemCount));
   const gems = useMemo(() => flyingGems(gemCount, 120), [gemCount]);

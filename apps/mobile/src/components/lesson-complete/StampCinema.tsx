@@ -19,11 +19,13 @@ import {
   STAMP_SHAPES,
   STAMP_TRACK,
   STAMP_WORDS,
+  stampWordScale,
   burstStarAt,
   dropAt,
   imprintShapes,
   type StampTier,
 } from "./lessonStampCinematic";
+import type { CinemaLanguage } from "@/components/cinema/cinema";
 
 /**
  * "참 잘했어요 도장" 무대 — 정사각형 공책(size) 위에 도장이 찍힌다.
@@ -33,6 +35,8 @@ import {
 interface Props {
   clock: SharedValue<number>;
   tier: StampTier;
+  /** 도장 글씨의 말 = 배우는 코스 */
+  language: CinemaLanguage;
   size: number;
   /** 잉크 색 (어두운 테마는 밝은 보라) */
   ink: string;
@@ -53,15 +57,14 @@ const IMPRINT = 0.86;
 /** 눌렸을 때 도장 고무 바닥 = 공책 가운데에서 이만큼 아래 (도장 몸통이 자국 자리를 덮는다) */
 const PRESS_Y = 0.3;
 
-function StampCinema({ clock, tier, size: S, ink, paper, grid, border }: Props) {
+function StampCinema({ clock, tier, language, size: S, ink, paper, grid, border }: Props) {
   const D = S * IMPRINT;
   const stampScale = (D * (192 / IMPRINT_BOX.size)) / STAMP_BOX.faceWidth;
   const stampW = STAMP_BOX.width * stampScale;
   const stampH = STAMP_BOX.height * stampScale;
   const stampRestTop = S / 2 + PRESS_Y * S - STAMP_BOX.faceY * stampScale;
-  const word = STAMP_WORDS[tier];
-  const chars = word.length;
-  const wordSize = D * Math.min(0.16, 0.68 / chars);
+  const word = STAMP_WORDS[language][tier];
+  const wordSize = D * stampWordScale(word);
   const perfect = tier === "perfect";
 
   const paperStyle = useAnimatedStyle(() => ({

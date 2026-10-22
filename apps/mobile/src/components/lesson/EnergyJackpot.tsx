@@ -10,11 +10,25 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "@/utils/haptics";
-import { BOLT_PATH, cinemaAt, fountainAt, starPath, type FountainItem } from "@/components/cinema/cinema";
-import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import {
+  BOLT_PATH,
+  cinemaAt,
+  cinemaVoices,
+  fountainAt,
+  starPath,
+  type CinemaLanguage,
+  type FountainItem,
+} from "@/components/cinema/cinema";
+import {
+  useCinemaAudio,
+  useCinemaClock,
+  useCinemaLanguage,
+} from "@/components/cinema/useCinema";
 import {
   JACKPOT,
   JACKPOT_TRACK,
+  JACKPOT_WORD,
+  SLOT_LETTERS,
   SLOT_SYMBOLS,
   bulbOn,
   coinArrival,
@@ -56,6 +70,10 @@ const SOURCES: Record<JackpotSound, number> = {
   voJackpot: require("../../../assets/sounds/energy/vo-jackpot.mp3"),
   collect: require("../../../assets/sounds/energy/collect.mp3"),
 };
+/** 영어 코스 — "Jackpot!" */
+const VOICES_EN: Partial<Record<JackpotSound, number>> = {
+  voJackpot: require("../../../assets/sounds/energy/vo-jackpot-en.mp3"),
+};
 const GAIN: Partial<Record<JackpotSound, number>> = { slotSpin: 0.55, slotStop: 0.9, jackpot: 0.75, collect: 0.7 };
 const CUES = jackpotCues() as { t: number; sound: JackpotSound }[];
 
@@ -75,7 +93,9 @@ export default function EnergyJackpot({ visible, amount, onDone, subtitle }: Pro
   const coinCount = jackpotCoinCount(amount);
   const end = jackpotEnd(coinCount);
   const { clock, run } = useCinemaClock(end);
-  const audio = useCinemaAudio(SOURCES, GAIN);
+  // 간판 글씨 · 릴의 글자 · 외침은 배우는 말로 (영어 코스는 JACKPOT · A · E)
+  const language = useCinemaLanguage();
+  const audio = useCinemaAudio(cinemaVoices(SOURCES, VOICES_EN, language), GAIN);
   const coins = useMemo(() => jackpotCoins(coinCount, 110), [coinCount]);
   const distances = useMemo(() => JACKPOT.stops.map(reelDistance), []);
 
@@ -166,13 +186,13 @@ export default function EnergyJackpot({ visible, amount, onDone, subtitle }: Pro
 
             {/* 위 간판 */}
             <View style={styles.marquee}>
-              <Text style={styles.marqueeText}>잭팟</Text>
+              <Text style={styles.marqueeText}>{JACKPOT_WORD[language]}</Text>
             </View>
 
             {/* 세 칸 */}
             <View style={styles.reelPanel}>
               {JACKPOT.stops.map((stop, i) => (
-                <Reel key={i} clock={clock} stopAt={stop} distance={distances[i] as number} />
+                <Reel language={language} key={i} clock={clock} stopAt={stop} distance={distances[i] as number} />
               ))}
               {/* 가운데 줄 */}
               <View style={styles.payline} />
@@ -213,7 +233,7 @@ export default function EnergyJackpot({ visible, amount, onDone, subtitle }: Pro
 
 const STAR = starPath(50, 50, 44, 19);
 
-function SymbolFace({ symbol }: { symbol: SlotSymbol }) {
+function SymbolFace({ symbol, language }: { symbol: SlotSymbol; language: CinemaLanguage }) {
   if (symbol === "bolt") {
     return (
       <Svg width={50} height={50} viewBox="0 0 100 100">
@@ -237,11 +257,21 @@ function SymbolFace({ symbol }: { symbol: SlotSymbol }) {
       </Svg>
     );
   }
-  return <Text style={styles.symbolText}>{symbol}</Text>;
+  return <Text style={styles.symbolText}>{SLOT_LETTERS[language][symbol]}</Text>;
 }
 
 /** 한 칸 — 기호 띠가 아래로 흐르다 ⚡ 에 멈춘다 */
-function Reel({ clock, stopAt, distance }: { clock: SharedValue<number>; stopAt: number; distance: number }) {
+function Reel({
+  clock,
+  stopAt,
+  distance,
+  language,
+}: {
+  clock: SharedValue<number>;
+  stopAt: number;
+  distance: number;
+  language: CinemaLanguage;
+}) {
   const stripStyle = useAnimatedStyle(() => {
     const p = reelAt(clock.value, stopAt, distance);
     const m = ((p % N) + N) % N;
@@ -258,7 +288,7 @@ function Reel({ clock, stopAt, distance }: { clock: SharedValue<number>; stopAt:
       <Animated.View style={[styles.strip, { top: WIN_H / 2 - (N + 0.5) * SYM }, stripStyle]}>
         {Array.from({ length: N * 3 }, (_, j) => (
           <View key={j} style={styles.symbol}>
-            <SymbolFace symbol={SLOT_SYMBOLS[j % N] as SlotSymbol} />
+            <SymbolFace symbol={SLOT_SYMBOLS[j % N] as SlotSymbol} language={language} />
           </View>
         ))}
       </Animated.View>

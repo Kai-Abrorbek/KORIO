@@ -19,8 +19,12 @@ import TierCrystal from "@/components/league/TierCrystal";
 import Confetti from "@/components/lesson-complete/Confetti";
 import { TIERS, getTier, getTierIndex, type TierMeta } from "@/constants/league-tiers";
 import { LeagueService, LeagueResult } from "@/services/league.service";
-import { cinemaAt, shakeAt } from "@/components/cinema/cinema";
-import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import { cinemaAt, cinemaVoices, shakeAt } from "@/components/cinema/cinema";
+import {
+  useCinemaAudio,
+  useCinemaClock,
+  useCinemaLanguage,
+} from "@/components/cinema/useCinema";
 import {
   GEM_DING_GAP,
   RESULT_CRACKS,
@@ -49,6 +53,13 @@ const RESULT_SOURCES: Record<ResultSound, number> = {
   voPromote: require("../../assets/sounds/league/vo-promote.mp3"),
   voStay: require("../../assets/sounds/league/vo-stay.mp3"),
   voDemote: require("../../assets/sounds/league/vo-demote.mp3"),
+};
+
+/** 영어 코스 — "Promoted! Congratulations!" … */
+const RESULT_VOICES_EN: Partial<Record<ResultSound, number>> = {
+  voPromote: require("../../assets/sounds/league/vo-promote-en.mp3"),
+  voStay: require("../../assets/sounds/league/vo-stay-en.mp3"),
+  voDemote: require("../../assets/sounds/league/vo-demote-en.mp3"),
 };
 /** 목소리가 효과음에 묻히지 않게 · 강등은 착지도 조용히 */
 const RESULT_GAIN: Partial<Record<ResultSound, number>> = {
@@ -143,7 +154,11 @@ function ResultStage({
       : 0;
 
   const { clock, run } = useCinemaClock(tl.end);
-  const audio = useCinemaAudio(RESULT_SOURCES, RESULT_GAIN);
+  const language = useCinemaLanguage();
+  const audio = useCinemaAudio(
+    cinemaVoices(RESULT_SOURCES, RESULT_VOICES_EN, language),
+    RESULT_GAIN,
+  );
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [confetti, setConfetti] = useState(false);
   const [canFinish, setCanFinish] = useState(false);

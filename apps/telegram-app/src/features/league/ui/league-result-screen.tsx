@@ -8,7 +8,8 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { Confetti } from "../../../shared/ui/confetti";
 import { createCinemaAudio, type CinemaAudio } from "../../../shared/browser/cinema-audio";
 import { cinemaHaptic, prefersReducedMotion, runCinemaClock, type CinemaClock } from "../../../shared/browser/cinema-clock";
-import { cinemaAt, shakeAt } from "../../../shared/model/cinema";
+import { useCinemaLanguage } from "../../../shared/browser/use-cinema-language";
+import { cinemaAt, cinemaVoices, shakeAt } from "../../../shared/model/cinema";
 import {
   GEM_DING_GAP,
   RESULT_CRACKS,
@@ -41,6 +42,12 @@ const RESULT_SOURCES: Record<ResultSound, string> = {
   voPromote: "/sounds/league/vo-promote.mp3",
   voStay: "/sounds/league/vo-stay.mp3",
   voDemote: "/sounds/league/vo-demote.mp3",
+};
+/** 영어 코스 — "Promoted! Congratulations!" … */
+const RESULT_VOICES_EN: Partial<Record<ResultSound, string>> = {
+  voPromote: "/sounds/league/vo-promote-en.mp3",
+  voStay: "/sounds/league/vo-stay-en.mp3",
+  voDemote: "/sounds/league/vo-demote-en.mp3",
 };
 const RESULT_GAIN: Partial<Record<ResultSound, number>> = {
   charge: 0.6,
@@ -129,10 +136,15 @@ function ResultStage({ result, onFinish }: { result: LeagueResult; onFinish: () 
   const button = useRef<HTMLButtonElement>(null);
   const flash = useRef<HTMLElement>(null);
 
+  const language = useCinemaLanguage();
   useLayoutEffect(() => {
     const T = tl.tracks;
     const reduce = prefersReducedMotion();
-    const sound = createCinemaAudio({ sources: RESULT_SOURCES, gains: RESULT_GAIN, cues: tl.cues });
+    const sound = createCinemaAudio({
+      sources: cinemaVoices(RESULT_SOURCES, RESULT_VOICES_EN, language),
+      gains: RESULT_GAIN,
+      cues: tl.cues,
+    });
     sound.preload();
     audio.current = sound;
     const buttonAt = T.button[1]?.t ?? 0;

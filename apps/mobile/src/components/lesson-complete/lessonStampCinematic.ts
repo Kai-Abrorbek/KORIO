@@ -26,6 +26,7 @@ import {
   type CinemaCue,
   type CinemaKey,
   type CinemaShape,
+  type CinemaLanguage,
 } from "@/components/cinema/cinema";
 
 export type StampTier = "perfect" | "great" | "good";
@@ -36,12 +37,29 @@ export function stampTier(accuracy: number): StampTier {
   return "good";
 }
 
-/** 도장 글씨 — 한국어 그대로 */
-export const STAMP_WORDS: Record<StampTier, string> = {
-  perfect: "참 잘했어요",
-  great: "잘했어요",
-  good: "수고했어요",
+/** 도장 글씨 — 배우는 말 그대로 (한국어 코스는 선생님 도장, 영어 코스는 영어 선생님 도장) */
+export const STAMP_WORDS: Record<CinemaLanguage, Record<StampTier, string>> = {
+  ko: {
+    perfect: "참 잘했어요",
+    great: "잘했어요",
+    good: "수고했어요",
+  },
+  en: {
+    perfect: "Excellent!",
+    great: "Well done!",
+    good: "Good job!",
+  },
 };
+
+/**
+ * 도장 글씨 크기 (자국 지름 대비). 자국 안 가로 0.68 에 한 줄로 들어가게 —
+ * 한글·공백은 한 칸 1em, 라틴 글자·숫자·문장부호는 0.6em 쯤이다.
+ */
+export function stampWordScale(word: string): number {
+  let ems = 0;
+  for (const ch of word) ems += /[A-Za-z0-9!?.,']/.test(ch) ? 0.6 : 1;
+  return Math.min(0.16, 0.68 / ems);
+}
 
 export const STAMP_CINEMA = {
   whoosh: 250,

@@ -201,3 +201,22 @@ export function fountainAt(
     rotate: g.spin * 0.25 + g.spin * e,
   };
 }
+
+/**
+ * 연출의 목소리·글자 언어 = 지금 배우는 코스. 한국어 코스는 한국어("참 잘했어요"),
+ * 영어 코스는 영어("Excellent!"). 화면 설명의 언어(UI 언어)와는 다른 축이다.
+ */
+export type CinemaLanguage = "ko" | "en";
+
+export function cinemaLanguageOf(course: unknown): CinemaLanguage {
+  return course === "en" ? "en" : "ko";
+}
+
+/** 영어 코스면 목소리만 영어 파일(*-en)로 바꾼다 — 효과음은 그대로 */
+export function cinemaVoices<S extends string, V>(
+  sources: Record<S, V>,
+  english: Partial<Record<S, V>>,
+  language: CinemaLanguage,
+): Record<S, V> {
+  return language === "en" ? { ...sources, ...english } : sources;
+}

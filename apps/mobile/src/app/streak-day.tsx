@@ -24,8 +24,12 @@ import Svg, { Circle, Defs, RadialGradient, Stop } from "react-native-svg";
 import * as Haptics from "@/utils/haptics";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
-import { cinemaAt, shakeAt } from "@/components/cinema/cinema";
-import { useCinemaAudio, useCinemaClock } from "@/components/cinema/useCinema";
+import { cinemaAt, cinemaVoices, shakeAt } from "@/components/cinema/cinema";
+import {
+  useCinemaAudio,
+  useCinemaClock,
+  useCinemaLanguage,
+} from "@/components/cinema/useCinema";
 import Confetti from "@/components/lesson-complete/Confetti";
 import {
   IGNITE_SPARKS,
@@ -64,6 +68,16 @@ const STREAK_SOURCES: Record<StreakSound, number> = {
   vo100: require("../../assets/sounds/streak/vo-100.mp3"),
   vo365: require("../../assets/sounds/streak/vo-365.mp3"),
   voRecord: require("../../assets/sounds/streak/vo-record.mp3"),
+};
+
+/** 영어 코스 — "One week in a row!" … */
+const STREAK_VOICES_EN: Partial<Record<StreakSound, number>> = {
+  voDay: require("../../assets/sounds/streak/vo-day-en.mp3"),
+  vo7: require("../../assets/sounds/streak/vo-7-en.mp3"),
+  vo30: require("../../assets/sounds/streak/vo-30-en.mp3"),
+  vo100: require("../../assets/sounds/streak/vo-100-en.mp3"),
+  vo365: require("../../assets/sounds/streak/vo-365-en.mp3"),
+  voRecord: require("../../assets/sounds/streak/vo-record-en.mp3"),
 };
 
 /** 목소리가 효과음에 묻히지 않게 */
@@ -170,7 +184,11 @@ export default function StreakDayScreen() {
   const tl = useMemo(() => relayTimeline(days, streak), [days, streak]);
   const ignite = tl.ignite;
   const { clock, run } = useCinemaClock(tl.end);
-  const audio = useCinemaAudio(STREAK_SOURCES, STREAK_GAIN);
+  const language = useCinemaLanguage();
+  const audio = useCinemaAudio(
+    cinemaVoices(STREAK_SOURCES, STREAK_VOICES_EN, language),
+    STREAK_GAIN,
+  );
   const reducedMotion = useReducedMotion();
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [confetti, setConfetti] = useState(false);

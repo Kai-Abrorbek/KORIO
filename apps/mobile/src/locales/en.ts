@@ -1236,6 +1236,12 @@ export default {
       great: "“Well done!” — almost all correct",
       good: "“Good work!” — you saw it through",
     },
+    /** 영어 코스의 도장 (Excellent! · Well done! · Good job!) 뜻풀이 */
+    stampEn: {
+      perfect: "Every answer right",
+      great: "Almost all correct",
+      good: "You saw it through",
+    },
     labels: {
       perfect: "Perfect",
       excellent: "Excellent",

@@ -40,6 +40,7 @@ import {
   CLOUD_SHAPES,
   CLOUDS,
   COUNT_WORDS,
+  GO_TEXT,
   FLAG_BOX,
   FLAG_SHAPES,
   FLAME_BOX,
@@ -72,6 +73,8 @@ import {
 } from "@/components/level-up/levelUpCinematic";
 import { useAuthStore } from "@/store/auth.store";
 import { useSettingsStore } from "@/store/settings.store";
+import { useCinemaLanguage } from "@/components/cinema/useCinema";
+import type { CinemaLanguage } from "@/components/cinema/cinema";
 import { mergeAvatarConfig } from "@/types/avatar";
 import { activatePlaybackAudio } from "@/utils/audio-session";
 import { clearLevelUp, currentLevelUp, type LevelUpPayload } from "./levelUp";
@@ -96,6 +99,16 @@ const SOURCES: Record<CinemaSound, number> = {
   arrive: require("../../../assets/sounds/level-up.wav"),
 };
 
+/** 영어 코스 — 같은 목소리가 "Three! Two! One! Liftoff!" */
+const SOURCES_EN: Record<CinemaSound, number> = {
+  ...SOURCES,
+  vo3: require("../../../assets/sounds/levelup/vo-3-en.mp3"),
+  vo2: require("../../../assets/sounds/levelup/vo-2-en.mp3"),
+  vo1: require("../../../assets/sounds/levelup/vo-1-en.mp3"),
+  voGo: require("../../../assets/sounds/levelup/vo-go-en.mp3"),
+  voArrive: require("../../../assets/sounds/levelup/vo-arrive-en.mp3"),
+};
+
 /** 소리마다 크기 — 목소리가 효과음에 묻히지 않게 (텔레그램 cinema-audio 와 같다) */
 const GAIN: Record<CinemaSound, number> = {
   vo3: 1,
@@ -116,16 +129,16 @@ function sfxVolumeNow() {
 }
 
 /** 시간표(CINEMA_SOUND_CUES)대로 겹쳐 튼다. 건너뛰면 남은 걸 끊고 결과부터 */
-function useCinemaAudio() {
+function useCinemaAudio(sources: Record<CinemaSound, number>) {
   const players: Record<CinemaSound, AudioPlayer> = {
-    vo3: useAudioPlayer(SOURCES.vo3),
-    vo2: useAudioPlayer(SOURCES.vo2),
-    vo1: useAudioPlayer(SOURCES.vo1),
-    voGo: useAudioPlayer(SOURCES.voGo),
-    voArrive: useAudioPlayer(SOURCES.voArrive),
-    rumble: useAudioPlayer(SOURCES.rumble),
-    launch: useAudioPlayer(SOURCES.launch),
-    arrive: useAudioPlayer(SOURCES.arrive),
+    vo3: useAudioPlayer(sources.vo3),
+    vo2: useAudioPlayer(sources.vo2),
+    vo1: useAudioPlayer(sources.vo1),
+    voGo: useAudioPlayer(sources.voGo),
+    voArrive: useAudioPlayer(sources.voArrive),
+    rumble: useAudioPlayer(sources.rumble),
+    launch: useAudioPlayer(sources.launch),
+    arrive: useAudioPlayer(sources.arrive),
   };
   const playersRef = useRef(players);
   playersRef.current = players;
@@ -185,7 +198,9 @@ export default function LevelUpScreen() {
   const [revealed, setRevealed] = useState(false);
   const reducedMotion = useReducedMotion();
   const clock = useSharedValue(0);
-  const audio = useCinemaAudio();
+  // 카운트다운 글씨와 목소리는 배우는 말로 (영어 코스는 Three · Two · One · Liftoff!)
+  const spoken = useCinemaLanguage();
+  const audio = useCinemaAudio(spoken === "en" ? SOURCES_EN : SOURCES);
 
   const W = size.w;
   const H = size.h;
@@ -514,11 +529,11 @@ export default function LevelUpScreen() {
       {/* 카운트다운 — 셋 · 둘 · 하나 · 출발! */}
       <View pointerEvents="none" style={[styles.countBox, { top: H * 0.15 }]}>
         {COUNT_WORDS.map((word) => (
-          <CountWord key={word.ko} word={word} clock={clock} sub={word.sub} />
+          <CountWord key={word.ko} word={word} clock={clock} sub={word.sub} spoken={spoken} />
         ))}
         <Animated.View style={[styles.count, goStyle]}>
-          <Text style={styles.countWord}>출발!</Text>
-          {language === "ko" ? null : <Text style={styles.countSub}>{t("levelUp.go")}</Text>}
+          <CountText spoken={spoken}>{GO_TEXT[spoken]}</CountText>
+          {language === spoken ? null : <Text style={styles.countSub}>{t("levelUp.go")}</Text>}
         </Animated.View>
       </View>
 
@@ -570,14 +585,27 @@ export default function LevelUpScreen() {
 
 /* ───────── 작은 부위들 (각자 자기 animated style) ───────── */
 
+/** 카운트다운 큰 글씨. 영어 단어는 한글보다 길어서 한 줄에 맞게 줄인다 */
+function CountText({ spoken, children }: { spoken: CinemaLanguage; children: string }) {
+  return spoken === "en" ? (
+    <Text style={[styles.countWord, styles.countWordEn]} numberOfLines={1} adjustsFontSizeToFit>
+      {children}
+    </Text>
+  ) : (
+    <Text style={styles.countWord}>{children}</Text>
+  );
+}
+
 function CountWord({
   word,
   clock,
   sub,
+  spoken,
 }: {
   word: (typeof COUNT_WORDS)[number];
   clock: SharedValue<number>;
   sub: string;
+  spoken: CinemaLanguage;
 }) {
   const style = useAnimatedStyle(() => ({
     opacity: cinemaAt(word.opacity, clock.value),
@@ -585,7 +613,7 @@ function CountWord({
   }));
   return (
     <Animated.View style={[styles.count, style]}>
-      <Text style={styles.countWord}>{word.ko}</Text>
+      <CountText spoken={spoken}>{word[spoken]}</CountText>
       <Text style={styles.countSub}>{sub}</Text>
     </Animated.View>
   );
@@ -726,6 +754,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 6 },
     textShadowRadius: 0,
   },
+  countWordEn: { fontSize: 96, paddingHorizontal: 20, letterSpacing: -2 },
   countSub: { color: "#E9E4FF", fontSize: 18, fontWeight: "800", marginTop: 6, opacity: 0.9 },
   chip: {
     position: "absolute",
