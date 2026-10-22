@@ -20,7 +20,12 @@ import { Cron } from '@nestjs/schedule';
 import { DEFAULT_AVATAR_CONFIG } from '../users/avatar/avatar.constants';
 import { isOnlineNow } from '../users/presence.util';
 
-const MIN_MEMBERS = 8; // 방에 최소 이만큼은 있게 (봇으로 채움)
+/**
+ * 리그방 = 20명. 실유저가 모자라면 봇으로 20명을 채운다 (예전엔 8명까지만 채워서
+ * 방이 텅 비어 보였다). 승급·강등 인원(TIER_CONFIG)도 20명 방 기준이다.
+ */
+const ROOM_SIZE = 20;
+const MIN_MEMBERS = ROOM_SIZE;
 
 const TIER_ORDER: UserLeague[] = [
   UserLeague.BRONZE,
@@ -37,6 +42,9 @@ const TIER_ORDER: UserLeague[] = [
 
 /**
  * 티어별 승급/강등 인원 + 1·2·3위 젬 상자 + **주간 유지 XP**.
+ *
+ * 승급/강등 인원은 20명 방 기준 — 30명 방 시절 표를 같은 비율(×2/3)로 줄였다.
+ * 브론즈는 절반이 올라가고, 위로 갈수록 승급 문은 좁고 강등 문은 넓어진다.
  *
  * keepXp: **한 주(월~일) 합계**가 이만큼도 안 되면 순위와 무관하게 강등된다.
  *   매일이 아니라 주간 총합이고, 월요일 정산 때 딱 한 번 본다.
@@ -71,19 +79,18 @@ const TIER_CONFIG: Record<
   // keepXp 는 **주간 합계**다. 옆 주석은 "이걸 채우려면 학습 며칠치가 필요한가"
   // 라는 뜻이고 매일 그만큼 하라는 뜻이 아니다 (학습 하루치 ≈ 900~1,000 XP).
   // 예: 실버 800 = 일주일에 하루만 제대로 해도 유지된다.
-  [UserLeague.BRONZE]: { promote: 15, demote: 0, chest: [20, 15, 10], keepXp: 0 },
-  [UserLeague.SILVER]: { promote: 12, demote: 5, chest: [25, 18, 12], keepXp: 800 }, // 주 800 — 하루치
-  [UserLeague.GOLD]: { promote: 10, demote: 5, chest: [30, 22, 15], keepXp: 1500 }, // 주 1,500 — 이틀치
-  [UserLeague.SAPPHIRE]: { promote: 8, demote: 5, chest: [40, 28, 18], keepXp: 2300 }, // 주 2,300 — 두세 날치
-  [UserLeague.RUBY]: { promote: 7, demote: 5, chest: [50, 35, 22], keepXp: 3000 }, // 주 3,000 — 사흘치
-  [UserLeague.EMERALD]: { promote: 6, demote: 5, chest: [65, 45, 28], keepXp: 3800 }, // 주 3,800 — 나흘치
-  [UserLeague.AMETHYST]: { promote: 5, demote: 6, chest: [80, 55, 35], keepXp: 4500 }, // 주 4,500 — 닷새치
-  [UserLeague.PEARL]: { promote: 5, demote: 6, chest: [100, 70, 45], keepXp: 5200 }, // 주 5,200 — 대엿새치
-  [UserLeague.OBSIDIAN]: { promote: 5, demote: 7, chest: [130, 90, 55], keepXp: 6000 }, // 주 6,000 — 엿새치
-  [UserLeague.DIAMOND]: { promote: 0, demote: 7, chest: [200, 130, 80], keepXp: 7000 }, // 주 7,000 — 거의 매일
+  [UserLeague.BRONZE]: { promote: 10, demote: 0, chest: [20, 15, 10], keepXp: 0 },
+  [UserLeague.SILVER]: { promote: 8, demote: 3, chest: [25, 18, 12], keepXp: 800 }, // 주 800 — 하루치
+  [UserLeague.GOLD]: { promote: 7, demote: 3, chest: [30, 22, 15], keepXp: 1500 }, // 주 1,500 — 이틀치
+  [UserLeague.SAPPHIRE]: { promote: 5, demote: 3, chest: [40, 28, 18], keepXp: 2300 }, // 주 2,300 — 두세 날치
+  [UserLeague.RUBY]: { promote: 5, demote: 3, chest: [50, 35, 22], keepXp: 3000 }, // 주 3,000 — 사흘치
+  [UserLeague.EMERALD]: { promote: 4, demote: 3, chest: [65, 45, 28], keepXp: 3800 }, // 주 3,800 — 나흘치
+  [UserLeague.AMETHYST]: { promote: 3, demote: 4, chest: [80, 55, 35], keepXp: 4500 }, // 주 4,500 — 닷새치
+  [UserLeague.PEARL]: { promote: 3, demote: 4, chest: [100, 70, 45], keepXp: 5200 }, // 주 5,200 — 대엿새치
+  [UserLeague.OBSIDIAN]: { promote: 3, demote: 5, chest: [130, 90, 55], keepXp: 6000 }, // 주 6,000 — 엿새치
+  [UserLeague.DIAMOND]: { promote: 0, demote: 5, chest: [200, 130, 80], keepXp: 7000 }, // 주 7,000 — 거의 매일
 };
 
-const ROOM_SIZE = 30;
 /** 한 번에 따라잡을 최대 주 수. 오래 멈춰 있었어도 한 번에 다 돌지는 않는다 */
 const MAX_CATCHUP_WEEKS = 8;
 const CHALLENGE_XP = 70; // 리그 화면 배지 표시용. 실제 상한은 TIER_CHALLENGE.maxXp
@@ -217,21 +224,7 @@ export class LeagueService {
       members: new Types.ObjectId(userId),
     });
 
-    if (!room) {
-      room = await this.roomModel.findOne({
-        weekKey,
-        tier,
-        settled: false,
-        $expr: { $lt: [{ $size: '$members' }, ROOM_SIZE] },
-      });
-      if (!room) {
-        room = await this.roomModel.create({ tier, weekKey, members: [] });
-      }
-      await this.roomModel.findByIdAndUpdate(room._id, {
-        $addToSet: { members: new Types.ObjectId(userId) },
-      });
-      room = await this.roomModel.findById(room._id);
-    }
+    if (!room) room = await this.joinRoom(userId, tier, weekKey);
 
     // ✅ 봇으로 채우기 (실유저 적을 때)
     const realCount = await this.userModel.countDocuments({
@@ -541,20 +534,46 @@ export class LeagueService {
       .select('_id')
       .lean();
 
-    if (!exists) {
-      let room = await this.roomModel.findOne({
-        weekKey,
-        tier,
-        settled: false,
-        $expr: { $lt: [{ $size: '$members' }, ROOM_SIZE] },
-      });
-      if (!room)
-        room = await this.roomModel.create({ tier, weekKey, members: [] });
+    if (!exists) await this.joinRoom(userId, tier, weekKey);
+  }
 
-      await this.roomModel.findByIdAndUpdate(room._id, {
-        $addToSet: { members: new Types.ObjectId(userId) },
-      });
+  /**
+   * 실유저를 이번 주 방에 넣는다. 봇은 빈자리를 채우는 손님이라 실유저가 오면
+   * 자리를 비켜 준다 — 방은 봇으로 20명까지 차 있으므로, 안 그러면 실유저마다
+   * 새 방이 생겨 실유저끼리 영영 못 만난다. 방은 실유저 기준으로 20명까지 받는다.
+   */
+  private async joinRoom(userId: string, tier: UserLeague, weekKey: string) {
+    const botIds = (await this.ensureBots()).map((bot) => bot._id);
+    let room = await this.roomModel.findOne({
+      weekKey,
+      tier,
+      settled: false,
+      $expr: {
+        $lt: [{ $size: { $setDifference: ['$members', botIds] } }, ROOM_SIZE],
+      },
+    });
+    if (!room)
+      room = await this.roomModel.create({ tier, weekKey, members: [] });
+
+    const joined = await this.roomModel.findByIdAndUpdate(
+      room._id,
+      { $addToSet: { members: new Types.ObjectId(userId) } },
+      { new: true },
+    );
+    // 넘친 만큼 봇이 나간다
+    const over = (joined?.members.length ?? 0) - ROOM_SIZE;
+    if (joined && over > 0) {
+      const bots = new Set(botIds.map(String));
+      const leaving = joined.members
+        .filter((member) => bots.has(String(member)))
+        .slice(-over);
+      if (leaving.length)
+        await this.roomModel.updateOne(
+          { _id: joined._id },
+          { $pull: { members: { $in: leaving } } },
+        );
     }
+    return this.roomModel.findById(room._id);
   }
 
   // XP 적립 직전 호출 — 아직 기록 없으면 현재 순위를 저장

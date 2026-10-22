@@ -189,10 +189,8 @@ describe('English tutor storage', () => {
       { explanationLanguage: 'ko', koreanLevel: 'intermediate' },
       'en',
     );
-    const [, update] = models.settings.findOneAndUpdate.mock.calls[0] as [
-      unknown,
-      { $set: Record<string, unknown> },
-    ];
+    const [, update] = models.settings.findOneAndUpdate.mock
+      .calls[0] as unknown as [unknown, { $set: Record<string, unknown> }];
     expect(update.$set).toMatchObject({
       'courses.en.explanationLanguage': 'ko',
       'courses.en.koreanLevel': 'intermediate',

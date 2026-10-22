@@ -1,4 +1,4 @@
-// 리그 봇 유저 (초기 유저 부족 시 방 채움 — 30명 방이라 넉넉히)
+// 리그 봇 유저 (초기 유저 부족 시 방 채움 — 20명 방을 채우고도 남게 넉넉히)
 export const BOT_PROFILES = [
   { nickname: 'Aziz', flag: '🇺🇿', base: 40 },
   { nickname: 'Malika', flag: '🇺🇿', base: 65 },
