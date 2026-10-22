@@ -237,7 +237,7 @@ export function StimulusCard({
     const chart = stimulus.chart;
     if (stimulus.imageUrl) {
       return (
-        <section className={styles.chartCard}>
+        <section className={`${styles.chartCard} ${styles.chartImageCard}`}>
           <img alt={stimulus.imageAlt} className={styles.chartImage} src={stimulus.imageUrl} />
         </section>
       );

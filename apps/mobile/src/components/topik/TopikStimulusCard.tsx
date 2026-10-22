@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import type { TopikStimulus } from "@/types/topik";
@@ -72,23 +72,35 @@ function Notice({ stimulus }: { stimulus: TopikStimulus }) {
 function Chart({ stimulus }: { stimulus: TopikStimulus }) {
   const { t } = useTranslation();
   const styles = useStyles();
+  const [imageFrameWidth, setImageFrameWidth] = useState(0);
   const chart = stimulus.chart;
   if (!chart) return null;
 
   if (stimulus.imageUrl) {
     const source = topikStimulusImageSource(stimulus.imageUrl);
     const { width, height } = Image.resolveAssetSource(source);
+    const aspectRatio = width && height ? width / height : 1.8;
+    const imageWidth = Math.min(imageFrameWidth, 180 * aspectRatio);
     return (
-      <View style={styles.chartCard}>
-        <Image
-          accessibilityLabel={stimulus.imageAlt}
-          resizeMode="contain"
-          source={source}
-          style={[
-            styles.chartImage,
-            { aspectRatio: width && height ? width / height : 1.8 },
-          ]}
-        />
+      <View style={[styles.chartCard, styles.chartImageCard]}>
+        <View
+          onLayout={(event) =>
+            setImageFrameWidth(Math.round(event.nativeEvent.layout.width))
+          }
+          style={styles.chartImageFrame}
+        >
+          {imageWidth > 0 && (
+            <Image
+              accessibilityLabel={stimulus.imageAlt}
+              resizeMode="contain"
+              source={source}
+              style={[
+                styles.chartImage,
+                { width: imageWidth, height: imageWidth / aspectRatio },
+              ]}
+            />
+          )}
+        </View>
       </View>
     );
   }
@@ -285,11 +297,14 @@ const getStyles = (palette: TopikPalette) =>
     infoValue: { flex: 1, color: palette.text },
     chartCard: {
       gap: 9,
+      minWidth: 0,
       borderWidth: 1,
       borderColor: palette.borderStrong,
       backgroundColor: palette.surface,
       padding: 14,
     },
+    chartImageCard: { padding: 8 },
+    chartImageFrame: { width: "100%", alignItems: "center" },
     chartTitle: {
       color: palette.text,
       fontSize: 16,
@@ -302,7 +317,6 @@ const getStyles = (palette: TopikPalette) =>
       textAlign: "center",
     },
     chartImage: {
-      width: "100%",
       borderRadius: 8,
       backgroundColor: palette.paper,
     },
