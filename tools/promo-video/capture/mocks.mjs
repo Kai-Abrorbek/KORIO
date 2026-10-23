@@ -185,6 +185,10 @@ export function mocksFor(scene) {
     }
     case "home":
       return [...common, ...homeMocks()];
+    case "quests":
+      return [...common, ...questsMocks(false)];
+    case "quests-ready":
+      return [...common, ...questsMocks(true)];
     case "stats":
       return [...common, ...statsMocks()];
     default:
@@ -421,6 +425,62 @@ function statsMocks() {
         nextLevel: { description: "", level: 3, title: "3-daraja" },
         pendingChests: 0,
         score: 1240,
+      },
+    },
+  ];
+}
+
+/**
+ * 퀘스트 페이지 상태 확인용 — ready=false: 받을 보상 · 도장 · 진행 중 · SUPER 보너스 · 월간 보상 칸,
+ * ready=true: 셋 다 끝나 상자를 열 수 있다
+ */
+function questsMocks(ready) {
+  const slot = (id, kind, target, progress, done, claimed, gems, extra = {}) => ({
+    id, slot: id, kind, category: null, promo: false, course: null, target, progress, done, claimed, gems, ...extra,
+  });
+  const slots = ready
+    ? [
+        slot("easy", "xp", 30, 30, true, true, 5),
+        slot("normal", "category", 20, 20, true, true, 10, { category: "vocab", course: "ko" }),
+        slot("hard", "minutes", 15, 15, true, false, 15),
+      ]
+    : [
+        slot("easy", "xp", 30, 30, true, true, 5),
+        slot("normal", "category", 20, 20, true, false, 10, { category: "vocab", course: "ko" }),
+        slot("hard", "minutes", 15, 9, false, false, 15),
+        slot("bonus", "shareProgress", 1, 0, false, false, 20, { promo: true }),
+      ];
+  return [
+    {
+      pattern: "^/retention/summary",
+      body: {
+        gems: USER.gems,
+        streak: USER.streak,
+        freeze: { owned: 2, max: 3, price: 200, superWeekly: 1, notice: null },
+        quests: {
+          day: "2026-10-22",
+          items: [],
+          slots,
+          rerolls: { used: 0, max: 1, left: 1 },
+          chest: { gems: 20, ready, claimed: false },
+        },
+        monthly: {
+          month: "2026-10",
+          count: 18,
+          target: 30,
+          daysLeft: 9,
+          milestones: [
+            { at: 5, gems: 20, badge: false, reached: true, claimed: true },
+            { at: 12, gems: 40, badge: false, reached: true, claimed: ready },
+            { at: 20, gems: 60, badge: false, reached: false, claimed: false },
+            { at: 30, gems: 0, badge: true, reached: false, claimed: false },
+          ],
+          badges: ["2026-08", "2026-09"],
+        },
+        checkin: null,
+        comeback: null,
+        xpBoost: null,
+        streakGoal: { options: [], streakChest: { everyDays: 7, gems: 30 }, active: null, result: null },
       },
     },
   ];

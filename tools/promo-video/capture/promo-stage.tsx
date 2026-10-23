@@ -29,6 +29,7 @@ import { StickersScreen } from "../../src/features/profile/ui/stickers-screen";
 import { HomeScreen } from "../../src/features/home/ui/home-screen";
 import { CourseCategoriesScreen } from "../../src/features/learning/ui/course-categories-screen";
 import { StatsScreen } from "../../src/features/stats/ui/stats-screen";
+import { QuestsScreen } from "../../src/features/retention/ui/quests-screen";
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
@@ -164,6 +165,9 @@ function Scene({ name }: { name: string }): ReactNode {
       return <CourseCategoriesScreen />;
     case "stats":
       return <StatsScreen />;
+    case "quests":
+    case "quests-ready":
+      return <QuestsScreen />;
     default:
       return <p>unknown scene {name}</p>;
   }
