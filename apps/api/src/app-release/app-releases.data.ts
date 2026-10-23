@@ -35,6 +35,71 @@ export const STORE: { android: StoreChannel } = {
 
 export const APP_RELEASES: AppRelease[] = [
   {
+    id: '2026-10-24',
+    date: '2026-10-24',
+    storeVersion: '1.2.400',
+    items: [
+      t(
+        'new',
+        '영어도 배울 수 있어요. 학습 로드·단어·문법·발음·게임에 AI 튜터까지 한국어와 똑같이 준비돼 있어요.',
+        'Endi ingliz tilini ham o‘rganish mumkin: o‘quv yo‘li, so‘zlar, grammatika, talaffuz, o‘yinlar va AI ustoz — xuddi koreys tilidagidek.',
+        'You can now learn English too: learning path, vocabulary, grammar, pronunciation, games and the AI tutor — just like Korean.',
+        'Теперь можно учить и английский: учебный путь, слова, грамматика, произношение, игры и AI-репетитор — всё как в корейском.',
+      ),
+      t(
+        'new',
+        '오늘의 퀘스트와 월간 챌린지가 홈의 “퀘스트” 바로가기로 모였어요. 퀘스트 세 개를 끝내면 미스터리 상자가 열리고, 한 달 동안 모으면 그 달 배지를 받아요.',
+        'Bugungi vazifalar va oylik challenj endi bosh sahifadagi «Vazifalar» tugmasida. Uchta vazifani bajarsangiz sirli sandiq ochiladi, oy davomida to‘plasangiz — o‘sha oy nishonini olasiz.',
+        'Today’s quests and the monthly challenge now live under the “Quests” shortcut on Home. Finish three quests to open a mystery chest, and keep going all month to earn that month’s badge.',
+        'Задания на день и челлендж месяца теперь в разделе «Задания» на главной. Выполните три задания — откроется сундук-сюрприз, а за месяц соберёте значок этого месяца.',
+      ),
+      t(
+        'new',
+        '캐릭터 꾸미기가 커졌어요. 연속 학습일로 자라는 펫, 서울 여행 배경, K팝·한국 전통 의상, 오라와 칭호, 내 캐릭터 텔레그램 스티커팩까지.',
+        'Personajni bezash kengaydi: ketma-ket o‘qish kunlari bilan o‘sadigan uy hayvonlari, Seul sayohati fonlari, K-pop va koreys milliy liboslari, aura va unvonlar, hatto o‘z personajingizning Telegram stikerlar to‘plami.',
+        'Much more to dress up your character: pets that grow with your streak, Seoul trip backgrounds, K-pop and traditional Korean outfits, auras and titles — even a Telegram sticker pack of your character.',
+        'Больше способов украсить персонажа: питомцы, которые растут вместе с серией дней, фоны путешествия по Сеулу, K-pop и традиционные корейские наряды, ауры и титулы — и даже стикерпак вашего персонажа в Telegram.',
+      ),
+      t(
+        'improve',
+        '리그가 새로 바뀌었어요. 티어 무대와 시상대, 주간 결과 연출이 생겼고, 순위에서 이름을 누르면 프로필이 열려요.',
+        'Liga yangilandi: daraja sahnasi, shohsupa va haftalik natijalar ko‘rinishi qo‘shildi, reytingda ismni bossangiz profil ochiladi.',
+        'The league got a makeover: a tier stage, a podium and weekly result scenes, and tapping a name in the ranking opens that profile.',
+        'Лига обновилась: сцена лиги, пьедестал и итоги недели, а нажатие на имя в рейтинге открывает профиль.',
+      ),
+      t(
+        'improve',
+        '연속 학습 3일마다 보상 상자를 받고, 새 단계가 열리면 로켓이 날아올라요.',
+        'Ketma-ket o‘qishning har 3 kunida sovg‘a sandig‘i beriladi, yangi bosqich ochilganda esa raketa uchadi.',
+        'Get a reward chest every 3 days of your streak, and watch a rocket launch when a new level unlocks.',
+        'Каждые 3 дня серии — сундук с наградой, а при открытии нового уровня взлетает ракета.',
+      ),
+      t(
+        'new',
+        '앱 안에서 문의를 보내고 답장을 받을 수 있어요. 보석이 어디서 들어오고 나갔는지도 내역으로 볼 수 있어요.',
+        'Ilova ichida murojaat yuborib, javobni shu yerda olasiz. Olmoslar qayerdan kelib, qayerga ketganini tarixda ko‘rish mumkin.',
+        'Contact support right in the app and get the reply there. You can also see where your gems came from and where they went.',
+        'Пишите в поддержку прямо в приложении и получайте ответ там же. А в истории видно, откуда пришли и куда ушли кристаллы.',
+      ),
+      t(
+        'improve',
+        '앱을 켤 때 새 업데이트를 먼저 받아서 최신 화면으로 시작해요.',
+        'Ilova ochilganda avval yangilanish yuklab olinadi va eng so‘nggi ko‘rinishda boshlanadi.',
+        'The app now fetches new updates when it opens, so you start on the latest version.',
+        'При запуске приложение сначала загружает обновления, поэтому вы сразу видите последнюю версию.',
+        'mobile',
+      ),
+      t(
+        'fix',
+        '안드로이드에서 말하기 연습 마이크가 켜지지 않던 문제를 고쳤어요.',
+        'Androidda gapirish mashqida mikrofon yoqilmayotgan xato tuzatildi.',
+        'Fixed the microphone not starting in speaking practice on Android.',
+        'Исправлено: на Android в разговорной практике не включался микрофон.',
+        'mobile',
+      ),
+    ],
+  },
+  {
     id: '2026-09-30',
     date: '2026-09-30',
     items: [
