@@ -20,6 +20,10 @@ export const ICON = {
   happy: 62306,
   mic: 62558,
   sparkles: 62860,
+  school: 62812,
+  stats: 62875,
+  megaphone: 62542,
+  chat: 61975,
 } as const;
 
 export function Icon({ name, size, color, style }: { name: keyof typeof ICON; size: number; color?: string; style?: CSSProperties }) {

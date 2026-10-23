@@ -7,6 +7,8 @@
  *       연결된 SNS 계정 목록 (읽기만)
  *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
  *       --yes 가 없으면 무엇을 올릴지 보여 주기만 한다. --at 이 없으면 바로 게시한다.
+ *   node social/zernio.mjs get <경로>
+ *       읽기 전용 조회 (예: get "/analytics?platform=instagram")
  *   node social/zernio.mjs status <postId>
  *       게시 상태 (draft · scheduled · published · failed)
  */
@@ -69,6 +71,10 @@ const [command, ...args] = process.argv.slice(2);
 
 if (command === "accounts") {
   console.table(await accounts());
+} else if (command === "get") {
+  // 읽기 전용 조회 (예: get "/analytics?platform=instagram")
+  const { json } = await api("GET", args[0]);
+  console.log(JSON.stringify(json, null, 1));
 } else if (command === "status") {
   const { json } = await api("GET", `/posts/${args[0]}`);
   const post = json.post ?? json;

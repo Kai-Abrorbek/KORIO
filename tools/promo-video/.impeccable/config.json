@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font",
+        "value": "ionicons",
+        "createdAt": "2026-10-23T04:32:44.141Z",
+        "reason": "Ionicons is the app's own icon font (apps/telegram-app MobileIcon), used for icon glyphs, not body text"
+      }
+    ]
+  }
+}

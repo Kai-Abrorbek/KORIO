@@ -15,7 +15,7 @@ const ROOT = import.meta.dirname;
 const REPO = join(ROOT, "..", "..");
 const PUBLIC = join(ROOT, "public");
 
-const BRAND = ["hangulmon_celebrating", "hangulmon_level_up", "hangulmon_cheering", "hangulmon_default_float", "hangulmon_great"];
+const BRAND = ["hangulmon_celebrating", "hangulmon_level_up", "hangulmon_cheering", "hangulmon_default_float", "hangulmon_great", "hangulmon_default"];
 mkdirSync(join(PUBLIC, "brand"), { recursive: true });
 for (const name of BRAND) {
   cpSync(join(REPO, "apps/mobile/assets/images/characters", `${name}.png`), join(PUBLIC, "brand", `${name}.png`));
