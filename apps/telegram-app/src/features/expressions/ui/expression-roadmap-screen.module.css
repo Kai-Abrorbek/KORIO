@@ -1,5 +1,9 @@
 .page { overflow: hidden; }
 .page button { font: inherit; }
+.levelTabs { background: var(--surface); display: flex; gap: 6px; padding: 8px 16px; position: relative; z-index: 2; }
+.levelTab { background: var(--app-bg); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); cursor: pointer; flex: 1; font-size: 14px; font-weight: 800; min-height: 40px; }
+.levelTabSelected { background: #776ee2; border-color: #776ee2; color: #fff; }
+.levelTab:focus-visible { outline: 2px solid #776ee2; outline-offset: 2px; }
 .state { align-items: center; display: flex; flex: 1; flex-direction: column; gap: 14px; justify-content: center; padding: 28px; text-align: center; }
 .state strong { font-size: 18px; }
 .state > button { background: #776ee2; border: 0; border-radius: 15px; color: #fff; font-size: 14px; font-weight: 900; min-height: 46px; padding: 0 24px; }

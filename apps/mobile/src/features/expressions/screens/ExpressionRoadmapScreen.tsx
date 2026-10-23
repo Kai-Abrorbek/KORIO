@@ -33,11 +33,18 @@ import { useAuthStore } from "@/store/auth.store";
 import * as Haptics from "@/utils/haptics";
 import { useEnergySync } from "@/store/energy.store";
 import { useSettingsStore } from "@/store/settings.store";
+import type { ExpressionProficiency } from "@/types/expression";
 import type { RoadmapUnit } from "@/types/roadmap";
 import ExpressionNodePopover from "../components/ExpressionNodePopover";
 import ExpressionTopicSheet from "../components/ExpressionTopicSheet";
 import { useExpressionRoadmap } from "../hooks/useExpressionRoadmap";
 import { buildExpressionRoadmapViewModel } from "../utils/expression-roadmap.adapter";
+
+const PROFICIENCY_LEVELS: ExpressionProficiency[] = [
+  "beginner",
+  "intermediate",
+  "advanced",
+];
 
 export default function ExpressionRoadmapScreen() {
   const Alert = useSoundAlert();
@@ -54,6 +61,7 @@ export default function ExpressionRoadmapScreen() {
     useExpressionRoadmap();
   const listRef = useRef<FlatList<RoadmapUnit>>(null);
   const [visibleUnitIndex, setVisibleUnitIndex] = useState(0);
+  const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [topicSheetVisible, setTopicSheetVisible] = useState(false);
   /** 넘어가는 중인 주제 code — 두 번 눌리지 않게 */
@@ -67,7 +75,36 @@ export default function ExpressionRoadmapScreen() {
         : null,
     [roadmap, t],
   );
-  const units = viewModel?.units ?? [];
+  const fullUnits = useMemo(() => viewModel?.units ?? [], [viewModel]);
+  const hasLevelTabs = Boolean(
+    roadmap?.topics.some(
+      (topic) =>
+        topic.targetLanguage === "en" &&
+        topic.nodes.some((node) => node.proficiency),
+    ),
+  );
+  const units = useMemo(
+    () =>
+      hasLevelTabs && viewModel
+        ? viewModel.units.map((unit) => ({
+            ...unit,
+            nodes: unit.nodes.filter(
+              (node) =>
+                viewModel.nodeDetailsById.get(node.id)?.proficiency ===
+                selectedLevel,
+            ),
+          }))
+        : fullUnits,
+    [fullUnits, hasLevelTabs, selectedLevel, viewModel],
+  );
+  const currentLevel = useMemo(
+    () =>
+      roadmap?.topics
+        .flatMap((topic) => topic.nodes)
+        .find((node) => node.code === roadmap.continueNodeCode)?.proficiency ??
+      "beginner",
+    [roadmap],
+  );
   const currentUnitIndex = viewModel?.currentUnitIndex ?? 0;
   const bannerUnit =
     units[visibleUnitIndex] ?? units[viewModel?.currentUnitIndex ?? 0];
@@ -102,6 +139,10 @@ export default function ExpressionRoadmapScreen() {
     }),
     [layout],
   );
+
+  useEffect(() => {
+    if (hasLevelTabs) setSelectedLevel(currentLevel);
+  }, [currentLevel, hasLevelTabs]);
 
   useEffect(() => {
     if (!viewModel || !units.length) return;
@@ -174,8 +215,8 @@ export default function ExpressionRoadmapScreen() {
   // 목록에서 고른 주제 — 아직 못 간 곳이면 바로 넘어가고, 이미 열린 곳이면 그 자리로 스크롤만
   const handleTopicSelect = useCallback(
     (index: number) => {
-      if (!units[index]) return;
-      if (units[index]?.status === "locked") {
+      if (!fullUnits[index]) return;
+      if (fullUnits[index]?.status === "locked") {
         void focusTopic(index);
         return;
       }
@@ -187,13 +228,28 @@ export default function ExpressionRoadmapScreen() {
         listRef.current?.scrollToIndex({ index, animated: true });
       });
     },
-    [focusTopic, units],
+    [focusTopic, fullUnits],
   );
 
   const scrollToCurrent = useCallback(() => {
     setSelectedNodeId(null);
-    listRef.current?.scrollToIndex({ index: currentUnitIndex, animated: true });
-  }, [currentUnitIndex]);
+    if (hasLevelTabs) setSelectedLevel(currentLevel);
+    setVisibleUnitIndex(currentUnitIndex);
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToIndex({ index: currentUnitIndex, animated: true });
+    });
+  }, [currentLevel, currentUnitIndex, hasLevelTabs]);
+
+  const selectLevel = useCallback(
+    (level: ExpressionProficiency) => {
+      setSelectedNodeId(null);
+      setSelectedLevel(level);
+      requestAnimationFrame(() => {
+        listRef.current?.scrollToIndex({ index: visibleUnitIndex, animated: false });
+      });
+    },
+    [visibleUnitIndex],
+  );
 
   const renderNodePopover = useCallback(
     ({ node, unit, triangleOffsetX }: RoadmapNodePopoverContext) => {
@@ -225,7 +281,7 @@ export default function ExpressionRoadmapScreen() {
   );
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 40 });
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: Array<{ index: number | null }> }) => {
+    ({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
       const index = viewableItems[0]?.index;
       if (index !== null && index !== undefined) {
         setVisibleUnitIndex(index);
@@ -257,6 +313,32 @@ export default function ExpressionRoadmapScreen() {
           onPress={() => setTopicSheetVisible(true)}
           accessibilityLabel={t("expressionRoadmap.openTopicList")}
         />
+      ) : null}
+
+      {hasLevelTabs && bannerUnit ? (
+        <View style={styles.levelTabs} accessibilityRole="tablist">
+          {PROFICIENCY_LEVELS.map((level) => (
+            <Pressable
+              key={level}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: selectedLevel === level }}
+              onPress={() => selectLevel(level)}
+              style={[
+                styles.levelTab,
+                selectedLevel === level && styles.levelTabSelected,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.levelTabText,
+                  selectedLevel === level && styles.levelTabTextSelected,
+                ]}
+              >
+                {t(`voiceTutor.level.${level}`)}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       ) : null}
 
       {loading ? (
@@ -332,6 +414,29 @@ const getStyles = (theme: ThemeColors) =>
     },
     scroll: { flex: 1 },
     scrollContent: { paddingTop: 10, paddingBottom: 140 },
+    levelTabs: {
+      flexDirection: "row",
+      gap: 6,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      backgroundColor: theme.surface,
+    },
+    levelTab: {
+      flex: 1,
+      minHeight: 40,
+      borderRadius: 12,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.bg,
+      borderWidth: 1,
+      borderColor: theme.border,
+    },
+    levelTabSelected: {
+      backgroundColor: theme.primary,
+      borderColor: theme.primary,
+    },
+    levelTabText: { color: theme.textSecondary, fontSize: 14, fontWeight: "800" },
+    levelTabTextSelected: { color: "#FFFFFF" },
     state: {
       flex: 1,
       alignItems: "center",

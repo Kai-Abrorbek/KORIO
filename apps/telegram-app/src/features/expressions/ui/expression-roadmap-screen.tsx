@@ -23,7 +23,7 @@ import { SectionBanner } from "../../roadmap/ui/map/section-banner";
 import { UnitRoadmap } from "../../roadmap/ui/map/unit-roadmap";
 import study from "../../study-path/ui/study-map.module.css";
 import { focusExpressionTopic, getExpressionRoadmap } from "../api/expressions";
-import { EXPRESSION_COLORS, type ExpressionRoadmapNode, type ExpressionRoadmapResponse } from "../model/expressions";
+import { EXPRESSION_COLORS, type ExpressionProficiency, type ExpressionRoadmapNode, type ExpressionRoadmapResponse } from "../model/expressions";
 import styles from "./expression-roadmap-screen.module.css";
 
 interface ExpressionView {
@@ -33,6 +33,7 @@ interface ExpressionView {
 }
 
 const RING_STEPS = 4;
+const PROFICIENCY_LEVELS: ExpressionProficiency[] = ["beginner", "intermediate", "advanced"];
 
 /** 표현 API 모델을 로드맵 지도 모델로 옮긴다 (앱 buildExpressionRoadmapViewModel) */
 function buildView(roadmap: ExpressionRoadmapResponse): ExpressionView {
@@ -140,6 +141,7 @@ export function ExpressionRoadmapScreen() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [visibleIndex, setVisibleIndex] = useState(0);
+  const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
   const [topicSheetOpen, setTopicSheetOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   /** 넘어가는 중인 주제 code — 두 번 눌리지 않게 */
@@ -169,17 +171,33 @@ export function ExpressionRoadmapScreen() {
 
   useEffect(() => { void load(); }, [load]);
   const view = useMemo(() => (roadmap ? buildView(roadmap) : null), [roadmap]);
-  const units = useMemo(() => view?.units ?? [], [view]);
+  const fullUnits = useMemo(() => view?.units ?? [], [view]);
+  const hasLevelTabs = Boolean(roadmap?.topics.some((topic) =>
+    topic.targetLanguage === "en" && topic.nodes.some((node) => node.proficiency),
+  ));
+  const units = useMemo(() => hasLevelTabs && view
+    ? view.units.map((unit) => ({
+        ...unit,
+        nodes: unit.nodes.filter((node) => view.nodeById.get(node.id)?.proficiency === selectedLevel),
+      }))
+    : fullUnits, [fullUnits, hasLevelTabs, selectedLevel, view]);
+  const currentLevel = useMemo(() => roadmap?.topics
+    .flatMap((topic) => topic.nodes)
+    .find((node) => node.code === roadmap.continueNodeCode)?.proficiency ?? "beginner", [roadmap]);
   const currentIndex = view?.currentUnitIndex ?? 0;
   const visibleUnit = units[visibleIndex] ?? units[currentIndex];
   const isMax = (user as { superTier?: string | null } | null)?.superTier === "max";
 
   useEffect(() => {
-    if (!units.length) return;
+    if (hasLevelTabs) setSelectedLevel(currentLevel);
+  }, [currentLevel, hasLevelTabs]);
+
+  useEffect(() => {
+    if (!fullUnits.length) return;
     setSelectedNodeId(null);
     setVisibleIndex(currentIndex);
-    requestAnimationFrame(() => unitRefs.current.get(units[currentIndex]?.id ?? "")?.scrollIntoView({ block: "start" }));
-  }, [currentIndex, units]);
+    requestAnimationFrame(() => unitRefs.current.get(fullUnits[currentIndex]?.id ?? "")?.scrollIntoView({ block: "start" }));
+  }, [currentIndex, fullUnits]);
 
   useEffect(() => {
     const root = scrollRef.current;
@@ -234,7 +252,7 @@ export function ExpressionRoadmapScreen() {
 
   // 목록에서 고른 주제 — 아직 못 간 곳이면 바로 넘어가고, 이미 열린 곳이면 그 자리로 스크롤만
   const jumpToTopic = (index: number) => {
-    const unit = units[index];
+    const unit = fullUnits[index];
     if (!unit) return;
     if (unit.status === "locked") {
       void focusTopic(index);
@@ -244,6 +262,13 @@ export function ExpressionRoadmapScreen() {
     setVisibleIndex(index);
     setSelectedNodeId(null);
     unitRefs.current.get(unit.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const selectLevel = (level: ExpressionProficiency) => {
+    setSelectedNodeId(null);
+    setSelectedLevel(level);
+    const topicId = fullUnits[visibleIndex]?.id;
+    requestAnimationFrame(() => unitRefs.current.get(topicId ?? "")?.scrollIntoView({ block: "start" }));
   };
 
   if (!premium) {
@@ -281,6 +306,23 @@ export function ExpressionRoadmapScreen() {
           title={visibleUnit.title}
           unitNumber={visibleUnit.unitNumber}
         />
+      ) : null}
+
+      {hasLevelTabs && visibleUnit ? (
+        <div aria-label={visibleUnit.title} className={styles.levelTabs} role="tablist">
+          {PROFICIENCY_LEVELS.map((level) => (
+            <button
+              aria-selected={selectedLevel === level}
+              className={`${styles.levelTab} ${selectedLevel === level ? styles.levelTabSelected : ""}`}
+              key={level}
+              onClick={() => selectLevel(level)}
+              role="tab"
+              type="button"
+            >
+              {translateText(uzt(`voiceTutor.level.${level}`))}
+            </button>
+          ))}
+        </div>
       ) : null}
 
       {loading ? <div className={styles.state} style={{ position: "relative", zIndex: 1 }}><span className={styles.spinner} /></div> : loadFailed ? (
@@ -326,9 +368,10 @@ export function ExpressionRoadmapScreen() {
           label="Hozirgi darsga o'tish"
           onPress={() => {
             setSelectedNodeId(null);
-            unitRefs.current
-              .get(units[currentIndex]?.id ?? "")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+            if (hasLevelTabs) setSelectedLevel(currentLevel);
+            requestAnimationFrame(() => unitRefs.current
+              .get(fullUnits[currentIndex]?.id ?? "")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" }));
           }}
         />
       ) : null}
