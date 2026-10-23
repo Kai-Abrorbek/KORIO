@@ -241,6 +241,7 @@ describe('ExpressionRoadmapService — 코스 분리', () => {
       title: {},
       description: {},
       icon: 'x',
+      proficiency: 'beginner',
     };
     const enExpression = { _id: new Types.ObjectId(), nodeId: enNode._id };
     const path = {
@@ -282,6 +283,7 @@ describe('ExpressionRoadmapService — 코스 분리', () => {
     const roadmap = await service.getRoadmap(USER, 'ko', en);
     expect(roadmap.topics.map((topic) => topic.code)).toEqual(['en-pack']);
     expect(roadmap.continueNodeCode).toBe('en-node');
+    expect(roadmap.topics[0]?.nodes[0]?.proficiency).toBe('beginner');
     expect(path.focusPackId).toEqual(koPack._id);
     expect(path.courseFocusPackIds['en-general']).toEqual(enPack._id);
   });

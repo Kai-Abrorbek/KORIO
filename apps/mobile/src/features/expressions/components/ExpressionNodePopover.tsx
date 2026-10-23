@@ -50,7 +50,12 @@ export default function ExpressionNodePopover({
             color="#FFFFFF"
           />
         </View>
-        <Text style={styles.title}>{node.title}</Text>
+        <Text style={styles.title}>
+          {node.proficiency
+            ? `${t(`voiceTutor.level.${node.proficiency}`)} · `
+            : ""}
+          {node.title}
+        </Text>
       </View>
       <Text style={styles.description}>{node.description}</Text>
 

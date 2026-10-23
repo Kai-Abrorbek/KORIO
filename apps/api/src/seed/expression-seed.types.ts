@@ -7,6 +7,7 @@ import {
   type ExpressionPlacement,
 } from '../expressions/schemas/expression.schema';
 import type { ExpressionLanguage } from '../expressions/schemas/expression-pack.schema';
+import type { ExpressionProficiency } from '../expressions/schemas/expression-node.schema';
 
 export type LocalizedExpressionSeedText = Record<ExpressionLanguage, string>;
 
@@ -77,6 +78,7 @@ export interface ExpressionNodeSeed {
   description: LocalizedExpressionSeedText;
   icon: string;
   order: number;
+  proficiency?: ExpressionProficiency;
   requiredExposures?: number;
   isActive?: boolean;
 }

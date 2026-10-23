@@ -32,7 +32,7 @@ export const LEARN_COURSES: Record<LearnCourse, LearnCourseMeta> = {
     ],
   },
   // conversation = AI 음성 튜터 (영어 튜터)
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "conversation"] },
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "expression", "conversation"] },
 };
 
 /**
@@ -46,6 +46,7 @@ export const ENGLISH_CATEGORY_CARDS = [
   "vocabulary",
   "grammar",
   "grammarPractice",
+  "expression",
   "wordCard",
   "pronunciation",
   "games",

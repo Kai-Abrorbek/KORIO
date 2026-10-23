@@ -48,7 +48,9 @@ function buildView(roadmap: ExpressionRoadmapResponse): ExpressionView {
         iconName: hasIonicon(node.icon) ? node.icon : "chatbubble-ellipses-outline",
         id: node.id,
         status: node.status,
-        title: node.title,
+        title: node.proficiency
+          ? `${translateText(uzt(`voiceTutor.level.${node.proficiency}`))} · ${node.title}`
+          : node.title,
         totalLessons: RING_STEPS,
         type: "speech",
       };
@@ -97,7 +99,12 @@ function ExpressionNodePopover({
         <span className={`${study.titleIcon} ${study.exprTitleIcon}`}>
           <AppIcon name={completed ? "checkmark" : "chatbubble-ellipses"} size={19} />
         </span>
-        <strong className={study.exprTitle}>{node.title}</strong>
+        <strong className={study.exprTitle}>
+          {node.proficiency
+            ? `${translateText(uzt(`voiceTutor.level.${node.proficiency}`))} · `
+            : ""}
+          {node.title}
+        </strong>
       </div>
       <p className={study.description} style={{ marginTop: 8 }}>{node.description}</p>
       <div className={study.metaRow} style={{ marginTop: 13 }}>

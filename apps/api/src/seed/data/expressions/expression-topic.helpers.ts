@@ -1,4 +1,5 @@
 import { ExpressionSpeechLevel } from '../../../expressions/schemas/expression.schema';
+import { ExpressionProficiency } from '../../../expressions/schemas/expression-node.schema';
 import type {
   ExpressionNodeSeed,
   ExpressionPackSeed,
@@ -39,6 +40,7 @@ export interface ExpressionNodeDraft {
   title: LocalizedExpressionSeedText;
   description: LocalizedExpressionSeedText;
   icon: string;
+  proficiency?: ExpressionProficiency;
   expressions: readonly ExpressionDraft[];
 }
 
@@ -113,6 +115,7 @@ export function defineExpressionTopic(
       title: node.title,
       description: node.description,
       icon: node.icon,
+      ...(node.proficiency ? { proficiency: node.proficiency } : {}),
       order: nodeIndex + 1,
       requiredExposures: 3,
       isActive: true,

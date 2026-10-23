@@ -37,6 +37,7 @@ export const LEARNING_COURSES = [
       'alphabet',
       'grammarPractice',
       'grammar',
+      'expression',
       'conversation',
     ],
   },

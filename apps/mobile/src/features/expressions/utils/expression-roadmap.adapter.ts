@@ -4,6 +4,7 @@ import type { RoadmapIconName, RoadmapUnit } from "@/types/roadmap";
 import type {
   ExpressionRoadmapNode,
   ExpressionRoadmapResponse,
+  ExpressionProficiency,
 } from "@/types/expression";
 
 const RING_STEPS = 4;
@@ -27,6 +28,7 @@ function toRoadmapIconName(icon: string): RoadmapIconName {
  */
 export function buildExpressionRoadmapViewModel(
   roadmap: ExpressionRoadmapResponse,
+  levelLabel: (level: ExpressionProficiency) => string = (level) => level,
 ): ExpressionRoadmapViewModel {
   const nodeCodeById = new Map<string, string>();
   const nodeDetailsById = new Map<string, ExpressionRoadmapNode>();
@@ -46,7 +48,9 @@ export function buildExpressionRoadmapViewModel(
         id: node.id,
         type: "speech" as const,
         status: node.status,
-        title: node.title,
+        title: node.proficiency
+          ? `${levelLabel(node.proficiency)} · ${node.title}`
+          : node.title,
         iconName: toRoadmapIconName(node.icon),
         completedLessons: completedSteps,
         totalLessons: RING_STEPS,

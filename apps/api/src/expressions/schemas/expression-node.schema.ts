@@ -8,6 +8,14 @@ import {
 
 export const DEFAULT_EXPRESSION_EXPOSURES = 3;
 
+export const ExpressionProficiency = {
+  BEGINNER: 'beginner',
+  INTERMEDIATE: 'intermediate',
+  ADVANCED: 'advanced',
+} as const;
+export type ExpressionProficiency =
+  (typeof ExpressionProficiency)[keyof typeof ExpressionProficiency];
+
 @Schema({ timestamps: true })
 export class ExpressionNode {
   @Prop({ required: true, trim: true })
@@ -28,6 +36,9 @@ export class ExpressionNode {
   @Prop({ required: true, min: 1 })
   order: number;
 
+  @Prop({ type: String, enum: Object.values(ExpressionProficiency) })
+  proficiency?: ExpressionProficiency;
+
   @Prop({ min: 1, max: 5, default: DEFAULT_EXPRESSION_EXPOSURES })
   requiredExposures: number;
 
@@ -36,7 +47,8 @@ export class ExpressionNode {
 }
 
 export type ExpressionNodeDocument = HydratedDocument<ExpressionNode>;
-export const ExpressionNodeSchema = SchemaFactory.createForClass(ExpressionNode);
+export const ExpressionNodeSchema =
+  SchemaFactory.createForClass(ExpressionNode);
 
 ExpressionNodeSchema.index({ code: 1 }, { unique: true });
 ExpressionNodeSchema.index(

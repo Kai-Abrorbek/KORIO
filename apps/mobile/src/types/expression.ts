@@ -1,6 +1,7 @@
 import type { LessonSession } from "@/types/lesson";
 
 export type ExpressionSpeechLevel = "polite" | "casual" | "formal";
+export type ExpressionProficiency = "beginner" | "intermediate" | "advanced";
 export type ExpressionReviewResult = "again" | "hard" | "good" | "easy";
 
 export interface ExpressionPackMedia {
@@ -133,6 +134,7 @@ export interface ExpressionRoadmapNode {
   title: string;
   description: string;
   icon: string;
+  proficiency?: ExpressionProficiency | null;
   order: number;
   requiredExposures: number;
   expressionCount: number;
@@ -205,6 +207,7 @@ export interface ExpressionNodeLearningResponse {
     title: string;
     description: string;
     icon: string;
+    proficiency?: ExpressionProficiency | null;
     order: number;
     requiredExposures: number;
   };

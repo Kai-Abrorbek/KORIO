@@ -212,9 +212,7 @@ export class ExpressionRoadmapService {
           ? courseFocus.get(scope.courseId)
           : courseFocus?.[scope.courseId];
     const focusIndex = focusPackId
-      ? measured.findIndex((topic) =>
-          topic.pack._id.equals(focusPackId as Types.ObjectId),
-        )
+      ? measured.findIndex((topic) => topic.pack._id.equals(focusPackId))
       : -1;
     let statuses = assignNodeStatuses(measured, focusIndex);
     // 고른 주제부터 끝까지 다 익혔는데 앞에 남은 게 있으면 처음부터 다시 연다 (갈 곳이 없어지지 않게)
@@ -246,6 +244,7 @@ export class ExpressionRoadmapService {
             title: this.localize(node.title, lang, node.code),
             description: this.localize(node.description, lang),
             icon: node.icon,
+            proficiency: node.proficiency ?? null,
             order: node.order,
             requiredExposures: node.requiredExposures,
             expressionCount: item.expressionCount,

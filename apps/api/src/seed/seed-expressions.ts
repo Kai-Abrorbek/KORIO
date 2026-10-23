@@ -97,6 +97,14 @@ async function seedExpressions() {
       `No complete expression topics registered for ${scope.courseId}`,
     );
   }
+  if (
+    scope.targetLanguage === 'en' &&
+    (EXPRESSION_PACK_SEEDS.length !== 40 ||
+      EXPRESSION_NODE_SEEDS.length !== 240 ||
+      EXPRESSION_SEEDS.length < 3600)
+  ) {
+    throw new Error('English expressions need all 40 complete topics');
+  }
   for (const pack of EXPRESSION_PACK_SEEDS) {
     if (
       (pack.courseId ?? 'ko-general') !== scope.courseId ||
@@ -173,9 +181,7 @@ async function seedExpressions() {
     packs.set(seed.code, pack);
   }
 
-  const seededPackIds = [...packs.values()].map(
-    (pack) => pack._id as Types.ObjectId,
-  );
+  const seededPackIds = [...packs.values()].map((pack) => pack._id);
   await Promise.all([
     nodeModel.updateMany(
       { packId: { $in: seededPackIds }, isActive: true },
@@ -236,7 +242,7 @@ async function seedExpressions() {
       if (!question) {
         throw new Error(`표현 연습문제 upsert 실패: ${questionSeed.code}`);
       }
-      practiceQuestionIds.push(question._id as Types.ObjectId);
+      practiceQuestionIds.push(question._id);
     }
 
     const expression = await expressionModel.findOneAndUpdate(

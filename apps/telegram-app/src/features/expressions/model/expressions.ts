@@ -1,4 +1,5 @@
 export type ExpressionSpeechLevel = "polite" | "casual" | "formal";
+export type ExpressionProficiency = "beginner" | "intermediate" | "advanced";
 export type ExpressionNodeStatus = "completed" | "current" | "locked";
 export type ExpressionPracticeStage = "learn" | "guided" | "recall";
 
@@ -44,6 +45,7 @@ export interface ExpressionRoadmapNode {
   title: string;
   description: string;
   icon: string;
+  proficiency?: ExpressionProficiency | null;
   order: number;
   requiredExposures: number;
   expressionCount: number;
@@ -84,6 +86,7 @@ export interface ExpressionNodeLearningResponse {
     title: string;
     description: string;
     icon: string;
+    proficiency?: ExpressionProficiency | null;
     order: number;
     requiredExposures: number;
   };

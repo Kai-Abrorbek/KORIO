@@ -112,6 +112,7 @@ export class ExpressionLearningService {
         title: this.localize(node.title, lang, node.code),
         description: this.localize(node.description, lang),
         icon: node.icon,
+        proficiency: node.proficiency ?? null,
         order: node.order,
         requiredExposures: node.requiredExposures,
       },

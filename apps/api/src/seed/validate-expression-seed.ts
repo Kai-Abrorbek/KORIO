@@ -1,4 +1,6 @@
 import { EXPRESSION_LANGUAGES } from '../expressions/schemas/expression-pack.schema';
+import { ExpressionProficiency } from '../expressions/schemas/expression-node.schema';
+import { ExpressionSpeechLevel } from '../expressions/schemas/expression.schema';
 import { QuestionType } from '../lessons/schemas/question.schema';
 import { parseSeedCourseScope } from './course-seed.options';
 import { getExpressionCourseSeeds } from './expression-course.data';
@@ -13,6 +15,9 @@ const {
 if (!EXPRESSION_PACK_SEEDS.length) {
   throw new Error(`No expression topics registered for ${scope.courseId}`);
 }
+if (scope.targetLanguage === 'en' && EXPRESSION_PACK_SEEDS.length !== 40) {
+  throw new Error('English expressions need all 40 topics before seeding');
+}
 
 const codes = new Set<string>();
 const packCodes = new Set(EXPRESSION_PACK_SEEDS.map((pack) => pack.code));
@@ -23,6 +28,12 @@ const expressionOrderKeys = new Set<string>();
 const expressionTextKeys = new Set<string>();
 const expressionCountByNode = new Map<string, number>();
 const nodeCountByPack = new Map<string, number>();
+const levelCounts = new Map<string, number>();
+const casualCounts = new Map<string, number>();
+const politeCounts = new Map<string, number>();
+const nodesByCode = new Map(
+  EXPRESSION_NODE_SEEDS.map((node) => [node.code, node]),
+);
 
 function uniqueCode(code: string) {
   if (!code.trim()) throw new Error('Empty expression seed code');
@@ -60,6 +71,13 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
     completeI18n(pack.media.imageAlt, `${pack.code}.media.imageAlt`);
   }
 }
+if (scope.targetLanguage === 'en') {
+  for (let order = 1; order <= 40; order += 1) {
+    if (!packOrders.has(order)) {
+      throw new Error(`English expression topic order ${order} is missing`);
+    }
+  }
+}
 
 for (const node of EXPRESSION_NODE_SEEDS) {
   uniqueCode(node.code);
@@ -72,6 +90,19 @@ for (const node of EXPRESSION_NODE_SEEDS) {
   completeI18n(node.title, `${node.code}.title`);
   completeI18n(node.description, `${node.code}.description`);
   if (!node.icon.trim()) throw new Error(`${node.code}.icon is empty`);
+  if (scope.targetLanguage === 'en') {
+    const expected = [
+      ExpressionProficiency.BEGINNER,
+      ExpressionProficiency.BEGINNER,
+      ExpressionProficiency.INTERMEDIATE,
+      ExpressionProficiency.INTERMEDIATE,
+      ExpressionProficiency.ADVANCED,
+      ExpressionProficiency.ADVANCED,
+    ][node.order - 1];
+    if (!expected || node.proficiency !== expected) {
+      throw new Error(`${node.code} has invalid proficiency or order`);
+    }
+  }
   nodeCountByPack.set(
     node.packCode,
     (nodeCountByPack.get(node.packCode) ?? 0) + 1,
@@ -115,9 +146,7 @@ for (const expression of EXPRESSION_SEEDS) {
       `${expression.code} references missing node ${expression.nodeCode}`,
     );
   }
-  const node = EXPRESSION_NODE_SEEDS.find(
-    (item) => item.code === expression.nodeCode,
-  );
+  const node = nodesByCode.get(expression.nodeCode);
   if (node?.packCode !== expression.packCode) {
     throw new Error(`${expression.code} node belongs to another pack`);
   }
@@ -137,6 +166,15 @@ for (const expression of EXPRESSION_SEEDS) {
     expression.nodeCode,
     (expressionCountByNode.get(expression.nodeCode) ?? 0) + 1,
   );
+  if (scope.targetLanguage === 'en' && node?.proficiency) {
+    const key = `${expression.packCode}:${node.proficiency}`;
+    levelCounts.set(key, (levelCounts.get(key) ?? 0) + 1);
+    if (expression.speechLevel === ExpressionSpeechLevel.CASUAL) {
+      casualCounts.set(key, (casualCounts.get(key) ?? 0) + 1);
+    } else if (expression.speechLevel === ExpressionSpeechLevel.POLITE) {
+      politeCounts.set(key, (politeCounts.get(key) ?? 0) + 1);
+    }
+  }
   if (!expression.placements.length) {
     throw new Error(`${expression.code} has no section/unit placement`);
   }
@@ -207,6 +245,21 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
   const count = nodeCountByPack.get(pack.code) ?? 0;
   if (count < 4 || count > 6) {
     throw new Error(`${pack.code} must contain between 4 and 6 nodes`);
+  }
+  if (scope.targetLanguage === 'en') {
+    if (count !== 6) throw new Error(`${pack.code} needs six levelled nodes`);
+    for (const level of Object.values(ExpressionProficiency)) {
+      const key = `${pack.code}:${level}`;
+      if ((levelCounts.get(key) ?? 0) < 30) {
+        throw new Error(`${key} needs at least 30 expressions`);
+      }
+      if ((casualCounts.get(key) ?? 0) === 0) {
+        throw new Error(`${key} needs natural casual expressions`);
+      }
+      if ((politeCounts.get(key) ?? 0) === 0) {
+        throw new Error(`${key} needs polite expressions`);
+      }
+    }
   }
 }
 

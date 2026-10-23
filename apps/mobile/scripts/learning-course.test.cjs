@@ -142,16 +142,18 @@ for (const [client, courses] of [
     assert.equal(mismatch.searchParams.get("targetLanguage"), "ko");
   });
 
-  test(`${client}: English exposes vocabulary and both prepared grammar modes`, () => {
+  test(`${client}: English exposes prepared vocabulary, grammar, and expression modes`, () => {
     assert.ok(courses.LEARN_COURSES.en.modes.includes("vocabulary"));
     assert.ok(courses.LEARN_COURSES.en.modes.includes("grammarPractice"));
     assert.ok(courses.LEARN_COURSES.en.modes.includes("grammar"));
+    assert.ok(courses.LEARN_COURSES.en.modes.includes("expression"));
     assert.ok(!courses.LEARN_COURSES.en.modes.includes("topik"));
   });
 
-  test(`${client}: English category cards expose grammar lessons and drills`, () => {
+  test(`${client}: English category cards expose grammar and expressions`, () => {
     assert.ok(courses.ENGLISH_CATEGORY_CARDS.includes("grammar"));
     assert.ok(courses.ENGLISH_CATEGORY_CARDS.includes("grammarPractice"));
+    assert.ok(courses.ENGLISH_CATEGORY_CARDS.includes("expression"));
   });
 }
 

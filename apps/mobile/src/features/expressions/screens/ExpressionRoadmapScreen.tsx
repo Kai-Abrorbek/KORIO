@@ -59,8 +59,13 @@ export default function ExpressionRoadmapScreen() {
   /** 넘어가는 중인 주제 code — 두 번 눌리지 않게 */
   const [jumpingTopic, setJumpingTopic] = useState<string | null>(null);
   const viewModel = useMemo(
-    () => (roadmap ? buildExpressionRoadmapViewModel(roadmap) : null),
-    [roadmap],
+    () =>
+      roadmap
+        ? buildExpressionRoadmapViewModel(roadmap, (level) =>
+            t(`voiceTutor.level.${level}`),
+          )
+        : null,
+    [roadmap, t],
   );
   const units = viewModel?.units ?? [];
   const currentUnitIndex = viewModel?.currentUnitIndex ?? 0;
