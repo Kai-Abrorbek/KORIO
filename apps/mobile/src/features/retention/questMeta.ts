@@ -5,9 +5,42 @@ import type {
   QuestKind,
   QuestSlot,
   QuestSlotId,
+  RetentionSummary,
 } from "@/services/retention.service";
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
+
+/** 옛 서버(slots 없음)면 옛 3종을 칸 모양으로 바꿔 그린다 */
+export function slotsOf(quests: RetentionSummary["quests"]): QuestSlot[] {
+  if (quests.slots?.length) return quests.slots;
+  return quests.items.map((item) => ({
+    ...item,
+    id: item.id as unknown as QuestSlotId,
+    slot: item.id as unknown as QuestSlotId,
+    kind: item.id,
+    category: null,
+    promo: false,
+  }));
+}
+
+/**
+ * 홈 바로가기 "퀘스트" 에 붙는 한눈 요약 — 오늘 몇 개 끝냈나, 지금 받을 게 있나
+ * (끝낸 퀘스트 보상 · 상자 · 월간 보상 칸)
+ */
+export function questsGlance(summary: RetentionSummary | null) {
+  if (!summary) return null;
+  const slots = slotsOf(summary.quests);
+  const base = slots.filter((q) => q.slot !== "bonus");
+  const claimable =
+    slots.some((q) => q.done && !q.claimed) ||
+    (summary.quests.chest.ready && !summary.quests.chest.claimed) ||
+    !!summary.monthly?.milestones.some((m) => m.reached && !m.claimed);
+  return {
+    done: base.filter((q) => q.done).length,
+    total: base.length,
+    claimable,
+  };
+}
 
 /** 퀘스트 종류별 아이콘·색 */
 export const QUEST_KIND_META: Record<

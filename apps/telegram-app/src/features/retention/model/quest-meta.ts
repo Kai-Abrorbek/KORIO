@@ -1,5 +1,11 @@
 import type { IoniconName } from "../../../shared/ui/mobile-icon";
-import { rt, type QuestKind, type QuestSlot, type QuestSlotId } from "./retention";
+import {
+  rt,
+  type QuestKind,
+  type QuestSlot,
+  type QuestSlotId,
+  type RetentionSummary,
+} from "./retention";
 
 /**
  * 퀘스트 아이콘·색·문구 — 앱 features/retention/questMeta.ts 와 같다.
@@ -33,6 +39,34 @@ export const TIER_META: Record<QuestSlotId, { color: string; dark: string }> = {
   hard: { color: "#E25C5C", dark: "#B94545" },
   bonus: { color: "#FFB020", dark: "#D48A00" },
 };
+
+/** 옛 서버(slots 없음)면 옛 3종을 칸 모양으로 */
+export function slotsOf(quests: RetentionSummary["quests"]): QuestSlot[] {
+  if (quests.slots?.length) return quests.slots;
+  return quests.items.map((item) => ({
+    ...item,
+    category: null,
+    id: item.id as unknown as QuestSlotId,
+    kind: item.id,
+    promo: false,
+    slot: item.id as unknown as QuestSlotId,
+  }));
+}
+
+/**
+ * 홈 바로가기 "Vazifalar" 에 붙는 한눈 요약 — 오늘 몇 개 끝냈나, 지금 받을 게 있나
+ * (끝낸 퀘스트 보상 · 상자 · 월간 보상 칸)
+ */
+export function questsGlance(summary: RetentionSummary | null) {
+  if (!summary) return null;
+  const slots = slotsOf(summary.quests);
+  const base = slots.filter((q) => q.slot !== "bonus");
+  const claimable =
+    slots.some((q) => q.done && !q.claimed) ||
+    (summary.quests.chest.ready && !summary.quests.chest.claimed) ||
+    !!summary.monthly?.milestones.some((m) => m.reached && !m.claimed);
+  return { done: base.filter((q) => q.done).length, total: base.length, claimable };
+}
 
 export function questIcon(q: Pick<QuestSlot, "kind" | "category">) {
   if (q.kind === "category" && q.category && CATEGORY_META[q.category]) {

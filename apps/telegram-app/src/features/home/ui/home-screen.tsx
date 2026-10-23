@@ -45,10 +45,9 @@ import styles from "./home-screen.module.css";
 import { HomeTour } from "../../tour/home-tour";
 import { getRetentionSummary } from "../../retention/api/retention";
 import type { RetentionSummary } from "../../retention/model/retention";
+import { questsGlance } from "../../retention/model/quest-meta";
 import {
   CheckinCard,
-  DailyQuestsCard,
-  MonthlyChallengeCard,
   RetentionOverlays,
   StreakChips,
   XpBoostBanner,
@@ -64,10 +63,10 @@ interface QuickAccessItem {
   route?: string;
 }
 
-// 앱 홈의 바로가기와 같다: 상점·단어장만 열려 있고 과제·사전은 준비 중
+// 앱 홈의 바로가기와 같다: 상점·퀘스트·단어장이 열려 있고 사전은 준비 중
 const QUICK_ACCESS: QuickAccessItem[] = [
   { color: "#776ee2", icon: "basket", label: "Do'kon", route: "/shop" },
-  { color: "#FAC775", icon: "bookmark", label: "Vazifalar" },
+  { color: "#FAC775", icon: "bookmark", label: "Vazifalar", route: "/quests" },
   { color: "#45b7d1", icon: "searchOutline", label: "Lug'at" },
   {
     color: "#ff6b6b",
@@ -255,6 +254,7 @@ export function HomeScreen() {
       setRetention((current) => (current ? fn(current) : current)),
     [],
   );
+  const questGlance = questsGlance(retention);
 
   // 섹션을 끝낸 축하 화면들을 지나 홈으로 왔으면 여기서 레벨업 연출 (로드맵과 같다)
   useEffect(() => {
@@ -570,21 +570,7 @@ export function HomeScreen() {
           />
         ) : null}
 
-        {/* 오늘의 퀘스트 */}
-        {retention ? (
-          <DailyQuestsCard
-            patch={patchRetention}
-            quests={retention.quests}
-            streak={retention.streak}
-          />
-        ) : null}
-        {/* 월간 챌린지 — 퀘스트 N개 → 그 달 한정 배지 (앱과 같다) */}
-        {retention?.monthly ? (
-          <MonthlyChallengeCard
-            monthly={retention.monthly}
-            patch={patchRetention}
-          />
-        ) : null}
+        {/* 오늘의 퀘스트·월간 챌린지는 바로가기 "Vazifalar" → /quests 로 옮겼다 (홈이 너무 붐볐다) */}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여 준다 (앱과 같다) */}
         <div className={styles.rankSlot} data-tour="home.rank">
@@ -694,6 +680,15 @@ export function HomeScreen() {
                 }}
               >
                 <HomeIcon name={item.icon} size={22} />
+                {/* 퀘스트 — 오늘 몇 개 끝냈나, 받을 보상이 있으면 점 */}
+                {item.route === "/quests" && questGlance ? (
+                  <>
+                    <b className={styles.quickCount} data-no-translate>
+                      {questGlance.done}/{questGlance.total}
+                    </b>
+                    {questGlance.claimable ? <i className={styles.quickDot} /> : null}
+                  </>
+                ) : null}
               </span>
               <small>{item.label}</small>
             </button>

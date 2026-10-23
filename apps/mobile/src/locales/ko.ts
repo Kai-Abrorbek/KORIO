@@ -338,7 +338,7 @@ export default {
     review: "복습하기",
     reviewSub: "틀린 문제 모음 · 오답 복습",
     shop: "상점",
-    challenge: "도전과제",
+    challenge: "퀘스트",
     dictionary: "사전",
     wordbook: "내 단어장",
     days: ["월", "화", "수", "목", "금", "토", "일"],
@@ -3142,6 +3142,8 @@ export default {
     retry: "다시 시도",
     quests: {
       title: "오늘의 퀘스트",
+      pageTitle: "퀘스트",
+      doneStamp: "완료",
       resetIn: "{{h}}시간 {{m}}분 남음",
       xp: "XP {{n}} 모으기",
       correct: "정답 {{n}}개 맞히기",

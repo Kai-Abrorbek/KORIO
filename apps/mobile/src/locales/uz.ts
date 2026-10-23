@@ -3141,6 +3141,8 @@ export default {
     retry: "Qayta urinish",
     quests: {
       title: "Bugungi vazifalar",
+      pageTitle: "Vazifalar",
+      doneStamp: "Bajarildi",
       resetIn: "{{h}} soat {{m}} daqiqa qoldi",
       xp: "{{n}} XP to'plash",
       correct: "{{n}} ta to'g'ri javob",

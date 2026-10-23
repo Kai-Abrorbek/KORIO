@@ -56,8 +56,7 @@ import { useTourStore } from "@/features/tour/tour.store";
 import { useTourScroll } from "@/features/tour/useTourScroll";
 import { syncTimezone } from "@/utils/timezone";
 import { useRetentionStore } from "@/store/retention.store";
-import DailyQuestsCard from "@/features/retention/components/DailyQuestsCard";
-import MonthlyChallengeCard from "@/features/retention/components/MonthlyChallengeCard";
+import { questsGlance } from "@/features/retention/questMeta";
 import CheckinCard from "@/features/retention/components/CheckinCard";
 import XpBoostBanner from "@/features/retention/components/XpBoostBanner";
 import RetentionOverlays from "@/features/retention/components/RetentionOverlays";
@@ -213,6 +212,7 @@ export default function HomeScreen() {
       : "";
   // 리텐션 — 복구펜·퀘스트·출석·복귀·XP 부스트·연속 목표 (서버 요약 하나)
   const retention = useRetentionStore((st) => st.summary);
+  const questGlance = questsGlance(retention);
   const refreshRetention = useRetentionStore((st) => st.refresh);
   const patchRetention = useRetentionStore((st) => st.patch);
   // 문제 퀘스트는 코스마다 따로 센다 — 홈에서 코스를 바꾸면 그 코스 것으로 다시 받는다
@@ -326,6 +326,8 @@ export default function HomeScreen() {
     onPress?: () => void;
     /** 투어가 가리키는 칸 (없으면 안 가리킨다) */
     tourId?: string;
+    /** 오늘 퀘스트 진행(1/3)과 받을 보상 점을 아이콘에 붙인다 */
+    quests?: boolean;
   }> = [
     {
       icon: "basket-outline",
@@ -334,7 +336,13 @@ export default function HomeScreen() {
       onPress: () => router.push("/shop"),
       tourId: "home.shop",
     },
-    { icon: "bookmark-outline", label: t("home.challenge"), color: "#FAC775" },
+    {
+      icon: "bookmark-outline",
+      label: t("home.challenge"),
+      color: "#FAC775",
+      onPress: () => router.push("/quests"),
+      quests: true,
+    },
     { icon: "search-outline", label: t("home.dictionary"), color: "#45B7D1" },
     {
       icon: "heart-outline",
@@ -659,11 +667,7 @@ export default function HomeScreen() {
           />
         ) : null}
 
-        {/* 오늘의 퀘스트 */}
-        {retention ? <DailyQuestsCard quests={retention.quests} /> : null}
-        {retention?.monthly ? (
-          <MonthlyChallengeCard monthly={retention.monthly} />
-        ) : null}
+        {/* 오늘의 퀘스트·월간 챌린지는 바로가기 "퀘스트" → /quests 로 옮겼다 (홈이 너무 붐볐다) */}
 
         {/* 순위 배너 — 누르면 전체 학습자 중 내 등수를 1분간 보여준다 */}
         <Animated.View entering={FadeInDown.delay(300).duration(500)}>
@@ -839,6 +843,18 @@ export default function HomeScreen() {
                       size={22}
                       color={item.color}
                     />
+                    {item.quests && questGlance ? (
+                      <>
+                        <View style={styles.quickCount}>
+                          <Text style={styles.quickCountText}>
+                            {questGlance.done}/{questGlance.total}
+                          </Text>
+                        </View>
+                        {questGlance.claimable ? (
+                          <View style={styles.quickDot} />
+                        ) : null}
+                      </>
+                    ) : null}
                   </View>
                   <Text style={styles.quickLabel}>{item.label}</Text>
                 </TouchableOpacity>
@@ -1385,6 +1401,34 @@ const getStyles = (theme: ThemeColors) =>
       fontSize: 12,
       color: theme.text,
       fontWeight: "500",
+    },
+    quickCount: {
+      position: "absolute",
+      right: -8,
+      bottom: -6,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      borderRadius: 10,
+      borderWidth: 2,
+      borderColor: theme.surface,
+      backgroundColor: "#776EE2",
+    },
+    quickCountText: {
+      fontSize: 10.5,
+      fontWeight: "900",
+      color: "#FFFFFF",
+      fontVariant: ["tabular-nums"],
+    },
+    quickDot: {
+      position: "absolute",
+      top: -3,
+      right: -3,
+      width: 12,
+      height: 12,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: theme.surface,
+      backgroundColor: "#FF4B4B",
     },
     quickAccessBottomSpace: { height: 180 },
     // 투어 대상을 감싸는 래퍼. 원래 자식이 가지고 있던 바깥 여백을

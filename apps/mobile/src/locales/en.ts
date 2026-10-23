@@ -338,7 +338,7 @@ export default {
     review: "Review",
     reviewSub: "Wrong answers · Practice",
     shop: "Shop",
-    challenge: "Challenges",
+    challenge: "Quests",
     dictionary: "Dictionary",
     wordbook: "My Wordbook",
     days: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -3131,6 +3131,8 @@ export default {
     retry: "Try again",
     quests: {
       title: "Daily quests",
+      pageTitle: "Quests",
+      doneStamp: "Done",
       resetIn: "{{h}}h {{m}}m left",
       xp: "Earn {{n}} XP",
       correct: "Get {{n}} answers right",

@@ -3136,6 +3136,8 @@ export default {
     retry: "Повторить",
     quests: {
       title: "Задания на сегодня",
+      pageTitle: "Задания",
+      doneStamp: "Готово",
       resetIn: "Осталось {{h}} ч {{m}} мин",
       xp: "Набрать {{n}} XP",
       correct: "Ответить верно {{n}} раз",
