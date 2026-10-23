@@ -1,11 +1,18 @@
 import { EXPRESSION_LANGUAGES } from '../expressions/schemas/expression-pack.schema';
 import { QuestionType } from '../lessons/schemas/question.schema';
-import {
-  EXPRESSION_PACK_SEEDS,
-  EXPRESSION_NODE_SEEDS,
-  EXPRESSION_SEEDS,
-} from './data/expressions/expression.data';
+import { parseSeedCourseScope } from './course-seed.options';
+import { getExpressionCourseSeeds } from './expression-course.data';
 import type { LocalizedExpressionSeedText } from './expression-seed.types';
+
+const scope = parseSeedCourseScope();
+const {
+  packs: EXPRESSION_PACK_SEEDS,
+  nodes: EXPRESSION_NODE_SEEDS,
+  expressions: EXPRESSION_SEEDS,
+} = getExpressionCourseSeeds(scope);
+if (!EXPRESSION_PACK_SEEDS.length) {
+  throw new Error(`No expression topics registered for ${scope.courseId}`);
+}
 
 const codes = new Set<string>();
 const packCodes = new Set(EXPRESSION_PACK_SEEDS.map((pack) => pack.code));
@@ -19,7 +26,8 @@ const nodeCountByPack = new Map<string, number>();
 
 function uniqueCode(code: string) {
   if (!code.trim()) throw new Error('Empty expression seed code');
-  if (codes.has(code)) throw new Error(`Duplicate expression seed code: ${code}`);
+  if (codes.has(code))
+    throw new Error(`Duplicate expression seed code: ${code}`);
   codes.add(code);
 }
 
@@ -33,6 +41,15 @@ function completeI18n(value: LocalizedExpressionSeedText, label: string) {
 
 for (const pack of EXPRESSION_PACK_SEEDS) {
   uniqueCode(pack.code);
+  if (scope.targetLanguage === 'en' && !pack.code.startsWith('en-')) {
+    throw new Error(`${pack.code} needs en- prefix`);
+  }
+  if (
+    (pack.courseId ?? 'ko-general') !== scope.courseId ||
+    (pack.targetLanguage ?? 'ko') !== scope.targetLanguage
+  ) {
+    throw new Error(`${pack.code} has wrong course scope`);
+  }
   completeI18n(pack.title, `${pack.code}.title`);
   completeI18n(pack.description, `${pack.code}.description`);
   if (packOrders.has(pack.order)) {
@@ -46,6 +63,9 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
 
 for (const node of EXPRESSION_NODE_SEEDS) {
   uniqueCode(node.code);
+  if (scope.targetLanguage === 'en' && !node.code.startsWith('en-')) {
+    throw new Error(`${node.code} needs en- prefix`);
+  }
   if (!packCodes.has(node.packCode)) {
     throw new Error(`${node.code} references missing pack ${node.packCode}`);
   }
@@ -69,11 +89,26 @@ for (const node of EXPRESSION_NODE_SEEDS) {
 
 for (const expression of EXPRESSION_SEEDS) {
   uniqueCode(expression.code);
-  if (!packCodes.has(expression.packCode)) {
-    throw new Error(`${expression.code} references missing pack ${expression.packCode}`);
+  if (scope.targetLanguage === 'en' && !expression.code.startsWith('en-')) {
+    throw new Error(`${expression.code} needs en- prefix`);
   }
-  if (!expression.korean.trim()) {
-    throw new Error(`${expression.code} has empty Korean text`);
+  if (
+    (expression.courseId ?? 'ko-general') !== scope.courseId ||
+    (expression.targetLanguage ?? 'ko') !== scope.targetLanguage
+  ) {
+    throw new Error(`${expression.code} has wrong course scope`);
+  }
+  if (!packCodes.has(expression.packCode)) {
+    throw new Error(
+      `${expression.code} references missing pack ${expression.packCode}`,
+    );
+  }
+  const text = expression.text ?? expression.korean;
+  if (scope.targetLanguage === 'en' && !expression.text?.trim()) {
+    throw new Error(`${expression.code} needs English text`);
+  }
+  if (!text?.trim()) {
+    throw new Error(`${expression.code} has empty target-language text`);
   }
   if (!nodeCodes.has(expression.nodeCode)) {
     throw new Error(
@@ -93,11 +128,9 @@ for (const expression of EXPRESSION_SEEDS) {
     );
   }
   expressionOrderKeys.add(orderKey);
-  const textKey = `${expression.packCode}:${expression.korean.trim()}`;
+  const textKey = `${expression.packCode}:${text.trim()}`;
   if (expressionTextKeys.has(textKey)) {
-    throw new Error(
-      `${expression.packCode} has duplicate Korean expression: ${expression.korean}`,
-    );
+    throw new Error(`${expression.packCode} has duplicate expression: ${text}`);
   }
   expressionTextKeys.add(textKey);
   expressionCountByNode.set(
@@ -111,7 +144,10 @@ for (const expression of EXPRESSION_SEEDS) {
   completeI18n(expression.context, `${expression.code}.context`);
   completeI18n(expression.speaker, `${expression.code}.speaker`);
   completeI18n(expression.usageNote, `${expression.code}.usageNote`);
-  if (!expression.pronunciation.romanization?.trim()) {
+  if (
+    scope.targetLanguage === 'ko' &&
+    !expression.pronunciation.romanization?.trim()
+  ) {
     throw new Error(`${expression.code}.pronunciation.romanization is empty`);
   }
   if (!expression.pronunciation.ttsText.trim()) {
@@ -126,6 +162,9 @@ for (const expression of EXPRESSION_SEEDS) {
 
   for (const question of expression.practiceQuestions ?? []) {
     uniqueCode(question.code);
+    if (scope.targetLanguage === 'en' && !question.code.startsWith('en-')) {
+      throw new Error(`${question.code} needs en- prefix`);
+    }
     completeI18n(question.instruction, `${question.code}.instruction`);
     completeI18n(
       question.answerTranslation,
@@ -143,7 +182,9 @@ for (const expression of EXPRESSION_SEEDS) {
       }
       for (const answer of question.blankAnswers) {
         if (!question.options.includes(answer)) {
-          throw new Error(`${question.code} options are missing answer ${answer}`);
+          throw new Error(
+            `${question.code} options are missing answer ${answer}`,
+          );
         }
       }
     }

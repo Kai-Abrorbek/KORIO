@@ -111,6 +111,13 @@ placement를 검사한다. 실제 DB 반영은 `pnpm --filter api seed:words`이
 
 ## 표현 데이터 (`data/expressions`) 작성 규칙
 
+기존 한국어 표현은 이 형식을 유지한다. 영어 표현은 완성된 주제만
+`data/english-expressions/expression.data.ts`에 명시적으로 등록한다.
+영어 주제는 `defineExpressionTopic`에 `courseId: 'en-general'`,
+`targetLanguage: 'en'`, `en-`으로 시작하는 code를 넣고 표현 원문은 `text`에 쓴다.
+발음은 영어 원문의 `ttsText`와 선택적인 IPA를 사용한다. 영어 데이터가 없는 동안
+`--courseId=en-general` 검증과 시딩은 실패하며 DB를 변경하지 않는다.
+
 표현 학습은 `ExpressionPack`(주제) → `ExpressionNode`(상황 단계) →
 `Expression`(학습 표현) 순서로 연결된다. 콘텐츠는
 `data/expressions/topics/*.ts`에 주제별로 나누어 작성하고,

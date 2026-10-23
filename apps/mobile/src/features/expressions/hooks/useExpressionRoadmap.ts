@@ -2,10 +2,11 @@ import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { ExpressionService } from "@/services/expression.service";
 import type { ExpressionRoadmapResponse } from "@/types/expression";
-import { useContentLang } from "@/store/settings.store";
+import { useContentLang, useSettingsStore } from "@/store/settings.store";
 
 export function useExpressionRoadmap() {
   const contentLang = useContentLang();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
   const [roadmap, setRoadmap] = useState<ExpressionRoadmapResponse | null>(
     null,
   );
@@ -31,7 +32,7 @@ export function useExpressionRoadmap() {
   useFocusEffect(
     useCallback(() => {
       void load();
-    }, [contentLang, load]),
+    }, [contentLang, learnCourse, load]),
   );
 
   // 주제를 골라 넘어가면 서버가 바뀐 로드맵을 바로 준다 — 다시 받지 않고 그걸로 바꾼다

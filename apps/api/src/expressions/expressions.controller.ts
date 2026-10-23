@@ -23,6 +23,7 @@ import { ExpressionRoadmapService } from './roadmap/expression-roadmap.service';
 import { SpeakingProgressService } from './speaking/speaking-progress.service';
 import { LessonsService } from '../lessons/lessons.service';
 import { StudyCategory } from '../users/utils/study-category.util';
+import { resolveCourseScope } from '../common/learning-course';
 
 @UseGuards(JwtAuthGuard)
 @Controller('expressions')
@@ -36,13 +37,11 @@ export class ExpressionsController {
   ) {}
 
   @Get('roadmap')
-  async getRoadmap(
-    @Request() req,
-    @Query() query: ExpressionLanguageQueryDto,
-  ) {
+  async getRoadmap(@Request() req, @Query() query: ExpressionLanguageQueryDto) {
     return this.expressionRoadmapService.getRoadmap(
       req.user._id.toString(),
       query.lang,
+      resolveCourseScope(query),
     );
   }
 
@@ -58,8 +57,9 @@ export class ExpressionsController {
     @Query() query: ExpressionLanguageQueryDto,
   ) {
     const userId = req.user._id.toString();
-    await this.expressionRoadmapService.focusTopic(userId, packCode);
-    return this.expressionRoadmapService.getRoadmap(userId, query.lang);
+    const scope = resolveCourseScope(query);
+    await this.expressionRoadmapService.focusTopic(userId, packCode, scope);
+    return this.expressionRoadmapService.getRoadmap(userId, query.lang, scope);
   }
 
   @Get('nodes/:nodeCode/learning')
@@ -72,6 +72,7 @@ export class ExpressionsController {
       req.user._id.toString(),
       nodeCode,
       query.lang,
+      resolveCourseScope(query),
     );
   }
 
@@ -86,11 +87,18 @@ export class ExpressionsController {
   async completeNodeLearning(
     @Request() req,
     @Param('nodeCode') nodeCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
   ) {
     const userId = req.user._id.toString();
-    await this.expressionLearningService.getNodeLearning(userId, nodeCode, 'uz');
+    const scope = resolveCourseScope(query);
+    await this.expressionLearningService.getNodeLearning(
+      userId,
+      nodeCode,
+      'uz',
+      scope,
+    );
     await this.lessonsService.recordStudy(userId, {
-      targetLanguage: 'ko',
+      targetLanguage: scope.targetLanguage,
       questionCount: 1,
       overrideCategory: StudyCategory.EXPRESSION,
       xpEarned: 0,
@@ -102,21 +110,12 @@ export class ExpressionsController {
   }
 
   @Get('overview')
-  async getOverview(
-    @Request() req,
-    @Query() query: ExpressionScopeQueryDto,
-  ) {
-    return this.expressionsService.getOverview(
-      req.user._id.toString(),
-      query,
-    );
+  async getOverview(@Request() req, @Query() query: ExpressionScopeQueryDto) {
+    return this.expressionsService.getOverview(req.user._id.toString(), query);
   }
 
   @Get('saved')
-  async getSaved(
-    @Request() req,
-    @Query() query: ExpressionScopeQueryDto,
-  ) {
+  async getSaved(@Request() req, @Query() query: ExpressionScopeQueryDto) {
     return this.expressionsService.getSaved(req.user._id.toString(), query);
   }
 
@@ -143,6 +142,7 @@ export class ExpressionsController {
   async completePractice(
     @Request() req,
     @Param('packCode') packCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
     @Body() dto: CompleteExpressionPracticeDto,
   ) {
     const userId = req.user._id.toString();
@@ -150,6 +150,7 @@ export class ExpressionsController {
       userId,
       packCode,
       dto,
+      resolveCourseScope(query),
     );
     // 표현 연습도 "학습 모드 완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자
     const celebration = await this.lessonsService
@@ -163,7 +164,12 @@ export class ExpressionsController {
   async getSpeakingProgress(
     @Request() req,
     @Param('packCode') packCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
   ) {
+    await this.expressionsService.assertPackScope(
+      packCode,
+      resolveCourseScope(query),
+    );
     return this.speakingProgressService.get(req.user._id.toString(), packCode);
   }
 
@@ -178,8 +184,13 @@ export class ExpressionsController {
   async saveSpeakingProgress(
     @Request() req,
     @Param('packCode') packCode: string,
+    @Query() query: ExpressionLanguageQueryDto,
     @Body() dto: SaveSpeakingProgressDto,
   ) {
+    await this.expressionsService.assertPackScope(
+      packCode,
+      resolveCourseScope(query),
+    );
     const userId = req.user._id.toString();
     const progress = await this.speakingProgressService.save(
       userId,
@@ -220,20 +231,30 @@ export class ExpressionsController {
   }
 
   @Post(':id/views')
-  async recordView(@Request() req, @Param('id') id: string) {
-    return this.expressionsService.recordView(req.user._id.toString(), id);
+  async recordView(
+    @Request() req,
+    @Param('id') id: string,
+    @Query() query: ExpressionLanguageQueryDto,
+  ) {
+    return this.expressionsService.recordView(
+      req.user._id.toString(),
+      id,
+      resolveCourseScope(query),
+    );
   }
 
   @Patch(':id/saved')
   async setSaved(
     @Request() req,
     @Param('id') id: string,
+    @Query() query: ExpressionLanguageQueryDto,
     @Body() dto: ToggleExpressionSavedDto,
   ) {
     return this.expressionsService.setSaved(
       req.user._id.toString(),
       id,
       dto.isSaved,
+      resolveCourseScope(query),
     );
   }
 
@@ -241,12 +262,14 @@ export class ExpressionsController {
   async reviewExpression(
     @Request() req,
     @Param('id') id: string,
+    @Query() query: ExpressionLanguageQueryDto,
     @Body() dto: ReviewExpressionDto,
   ) {
     return this.expressionsService.reviewExpression(
       req.user._id.toString(),
       id,
       dto.result,
+      resolveCourseScope(query),
     );
   }
 }

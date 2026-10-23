@@ -1,4 +1,7 @@
-import { QuestionLevel, QuestionType } from '../lessons/schemas/question.schema';
+import {
+  QuestionLevel,
+  QuestionType,
+} from '../lessons/schemas/question.schema';
 import {
   ExpressionSpeechLevel,
   type ExpressionPlacement,
@@ -24,16 +27,14 @@ interface ExpressionPracticeQuestionBase {
   isActive?: boolean;
 }
 
-export interface ExpressionFillBlankSeed
-  extends ExpressionPracticeQuestionBase {
+export interface ExpressionFillBlankSeed extends ExpressionPracticeQuestionBase {
   type: QuestionType.FILL_IN_BLANK;
   sentenceTemplate: string;
   blankAnswers: string[];
   options: string[];
 }
 
-export interface ExpressionTranslateTypeSeed
-  extends ExpressionPracticeQuestionBase {
+export interface ExpressionTranslateTypeSeed extends ExpressionPracticeQuestionBase {
   type: QuestionType.TRANSLATE_TYPE;
   grading: {
     mode: 'semantic' | 'targetExpression';
@@ -56,6 +57,8 @@ export type ExpressionPracticeQuestionSeed =
 
 export interface ExpressionPackSeed {
   code: string;
+  courseId?: string;
+  targetLanguage?: string;
   title: LocalizedExpressionSeedText;
   description: LocalizedExpressionSeedText;
   media?: {
@@ -82,7 +85,11 @@ export interface ExpressionSeedEntry {
   code: string;
   packCode: string;
   nodeCode: string;
-  korean: string;
+  courseId?: string;
+  targetLanguage?: string;
+  /** Generic target-language expression. Legacy Korean seeds use `korean`. */
+  text?: string;
+  korean?: string;
   meaning: LocalizedExpressionSeedText;
   context: LocalizedExpressionSeedText;
   speaker: LocalizedExpressionSeedText;
@@ -90,6 +97,7 @@ export interface ExpressionSeedEntry {
   speechLevel: ExpressionSpeechLevel;
   pronunciation: {
     romanization?: string;
+    ipa?: string;
     ttsText: string;
     audioUrl?: string;
   };

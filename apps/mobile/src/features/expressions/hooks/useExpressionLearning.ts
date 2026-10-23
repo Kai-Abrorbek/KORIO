@@ -6,10 +6,11 @@ import {
   buildExpressionRecallQueue,
   type ExpressionLearningQueueItem,
 } from "../utils/expression-learning-queue";
-import { useContentLang } from "@/store/settings.store";
+import { useContentLang, useSettingsStore } from "@/store/settings.store";
 
 export function useExpressionLearning(nodeCode: string) {
   const contentLang = useContentLang();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
   const [session, setSession] = useState<ExpressionNodeLearningResponse | null>(
     null,
   );
@@ -69,6 +70,7 @@ export function useExpressionLearning(nodeCode: string) {
     }
 
     setLoading(true);
+    setSession(null);
     setLoadFailed(false);
     setSaveFailed(false);
     setCompleted(false);
@@ -90,7 +92,7 @@ export function useExpressionLearning(nodeCode: string) {
 
   useEffect(() => {
     void load();
-  }, [contentLang, load]);
+  }, [contentLang, learnCourse, load]);
 
   const scheduleRetry = useCallback(() => {
     if (!current || current.kind === "retry") return false;

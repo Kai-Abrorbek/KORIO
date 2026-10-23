@@ -83,7 +83,7 @@ export function learningScopePath(path: string, course: LearnCourse): string {
 }
 
 export const isLearningRequest = (path: string): boolean =>
-  /^\/(words|lessons|grammar|study-path|learn-progress|speech)(?:[/?]|$)/.test(path);
+  /^\/(words|lessons|grammar|study-path|learn-progress|speech|expressions)(?:[/?]|$)/.test(path);
 
 // 일일 퀘스트도 지금 코스를 붙여 보낸다 — 문제 퀘스트는 코스마다 따로 센다 (공통 퀘스트는 그대로).
 // 학습 요청은 아니라서 코스가 바뀌어도 응답을 버리지 않고 lang 도 건드리지 않는다.

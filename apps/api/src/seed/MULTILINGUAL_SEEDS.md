@@ -78,5 +78,15 @@ pnpm --filter api seed:grammar-track -- --courseId=en-general
 지원합니다. 문법은 `Essential Grammar in Use` Unit 1–91을 앱 Section 1–6의
 18개 유닛으로 묶은 데이터입니다. TOPIK·영어 전용 말하기 주제 등 준비되지 않은
 모드는 연결하지 않습니다.
+
+표현 시드는 별도 코스 선택을 지원합니다. 기존 `seed:validate-expressions`와
+`seed:expressions`는 한국어만 다룹니다. 영어는 완성된 주제를
+`data/english-expressions/expression.data.ts`에 명시적으로 등록한 뒤
+`pnpm --filter api seed:validate-expressions --courseId=en-general`로 검증하고,
+실제 DB 반영은 사용자가 `pnpm --filter api seed:expressions --courseId=en-general`을
+별도로 실행합니다. 등록된 영어 주제가 없으면 두 명령 모두 DB 작업 전에 실패합니다.
+표현 시드의 `text`는 학습 언어의 원문이고, 기존 한국어 원본의 `korean`은 호환됩니다.
+영어 표현 코드는 `en-` 접두사를 사용하며 `courseId`와 `targetLanguage`를 명시합니다.
+영어 콘텐츠가 완성되어 코스 모드를 열기 전까지 영어 표현 화면은 공개하지 않습니다.
 단어 복습은 고유 wordId로 유지되고, 레슨 진도는 고유 lessonId, 급수·전설 노드 등
 코스별 상태는 별도 courseProgress 경로를 사용합니다. XP·스트릭은 기존처럼 계정 공통입니다.

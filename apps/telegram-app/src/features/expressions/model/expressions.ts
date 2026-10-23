@@ -5,6 +5,8 @@ export type ExpressionPracticeStage = "learn" | "guided" | "recall";
 export interface ExpressionPackInfo {
   id: string;
   code: string;
+  courseId?: string;
+  targetLanguage?: "ko" | "en";
   title: string;
   description: string;
   media: { emoji: string; imageUrl: string; imageAlt: string };
@@ -14,6 +16,8 @@ export interface ExpressionPackInfo {
 export interface ExpressionLearningItem {
   id: string;
   code: string;
+  text?: string;
+  targetLanguage?: "ko" | "en";
   korean: string;
   meaning: string;
   context: string;

@@ -20,6 +20,9 @@ export class ExpressionPronunciation {
   romanization: string;
 
   @Prop({ default: '' })
+  ipa: string;
+
+  @Prop({ default: '' })
   ttsText: string;
 
   @Prop({ default: '' })
@@ -60,9 +63,8 @@ export class ExpressionPlacement {
   isCore: boolean;
 }
 
-export const ExpressionPlacementSchema = SchemaFactory.createForClass(
-  ExpressionPlacement,
-);
+export const ExpressionPlacementSchema =
+  SchemaFactory.createForClass(ExpressionPlacement);
 
 @Schema({ timestamps: true })
 export class Expression {
@@ -75,10 +77,16 @@ export class Expression {
   @Prop({ type: Types.ObjectId, ref: ExpressionNode.name, required: true })
   nodeId: Types.ObjectId;
 
-  @Prop({ enum: ['ko'], default: 'ko' })
-  targetLanguage: 'ko';
+  @Prop({ default: 'ko-general', trim: true })
+  courseId: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ default: 'ko', trim: true })
+  targetLanguage: string;
+
+  @Prop({ default: '', trim: true })
+  text: string;
+
+  @Prop({ default: '', trim: true })
   korean: string;
 
   @Prop({ type: LocalizedExpressionTextSchema, required: true })

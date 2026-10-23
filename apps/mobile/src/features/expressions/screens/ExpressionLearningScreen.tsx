@@ -212,8 +212,9 @@ export default function ExpressionLearningScreen() {
   const packTheme = expressionPackThemeByCode(session?.topic.code);
   const autoSpeechText =
     current && current.stage !== "recall"
-      ? current.expression.pronunciation.ttsText || current.expression.korean
+      ? current.expression.pronunciation.ttsText || current.expression.text || current.expression.korean
       : "";
+  const speechLocale = session?.topic.targetLanguage === "en" ? "en-US" : "ko-KR";
 
   // 노드를 끝낸 순간 = 표현 학습 완료. 하루 학습으로 남기고, 그날 첫 완료면
   // 연속 도장(3·6·9…일째면 상자)을 위에 띄운다 — 닫으면 이 완료 화면으로 돌아온다
@@ -239,9 +240,9 @@ export default function ExpressionLearningScreen() {
 
   useEffect(() => {
     if (!autoSpeechText) return;
-    speakAuto(autoSpeechText, "ko-KR");
+    speakAuto(autoSpeechText, speechLocale);
     return stop;
-  }, [autoSpeechText, current?.key, speakAuto, stop]);
+  }, [autoSpeechText, current?.key, speakAuto, speechLocale, stop]);
 
   useEffect(() => {
     const upcoming = queue
@@ -249,11 +250,11 @@ export default function ExpressionLearningScreen() {
       .filter((item) => item.stage !== "recall")
       .map(
         (item) =>
-          item.expression.pronunciation.ttsText || item.expression.korean,
+          item.expression.pronunciation.ttsText || item.expression.text || item.expression.korean,
       )
       .filter(Boolean);
-    if (upcoming.length > 0) prewarm(upcoming, "ko-KR");
-  }, [index, prewarm, queue]);
+    if (upcoming.length > 0) prewarm(upcoming, speechLocale);
+  }, [index, prewarm, queue, speechLocale]);
 
   const settleCard = useCallback(
     (direction: -1 | 1, moved: boolean) => {
@@ -789,8 +790,8 @@ export default function ExpressionLearningScreen() {
             onSpeak={() =>
               speak(
                 current.expression.pronunciation.ttsText ||
-                  current.expression.korean,
-                "ko-KR",
+                  current.expression.text || current.expression.korean,
+                speechLocale,
               )
             }
             onStopSpeech={stop}

@@ -5,6 +5,11 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types, type QueryFilter } from 'mongoose';
+import {
+  courseContentFilter,
+  type CourseScope,
+  resolveCourseScope,
+} from '../common/learning-course';
 import { PRACTICE_BASE_XP } from '../lessons/economy.const';
 import { LessonsService } from '../lessons/lessons.service';
 import { CompleteExpressionPracticeDto } from './dto/complete-expression-practice.dto';
@@ -46,13 +51,19 @@ export class ExpressionsService {
   ) {}
 
   async getOverview(userId: string, query: ExpressionScopeQueryDto) {
+    const scope = resolveCourseScope(query);
     const expressions = (await this.expressionModel
-      .find(this.buildScopeFilter(query.section, query.unit))
+      .find(this.buildScopeFilter(query.section, query.unit, scope))
       .lean()) as ExpressionRecord[];
-    const packIds = [...new Set(expressions.map((item) => item.packId.toString()))]
-      .map((id) => new Types.ObjectId(id));
+    const packIds = [
+      ...new Set(expressions.map((item) => item.packId.toString())),
+    ].map((id) => new Types.ObjectId(id));
     const packs = (await this.packModel
-      .find({ _id: { $in: packIds }, isActive: true })
+      .find({
+        _id: { $in: packIds },
+        isActive: true,
+        ...courseContentFilter(scope),
+      })
       .sort({ order: 1 })
       .lean()) as ExpressionPackRecord[];
     const progressMap = await this.getProgressMap(
@@ -82,8 +93,7 @@ export class ExpressionsService {
         .filter((item) => item.lastViewedAt)
         .sort(
           (a, b) =>
-            (b.lastViewedAt?.getTime() ?? 0) -
-            (a.lastViewedAt?.getTime() ?? 0),
+            (b.lastViewedAt?.getTime() ?? 0) - (a.lastViewedAt?.getTime() ?? 0),
         )[0];
 
       return {
@@ -96,7 +106,9 @@ export class ExpressionsService {
         saved: progress.filter((item) => item.isSaved).length,
         due: progress.filter((item) => this.isDue(item, now)).length,
         resumeExpressionId:
-          lastViewed?.expressionId.toString() ?? items[0]?._id.toString() ?? null,
+          lastViewed?.expressionId.toString() ??
+          items[0]?._id.toString() ??
+          null,
       };
     });
 
@@ -105,8 +117,7 @@ export class ExpressionsService {
       .filter((item) => item.lastViewedAt)
       .sort(
         (a, b) =>
-          (b.lastViewedAt?.getTime() ?? 0) -
-          (a.lastViewedAt?.getTime() ?? 0),
+          (b.lastViewedAt?.getTime() ?? 0) - (a.lastViewedAt?.getTime() ?? 0),
       )[0];
     const recentExpression = mostRecent
       ? expressions.find(
@@ -139,18 +150,15 @@ export class ExpressionsService {
   }
 
   async getExpressions(userId: string, query: ListExpressionsQueryDto) {
-    const pack = query.pack ? await this.findPack(query.pack) : null;
-    const filter = this.buildScopeFilter(query.section, query.unit);
+    const scope = resolveCourseScope(query);
+    const pack = query.pack ? await this.findPack(query.pack, scope) : null;
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     if (pack) filter.packId = pack._id;
 
     const expressions = (await this.expressionModel
       .find(filter)
       .lean()) as ExpressionRecord[];
-    const sorted = this.sortExpressions(
-      expressions,
-      query.section,
-      query.unit,
-    );
+    const sorted = this.sortExpressions(expressions, query.section, query.unit);
     let startIndex = 0;
 
     if (query.cursor) {
@@ -185,7 +193,7 @@ export class ExpressionsService {
         ),
       ),
       total: sorted.length,
-      nextCursor: hasNextPage ? page.at(-1)?.code ?? null : null,
+      nextCursor: hasNextPage ? (page.at(-1)?.code ?? null) : null,
     };
   }
 
@@ -194,8 +202,9 @@ export class ExpressionsService {
     id: string,
     query: ExpressionLanguageQueryDto,
   ) {
-    const expression = await this.findExpression(id);
-    const pack = await this.findPack(expression.packId.toString());
+    const scope = resolveCourseScope(query);
+    const expression = await this.findExpression(id, scope);
+    const pack = await this.findPack(expression.packId.toString(), scope);
     const progress = (await this.progressModel
       .findOne({
         userId: new Types.ObjectId(userId),
@@ -203,22 +212,18 @@ export class ExpressionsService {
       })
       .lean()) as ProgressRecord | null;
 
-    return this.serializeExpression(
-      expression,
-      pack,
-      query.lang,
-      progress,
-    );
+    return this.serializeExpression(expression, pack, query.lang, progress);
   }
 
   async getSaved(userId: string, query: ExpressionScopeQueryDto) {
+    const scope = resolveCourseScope(query);
     const userObjectId = new Types.ObjectId(userId);
     const savedProgress = (await this.progressModel
       .find({ userId: userObjectId, isSaved: true })
       .sort({ savedAt: -1 })
       .lean()) as ProgressRecord[];
     const expressionIds = savedProgress.map((item) => item.expressionId);
-    const filter = this.buildScopeFilter(query.section, query.unit);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     filter._id = { $in: expressionIds };
     const expressions = (await this.expressionModel
       .find(filter)
@@ -231,7 +236,9 @@ export class ExpressionsService {
     return {
       items: savedProgress
         .map((progress) => {
-          const expression = expressionMap.get(progress.expressionId.toString());
+          const expression = expressionMap.get(
+            progress.expressionId.toString(),
+          );
           if (!expression) return null;
           return this.serializeExpression(
             expression,
@@ -247,16 +254,19 @@ export class ExpressionsService {
   }
 
   async getReviewQueue(userId: string, query: ExpressionScopeQueryDto) {
+    const scope = resolveCourseScope(query);
     const now = new Date();
     const progress = (await this.progressModel
       .find({
         userId: new Types.ObjectId(userId),
-        state: { $in: [UserExpressionState.LEARNING, UserExpressionState.REVIEW] },
+        state: {
+          $in: [UserExpressionState.LEARNING, UserExpressionState.REVIEW],
+        },
         nextReviewAt: { $ne: null, $lte: now },
       })
       .sort({ nextReviewAt: 1 })
       .lean()) as ProgressRecord[];
-    const filter = this.buildScopeFilter(query.section, query.unit);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     filter._id = { $in: progress.map((item) => item.expressionId) };
     const expressions = (await this.expressionModel
       .find(filter)
@@ -284,8 +294,12 @@ export class ExpressionsService {
     };
   }
 
-  async recordView(userId: string, id: string) {
-    const expression = await this.findExpression(id);
+  async recordView(
+    userId: string,
+    id: string,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    const expression = await this.findExpression(id, scope);
     const userObjectId = new Types.ObjectId(userId);
     const current = (await this.progressModel
       .findOne({ userId: userObjectId, expressionId: expression._id })
@@ -318,8 +332,13 @@ export class ExpressionsService {
     };
   }
 
-  async setSaved(userId: string, id: string, isSaved: boolean) {
-    const expression = await this.findExpression(id);
+  async setSaved(
+    userId: string,
+    id: string,
+    isSaved: boolean,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
+    const expression = await this.findExpression(id, scope);
     const userObjectId = new Types.ObjectId(userId);
     const progress = await this.progressModel.findOneAndUpdate(
       { userId: userObjectId, expressionId: expression._id },
@@ -340,8 +359,9 @@ export class ExpressionsService {
     userId: string,
     id: string,
     result: ExpressionReviewResult,
+    scope: CourseScope = resolveCourseScope(),
   ) {
-    const expression = await this.findExpression(id);
+    const expression = await this.findExpression(id, scope);
     const progress = await this.applyReview(
       new Types.ObjectId(userId),
       expression,
@@ -356,12 +376,10 @@ export class ExpressionsService {
     };
   }
 
-  async getPractice(
-    packCode: string,
-    query: ExpressionScopeQueryDto,
-  ) {
-    const pack = await this.findPack(packCode);
-    const filter = this.buildScopeFilter(query.section, query.unit);
+  async getPractice(packCode: string, query: ExpressionScopeQueryDto) {
+    const scope = resolveCourseScope(query);
+    const pack = await this.findPack(packCode, scope);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
     filter.packId = pack._id;
     const expressions = this.sortExpressions(
       (await this.expressionModel.find(filter).lean()) as ExpressionRecord[],
@@ -395,10 +413,11 @@ export class ExpressionsService {
     userId: string,
     packCode: string,
     dto: CompleteExpressionPracticeDto,
+    scope: CourseScope = resolveCourseScope(),
   ) {
-    const pack = await this.findPack(packCode);
+    const pack = await this.findPack(packCode, scope);
     const expressions = (await this.expressionModel
-      .find({ packId: pack._id, isActive: true })
+      .find({ packId: pack._id, isActive: true, ...courseContentFilter(scope) })
       .lean()) as ExpressionRecord[];
     const allowedQuestionIds = new Set(
       expressions.flatMap((item) =>
@@ -464,12 +483,16 @@ export class ExpressionsService {
   private buildScopeFilter(
     section?: number,
     unit?: number,
+    scope: CourseScope = resolveCourseScope(),
   ): QueryFilter<Expression> {
     if (unit && !section) {
       throw new BadRequestException('EXPRESSION_SECTION_REQUIRED_WITH_UNIT');
     }
 
-    const filter: QueryFilter<Expression> = { isActive: true };
+    const filter: QueryFilter<Expression> = {
+      isActive: true,
+      ...courseContentFilter(scope),
+    };
     if (section && unit) {
       filter.placements = { $elemMatch: { section, unit } };
     } else if (section) {
@@ -478,31 +501,50 @@ export class ExpressionsService {
     return filter;
   }
 
-  private async findPack(idOrCode: string): Promise<ExpressionPackRecord> {
+  private async findPack(
+    idOrCode: string,
+    scope?: CourseScope,
+  ): Promise<ExpressionPackRecord> {
     const identity = Types.ObjectId.isValid(idOrCode)
       ? { _id: new Types.ObjectId(idOrCode) }
       : { code: idOrCode };
     const pack = (await this.packModel
-      .findOne({ ...identity, isActive: true })
+      .findOne({
+        ...identity,
+        isActive: true,
+        ...(scope ? courseContentFilter(scope) : {}),
+      })
       .lean()) as ExpressionPackRecord | null;
     if (!pack) throw new NotFoundException('EXPRESSION_PACK_NOT_FOUND');
     return pack;
   }
 
-  private async findExpression(idOrCode: string): Promise<ExpressionRecord> {
+  async assertPackScope(packCode: string, scope: CourseScope): Promise<void> {
+    await this.findPack(packCode, scope);
+  }
+
+  private async findExpression(
+    idOrCode: string,
+    scope?: CourseScope,
+  ): Promise<ExpressionRecord> {
     const identity = Types.ObjectId.isValid(idOrCode)
       ? { _id: new Types.ObjectId(idOrCode) }
       : { code: idOrCode };
     const expression = (await this.expressionModel
-      .findOne({ ...identity, isActive: true })
+      .findOne({
+        ...identity,
+        isActive: true,
+        ...(scope ? courseContentFilter(scope) : {}),
+      })
       .lean()) as ExpressionRecord | null;
     if (!expression) throw new NotFoundException('EXPRESSION_NOT_FOUND');
     return expression;
   }
 
   private async getPackMap(expressions: ExpressionRecord[]) {
-    const ids = [...new Set(expressions.map((item) => item.packId.toString()))]
-      .map((id) => new Types.ObjectId(id));
+    const ids = [
+      ...new Set(expressions.map((item) => item.packId.toString())),
+    ].map((id) => new Types.ObjectId(id));
     if (!ids.length) return new Map<string, ExpressionPackRecord>();
     const packs = (await this.packModel
       .find({ _id: { $in: ids }, isActive: true })
@@ -548,7 +590,10 @@ export class ExpressionsService {
           (bPlacement?.order ?? Number.MAX_SAFE_INTEGER);
         if (placementDiff) return placementDiff;
       }
-      return a.order - b.order || a.korean.localeCompare(b.korean, 'ko');
+      return (
+        a.order - b.order ||
+        (a.text || a.korean).localeCompare(b.text || b.korean)
+      );
     });
   }
 
@@ -565,8 +610,7 @@ export class ExpressionsService {
           (!unit || placement.unit === unit),
       ) ??
       [...placements].sort(
-        (a, b) =>
-          a.section - b.section || a.unit - b.unit || a.order - b.order,
+        (a, b) => a.section - b.section || a.unit - b.unit || a.order - b.order,
       )[0]
     );
   }
@@ -575,6 +619,8 @@ export class ExpressionsService {
     return {
       id: pack._id.toString(),
       code: pack.code,
+      courseId: pack.courseId || 'ko-general',
+      targetLanguage: pack.targetLanguage || 'ko',
       title: this.localize(pack.title, lang, pack.code),
       description: this.localize(pack.description, lang),
       media: {
@@ -597,15 +643,26 @@ export class ExpressionsService {
     return {
       id: expression._id.toString(),
       code: expression.code,
+      courseId: expression.courseId || 'ko-general',
       korean: expression.korean,
-      meaning: this.localize(expression.meaning, lang, expression.korean),
+      text: expression.text || expression.korean,
+      targetLanguage: expression.targetLanguage || 'ko',
+      meaning: this.localize(
+        expression.meaning,
+        lang,
+        expression.text || expression.korean,
+      ),
       context: this.localize(expression.context, lang),
       speaker: this.localize(expression.speaker, lang),
       usageNote: this.localize(expression.usageNote, lang),
       speechLevel: expression.speechLevel,
       pronunciation: {
         romanization: expression.pronunciation?.romanization ?? '',
-        ttsText: expression.pronunciation?.ttsText || expression.korean,
+        ipa: expression.pronunciation?.ipa ?? '',
+        ttsText:
+          expression.pronunciation?.ttsText ||
+          expression.text ||
+          expression.korean,
         audioUrl: expression.pronunciation?.audioUrl ?? '',
       },
       media: {
@@ -692,8 +749,7 @@ export class ExpressionsService {
           learnedAt: current?.learnedAt ?? now,
           lastViewedAt: now,
           correctCount: (current?.correctCount ?? 0) + correctIncrement,
-          incorrectCount:
-            (current?.incorrectCount ?? 0) + incorrectIncrement,
+          incorrectCount: (current?.incorrectCount ?? 0) + incorrectIncrement,
         },
       },
       { upsert: true, returnDocument: 'after' },
@@ -764,7 +820,7 @@ export class ExpressionsService {
       intervalDays,
       nextReviewAt: mastered ? null : nextReviewAt,
       lastReviewedAt: now,
-      masteredAt: mastered ? now : current?.masteredAt ?? null,
+      masteredAt: mastered ? now : (current?.masteredAt ?? null),
     };
   }
 

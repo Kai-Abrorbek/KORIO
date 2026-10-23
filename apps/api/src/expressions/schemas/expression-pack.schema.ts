@@ -35,12 +35,17 @@ export class ExpressionPackMedia {
   imageAlt: LocalizedExpressionText;
 }
 
-export const ExpressionPackMediaSchema = SchemaFactory.createForClass(
-  ExpressionPackMedia,
-);
+export const ExpressionPackMediaSchema =
+  SchemaFactory.createForClass(ExpressionPackMedia);
 
 @Schema({ timestamps: true })
 export class ExpressionPack {
+  @Prop({ default: 'ko-general', trim: true })
+  courseId: string;
+
+  @Prop({ default: 'ko', trim: true })
+  targetLanguage: string;
+
   @Prop({ required: true, trim: true })
   code: string;
 

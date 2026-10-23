@@ -30,7 +30,7 @@ const STAGE_LABEL = { learn: "1-bosqich · O'rganish", guided: "2-bosqich · Tak
 const STAGE_PROMPT = {
   learn: "Tinglang va o'zingiz aytib ko'ring",
   guided: "Iboraga qarab tabiiy aytib ko'ring",
-  recall: "Ma'nosiga qarab koreyscha ayting",
+  recall: "Ma'nosiga qarab ayting",
 } as const;
 
 export function ExpressionLearningScreen() {
@@ -118,7 +118,7 @@ export function ExpressionLearningScreen() {
   const readyForRecall = !recallStarted && learningQueue.length > 0 && index >= learningQueue.length - 1;
   const progress = queue.length ? (index + 1) / queue.length : 0;
   const theme = expressionPackTheme(session?.topic.code);
-  const typingPlan = useMemo(() => current ? buildTypingPlan(current.expression.korean, current.expression.id, current.stage, current.exposure) : null, [current]);
+  const typingPlan = useMemo(() => current ? buildTypingPlan(current.expression.text || current.expression.korean, current.expression.id, current.stage, current.exposure) : null, [current]);
 
   const scheduleRetry = useCallback(() => {
     if (!current || current.kind === "retry" || retriedIds.current.has(current.expression.id)) return;
@@ -180,18 +180,19 @@ export function ExpressionLearningScreen() {
   }, [cancelRecording, current?.key, requiresAnswer]);
 
   const autoSpeechText = current && current.stage !== "recall"
-    ? current.expression.pronunciation.ttsText || current.expression.korean
+    ? current.expression.pronunciation.ttsText || current.expression.text || current.expression.korean
     : "";
+  const speechLocale = session?.topic.targetLanguage === "en" ? "en-US" : "ko-KR";
   useEffect(() => {
     if (!autoSpeechText || !isAutoPlayEnabled()) return;
-    const timer = window.setTimeout(() => speak(autoSpeechText), 80);
+    const timer = window.setTimeout(() => speak(autoSpeechText, { language: speechLocale }), 80);
     return () => { window.clearTimeout(timer); stopSpeech(); };
-  }, [autoSpeechText, current?.key, speak, stopSpeech]);
+  }, [autoSpeechText, current?.key, speak, speechLocale, stopSpeech]);
 
   useEffect(() => {
-    const upcoming = queue.slice(index + 1, index + 4).filter((item) => item.stage !== "recall").map((item) => item.expression.pronunciation.ttsText || item.expression.korean);
-    if (upcoming.length) prewarm(upcoming);
-  }, [index, prewarm, queue]);
+    const upcoming = queue.slice(index + 1, index + 4).filter((item) => item.stage !== "recall").map((item) => item.expression.pronunciation.ttsText || item.expression.text || item.expression.korean);
+    if (upcoming.length) prewarm(upcoming, speechLocale);
+  }, [index, prewarm, queue, speechLocale]);
 
   useEffect(() => {
     // 마지막 표현의 자동 재생이 끝난 뒤에 띄운다 — 모달이 stopSpeech() 를 불러서
@@ -310,6 +311,8 @@ export function ExpressionLearningScreen() {
   );
 
   const expression = current.expression;
+  const expressionText = expression.text || expression.korean;
+  const targetLanguageName = speechLocale === "en-US" ? "Inglizcha" : "Koreyscha";
   const referenceVisible = !typingActive && (current.stage !== "recall" || hintVisible || practiceReady);
   const voiceTone = voiceResult?.passed ? "good" : voiceResult && voiceResult.scores.pron >= 60 ? "warn" : "bad";
 
@@ -326,19 +329,19 @@ export function ExpressionLearningScreen() {
           <div className={styles.sentenceArea}>
             {typingActive && typingPlan ? (
               <div className={styles.typingArea}>
-                <small>IBORA MA&apos;NOSI</small><p>{expression.meaning}</p><strong><MobileIcon family="material-community" name="keyboard" size={18} />Koreyscha iborani to&apos;ldiring</strong>
+                <small>IBORA MA&apos;NOSI</small><p>{expression.meaning}</p><strong><MobileIcon family="material-community" name="keyboard" size={18} />{targetLanguageName} iborani to&apos;ldiring</strong>
                 <div className={`${styles.typingField} ${typeState === "correct" ? styles.correctField : typeState === "wrong" ? styles.wrongField : ""}`}>
-                  {typingPlan.kind === "full" ? <input autoFocus disabled={typeState === "correct"} onChange={(event) => { setTypedAnswer(event.target.value); setTypeState("idle"); }} onKeyDown={(event) => { if (event.key === "Enter") checkAnswer(); }} placeholder="Koreyscha yozing" value={typedAnswer} /> : <div className={styles.cloze}>{typingPlan.tokens.map((token, tokenIndex) => tokenIndex === typingPlan.blankStart ? <input autoFocus disabled={typeState === "correct"} key="blank" onChange={(event) => { setTypedAnswer(event.target.value); setTypeState("idle"); }} onKeyDown={(event) => { if (event.key === "Enter") checkAnswer(); }} style={{ width: `${Math.min(190, Math.max(82, typingPlan.answer.length * 17))}px` }} value={typedAnswer} /> : tokenIndex > typingPlan.blankStart && tokenIndex < typingPlan.blankStart + typingPlan.blankCount ? null : <span key={`${token}:${tokenIndex}`}>{token}</span>)}</div>}
+                  {typingPlan.kind === "full" ? <input autoFocus disabled={typeState === "correct"} onChange={(event) => { setTypedAnswer(event.target.value); setTypeState("idle"); }} onKeyDown={(event) => { if (event.key === "Enter") checkAnswer(); }} placeholder={`${targetLanguageName} yozing`} value={typedAnswer} /> : <div className={styles.cloze}>{typingPlan.tokens.map((token, tokenIndex) => tokenIndex === typingPlan.blankStart ? <input autoFocus disabled={typeState === "correct"} key="blank" onChange={(event) => { setTypedAnswer(event.target.value); setTypeState("idle"); }} onKeyDown={(event) => { if (event.key === "Enter") checkAnswer(); }} style={{ width: `${Math.min(190, Math.max(82, typingPlan.answer.length * 17))}px` }} value={typedAnswer} /> : tokenIndex > typingPlan.blankStart && tokenIndex < typingPlan.blankStart + typingPlan.blankCount ? null : <span key={`${token}:${tokenIndex}`}>{token}</span>)}</div>}
                 </div>
                 {hintVisible ? <div className={styles.hint}><MobileIcon name="bulb-outline" size={16} />{typingPlan.answer}</div> : null}
                 <div className={styles.typeActions}><em className={typeState === "correct" ? styles.correctText : typeState === "wrong" ? styles.wrongText : ""}>{typeState === "correct" ? "To'g'ri!" : typeState === "wrong" ? "Biroz farq qiladi. Tekshirib, qayta yozing" : ""}</em>{!hintVisible && typeState !== "correct" ? <button aria-label="Yordam" onClick={() => { setHintVisible(true); scheduleRetry(); }} type="button"><MobileIcon name="bulb-outline" size={17} /></button> : null}<button aria-label="Javobni tekshirish" disabled={!typedAnswer.trim() || typeState === "correct"} onClick={checkAnswer} type="button"><MobileIcon name={typeState === "correct" ? "checkmark" : "arrow-forward"} size={20} /></button></div>
                 {requiresAnswer && !practiceReady ? <button className={styles.later} onClick={() => { scheduleRetry(); setPracticeReady(true); setHintVisible(true); }} type="button">Keyinroq yana mashq qilish</button> : null}
               </div>
-            ) : referenceVisible ? <><h1 className={speaking ? styles.spoken : ""} style={{ "--speech-progress": `${speechProgress * 100}%` } as CSSProperties}>{expression.korean}</h1>{expression.pronunciation.romanization ? <p className={styles.romanization}>{expression.pronunciation.romanization}</p> : null}</> : <div className={styles.recallPrompt}><span><MobileIcon name="chatbubble-ellipses-outline" size={21} /></span><p>Ma&apos;nosidan koreyscha iborani eslang</p></div>}
+            ) : referenceVisible ? <><h1 className={speaking ? styles.spoken : ""} style={{ "--speech-progress": `${speechProgress * 100}%` } as CSSProperties}>{expressionText}</h1>{expression.pronunciation.romanization ? <p className={styles.romanization}>{expression.pronunciation.romanization}</p> : null}</> : <div className={styles.recallPrompt}><span><MobileIcon name="chatbubble-ellipses-outline" size={21} /></span><p>Ma&apos;nosidan {targetLanguageName.toLowerCase()} iborani eslang</p></div>}
           </div>
           {!typingActive ? <div className={styles.meaning}><small>IBORA MA&apos;NOSI</small><p>{expression.meaning}</p></div> : null}
           {/* 듣기·말하기·쓰기 버튼은 뜻 아래로 — 한국어 바로 밑에 뜻이 와야 짝이 한눈에 보인다 (앱과 같음) */}
-          <div className={styles.practiceActions}>{referenceVisible ? <button aria-label="Iborani qayta tinglash" className={speaking ? styles.activeAudio : ""} onClick={() => speaking ? stopSpeech() : speak(expression.pronunciation.ttsText || expression.korean)} type="button"><MobileIcon name={speaking ? "volume-high" : "volume-medium-outline"} size={23} /></button> : null}<div><button className={voiceOpen ? styles.activeMode : ""} onClick={openVoice} type="button"><MobileIcon name="mic-outline" size={22} /></button><i /><button className={typingActive ? styles.activeMode : ""} onClick={() => { stopSpeech(); setTypingActive(true); }} type="button"><MobileIcon family="material-community" name="keyboard" size={24} /></button></div></div>
+          <div className={styles.practiceActions}>{referenceVisible ? <button aria-label="Iborani qayta tinglash" className={speaking ? styles.activeAudio : ""} onClick={() => speaking ? stopSpeech() : speak(expression.pronunciation.ttsText || expressionText, { language: speechLocale })} type="button"><MobileIcon name={speaking ? "volume-high" : "volume-medium-outline"} size={23} /></button> : null}<div><button className={voiceOpen ? styles.activeMode : ""} onClick={openVoice} type="button"><MobileIcon name="mic-outline" size={22} /></button><i /><button className={typingActive ? styles.activeMode : ""} onClick={() => { stopSpeech(); setTypingActive(true); }} type="button"><MobileIcon family="material-community" name="keyboard" size={24} /></button></div></div>
           {detailsOpen ? <div className={styles.details}><div><section><strong><MobileIcon name="person-outline" size={16} />Odatda kim aytadi</strong><p>{expression.speaker || "Hamma"}</p></section><section><strong><MobileIcon name="locate-outline" size={16} />Ishlatiladigan vaziyat</strong><p>{expression.context}</p></section></div>{expression.usageNote ? <aside><MobileIcon name="sparkles-outline" size={18} /><div><strong>Tabiiy aytish usuli</strong><p>{expression.usageNote}</p></div></aside> : null}</div> : null}
           <button className={styles.detailsButton} onClick={() => setDetailsOpen((value) => !value)} type="button">{detailsOpen ? "Yopish" : "Batafsil ko'rish"}<MobileIcon name={detailsOpen ? "chevron-up" : "chevron-down"} size={17} /></button>
         </article>

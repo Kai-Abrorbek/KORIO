@@ -69,6 +69,18 @@ for (const [client, courses] of [
     }
   });
 
+  test(`${client}: expressions keep course identity separate from explanation language`, () => {
+    const url = new URL(
+      courses.learningScopePath("/expressions/roadmap?lang=uz", "en"),
+      "https://api.test",
+    );
+    assert.equal(url.searchParams.get("courseId"), "en-general");
+    assert.equal(url.searchParams.get("targetLanguage"), "en");
+    assert.equal(url.searchParams.get("lang"), "uz");
+    assert.equal(courses.isLearningRequest("/expressions/nodes/node-1/complete"), true);
+    assert.equal(courses.isLearningRequest("/expressions-admin"), false);
+  });
+
   test(`${client}: daily quests carry the course but are not learning requests`, () => {
     const claim = new URL(
       courses.learningScopePath("/retention/quests/claim", "en"),

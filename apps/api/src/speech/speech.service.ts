@@ -136,7 +136,7 @@ export class SpeechService {
     );
   }
 
-  /** 표현 카드: DB의 한국어 표현을 참조 문장으로 발음 평가 */
+  /** 표현 카드: DB의 학습 언어 표현을 참조 문장으로 발음 평가 */
   async assessExpression(
     userId: string,
     expressionId: string,
@@ -150,18 +150,22 @@ export class SpeechService {
       reference.referenceText,
       reference.section,
       '표현 발음 평가',
+      reference.targetLanguage,
     );
     // 통계·XP·연속 학습일. 실패해도 채점 응답은 그대로 나간다 —
     // 기록을 못 남긴 것 때문에 사용자가 다시 말하게 만들 이유가 없다.
     // 기다리지도 않는다: DB 쓰기 여러 번(통계·XP·리그)이 채점 결과를 붙잡고
     // 있을 이유가 없다. 결과는 바로 내보내고 기록은 뒤에서 끝낸다.
-    void this.recordSpeakingStudy(userId, expressionId, result).catch(
-      (error) => {
-        this.logger.warn(
-          `말하기 학습 기록 실패: expression=${expressionId} ${String(error)}`,
-        );
-      },
-    );
+    void this.recordSpeakingStudy(
+      userId,
+      expressionId,
+      result,
+      reference.targetLanguage,
+    ).catch((error) => {
+      this.logger.warn(
+        `말하기 학습 기록 실패: expression=${expressionId} ${String(error)}`,
+      );
+    });
     return result;
   }
 
@@ -177,6 +181,7 @@ export class SpeechService {
     userId: string,
     expressionId: string,
     result: AssessResult,
+    targetLanguage: string,
   ): Promise<void> {
     // 못 들은 건 시도가 아니다. 무음·잡음까지 넣으면 정확도가 의미를 잃는다.
     if (result.status !== 'success') return;
@@ -188,7 +193,7 @@ export class SpeechService {
     // 이 가는 곳과 같다 — 같은 행위를 두 버킷으로 나누면 스킬 레이더가 거짓말한다.
     // expression 버킷에 넣으면 발음 연습만 했는데 "표현 잘함" 으로 보인다.
     await this.lessonsService.recordStudy(userId, {
-      targetLanguage: 'ko',
+      targetLanguage,
       questionCount: 1,
       wrongCount: result.passed ? 0 : 1,
       overrideCategory: StudyCategory.CONVERSATION,
@@ -851,11 +856,11 @@ export class SpeechService {
 
     const expression = await this.expressionModel
       .findOne({ _id: new Types.ObjectId(expressionId), isActive: true })
-      .select('korean placements')
+      .select('text korean targetLanguage placements')
       .lean();
     if (!expression) throw new NotFoundException('EXPRESSION_NOT_FOUND');
 
-    const referenceText = expression.korean.trim();
+    const referenceText = (expression.text || expression.korean).trim();
     if (!referenceText) {
       throw new BadRequestException('EXPRESSION_HAS_NO_REFERENCE_TEXT');
     }
@@ -865,6 +870,7 @@ export class SpeechService {
       .filter((section) => Number.isFinite(section));
     return {
       referenceText,
+      targetLanguage: expression.targetLanguage || 'ko',
       section: sections.length ? Math.min(...sections) : undefined,
     };
   }

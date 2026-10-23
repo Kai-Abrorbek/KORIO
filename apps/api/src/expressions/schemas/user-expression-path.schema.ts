@@ -17,6 +17,9 @@ export class UserExpressionPath {
 
   @Prop({ type: Types.ObjectId, ref: ExpressionPack.name, default: null })
   focusPackId: Types.ObjectId | null;
+
+  @Prop({ type: Map, of: Types.ObjectId, default: () => ({}) })
+  courseFocusPackIds: Map<string, Types.ObjectId>;
 }
 
 export type UserExpressionPathDocument = HydratedDocument<UserExpressionPath>;

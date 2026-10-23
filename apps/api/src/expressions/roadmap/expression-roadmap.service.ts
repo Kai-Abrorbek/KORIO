@@ -2,6 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
+  courseContentFilter,
+  type CourseScope,
+  resolveCourseScope,
+  DEFAULT_COURSE_ID,
+} from '../../common/learning-course';
+import {
   ExpressionNode,
   ExpressionNodeDocument,
 } from '../schemas/expression-node.schema';
@@ -77,22 +83,39 @@ export class ExpressionRoadmapService {
    * 목록이나 "이 주제로 넘어갈까요?" 로 고른 주제부터 길을 다시 연다 (시험 없이 바로).
    * 진도는 그대로라 다시 고르면 언제든 돌아간다.
    */
-  async focusTopic(userId: string, packCode: string) {
+  async focusTopic(
+    userId: string,
+    packCode: string,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     const pack = await this.packModel
-      .findOne({ code: packCode, isActive: true })
+      .findOne({
+        code: packCode,
+        isActive: true,
+        ...courseContentFilter(scope),
+      })
       .select({ _id: 1 })
       .lean();
     if (!pack) throw new NotFoundException('EXPRESSION_TOPIC_NOT_FOUND');
     await this.pathModel.updateOne(
       { userId: new Types.ObjectId(userId) },
-      { $set: { focusPackId: pack._id } },
+      {
+        $set:
+          scope.courseId === DEFAULT_COURSE_ID
+            ? { focusPackId: pack._id }
+            : { [`courseFocusPackIds.${scope.courseId}`]: pack._id },
+      },
       { upsert: true },
     );
   }
 
-  async getRoadmap(userId: string, lang: ExpressionLanguage) {
+  async getRoadmap(
+    userId: string,
+    lang: ExpressionLanguage,
+    scope: CourseScope = resolveCourseScope(),
+  ) {
     const packs = (await this.packModel
-      .find({ isActive: true })
+      .find({ isActive: true, ...courseContentFilter(scope) })
       .sort({ order: 1 })
       .lean()) as PackRecord[];
     const packIds = packs.map((pack) => pack._id);
@@ -102,7 +125,11 @@ export class ExpressionRoadmapService {
       .lean()) as NodeRecord[];
     const nodeIds = nodes.map((node) => node._id);
     const expressions = (await this.expressionModel
-      .find({ nodeId: { $in: nodeIds }, isActive: true })
+      .find({
+        nodeId: { $in: nodeIds },
+        isActive: true,
+        ...courseContentFilter(scope),
+      })
       .select({ _id: 1, nodeId: 1 })
       .lean()) as ExpressionRecord[];
     const progress = (await this.progressModel
@@ -114,8 +141,11 @@ export class ExpressionRoadmapService {
       .lean()) as ProgressRecord[];
     const path = (await this.pathModel
       .findOne({ userId: new Types.ObjectId(userId) })
-      .select({ focusPackId: 1 })
-      .lean()) as Pick<UserExpressionPath, 'focusPackId'> | null;
+      .select({ focusPackId: 1, courseFocusPackIds: 1 })
+      .lean()) as Pick<
+      UserExpressionPath,
+      'focusPackId' | 'courseFocusPackIds'
+    > | null;
 
     const expressionIdsByNode = new Map<string, Types.ObjectId[]>();
     for (const expression of expressions) {
@@ -171,9 +201,19 @@ export class ExpressionRoadmapService {
       }))
       .filter((topic) => topic.nodes.length > 0);
 
-    const focusIndex = path?.focusPackId
+    const courseFocus = path?.courseFocusPackIds as
+      | Map<string, Types.ObjectId>
+      | Record<string, Types.ObjectId>
+      | undefined;
+    const focusPackId =
+      scope.courseId === DEFAULT_COURSE_ID
+        ? path?.focusPackId
+        : courseFocus instanceof Map
+          ? courseFocus.get(scope.courseId)
+          : courseFocus?.[scope.courseId];
+    const focusIndex = focusPackId
       ? measured.findIndex((topic) =>
-          topic.pack._id.equals(path.focusPackId as Types.ObjectId),
+          topic.pack._id.equals(focusPackId as Types.ObjectId),
         )
       : -1;
     let statuses = assignNodeStatuses(measured, focusIndex);
@@ -226,6 +266,8 @@ export class ExpressionRoadmapService {
         return {
           id: pack._id.toString(),
           code: pack.code,
+          courseId: pack.courseId || 'ko-general',
+          targetLanguage: pack.targetLanguage || 'ko',
           title: this.localize(pack.title, lang, pack.code),
           description: this.localize(pack.description, lang),
           media: {

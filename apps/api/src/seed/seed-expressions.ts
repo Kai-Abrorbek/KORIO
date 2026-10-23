@@ -15,16 +15,10 @@ import {
   ExpressionDocument,
 } from '../expressions/schemas/expression.schema';
 import { LessonCategory } from '../lessons/schemas/lesson.schema';
-import {
-  Question,
-  QuestionDocument,
-} from '../lessons/schemas/question.schema';
-import {
-  EXPRESSION_PACK_SEEDS,
-  EXPRESSION_NODE_SEEDS,
-  EXPRESSION_SEEDS,
-  LEGACY_EXPRESSION_SAMPLE_CODES,
-} from './data/expressions/expression.data';
+import { Question, QuestionDocument } from '../lessons/schemas/question.schema';
+import { LEGACY_EXPRESSION_SAMPLE_CODES } from './data/expressions/expression.data';
+import { parseSeedCourseScope } from './course-seed.options';
+import { getExpressionCourseSeeds } from './expression-course.data';
 
 const ACTIVE_ORDER_INDEX_NAME = 'packId_1_order_1';
 
@@ -32,9 +26,7 @@ async function ensureActiveOrderIndex<T>(model: Model<T>, label: string) {
   const indexes = await model.collection.indexes();
   const orderIndexes = indexes.filter((index) => {
     const key = index.key as Record<string, unknown>;
-    return (
-      Object.keys(key).length === 2 && key.packId === 1 && key.order === 1
-    );
+    return Object.keys(key).length === 2 && key.packId === 1 && key.order === 1;
   });
   const isExpectedIndex = (index: (typeof indexes)[number]) => {
     const partialFilter = index.partialFilterExpression as
@@ -43,9 +35,7 @@ async function ensureActiveOrderIndex<T>(model: Model<T>, label: string) {
     return index.unique === true && partialFilter?.isActive === true;
   };
   const expectedIndex = orderIndexes.find(isExpectedIndex);
-  const legacyIndexes = orderIndexes.filter(
-    (index) => !isExpectedIndex(index),
-  );
+  const legacyIndexes = orderIndexes.filter((index) => !isExpectedIndex(index));
 
   if (expectedIndex && legacyIndexes.length === 0) return;
 
@@ -70,7 +60,9 @@ async function ensureActiveOrderIndex<T>(model: Model<T>, label: string) {
 
   for (const index of legacyIndexes) {
     if (!index.name) {
-      throw new Error(`${label}의 레거시 order 인덱스 이름을 찾을 수 없습니다.`);
+      throw new Error(
+        `${label}의 레거시 order 인덱스 이름을 찾을 수 없습니다.`,
+      );
     }
     await model.collection.dropIndex(index.name);
   }
@@ -90,6 +82,48 @@ async function ensureActiveOrderIndex<T>(model: Model<T>, label: string) {
 }
 
 async function seedExpressions() {
+  const scope = parseSeedCourseScope();
+  const {
+    packs: EXPRESSION_PACK_SEEDS,
+    nodes: EXPRESSION_NODE_SEEDS,
+    expressions: EXPRESSION_SEEDS,
+  } = getExpressionCourseSeeds(scope);
+  if (
+    !EXPRESSION_PACK_SEEDS.length ||
+    !EXPRESSION_NODE_SEEDS.length ||
+    !EXPRESSION_SEEDS.length
+  ) {
+    throw new Error(
+      `No complete expression topics registered for ${scope.courseId}`,
+    );
+  }
+  for (const pack of EXPRESSION_PACK_SEEDS) {
+    if (
+      (pack.courseId ?? 'ko-general') !== scope.courseId ||
+      (pack.targetLanguage ?? 'ko') !== scope.targetLanguage
+    ) {
+      throw new Error(`${pack.code} has wrong course scope`);
+    }
+  }
+  for (const expression of EXPRESSION_SEEDS) {
+    if (
+      (expression.courseId ?? 'ko-general') !== scope.courseId ||
+      (expression.targetLanguage ?? 'ko') !== scope.targetLanguage ||
+      !(expression.text ?? expression.korean)?.trim()
+    ) {
+      throw new Error(`${expression.code} has invalid course scope or text`);
+    }
+    if (
+      scope.targetLanguage === 'en' &&
+      expression.practiceQuestions?.some(
+        (question) => !question.code.startsWith('en-'),
+      )
+    ) {
+      throw new Error(
+        `${expression.code} has a practice question without en- prefix`,
+      );
+    }
+  }
   const app = await NestFactory.createApplicationContext(AppModule);
   const packModel = app.get<Model<ExpressionPackDocument>>(
     getModelToken(ExpressionPack.name),
@@ -109,29 +143,30 @@ async function seedExpressions() {
     ensureActiveOrderIndex(expressionModel, '표현'),
   ]);
 
-  console.log('🌱 표현 시딩 시작 (code 기준 upsert)...');
+  console.log(`🌱 ${scope.courseId} 표현 시딩 시작 (code 기준 upsert)...`);
   const packs = new Map<string, ExpressionPackDocument>();
   const nodes = new Map<string, ExpressionNodeDocument>();
 
-  await Promise.all([
-    packModel.updateMany(
-      { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.packs] } },
-      { $set: { isActive: false } },
-    ),
-    nodeModel.updateMany(
-      { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.nodes] } },
-      { $set: { isActive: false } },
-    ),
-    expressionModel.updateMany(
-      { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.expressions] } },
-      { $set: { isActive: false } },
-    ),
-  ]);
+  if (scope.courseId === 'ko-general')
+    await Promise.all([
+      packModel.updateMany(
+        { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.packs] } },
+        { $set: { isActive: false } },
+      ),
+      nodeModel.updateMany(
+        { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.nodes] } },
+        { $set: { isActive: false } },
+      ),
+      expressionModel.updateMany(
+        { code: { $in: [...LEGACY_EXPRESSION_SAMPLE_CODES.expressions] } },
+        { $set: { isActive: false } },
+      ),
+    ]);
 
   for (const seed of EXPRESSION_PACK_SEEDS) {
     const pack = await packModel.findOneAndUpdate(
       { code: seed.code },
-      { $set: { ...seed, isActive: seed.isActive ?? true } },
+      { $set: { ...seed, ...scope, isActive: seed.isActive ?? true } },
       { upsert: true, returnDocument: 'after' },
     );
     if (!pack) throw new Error(`표현 팩 upsert 실패: ${seed.code}`);
@@ -173,8 +208,12 @@ async function seedExpressions() {
   }
 
   for (const seed of EXPRESSION_SEEDS) {
-    const { packCode, nodeCode, practiceQuestions = [], ...expressionData } =
-      seed;
+    const {
+      packCode,
+      nodeCode,
+      practiceQuestions = [],
+      ...expressionData
+    } = seed;
     const pack = packs.get(packCode);
     if (!pack) throw new Error(`없는 표현 팩: ${packCode}`);
     const node = nodes.get(nodeCode);
@@ -187,6 +226,7 @@ async function seedExpressions() {
         {
           $set: {
             ...questionSeed,
+            ...scope,
             lessonCategory: LessonCategory.EXPRESSION,
             isActive: questionSeed.isActive ?? true,
           },
@@ -206,7 +246,8 @@ async function seedExpressions() {
           ...expressionData,
           packId: pack._id,
           nodeId: node._id,
-          targetLanguage: 'ko',
+          ...scope,
+          text: expressionData.text ?? expressionData.korean,
           practiceQuestionIds,
           isActive: seed.isActive ?? true,
         },

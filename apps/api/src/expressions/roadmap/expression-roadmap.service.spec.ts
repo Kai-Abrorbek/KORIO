@@ -199,3 +199,90 @@ describe('ExpressionRoadmapService — 주제 골라 넘어가기', () => {
     );
   });
 });
+
+describe('ExpressionRoadmapService — 코스 분리', () => {
+  it('영어 로드맵은 영어 주제만 읽고, 영어 focus는 한국어 focus를 보존한다', async () => {
+    const koPack = {
+      _id: new Types.ObjectId(),
+      code: 'ko-pack',
+      courseId: 'ko-general',
+      targetLanguage: 'ko',
+      order: 1,
+      title: {},
+      description: {},
+      media: {},
+    };
+    const enPack = {
+      _id: new Types.ObjectId(),
+      code: 'en-pack',
+      courseId: 'en-general',
+      targetLanguage: 'en',
+      order: 1,
+      title: {},
+      description: {},
+      media: {},
+    };
+    const koNode = {
+      _id: new Types.ObjectId(),
+      packId: koPack._id,
+      code: 'ko-node',
+      order: 1,
+      requiredExposures: 3,
+      title: {},
+      description: {},
+      icon: 'x',
+    };
+    const enNode = {
+      _id: new Types.ObjectId(),
+      packId: enPack._id,
+      code: 'en-node',
+      order: 1,
+      requiredExposures: 3,
+      title: {},
+      description: {},
+      icon: 'x',
+    };
+    const enExpression = { _id: new Types.ObjectId(), nodeId: enNode._id };
+    const path = {
+      focusPackId: koPack._id,
+      courseFocusPackIds: {} as Record<string, Types.ObjectId>,
+    };
+    const isEnglish = (filter: unknown) =>
+      JSON.stringify(filter).includes('"courseId":"en-general"');
+    const service = new ExpressionRoadmapService(
+      {
+        find: (filter: unknown) =>
+          chain(isEnglish(filter) ? [enPack] : [koPack]),
+        findOne: (filter: unknown) =>
+          chain(isEnglish(filter) ? enPack : koPack),
+      } as never,
+      {
+        find: (filter: { packId: { $in: Types.ObjectId[] } }) =>
+          chain(filter.packId.$in[0]?.equals(enPack._id) ? [enNode] : [koNode]),
+      } as never,
+      {
+        find: (filter: unknown) =>
+          chain(isEnglish(filter) ? [enExpression] : []),
+      } as never,
+      { find: () => chain([]) } as never,
+      {
+        findOne: () => chain(path),
+        updateOne: (
+          _filter: unknown,
+          update: { $set: Record<string, Types.ObjectId> },
+        ) => {
+          path.courseFocusPackIds['en-general'] =
+            update.$set['courseFocusPackIds.en-general'];
+          return Promise.resolve();
+        },
+      } as never,
+    );
+    const en = { courseId: 'en-general', targetLanguage: 'en' };
+    await service.focusTopic(USER, enPack.code, en);
+    const roadmap = await service.getRoadmap(USER, 'ko', en);
+    expect(roadmap.topics.map((topic) => topic.code)).toEqual(['en-pack']);
+    expect(roadmap.continueNodeCode).toBe('en-node');
+    expect(path.focusPackId).toEqual(koPack._id);
+    expect(path.courseFocusPackIds['en-general']).toEqual(enPack._id);
+  });
+});

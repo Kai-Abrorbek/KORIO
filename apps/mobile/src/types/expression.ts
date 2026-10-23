@@ -12,6 +12,8 @@ export interface ExpressionPackMedia {
 export interface ExpressionPackInfo {
   id: string;
   code: string;
+  courseId?: string;
+  targetLanguage?: "ko" | "en";
   title: string;
   description: string;
   media: ExpressionPackMedia;
@@ -49,6 +51,8 @@ export interface ExpressionProgress {
 export interface StudyExpression {
   id: string;
   code: string;
+  text?: string;
+  targetLanguage?: "ko" | "en";
   korean: string;
   meaning: string;
   context: string;
@@ -164,6 +168,8 @@ export interface ExpressionRoadmapResponse {
 export interface ExpressionLearningItem {
   id: string;
   code: string;
+  text?: string;
+  targetLanguage?: "ko" | "en";
   korean: string;
   meaning: string;
   context: string;

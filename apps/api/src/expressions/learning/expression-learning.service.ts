@@ -6,6 +6,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
+  courseContentFilter,
+  type CourseScope,
+  resolveCourseScope,
+} from '../../common/learning-course';
+import {
   ExpressionNode,
   ExpressionNodeDocument,
 } from '../schemas/expression-node.schema';
@@ -15,10 +20,7 @@ import {
   type ExpressionLanguage,
   type LocalizedExpressionText,
 } from '../schemas/expression-pack.schema';
-import {
-  Expression,
-  ExpressionDocument,
-} from '../schemas/expression.schema';
+import { Expression, ExpressionDocument } from '../schemas/expression.schema';
 import {
   UserExpressionProgress,
   UserExpressionProgressDocument,
@@ -49,8 +51,9 @@ export class ExpressionLearningService {
     userId: string,
     nodeCode: string,
     lang: ExpressionLanguage,
+    scope: CourseScope = resolveCourseScope(),
   ) {
-    const roadmap = await this.roadmapService.getRoadmap(userId, lang);
+    const roadmap = await this.roadmapService.getRoadmap(userId, lang, scope);
     const roadmapNode = roadmap.topics
       .flatMap((topic) => topic.nodes)
       .find((item) => item.code === nodeCode);
@@ -67,9 +70,19 @@ export class ExpressionLearningService {
     if (!node) throw new NotFoundException('EXPRESSION_NODE_NOT_FOUND');
 
     const [pack, expressions] = await Promise.all([
-      this.packModel.findOne({ _id: node.packId, isActive: true }).lean(),
+      this.packModel
+        .findOne({
+          _id: node.packId,
+          isActive: true,
+          ...courseContentFilter(scope),
+        })
+        .lean(),
       this.expressionModel
-        .find({ nodeId: node._id, isActive: true })
+        .find({
+          nodeId: node._id,
+          isActive: true,
+          ...courseContentFilter(scope),
+        })
         .sort({ order: 1 })
         .lean(),
     ]);
@@ -117,6 +130,8 @@ export class ExpressionLearningService {
     return {
       id: pack._id.toString(),
       code: pack.code,
+      courseId: pack.courseId || 'ko-general',
+      targetLanguage: pack.targetLanguage || 'ko',
       title: this.localize(pack.title, lang, pack.code),
       description: this.localize(pack.description, lang),
       media: {
@@ -137,15 +152,26 @@ export class ExpressionLearningService {
     return {
       id: expression._id.toString(),
       code: expression.code,
+      courseId: expression.courseId || 'ko-general',
       korean: expression.korean,
-      meaning: this.localize(expression.meaning, lang, expression.korean),
+      text: expression.text || expression.korean,
+      targetLanguage: expression.targetLanguage || 'ko',
+      meaning: this.localize(
+        expression.meaning,
+        lang,
+        expression.text || expression.korean,
+      ),
       context: this.localize(expression.context, lang),
       speaker: this.localize(expression.speaker, lang),
       usageNote: this.localize(expression.usageNote, lang),
       speechLevel: expression.speechLevel,
       pronunciation: {
         romanization: expression.pronunciation?.romanization ?? '',
-        ttsText: expression.pronunciation?.ttsText || expression.korean,
+        ipa: expression.pronunciation?.ipa ?? '',
+        ttsText:
+          expression.pronunciation?.ttsText ||
+          expression.text ||
+          expression.korean,
         audioUrl: expression.pronunciation?.audioUrl ?? '',
       },
       media: {

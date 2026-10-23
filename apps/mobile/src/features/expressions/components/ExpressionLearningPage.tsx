@@ -68,6 +68,7 @@ export default function ExpressionLearningPage({
   const { t } = useTranslation();
   const palette = useSpeakingPalette();
   const expression = item.expression;
+  const expressionText = expression.text || expression.korean;
   const requiresAnswer = item.kind === "quiz" || item.kind === "retry";
   const inputRef = useRef<TextInput>(null);
   const retryScheduledRef = useRef(false);
@@ -85,12 +86,12 @@ export default function ExpressionLearningPage({
   const typingPlan = useMemo(
     () =>
       buildExpressionTypingPlan(
-        expression.korean,
+        expressionText,
         expression.id,
         item.stage,
         item.exposure,
       ),
-    [expression.id, expression.korean, item.exposure, item.stage],
+    [expression.id, expressionText, item.exposure, item.stage],
   );
 
   useEffect(() => {
@@ -421,7 +422,7 @@ export default function ExpressionLearningPage({
           ) : referenceVisible ? (
             <>
               <SpokenText
-                text={expression.korean}
+                text={expressionText}
                 progress={speechProgress}
                 playing={speechPlaying}
                 baseColor={palette.ink}

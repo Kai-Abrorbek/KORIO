@@ -25,12 +25,14 @@ import {
   UNIT_PADDING,
 } from "@/components/roadmap/roadmap.utils";
 import { KOR_FLAG } from "@/constants/course";
+import { LEARN_COURSES } from "@/constants/learnCourses";
 import type { ThemeColors } from "@/constants/theme";
 import { useTheme } from "@/hooks/useTheme";
 import { ExpressionService } from "@/services/expression.service";
 import { useAuthStore } from "@/store/auth.store";
 import * as Haptics from "@/utils/haptics";
 import { useEnergySync } from "@/store/energy.store";
+import { useSettingsStore } from "@/store/settings.store";
 import type { RoadmapUnit } from "@/types/roadmap";
 import ExpressionNodePopover from "../components/ExpressionNodePopover";
 import ExpressionTopicSheet from "../components/ExpressionTopicSheet";
@@ -44,6 +46,7 @@ export default function ExpressionRoadmapScreen() {
   const theme = useTheme();
   const styles = getStyles(theme);
   const user = useAuthStore((state) => state.user);
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
   const energy = user?.energy ?? 0;
   // 헤더 에너지는 서버 값 — 다른 모드에서 쓴 만큼이 여기서도 보여야 한다
   useEnergySync();
@@ -64,7 +67,7 @@ export default function ExpressionRoadmapScreen() {
   const bannerUnit =
     units[visibleUnitIndex] ?? units[viewModel?.currentUnitIndex ?? 0];
   const userStats = {
-    language: KOR_FLAG,
+    language: LEARN_COURSES[learnCourse]?.flag ?? KOR_FLAG,
     courseCount: (user?.courseExtraCount ?? 0) + 1,
     score: undefined,
     streak: user?.streak,

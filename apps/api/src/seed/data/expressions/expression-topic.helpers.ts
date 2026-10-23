@@ -18,8 +18,11 @@ export function localized(
 export interface ExpressionDraft {
   /** 주제 code가 자동으로 앞에 붙는 영구 식별자 조각 */
   code: string;
-  korean: string;
-  romanization: string;
+  /** Target-language text. Korean source files may keep the legacy `korean`. */
+  text?: string;
+  korean?: string;
+  romanization?: string;
+  ipa?: string;
   meaning: LocalizedExpressionSeedText;
   context: LocalizedExpressionSeedText;
   speaker: LocalizedExpressionSeedText;
@@ -41,6 +44,8 @@ export interface ExpressionNodeDraft {
 
 export interface ExpressionTopicDraft {
   code: string;
+  courseId?: string;
+  targetLanguage?: string;
   title: LocalizedExpressionSeedText;
   description: LocalizedExpressionSeedText;
   order: number;
@@ -65,12 +70,25 @@ export interface BuiltExpressionTopic {
 export function defineExpressionTopic(
   draft: ExpressionTopicDraft,
 ): BuiltExpressionTopic {
+  const courseId = draft.courseId ?? 'ko-general';
+  const targetLanguage = draft.targetLanguage ?? 'ko';
+  if (
+    (courseId === 'en-general' && targetLanguage !== 'en') ||
+    (targetLanguage === 'en' &&
+      (courseId !== 'en-general' || !draft.code.startsWith('en-')))
+  ) {
+    throw new Error(
+      `${draft.code} has invalid English expression scope or code`,
+    );
+  }
   if (draft.nodes.length < 4 || draft.nodes.length > 6) {
     throw new Error(`${draft.code} must contain between 4 and 6 nodes`);
   }
 
   const pack: ExpressionPackSeed = {
     code: draft.code,
+    courseId,
+    targetLanguage,
     title: draft.title,
     description: draft.description,
     order: draft.order,
@@ -101,21 +119,33 @@ export function defineExpressionTopic(
     });
 
     node.expressions.forEach((expression) => {
+      if (targetLanguage === 'en' && !expression.text?.trim()) {
+        throw new Error(`${nodeCode}-${expression.code} needs English text`);
+      }
+      const text = expression.text ?? expression.korean;
+      if (!text?.trim()) {
+        throw new Error(`${nodeCode}-${expression.code} has empty text`);
+      }
       expressionOrder += 1;
       expressions.push({
         code: `${draft.code}-${expression.code}`,
         packCode: draft.code,
         nodeCode,
-        korean: expression.korean,
+        courseId: pack.courseId,
+        targetLanguage: pack.targetLanguage,
+        text,
+        ...(expression.korean ? { korean: expression.korean } : {}),
         meaning: expression.meaning,
         context: expression.context,
         speaker: expression.speaker,
         usageNote: expression.usageNote,
-        speechLevel:
-          expression.speechLevel ?? ExpressionSpeechLevel.POLITE,
+        speechLevel: expression.speechLevel ?? ExpressionSpeechLevel.POLITE,
         pronunciation: {
-          romanization: expression.romanization,
-          ttsText: expression.ttsText ?? expression.korean,
+          ...(expression.romanization
+            ? { romanization: expression.romanization }
+            : {}),
+          ...(expression.ipa ? { ipa: expression.ipa } : {}),
+          ttsText: expression.ttsText ?? text,
           audioUrl: '',
         },
         order: expressionOrder,
@@ -127,12 +157,7 @@ export function defineExpressionTopic(
             isCore: true,
           },
         ],
-        tags: [
-          'expression',
-          draft.code,
-          node.code,
-          ...(expression.tags ?? []),
-        ],
+        tags: ['expression', draft.code, node.code, ...(expression.tags ?? [])],
         difficulty: expression.difficulty ?? draft.difficulty ?? 1,
         isActive: true,
       });
