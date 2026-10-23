@@ -5,7 +5,7 @@
  *
  *   node social/zernio.mjs accounts
  *       연결된 SNS 계정 목록 (읽기만)
- *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
+ *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--cover <표지.png>] [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
  *       --yes 가 없으면 무엇을 올릴지 보여 주기만 한다. --at 이 없으면 바로 게시한다.
  *   node social/zernio.mjs get <경로>
  *       읽기 전용 조회 (예: get "/analytics?platform=instagram")
@@ -50,6 +50,14 @@ async function api(method, path, body) {
   return { status: response.status, json };
 }
 
+/** 파일을 Zernio 저장소에 올리고 공개 주소를 받는다 (docs.zernio.com/guides/media-uploads) */
+async function upload(file, contentType) {
+  const { json: presign } = await api("POST", "/media/presign", { filename: basename(file), contentType, size: statSync(file).size });
+  const put = await fetch(presign.uploadUrl, { method: "PUT", headers: { "Content-Type": contentType }, body: readFileSync(file) });
+  if (!put.ok) throw new Error(`업로드 실패 ${basename(file)} ${put.status}`);
+  return presign.publicUrl;
+}
+
 const flag = (name) => {
   const i = process.argv.indexOf(name);
   return i > 0 ? process.argv[i + 1] : undefined;
@@ -88,9 +96,11 @@ if (command === "accounts") {
   if (!account) throw new Error("연결된 인스타그램 계정이 없다 (Zernio 대시보드에서 연결)");
   if (instagram.length > 1 && !flag("--account")) throw new Error(`인스타그램 계정이 여러 개다 — --account 로 고른다: ${instagram.map((a) => `${a.username}=${a.id}`).join(", ")}`);
   const at = flag("--at");
+  const cover = flag("--cover");
   const plan = {
     account: `@${account.username} (${account.id})`,
     video: `${basename(video)} (${(size / 1048576).toFixed(1)} MB)`,
+    cover: cover ? basename(cover) : "영상 첫 장면",
     when: at ? `${at} ${flag("--tz") ?? "UTC"}` : "지금 바로",
     captionChars: caption.length,
     caption,
@@ -101,19 +111,25 @@ if (command === "accounts") {
     process.exit(0);
   }
   // 1) 업로드 주소 받기 → 2) 파일 올리기 → 3) 릴스 게시 (docs.zernio.com/guides/media-uploads)
-  const { json: presign } = await api("POST", "/media/presign", { filename: basename(video), contentType: "video/mp4", size });
-  const put = await fetch(presign.uploadUrl, { method: "PUT", headers: { "Content-Type": "video/mp4" }, body: readFileSync(video) });
-  if (!put.ok) throw new Error(`업로드 실패 ${put.status}`);
+  const videoUrl = await upload(video, "video/mp4");
+  // 표지 (social/covers/*.png) — 없으면 영상 첫 장면
+  const coverUrl = cover ? await upload(cover, cover.endsWith(".png") ? "image/png" : "image/jpeg") : null;
   const { status, json } = await api("POST", "/posts", {
     content: caption,
-    mediaItems: [{ type: "video", url: presign.publicUrl }],
+    mediaItems: [{ type: "video", url: videoUrl }],
     // contentType 을 빼면 릴스 (docs.zernio.com/platforms/instagram/fields)
-    platforms: [{ platform: "instagram", accountId: account.id, platformSpecificData: { shareToFeed: true, thumbOffset: 0 } }],
+    platforms: [
+      {
+        platform: "instagram",
+        accountId: account.id,
+        platformSpecificData: { shareToFeed: true, ...(coverUrl ? { instagramThumbnail: coverUrl } : { thumbOffset: 0 }) },
+      },
+    ],
     ...(at ? { scheduledFor: at, timezone: flag("--tz") ?? "UTC" } : { publishNow: true }),
   });
   const post = json.post ?? json;
   console.log(JSON.stringify({ http: status, postId: post._id ?? post.id ?? json.postId, status: post.status }, null, 1));
 } else {
-  console.error("usage: zernio.mjs accounts | post <video> <caption.txt> [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
+  console.error("usage: zernio.mjs accounts | post <video> <caption.txt> [--cover png] [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
   process.exit(1);
 }
