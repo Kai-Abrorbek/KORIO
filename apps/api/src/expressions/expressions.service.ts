@@ -18,10 +18,13 @@ import { ExpressionScopeQueryDto } from './dto/expression-scope-query.dto';
 import { ListExpressionsQueryDto } from './dto/list-expressions-query.dto';
 import { ExpressionReviewResult } from './dto/review-expression.dto';
 import {
+  ExpressionNode,
+  ExpressionNodeDocument,
+} from './schemas/expression-node.schema';
+import {
   ExpressionPack,
   ExpressionPackDocument,
   type ExpressionLanguage,
-  type LocalizedExpressionText,
 } from './schemas/expression-pack.schema';
 import {
   Expression,
@@ -45,6 +48,8 @@ export class ExpressionsService {
     private readonly packModel: Model<ExpressionPackDocument>,
     @InjectModel(Expression.name)
     private readonly expressionModel: Model<ExpressionDocument>,
+    @InjectModel(ExpressionNode.name)
+    private readonly nodeModel: Model<ExpressionNodeDocument>,
     @InjectModel(UserExpressionProgress.name)
     private readonly progressModel: Model<UserExpressionProgressDocument>,
     private readonly lessonsService: LessonsService,
@@ -52,8 +57,11 @@ export class ExpressionsService {
 
   async getOverview(userId: string, query: ExpressionScopeQueryDto) {
     const scope = resolveCourseScope(query);
+    this.assertProficiencyScope(query.proficiency, scope);
+    const filter = this.buildScopeFilter(query.section, query.unit, scope);
+    await this.applyProficiencyFilter(filter, query.proficiency);
     const expressions = (await this.expressionModel
-      .find(this.buildScopeFilter(query.section, query.unit, scope))
+      .find(filter)
       .lean()) as ExpressionRecord[];
     const packIds = [
       ...new Set(expressions.map((item) => item.packId.toString())),
@@ -134,6 +142,7 @@ export class ExpressionsService {
       scope: {
         section: query.section ?? null,
         unit: query.unit ?? null,
+        proficiency: query.proficiency ?? null,
       },
       summary: {
         total: expressions.length,
@@ -151,9 +160,11 @@ export class ExpressionsService {
 
   async getExpressions(userId: string, query: ListExpressionsQueryDto) {
     const scope = resolveCourseScope(query);
+    this.assertProficiencyScope(query.proficiency, scope);
     const pack = query.pack ? await this.findPack(query.pack, scope) : null;
     const filter = this.buildScopeFilter(query.section, query.unit, scope);
     if (pack) filter.packId = pack._id;
+    await this.applyProficiencyFilter(filter, query.proficiency, pack?._id);
 
     const expressions = (await this.expressionModel
       .find(filter)
@@ -499,6 +510,32 @@ export class ExpressionsService {
       filter['placements.section'] = section;
     }
     return filter;
+  }
+
+  private assertProficiencyScope(
+    proficiency: ExpressionScopeQueryDto['proficiency'],
+    scope: CourseScope,
+  ) {
+    if (proficiency && scope.targetLanguage !== 'en') {
+      throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
+    }
+  }
+
+  private async applyProficiencyFilter(
+    filter: QueryFilter<Expression>,
+    proficiency: ExpressionScopeQueryDto['proficiency'],
+    packId?: Types.ObjectId,
+  ) {
+    if (!proficiency) return;
+    const nodes = await this.nodeModel
+      .find({
+        proficiency,
+        isActive: true,
+        ...(packId ? { packId } : {}),
+      })
+      .select({ _id: 1 })
+      .lean();
+    filter.nodeId = { $in: nodes.map((node) => node._id) };
   }
 
   private async findPack(

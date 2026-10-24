@@ -4,7 +4,11 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { learnCourseOf } from "../../learning/model/learning-options";
+import type { ExpressionProficiency } from "../../expressions/model/expressions";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { translateText } from "../../../shared/i18n/language-context";
+import { uzt } from "../../../shared/i18n/uz-text";
 import { getExpressionOverview } from "../api/speaking";
 import type { ExpressionPackSummary } from "../model/speaking";
 import { topicLookOf } from "../model/speaking";
@@ -12,6 +16,7 @@ import { TopicIllustration } from "./topic-illustration";
 import styles from "./speaking-topics-screen.module.css";
 
 type Phase = "error" | "loading" | "ready";
+const PROFICIENCY_LEVELS: ExpressionProficiency[] = ["beginner", "intermediate", "advanced"];
 
 export function SpeakingTopicsScreen() {
   const router = useRouter();
@@ -20,13 +25,15 @@ export function SpeakingTopicsScreen() {
   const [packs, setPacks] = useState<ExpressionPackSummary[]>([]);
   const [query, setQuery] = useState("");
   const [revision, setRevision] = useState(0);
+  const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
+  const isEnglish = learnCourseOf(user?.learnCourse) === "en";
   const premium = Boolean(user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()));
 
   useEffect(() => {
     if (!premium) return;
     let active = true;
     setPhase("loading");
-    void getExpressionOverview(request)
+    void getExpressionOverview(request, isEnglish ? selectedLevel : undefined)
       .then((response) => {
         if (!active) return;
         setPacks(response.packs);
@@ -34,7 +41,7 @@ export function SpeakingTopicsScreen() {
       })
       .catch(() => { if (active) setPhase("error"); });
     return () => { active = false; };
-  }, [premium, request, revision]);
+  }, [isEnglish, premium, request, revision, selectedLevel]);
 
   const topics = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
@@ -44,7 +51,8 @@ export function SpeakingTopicsScreen() {
   const openTopic = (topic: ExpressionPackSummary) => {
     if (topic.count <= 0) return;
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");
-    router.push(`/speaking-practice?pack=${encodeURIComponent(topic.code)}`);
+    const level = isEnglish ? `&proficiency=${selectedLevel}` : "";
+    router.push(`/speaking-practice?pack=${encodeURIComponent(topic.code)}${level}`);
   };
   const back = () => window.history.length > 1 ? router.back() : router.replace("/practice");
 
@@ -58,9 +66,26 @@ export function SpeakingTopicsScreen() {
 
       <div className={styles.scroll}>
         <section className={styles.heading}>
-          <div><h1>Bugun nima haqida<br /><em>gaplashamiz?</em></h1><p>Kundalik vaziyatlarda koreyscha gapiring. O‘z ovozingiz bilan.</p></div>
+          <div><h1>Bugun nima haqida<br /><em>gaplashamiz?</em></h1><p>Kundalik vaziyatlarda {isEnglish ? "inglizcha" : "koreyscha"} gapiring. O‘z ovozingiz bilan.</p></div>
           <span className={styles.micSeal}><MobileIcon name="mic" size={25} /><i><MobileIcon name="sparkles" size={13} /></i></span>
         </section>
+
+        {isEnglish && premium ? (
+          <div aria-label="Daraja" className={styles.levelTabs} role="tablist">
+            {PROFICIENCY_LEVELS.map((level) => (
+              <button
+                aria-selected={selectedLevel === level}
+                className={`${styles.levelTab} ${selectedLevel === level ? styles.levelTabSelected : ""}`}
+                key={level}
+                onClick={() => { setPhase("loading"); setSelectedLevel(level); }}
+                role="tab"
+                type="button"
+              >
+                {translateText(uzt(`voiceTutor.level.${level}`))}
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         {!premium ? (
           <section className={styles.state}>
@@ -82,7 +107,7 @@ export function SpeakingTopicsScreen() {
                 <span className={styles.heroTop}><span><MobileIcon name="sparkles" size={13} /> BUGUNGI ILK SO‘ZLAR</span><MobileIcon className={styles.diagonal} name="arrow-forward" size={20} /></span>
                 <span className={styles.heroBody}>
                   <span className={styles.heroCopy}><strong>{featured.title}</strong><small>{`${featured.count} ta ibora`}</small><span className={styles.heroAction}><MobileIcon name="mic-outline" size={16} /> Gapirishni boshlash <MobileIcon name="arrow-forward" size={16} /></span></span>
-                  <span className={styles.heroArt}><i /><TopicIllustration code={featured.code} size={112} /></span>
+                  <span className={styles.heroArt}><i /><TopicIllustration code={featured.code} mark={isEnglish ? featured.title.charAt(0).toUpperCase() : undefined} size={112} /></span>
                 </span>
               </button>
             ) : null}
@@ -96,7 +121,7 @@ export function SpeakingTopicsScreen() {
                     const look = topicLookOf(topic.code);
                     return (
                       <button className={styles.topic} disabled={topic.count <= 0} key={topic.code} onClick={() => openTopic(topic)} style={{ "--from": look.from, "--to": look.to } as CSSProperties} type="button">
-                        <b className={styles.topicMark}>{look.mark}</b><span className={styles.topicIndex}>{String(index + 1).padStart(2, "0")}</span>
+                        <b className={styles.topicMark}>{isEnglish ? topic.title.charAt(0).toUpperCase() : look.mark}</b><span className={styles.topicIndex}>{String(index + 1).padStart(2, "0")}</span>
                         <span className={styles.topicFoot}><strong>{topic.title}</strong><span><small><MobileIcon name="mic" size={11} />{` ${topic.count} ta ibora`}</small><i><MobileIcon name="arrow-forward" size={15} /></i></span></span>
                       </button>
                     );

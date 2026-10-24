@@ -1,19 +1,29 @@
 import type { AssessResult, ExpressionListResponse, ExpressionOverview, ExpressionProgress, SpeakingProgress } from "../model/speaking";
 import { getContentLang } from "../../../shared/i18n/content-language";
+import type { ExpressionProficiency } from "../../expressions/model/expressions";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
-export function getExpressionOverview(request: AuthenticatedRequest) {
-  return request<ExpressionOverview>(`/expressions/overview?lang=${getContentLang()}`);
+function proficiencyQuery(proficiency?: ExpressionProficiency) {
+  return proficiency ? `&proficiency=${proficiency}` : "";
 }
 
-export async function getPackExpressions(request: AuthenticatedRequest, packCode: string) {
+function speakingProgressPath(packCode: string, proficiency?: ExpressionProficiency) {
+  return `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress?lang=${getContentLang()}${proficiencyQuery(proficiency)}`;
+}
+
+export function getExpressionOverview(request: AuthenticatedRequest, proficiency?: ExpressionProficiency) {
+  return request<ExpressionOverview>(`/expressions/overview?lang=${getContentLang()}${proficiencyQuery(proficiency)}`);
+}
+
+export async function getPackExpressions(request: AuthenticatedRequest, packCode: string, proficiency?: ExpressionProficiency) {
   const items: ExpressionListResponse["items"] = [];
   let cursor: string | null = null;
   let pack: ExpressionListResponse["pack"] = null;
   let total = 0;
   do {
     const query = new URLSearchParams({ lang: getContentLang(), limit: "100", pack: packCode });
+    if (proficiency) query.set("proficiency", proficiency);
     if (cursor) query.set("cursor", cursor);
     const page = await request<ExpressionListResponse>(`/expressions?${query.toString()}`);
     items.push(...page.items);
@@ -24,12 +34,12 @@ export async function getPackExpressions(request: AuthenticatedRequest, packCode
   return { items, nextCursor: null, pack, total } satisfies ExpressionListResponse;
 }
 
-export function getSpeakingProgress(request: AuthenticatedRequest, packCode: string) {
-  return request<SpeakingProgress>(`/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`);
+export function getSpeakingProgress(request: AuthenticatedRequest, packCode: string, proficiency?: ExpressionProficiency) {
+  return request<SpeakingProgress>(speakingProgressPath(packCode, proficiency));
 }
 
-export function saveSpeakingProgress(request: AuthenticatedRequest, packCode: string, index: number, total: number) {
-  return request<SpeakingProgress>(`/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`, {
+export function saveSpeakingProgress(request: AuthenticatedRequest, packCode: string, index: number, total: number, proficiency?: ExpressionProficiency) {
+  return request<SpeakingProgress>(speakingProgressPath(packCode, proficiency), {
     body: JSON.stringify({ index, total }), method: "PATCH",
   });
 }

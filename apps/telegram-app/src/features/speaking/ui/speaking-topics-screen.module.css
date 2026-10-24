@@ -11,6 +11,9 @@
 .heading h1 { font-size:30px; font-style:normal; font-weight:800; letter-spacing:-1.2px; line-height:40px; margin:0; }
 .heading h1 em { color:var(--primary); font-style:normal; }
 .heading p { color:var(--muted); font-size:13px; line-height:21px; margin:10px 0 0; }
+.levelTabs { background:var(--surface); border:1px solid var(--border); border-radius:17px; display:flex; gap:6px; margin:0 0 22px; padding:5px; }
+.levelTab { background:transparent; border:0; border-radius:12px; color:var(--muted); flex:1; font-size:12px; font-weight:700; min-width:0; padding:11px 4px; }
+.levelTabSelected { background:var(--primary); color:#fff; }
 .micSeal { align-items:center; background:var(--primary-soft); border-radius:21px; color:var(--primary); display:flex; height:57px; justify-content:center; margin-top:8px; position:relative; rotate:8deg; width:57px; }
 .micSeal i { align-items:center; background:var(--bg); border-radius:50%; bottom:-5px; color:var(--warm); display:flex; height:23px; justify-content:center; position:absolute; right:-4px; width:23px; }
 .hero { background:#352650; border:0; border-radius:28px; color:#fff; display:block; margin:0 0 24px; overflow:hidden; padding:22px; text-align:left; width:100%; }

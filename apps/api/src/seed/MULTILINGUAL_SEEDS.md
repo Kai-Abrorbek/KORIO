@@ -75,9 +75,10 @@ pnpm --filter api seed:grammar-track -- --courseId=en-general
    발음·설명 언어 분리 회귀 테스트와 `seed:validate-course`를 통과시킵니다.
 
 현재 영어는 자율 어휘 레슨·단어 카드, 알파벳, 문법 설명·문법 문제 트랙과
-40개 주제의 표현 로드맵을 지원합니다. 문법은 `Essential Grammar in Use` Unit 1–91을
-앱 Section 1–6의 18개 유닛으로 묶은 데이터입니다. TOPIK·영어 전용 말하기 주제 등
-준비되지 않은 모드는 연결하지 않습니다.
+40개 주제의 표현 로드맵과 같은 시드를 쓰는 말하기 연습을 지원합니다. 영어 말하기는
+주제마다 초급·중급·고급을 골라 해당 급의 표현 30개를 연습하며, 급별 진도를 따로
+저장합니다. 문법은 `Essential Grammar in Use` Unit 1–91을 앱 Section 1–6의
+18개 유닛으로 묶은 데이터입니다. TOPIK 등 준비되지 않은 모드는 연결하지 않습니다.
 
 표현 시드는 별도 코스 선택을 지원합니다. 기존 `seed:validate-expressions`와
 `seed:expressions`는 한국어만 다룹니다. 영어는 완성된 주제를

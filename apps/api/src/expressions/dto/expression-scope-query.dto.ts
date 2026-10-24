@@ -1,8 +1,8 @@
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Min } from 'class-validator';
-import { ExpressionLanguageQueryDto } from './expression-language-query.dto';
+import { ExpressionProficiencyQueryDto } from './expression-proficiency-query.dto';
 
-export class ExpressionScopeQueryDto extends ExpressionLanguageQueryDto {
+export class ExpressionScopeQueryDto extends ExpressionProficiencyQueryDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()

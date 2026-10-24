@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { learnCourseOf } from "../../learning/model/learning-options";
+import type { ExpressionProficiency } from "../../expressions/model/expressions";
 import { useWebSpeechRecorder } from "../../lesson/model/use-web-speech-recorder";
 import { isAutoPlayEnabled, useKoreanSpeech } from "../../../shared/browser/use-korean-speech";
 import {
@@ -26,12 +28,13 @@ const errors = {
   unsupported: "unsupported",
 } as const;
 
-function cursorKey(packCode: string) { return `speaking-cursor:${packCode}`; }
+function cursorKey(packCode: string, proficiency?: ExpressionProficiency) { return `speaking-cursor:${packCode}${proficiency ? `:${proficiency}` : ""}`; }
 
-
-
-export function useSpeakingPractice(packCode: string) {
-  const { request, updateUser } = useTelegramAuth();
+export function useSpeakingPractice(packCode: string, proficiency?: ExpressionProficiency) {
+  const { request, updateUser, user } = useTelegramAuth();
+  const isEnglish = learnCourseOf(user?.learnCourse) === "en";
+  const selectedLevel = isEnglish ? (proficiency ?? "beginner") : undefined;
+  const speechLocale = isEnglish ? "en-US" : "ko-KR";
   const router = useRouter();
   const [data, setData] = useState<ExpressionListResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,9 +70,10 @@ export function useSpeakingPractice(packCode: string) {
     [data?.items, retryIds],
   );
   const current = queue[index];
+  const currentPhrase = isEnglish ? (current?.text || current?.korean || "") : (current?.korean || "");
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
   const result = current ? results[current.id] ?? null : null;
-  const mask = current ? speakingMaskFor(index, current.korean, current.id) : { mode: "none" as const, hidden: [], hideMeaning: false };
+  const mask = current ? speakingMaskFor(index, currentPhrase, current.id) : { mode: "none" as const, hidden: [], hideMeaning: false };
 
   const clearTimers = useCallback(() => {
     if (advanceTimer.current) window.clearTimeout(advanceTimer.current);
@@ -191,33 +195,33 @@ export function useSpeakingPractice(packCode: string) {
       return;
     }
     void Promise.all([
-      getPackExpressions(request, packCode),
-      getSpeakingProgress(request, packCode).catch(() => null),
+      getPackExpressions(request, packCode, selectedLevel),
+      getSpeakingProgress(request, packCode, selectedLevel).catch(() => null),
     ]).then(([response, progress]) => {
       if (!active) return;
-      const items = response.items.filter((item) => item.korean.trim());
+      const items = response.items.filter((item) => (isEnglish ? item.text || item.korean : item.korean).trim());
       setData({ ...response, items });
-      const local = Number(window.localStorage.getItem(cursorKey(packCode)) ?? 0);
+      const local = Number(window.localStorage.getItem(cursorKey(packCode, selectedLevel)) ?? 0);
       const cursor = progress?.index ?? (Number.isFinite(local) ? local : 0);
       setIndex(items.length ? Math.min(Math.max(0, cursor), items.length - 1) : 0);
     }).catch(() => { if (active) setLoadFailed(true); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [packCode, request, revision, stopAll]);
+  }, [isEnglish, packCode, request, revision, selectedLevel, stopAll]);
 
   useEffect(() => {
     if (loading || loadFailed || retryIds || !data?.items.length) return;
-    window.localStorage.setItem(cursorKey(packCode), index >= data.items.length ? "0" : String(index));
-    void saveSpeakingProgress(request, packCode, index, data.items.length)
+    window.localStorage.setItem(cursorKey(packCode, selectedLevel), index >= data.items.length ? "0" : String(index));
+    void saveSpeakingProgress(request, packCode, index, data.items.length, selectedLevel)
       // 주제를 끝까지 말한 순간이 완료 — 그날 첫 완료면 도장, 3·6·9…일째면 상자
       .then((progress) => openCelebration(router, progress?.celebration, "back", (gems) => updateUser({ gems })))
       .catch(() => undefined);
-  }, [data?.items.length, index, loadFailed, loading, packCode, request, retryIds, router, updateUser]);
+  }, [data?.items.length, index, loadFailed, loading, packCode, request, retryIds, router, selectedLevel, updateUser]);
 
   useEffect(() => {
     if (loading || completed) return;
-    prewarm(queue.slice(index, index + 3).map((item) => item.korean));
-  }, [completed, index, loading, prewarm, queue]);
+    prewarm(queue.slice(index, index + 3).map((item) => isEnglish ? item.text || item.korean : item.korean), speechLocale);
+  }, [completed, index, isEnglish, loading, prewarm, queue, speechLocale]);
 
   // 카드가 뜨면 먼저 들려주고, 다 읽자마자 마이크를 연다 (앱 useSpeakingPractice).
   // - 카드 객체가 아니라 epoch:index:id 로 한 번만 — 북마크로 items 가 바뀌어도 다시 읽고 마이크를 열지 않는다
@@ -225,27 +229,28 @@ export function useSpeakingPractice(packCode: string) {
   // - 설정의 "Avtomatik o‘qish" 를 끄면 읽지도, 마이크를 열지도 않는다 (마이크 버튼으로 직접)
   // - 따라 말하기의 기준 소리라 음소거·볼륨 설정과 상관없이 들린다 (앱 respectSoundSettings:false)
   const currentId = current?.id;
-  const currentKorean = current?.korean;
+  const currentText = currentPhrase;
   const resultsRef = useRef(results);
   resultsRef.current = results;
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const autoKey = useRef<string | null>(null);
   useEffect(() => {
-    if (loading || completed || !currentId || !currentKorean) return;
+    if (loading || completed || !currentId || !currentText) return;
     const key = `${autoEpoch}:${index}:${currentId}`;
     if (autoKey.current === key) return;
     const timer = window.setTimeout(() => {
       autoKey.current = key;
       if (resultsRef.current[currentId] || phaseRef.current !== "idle" || !isAutoPlayEnabled()) return;
-      speak(currentKorean, {
+      speak(currentText, {
+        language: speechLocale,
         onEnd: () => window.setTimeout(() => { if (phaseRef.current === "idle") void recordRef.current(true); }, 150),
         respectSoundSettings: false,
         volume: 1,
       });
     }, 120);
     return () => window.clearTimeout(timer);
-  }, [autoEpoch, completed, currentId, currentKorean, index, loading, speak]);
+  }, [autoEpoch, completed, currentId, currentText, index, loading, speak, speechLocale]);
 
   useEffect(() => {
     const onVisibility = () => { if (document.hidden) stopAll(); };
@@ -272,7 +277,7 @@ export function useSpeakingPractice(packCode: string) {
     if (!current || phase !== "idle") return;
     setError(null);
     if (speaking && !word) { stopSpeech(); return; }
-    try { speak(word || current.korean, { rate: slow ? 0.76 : 1 }); }
+    try { speak(word || currentPhrase, { language: speechLocale, rate: slow ? 0.76 : 1 }); }
     catch { setError("audioError"); }
   };
 
@@ -307,7 +312,7 @@ export function useSpeakingPractice(packCode: string) {
   };
 
   return {
-    completed, current, data, error, hidden, index, level, listen, loadFailed, loading, mask,
+    completed, current, currentPhrase, data, error, hidden, index, level, listen, loadFailed, loading, mask,
     next, passFlash, phase, queue, record, reload: () => setRevision((value) => value + 1),
     restart, result, saveNotice, saving, speech: { prewarm, speak, speaking, stop: stopSpeech }, stopAll, summary,
     toggleHidden: () => setHidden((value) => !value), toggleSaved,

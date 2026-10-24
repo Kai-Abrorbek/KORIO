@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AppState } from "react-native";
 import { useFocusEffect } from "expo-router";
 import { useAuthStore } from "@/store/auth.store";
@@ -7,7 +7,7 @@ import { useSpeech } from "@/hooks/useSpeech";
 import { useSpeechRecorder, type SpeechRecorderError } from "@/hooks/useSpeechRecorder";
 import { ExpressionService } from "@/services/expression.service";
 import { SttService } from "@/services/stt.service";
-import type { ExpressionListResponse } from "@/types/expression";
+import type { ExpressionListResponse, ExpressionProficiency, StudyExpression } from "@/types/expression";
 import * as Haptics from "@/utils/haptics";
 import {
   speakingMaskFor,
@@ -15,7 +15,7 @@ import {
   type SpeakingMask,
   type SpeakingResults,
 } from "./session";
-import { useContentLang } from "@/store/settings.store";
+import { useContentLang, useSettingsStore } from "@/store/settings.store";
 import { openCelebration } from "@/utils/streak-chest-route";
 
 export type SpeakingPhase = "idle" | "starting" | "recording" | "assessing";
@@ -33,6 +33,8 @@ export type SpeakingError = "noSpeech" | "permission" | "unsupported" | "tooShor
  */
 const MS_PER_SYLLABLE = 215;
 const VOICE_RMS = 650;
+
+const expressionText = (item: StudyExpression) => item.text || item.korean;
 
 /**
  * 틀렸을 때 마이크를 다시 여는 간격.
@@ -65,12 +67,15 @@ const recorderErrors: Record<SpeechRecorderError, SpeakingError> = {
   permission: "permission", unsupported: "unsupported", too_short: "tooShort", mic: "micError",
 };
 
-export function useSpeakingPractice(packCode: string) {
+export function useSpeakingPractice(packCode: string, proficiency?: ExpressionProficiency) {
   const contentLang = useContentLang();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
+  const selectedLevel = learnCourse === "en" ? proficiency ?? "beginner" : undefined;
   const userId = useAuthStore((s) => s.user?.id);
   const loggedIn = useAuthStore((s) => s.isLoggedIn);
   const language = contentLang;
-  const identity = `${userId ?? ""}|${language}|${packCode}`;
+  const identity = `${userId ?? ""}|${language}|${learnCourse}|${packCode}|${selectedLevel ?? "all"}`;
+  const cursorKey = selectedLevel ? `${packCode}:${selectedLevel}` : packCode;
   const [data, setData] = useState<ExpressionListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -128,13 +133,18 @@ export function useSpeakingPractice(packCode: string) {
   sessionRef.current = identity;
 
   const { speak, speakSlow, speakAuto, prewarm, stop: stopSpeech, isSpeaking, isSpeechPlaying, speechProgress } = useSpeech();
-  const queue = retryIds ? (data?.items ?? []).filter((item) => retryIds.includes(item.id)) : data?.items ?? [];
+  const queue = useMemo(
+    () => retryIds ? (data?.items ?? []).filter((item) => retryIds.includes(item.id)) : data?.items ?? [],
+    [data?.items, retryIds],
+  );
   const current = queue[index];
+  const currentText = current ? expressionText(current) : undefined;
+  const speechLocale = data?.pack?.targetLanguage === "en" ? "en-US" : "ko-KR";
   const completed = !loading && !loadFailed && queue.length > 0 && index >= queue.length;
   const result = current ? results[current.id] ?? null : null;
   // 세션 안에서 진행할수록 가려지는 단어가 늘고, 중간중간 전부 가려 듣기만 한다.
   const mask: SpeakingMask = current
-    ? speakingMaskFor(index, current.korean, current.id)
+    ? speakingMaskFor(index, currentText ?? "", current.id)
     : { mode: "none", hidden: [], hideMeaning: false };
 
   const changePhase = useCallback((next: SpeakingPhase) => {
@@ -341,17 +351,17 @@ export function useSpeakingPractice(packCode: string) {
     // 문장과 진행률을 같이 받는다. 진행률 조회가 실패해도 연습은 시작해야 하니
     // 거기서만 조용히 처음부터로 떨어진다.
     void Promise.all([
-      ExpressionService.getPackExpressions(packCode),
-      ExpressionService.getSpeakingProgress(packCode).catch(() => null),
+      ExpressionService.getPackExpressions(packCode, undefined, undefined, selectedLevel),
+      ExpressionService.getSpeakingProgress(packCode, selectedLevel).catch(() => null),
     ]).then(([response, progress]) => {
       if (!active) return;
-      const items = response.items.filter((item) => item.korean.trim());
+      const items = response.items.filter((item) => expressionText(item).trim());
       setData({ ...response, items });
       // 끝까지 한 주제는 서버가 0 을 준다 → 처음부터. 중간에 나간 주제는 그 자리.
       // 시드가 줄어들었을 수도 있으니 클램프한다.
       // 서버 값이 있으면 그게 이긴다 (기기 여러 대에서 맞춰야 하는 값이다).
       // 서버가 아직 배포 안 됐거나 네트워크가 죽으면 로컬 사본으로 이어진다.
-      const cursor = progress?.index ?? speakingCursorOf(packCode);
+      const cursor = progress?.index ?? speakingCursorOf(cursorKey);
       const resume = items.length
         ? Math.min(Math.max(0, cursor), items.length - 1)
         : 0;
@@ -364,7 +374,7 @@ export function useSpeakingPractice(packCode: string) {
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [identity, packCode, userId, loggedIn, revision]);
+  }, [identity, packCode, selectedLevel, cursorKey, userId, loggedIn, revision]);
 
   /**
    * 진행률 저장. index 가 움직일 때마다 커서를 남긴다 — 주제를 다시 열면
@@ -383,12 +393,12 @@ export function useSpeakingPractice(packCode: string) {
     if (savedCursorRef.current === index) return;
     savedCursorRef.current = index;
     // 로컬부터 남긴다. 서버가 실패해도 이어서 시작되게.
-    useSpeakingCursorStore.getState().setCursor(packCode, index, total);
-    void ExpressionService.saveSpeakingProgress(packCode, index, total)
+    useSpeakingCursorStore.getState().setCursor(cursorKey, index, total);
+    void ExpressionService.saveSpeakingProgress(packCode, index, total, selectedLevel)
       // 주제를 끝까지 말한 순간이 완료 — 그날 첫 완료면 도장, 3·6·9…일째면 상자
       .then((progress) => openCelebration(progress?.celebration, "back"))
       .catch(() => undefined);
-  }, [index, loading, loadFailed, retryIds, data, packCode]);
+  }, [index, loading, loadFailed, retryIds, data, packCode, cursorKey, selectedLevel]);
 
   /**
    * 다음 문장들의 음성을 미리 받아둔다.
@@ -404,16 +414,15 @@ export function useSpeakingPractice(packCode: string) {
     if (loading || completed || !queue.length) return;
     const upcoming = queue
       .slice(index, index + 3)
-      .map((item) => item.korean)
+      .map(expressionText)
       .filter(Boolean);
     if (!upcoming.length) return;
-    // queue 는 렌더마다 새로 만들어지는 배열이라 deps 로는 못 막는다.
-    // 카드가 실제로 바뀔 때만 한 번 돌게 키로 건다.
+    // 카드가 실제로 바뀔 때만 음성을 미리 받는다.
     const key = `${queue[index]?.id ?? ""}:${upcoming.length}`;
     if (prewarmKeyRef.current === key) return;
     prewarmKeyRef.current = key;
-    prewarm(upcoming, "ko-KR", { respectSoundSettings: false });
-  }, [index, loading, completed, queue, prewarm]);
+    prewarm(upcoming, speechLocale, { respectSoundSettings: false });
+  }, [index, loading, completed, queue, prewarm, speechLocale]);
 
   const listen = (slow = false, word?: string) => {
     if (!current || phaseRef.current !== "idle") return;
@@ -425,7 +434,7 @@ export function useSpeakingPractice(packCode: string) {
       volume: 1,
       onError: () => { if (run === runRef.current && focusedRef.current) setError("audioError"); },
     };
-    (slow ? speakSlow : speak)(word || current.korean, "ko-KR", options);
+    (slow ? speakSlow : speak)(word || expressionText(current), speechLocale, options);
   };
 
   const record = async (auto = false) => {
@@ -479,7 +488,7 @@ export function useSpeakingPractice(packCode: string) {
     setError(null);
     setSaveNotice(false);
     changePhase("starting");
-    speechPlanRef.current = buildSpeechPlan(current.korean);
+    speechPlanRef.current = buildSpeechPlan(expressionText(current));
     voicedMsRef.current = 0;
     lastLevelAtRef.current = 0;
     buffersRef.current = 0;
@@ -544,9 +553,9 @@ export function useSpeakingPractice(packCode: string) {
   });
 
   const currentId = current?.id;
-  const currentKorean = current?.korean;
+  const autoSpeechText = currentText;
   useEffect(() => {
-    if (loading || completed || !currentId || !currentKorean) return;
+    if (loading || completed || !currentId || !autoSpeechText) return;
     const key = `${autoEpoch}:${index}:${currentId}`;
     if (autoKeyRef.current === key) return;
     // 이미 채점한 카드로 되돌아온 거라면 다시 읽어주지 않는다
@@ -563,7 +572,7 @@ export function useSpeakingPractice(packCode: string) {
       if (!ready()) return;
       autoKeyRef.current = key;
       setError(null);
-      speakAuto(currentKorean, "ko-KR", {
+      speakAuto(autoSpeechText, speechLocale, {
         respectSoundSettings: false,
         volume: 1,
         onDone: () => {
@@ -582,7 +591,7 @@ export function useSpeakingPractice(packCode: string) {
       clearTimeout(timer);
       clearTimeout(microphoneTimer);
     };
-  }, [autoEpoch, index, currentId, currentKorean, loading, completed, speakAuto]);
+  }, [autoEpoch, index, currentId, autoSpeechText, loading, completed, speakAuto, speechLocale]);
 
   const next = () => {
     if (!current || savingRef.current) return;

@@ -16,13 +16,15 @@ import { useTranslation } from "react-i18next";
 import { useAuthHydrated } from "@/hooks/useAuthGuard";
 import { useAuthStore } from "@/store/auth.store";
 import { ExpressionService } from "@/services/expression.service";
-import type { ExpressionPackSummary } from "@/types/expression";
+import type { ExpressionPackSummary, ExpressionProficiency } from "@/types/expression";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { formatSpeaking, useSpeakingCopy } from "./copy";
 import { useSpeakingPalette } from "./palette";
 import { LinearGradient } from "expo-linear-gradient";
 import TopicIllustration, { topicLookOf } from "./TopicIllustration";
-import { useContentLang, getContentLang } from "@/store/settings.store";
+import { useContentLang, getContentLang, useSettingsStore } from "@/store/settings.store";
+
+const PROFICIENCY_LEVELS: ExpressionProficiency[] = ["beginner", "intermediate", "advanced"];
 
 type LoadState = {
   scope: string;
@@ -34,9 +36,12 @@ export default function SpeakingTopicsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width, fontScale } = useWindowDimensions();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const contentLang = useContentLang();
-  const copy = useSpeakingCopy();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
+  const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
+  const proficiency = learnCourse === "en" ? selectedLevel : undefined;
+  const copy = useSpeakingCopy(learnCourse);
   const palette = useSpeakingPalette();
   const { canUse, requirePremium } = useFeatureAccess();
   const hydrated = useAuthHydrated();
@@ -47,7 +52,7 @@ export default function SpeakingTopicsScreen() {
   const allowed = isLoggedIn && canUse("expression");
   const [query, setQuery] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
-  const scope = `${userId ?? "guest"}:${language}:${reloadKey}`;
+  const scope = `${userId ?? "guest"}:${language}:${learnCourse}:${proficiency ?? "all"}:${reloadKey}`;
   const [result, setResult] = useState<LoadState>({
     scope: "",
     phase: "loading",
@@ -72,10 +77,11 @@ export default function SpeakingTopicsScreen() {
           auth.isLoggedIn &&
           auth.user?.id === userId &&
           auth.accessToken === sessionToken &&
-          getContentLang() === language
+          getContentLang() === language &&
+          useSettingsStore.getState().learnCourse === learnCourse
         );
       };
-      void ExpressionService.getOverview()
+      void ExpressionService.getOverview(undefined, undefined, proficiency)
         .then((overview) => {
           if (isCurrent()) {
             setResult({ scope, phase: "ready", packs: overview.packs });
@@ -91,9 +97,10 @@ export default function SpeakingTopicsScreen() {
     }, [
       allowed,
       hydrated,
-      i18n,
       isLoggedIn,
       language,
+      learnCourse,
+      proficiency,
       requirePremium,
       scope,
       sessionToken,
@@ -125,7 +132,7 @@ export default function SpeakingTopicsScreen() {
     if (topic.count <= 0 || !useAuthStore.getState().isLoggedIn) return;
     requirePremium("expression", () => {
       router.push(
-        `/speaking-practice?pack=${encodeURIComponent(topic.code)}` as Href,
+        `/speaking-practice?pack=${encodeURIComponent(topic.code)}${proficiency ? `&proficiency=${proficiency}` : ""}` as Href,
       );
     });
   };
@@ -211,6 +218,27 @@ export default function SpeakingTopicsScreen() {
               ) : null}
             </View>
 
+            {learnCourse === "en" ? (
+              <View style={[styles.levelTabs, { backgroundColor: palette.surface }]} accessibilityRole="tablist">
+                {PROFICIENCY_LEVELS.map((level) => (
+                  <Pressable
+                    key={level}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: selectedLevel === level }}
+                    onPress={() => setSelectedLevel(level)}
+                    style={[
+                      styles.levelTab,
+                      { backgroundColor: selectedLevel === level ? palette.primary : palette.bg },
+                    ]}
+                  >
+                    <Text style={[styles.levelTabText, { color: selectedLevel === level ? "#FFFFFF" : palette.muted }]}>
+                      {t(`voiceTutor.level.${level}`)}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+
             {featured && phase === "ready" ? (
               <Pressable
                 onPress={() => openTopic(featured)}
@@ -262,7 +290,11 @@ export default function SpeakingTopicsScreen() {
                   </View>
                   <View style={styles.heroArt} pointerEvents="none">
                     <View style={styles.heroOrbit} />
-                    <TopicIllustration code={featured.code} size={112} />
+                    <TopicIllustration
+                      code={featured.code}
+                      mark={learnCourse === "en" ? featured.title.charAt(0).toUpperCase() : undefined}
+                      size={112}
+                    />
                   </View>
                 </View>
               </Pressable>
@@ -349,7 +381,7 @@ export default function SpeakingTopicsScreen() {
                   style={styles.topicMark}
                   numberOfLines={1}
                 >
-                  {look.mark}
+                  {learnCourse === "en" ? item.title.charAt(0).toUpperCase() : look.mark}
                 </Text>
                 <Text style={styles.topicIndex}>
                   {String(index + 1).padStart(2, "0")}
@@ -551,6 +583,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  levelTabs: {
+    flexDirection: "row",
+    borderRadius: 16,
+    padding: 5,
+    gap: 5,
+    marginBottom: 18,
+  },
+  levelTab: {
+    flex: 1,
+    minHeight: 42,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  levelTabText: { fontSize: 14, fontWeight: "800" },
   hero: { borderRadius: 28, padding: 22, overflow: "hidden", marginBottom: 24 },
   heroTop: {
     flexDirection: "row",

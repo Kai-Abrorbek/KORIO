@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import type { ExpressionProficiency } from '../schemas/expression-node.schema';
 import {
   UserSpeakingProgress,
   UserSpeakingProgressDocument,
@@ -23,9 +24,16 @@ export class SpeakingProgressService {
     private readonly model: Model<UserSpeakingProgressDocument>,
   ) {}
 
-  async get(userId: string, packCode: string): Promise<SpeakingProgressView> {
+  async get(
+    userId: string,
+    packCode: string,
+    proficiency?: ExpressionProficiency,
+  ): Promise<SpeakingProgressView> {
     const found = await this.model
-      .findOne({ userId: new Types.ObjectId(userId), packCode })
+      .findOne({
+        userId: new Types.ObjectId(userId),
+        packCode: this.progressKey(packCode, proficiency),
+      })
       .lean();
     return {
       packCode,
@@ -49,6 +57,7 @@ export class SpeakingProgressService {
     packCode: string,
     index: number,
     total: number,
+    proficiency?: ExpressionProficiency,
   ): Promise<SpeakingProgressView> {
     const safeTotal = Math.max(0, Math.trunc(total));
     // 시드가 줄어들었을 수도 있으니 클램프한다
@@ -57,7 +66,10 @@ export class SpeakingProgressService {
 
     const updated = await this.model
       .findOneAndUpdate(
-        { userId: new Types.ObjectId(userId), packCode },
+        {
+          userId: new Types.ObjectId(userId),
+          packCode: this.progressKey(packCode, proficiency),
+        },
         {
           $set: {
             index: completed ? 0 : reached,
@@ -77,5 +89,13 @@ export class SpeakingProgressService {
       completedCount: updated?.completedCount ?? 0,
       justCompleted: completed,
     };
+  }
+
+  private progressKey(
+    packCode: string,
+    proficiency?: ExpressionProficiency,
+  ): string {
+    // Keep existing Korean progress documents at the original packCode key.
+    return proficiency ? `${packCode}::${proficiency}` : packCode;
   }
 }

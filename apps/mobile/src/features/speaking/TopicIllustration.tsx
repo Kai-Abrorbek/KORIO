@@ -21,7 +21,7 @@ export interface TopicLook {
  * 감(감사), 주(주세요). 한국어 앱에서만 할 수 있는 표현이고, 뜻이 어긋날
  * 일이 없고, 어느 언어 사용자가 봐도 같은 글자다.
  */
-const LOOKS: Array<{ match: RegExp; look: TopicLook }> = [
+const LOOKS: { match: RegExp; look: TopicLook }[] = [
   // 실제 시드에 있는 다섯 주제
   { match: /greet|hello|goodbye|farewell/, look: { mark: "안", from: "#9280F5", to: "#5B44C9" } },
   { match: /self|introduc|profile|myself/, look: { mark: "저", from: "#57BAEC", to: "#2A76CC" } },
@@ -61,12 +61,14 @@ export function topicLookOf(code: string): TopicLook {
 
 interface Props {
   code: string;
+  /** 영어 주제에서는 한글 대신 주제 이름의 첫 글자를 표시한다. */
+  mark?: string;
   /** 타일 한 변의 길이. 바깥 View 는 바닥 그림자 때문에 이보다 7% 높다 */
   size?: number;
 }
 
 /** 주제 타일 — 그라데이션 + 한글 한 글자, 바닥 그림자로 살짝 떠 있게 */
-export default function TopicIllustration({ code, size = 100 }: Props) {
+export default function TopicIllustration({ code, mark, size = 100 }: Props) {
   const look = useMemo(() => topicLookOf(code), [code]);
   const radius = size * 0.3;
 
@@ -94,7 +96,7 @@ export default function TopicIllustration({ code, size = 100 }: Props) {
           allowFontScaling={false}
           style={[styles.mark, { fontSize: size * 0.5, lineHeight: size * 0.62 }]}
         >
-          {look.mark}
+          {mark ?? look.mark}
         </Text>
       </LinearGradient>
     </View>

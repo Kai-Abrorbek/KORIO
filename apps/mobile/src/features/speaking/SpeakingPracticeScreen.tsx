@@ -25,6 +25,8 @@ import { useSpeakingPractice } from "./useSpeakingPractice";
 import SpokenText from "@/features/expressions/components/SpokenText";
 import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
 import TopicIllustration from "./TopicIllustration";
+import { useSettingsStore } from "@/store/settings.store";
+import type { ExpressionProficiency } from "@/types/expression";
 
 type Practice = ReturnType<typeof useSpeakingPractice>;
 type Icon = ComponentProps<typeof Ionicons>["name"];
@@ -205,10 +207,12 @@ function MaskedPhrase({ text, hidden, revealed, onReveal, fontSize, ink, blockBg
 export function SpeakingPracticeView({ practice, onClose, onTopics }: {
   practice: Practice; onClose: () => void; onTopics: () => void;
 }) {
-  const c = useSpeakingCopy();
+  const learnCourse = useSettingsStore((state) => state.learnCourse);
+  const c = useSpeakingCopy(practice.data?.pack?.targetLanguage ?? learnCourse);
   const p = useSpeakingPalette();
   const insets = useSafeAreaInsets();
   const { current, result, phase, data, queue, index, completed, mask } = practice;
+  const phraseText = current?.text || current?.korean || "";
   // 카드가 바뀌면 드러낸 단어는 초기화된다
   const [revealed, setRevealed] = useState<number[]>([]);
   const [meaningShown, setMeaningShown] = useState(false);
@@ -235,7 +239,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
     ? c.feedbackBody : practice.isSpeaking ? c.listenBody : c.readyBody;
   const tint = failure ? p.warm : recording ? REC : showResult ? result.passed ? p.success : p.warm : p.primary;
   // 카드는 남는 높이를 다 쓰고, 문장이 길면 글자가 줄어든다 — 스크롤은 없다
-  const phraseLength = current?.korean.length ?? 0;
+  const phraseLength = phraseText.length;
   const koreanSize = phraseLength > 44 ? 20 : phraseLength > 32 ? 23 : phraseLength > 20 ? 26 : 30;
 
   return (
@@ -277,7 +281,11 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
       ) : completed ? (
         <ScrollView contentContainerStyle={[styles.summary, { paddingBottom: insets.bottom + 28 }]}>
           <View style={[styles.summaryArt, { backgroundColor: p.primarySoft }]}>
-            <TopicIllustration code={data?.pack?.code || "greetings"} size={126} />
+            <TopicIllustration
+              code={data?.pack?.code || "greetings"}
+              mark={data?.pack?.targetLanguage === "en" ? data.pack.title.charAt(0).toUpperCase() : undefined}
+              size={126}
+            />
             <View style={[styles.summaryCheck, { backgroundColor: p.success }]}><Ionicons name="checkmark" size={26} color="#FFFFFF" /></View>
           </View>
           <Text style={[styles.eyebrow, { color: p.primary }]}>{c.eyebrow}</Text>
@@ -327,7 +335,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                   </Pressable>
                 ) : showResult ? (
                   <Text style={[styles.korean, { fontSize: koreanSize, lineHeight: Math.round(koreanSize * 1.45) }]}>
-                    {current.korean.split(/\s+/).map((word, i, words) => {
+                    {phraseText.split(/\s+/).map((word, i, words) => {
                       const assessed = result.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word));
                       const tone = assessed ? wordToneOf(assessed) : null;
                       const color = tone === "good" ? p.success : tone === "warn" ? p.warm : tone === "bad" ? REC : p.ink;
@@ -343,7 +351,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                   // 진행도에 따라 단어를 가린다. 읽어서 통과하는 걸 막고, 듣고
                   // 기억해서 말하게 하는 게 이 화면의 목적이다.
                   <MaskedPhrase
-                    text={current.korean}
+                    text={phraseText}
                     hidden={mask.hidden}
                     revealed={revealed}
                     onReveal={(i) => setRevealed((previous) => previous.includes(i) ? previous : [...previous, i])}
@@ -357,7 +365,7 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
                   // 흐리게 깔아두고, 읽어줄 때는 재생 위치를 · 말할 때는 내 목소리를
                   // 글자 단위로 따라간다. 표현 학습에서 쓰는 컴포넌트를 그대로 쓴다.
                   <SpokenText
-                    text={current.korean}
+                    text={phraseText}
                     progress={recording ? practice.voicedProgress : practice.speechProgress}
                     playing={recording || practice.isSpeechPlaying}
                     baseColor={p.ink}
@@ -537,9 +545,16 @@ function LeaveDialog({ visible, onStay, onLeave }: { visible: boolean; onStay: (
 }
 
 function SpeakingPracticeScreen() {
-  const { pack } = useLocalSearchParams<{ pack?: string | string[] }>();
+  const { pack, proficiency: levelParam } = useLocalSearchParams<{
+    pack?: string | string[];
+    proficiency?: string | string[];
+  }>();
   const packCode = typeof pack === "string" ? pack : "";
-  const practice = useSpeakingPractice(packCode);
+  const proficiency: ExpressionProficiency | undefined =
+    levelParam === "beginner" || levelParam === "intermediate" || levelParam === "advanced"
+      ? levelParam
+      : undefined;
+  const practice = useSpeakingPractice(packCode, proficiency);
   const router = useRouter();
   const navigation = useNavigation();
   const loggedIn = useAuthStore((s) => s.isLoggedIn);

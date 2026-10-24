@@ -195,9 +195,33 @@ const ru: SpeakingCopy = {
 
 const copies: Record<string, SpeakingCopy> = { ko, en, uz, ru };
 
-export function useSpeakingCopy(): SpeakingCopy {
+const englishTargetCopy: Record<string, Partial<SpeakingCopy>> = {
+  ko: {
+    subtitle: "익숙한 상황부터, 내 목소리로 영어 한마디.",
+    prompt: "뜻을 보고 영어로 말해보세요",
+    completeBody: "직접 소리 내어 말한 문장이 내 영어가 돼요.",
+  },
+  en: {
+    subtitle: "Everyday moments. A little more English, in your own voice.",
+    prompt: "Say this in English",
+  },
+  uz: {
+    subtitle: "Kundalik vaziyatlarda inglizcha gapiring. O‘z ovozingiz bilan.",
+    prompt: "Buni inglizcha ayting",
+    completeBody: "Ovoz chiqarib aytgan har bir jumla inglizchangizni mustahkamlaydi.",
+  },
+  ru: {
+    subtitle: "Знакомые ситуации. Английский вашим голосом.",
+    prompt: "Скажите это по-английски",
+    completeBody: "Каждая фраза вслух помогает сделать английский своим.",
+  },
+};
+
+export function useSpeakingCopy(targetLanguage: "ko" | "en" = "ko"): SpeakingCopy {
   const { i18n } = useTranslation();
-  return copies[(i18n.resolvedLanguage || i18n.language || "uz").split("-")[0]] ?? en;
+  const language = (i18n.resolvedLanguage || i18n.language || "uz").split("-")[0];
+  const base = copies[language] ?? en;
+  return targetLanguage === "en" ? { ...base, ...englishTargetCopy[language] } : base;
 }
 
 export function formatSpeaking(text: string, values: Record<string, string | number>) {

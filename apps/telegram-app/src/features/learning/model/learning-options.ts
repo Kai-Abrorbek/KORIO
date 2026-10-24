@@ -38,7 +38,7 @@ export const LEARN_COURSES: Record<
     ],
   },
   // conversation = AI 음성 튜터 (영어 튜터)
-  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "expression", "conversation"] },
+  en: { key: "english", flag: "🇺🇸", modes: ["alphabet", "vocabulary", "grammarPractice", "grammar", "expression", "speaking", "conversation"] },
 };
 
 /**
@@ -53,6 +53,7 @@ export const ENGLISH_CATEGORY_CARDS = [
   "grammar",
   "grammarPractice",
   "expression",
+  "speaking",
   "wordCard",
   "pronunciation",
   "games",

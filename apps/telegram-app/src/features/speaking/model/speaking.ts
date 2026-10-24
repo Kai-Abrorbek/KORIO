@@ -33,6 +33,8 @@ export interface StudyExpression {
   context: string;
   id: string;
   korean: string;
+  text?: string;
+  targetLanguage?: string;
   meaning: string;
   pack: ExpressionPackInfo;
   progress: ExpressionProgress;

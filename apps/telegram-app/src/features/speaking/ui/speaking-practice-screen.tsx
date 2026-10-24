@@ -4,6 +4,8 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
+import { learnCourseOf } from "../../learning/model/learning-options";
+import type { ExpressionProficiency } from "../../expressions/model/expressions";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
 import { normalizeSpeakingWord, wordToneOf } from "../model/speaking";
 import { useSpeakingPractice, type SpeakingError } from "../model/use-speaking-practice";
@@ -38,9 +40,14 @@ export function SpeakingPracticeScreen() {
   const router = useRouter();
   const params = useSearchParams();
   const { user } = useTelegramAuth();
+  const isEnglish = learnCourseOf(user?.learnCourse) === "en";
   const premium = Boolean(user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()));
   const packCode = params.get("pack") ?? "";
-  const practice = useSpeakingPractice(premium ? packCode : "");
+  const levelParam = params.get("proficiency");
+  const proficiency: ExpressionProficiency | undefined = isEnglish && (
+    levelParam === "beginner" || levelParam === "intermediate" || levelParam === "advanced"
+  ) ? levelParam : undefined;
+  const practice = useSpeakingPractice(premium ? packCode : "", proficiency);
   const [revealed, setRevealed] = useState<number[]>([]);
   const [meaningShown, setMeaningShown] = useState(false);
   const [exitAsking, setExitAsking] = useState(false);
@@ -85,8 +92,8 @@ export function SpeakingPracticeScreen() {
         <section className={styles.empty}><span className={styles.emptyIcon}><MobileIcon name="chatbubble-ellipses-outline" size={34} /></span><h1>{practice.loadFailed ? "Mashqni tayyorlab bo‘lmadi" : "Hozircha mavzular yo‘q"}</h1><p>{practice.loadFailed ? "Mavzularni yuklab bo‘lmadi. Qayta urinib ko‘ring." : "Bu mavzuda hali mashq jumlalari yo‘q."}</p>{practice.loadFailed ? <button className={styles.primaryButton} onClick={practice.reload} type="button">Qayta urinish</button> : null}<button className={styles.textButton} onClick={() => router.replace("/speaking")} type="button">Boshqa mavzuni tanlash</button></section>
       ) : practice.completed ? (
         <section className={styles.summary}>
-          <span className={styles.summaryArt}><TopicIllustration code={practice.data?.pack?.code || "greetings"} size={126} /><i><MobileIcon name="checkmark" size={26} /></i></span>
-          <small>SPEAKING STUDIO</small><h1>Har bir jumla bilan<br />yanada ravonroq.</h1><p>{practice.summary.spoken ? "Ovoz chiqarib aytgan har bir jumla koreyschangizni mustahkamlaydi." : "Keyingi safar mikrofonni bosib, o‘zingiz aytib ko‘ring."}</p>
+          <span className={styles.summaryArt}><TopicIllustration code={practice.data?.pack?.code || "greetings"} mark={isEnglish ? practice.data?.pack?.title.charAt(0).toUpperCase() : undefined} size={126} /><i><MobileIcon name="checkmark" size={26} /></i></span>
+          <small>SPEAKING STUDIO</small><h1>Har bir jumla bilan<br />yanada ravonroq.</h1><p>{practice.summary.spoken ? `Ovoz chiqarib aytgan har bir jumla ${isEnglish ? "inglizchangizni" : "koreyschangizni"} mustahkamlaydi.` : "Keyingi safar mikrofonni bosib, o‘zingiz aytib ko‘ring."}</p>
           <div className={styles.summaryStats}><span><b>{practice.summary.spoken}</b><small>Aytilgan jumlalar</small></span><i /><span><b>{practice.summary.average ?? "—"}</b><small>O‘rtacha talaffuz</small></span></div>
           {practice.summary.retryIds.length ? <button className={styles.primaryButton} onClick={() => practice.restart(true)} type="button"><MobileIcon name="refresh" size={19} /> Qiyin jumlalarni takrorlash</button> : null}
           <button className={styles.primaryButton} onClick={() => router.replace("/speaking")} type="button">Boshqa mavzuni tanlash <MobileIcon name="arrow-forward" size={19} /></button>
@@ -106,14 +113,14 @@ export function SpeakingPracticeScreen() {
               <div className={styles.cardTop}><span className={`${styles.statusChip} ${showResult ? result!.passed ? styles.goodChip : styles.warmChip : ""}`}><MobileIcon name={showResult ? result!.passed ? "checkmark-circle" : "sparkles-outline" : "volume-medium-outline"} size={16} /> {showResult ? `Talaffuz ${Math.round(result!.scores.pron)}` : "Gapirish mashqi"}</span><RoundButton disabled={busy || practice.saving} icon={current.progress.isSaved ? "bookmark" : "bookmark-outline"} label={current.progress.isSaved ? "Saqlangan ibora" : "Iborani saqlash"} onClick={() => void practice.toggleSaved()} selected={current.progress.isSaved} /></div>
               <div className={styles.sentenceArea}>
                 {practice.hidden && !showResult ? <button className={styles.hiddenPhrase} onClick={practice.toggleHidden} type="button"><i /><i /><small>Jumlani eslab ko‘ring</small></button> : showResult ? (
-                  <p className={styles.korean}>{current.korean.split(/\s+/).map((word, index, words) => {
+                  <p className={styles.korean}>{practice.currentPhrase.split(/\s+/).map((word, index, words) => {
                     const assessed = result!.words.find((item) => normalizeSpeakingWord(item.word) === normalizeSpeakingWord(word));
                     const tone = assessed ? wordToneOf(assessed) : undefined;
                     return <button className={tone ? styles[tone] : undefined} key={`${index}-${word}`} onClick={() => practice.listen(false, word)} type="button">{word}{index < words.length - 1 ? " " : ""}</button>;
                   })}</p>
-                ) : practice.mask.mode !== "none" ? <MaskedPhrase hidden={practice.mask.hidden} onReveal={(word) => setRevealed((value) => value.includes(word) ? value : [...value, word])} revealed={revealed} text={current.korean} /> : <p className={styles.korean}>{current.korean}</p>}
+                ) : practice.mask.mode !== "none" ? <MaskedPhrase hidden={practice.mask.hidden} onReveal={(word) => setRevealed((value) => value.includes(word) ? value : [...value, word])} revealed={revealed} text={practice.currentPhrase} /> : <p className={styles.korean}>{practice.currentPhrase}</p>}
               </div>
-              <div className={styles.meaningArea}><small>{practice.mask.hideMeaning && !showResult && !meaningShown ? "TINGLANG VA TAKRORLANG" : practice.hidden && !showResult ? "BUNI KOREYSCHA AYTING" : "MA’NOSI"}</small>{practice.mask.hideMeaning && !showResult && !meaningShown ? <button className={styles.meaningMask} onClick={() => setMeaningShown(true)} type="button"><MobileIcon name="headset-outline" size={15} /> Ma’nosini ko‘rish</button> : <p>{current.meaning}</p>}</div>
+              <div className={styles.meaningArea}><small>{practice.mask.hideMeaning && !showResult && !meaningShown ? "TINGLANG VA TAKRORLANG" : practice.hidden && !showResult ? `BUNI ${isEnglish ? "INGLIZCHA" : "KOREYSCHA"} AYTING` : "MA’NOSI"}</small>{practice.mask.hideMeaning && !showResult && !meaningShown ? <button className={styles.meaningMask} onClick={() => setMeaningShown(true)} type="button"><MobileIcon name="headset-outline" size={15} /> Ma’nosini ko‘rish</button> : <p>{current.meaning}</p>}</div>
               <div className={styles.phraseTools}><button disabled={busy} onClick={() => practice.listen(true)} type="button"><MobileIcon name="speedometer-outline" size={16} /> Sekin tinglash</button><button onClick={practice.toggleHidden} type="button"><MobileIcon name={practice.hidden ? "eye" : "eye-off-outline"} size={16} /> {practice.hidden ? "Jumlani ko‘rish" : "Jumlani yashirish"}</button></div>
             </article>
 

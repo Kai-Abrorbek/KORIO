@@ -1,5 +1,6 @@
 import {
   Body,
+  BadRequestException,
   Controller,
   Get,
   Param,
@@ -12,6 +13,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CompleteExpressionPracticeDto } from './dto/complete-expression-practice.dto';
 import { ExpressionLanguageQueryDto } from './dto/expression-language-query.dto';
+import { ExpressionProficiencyQueryDto } from './dto/expression-proficiency-query.dto';
 import { ExpressionScopeQueryDto } from './dto/expression-scope-query.dto';
 import { ListExpressionsQueryDto } from './dto/list-expressions-query.dto';
 import { ReviewExpressionDto } from './dto/review-expression.dto';
@@ -164,13 +166,18 @@ export class ExpressionsController {
   async getSpeakingProgress(
     @Request() req,
     @Param('packCode') packCode: string,
-    @Query() query: ExpressionLanguageQueryDto,
+    @Query() query: ExpressionProficiencyQueryDto,
   ) {
-    await this.expressionsService.assertPackScope(
+    const scope = resolveCourseScope(query);
+    if (query.proficiency && scope.targetLanguage !== 'en') {
+      throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
+    }
+    await this.expressionsService.assertPackScope(packCode, scope);
+    return this.speakingProgressService.get(
+      req.user._id.toString(),
       packCode,
-      resolveCourseScope(query),
+      query.proficiency,
     );
-    return this.speakingProgressService.get(req.user._id.toString(), packCode);
   }
 
   /**
@@ -184,19 +191,21 @@ export class ExpressionsController {
   async saveSpeakingProgress(
     @Request() req,
     @Param('packCode') packCode: string,
-    @Query() query: ExpressionLanguageQueryDto,
+    @Query() query: ExpressionProficiencyQueryDto,
     @Body() dto: SaveSpeakingProgressDto,
   ) {
-    await this.expressionsService.assertPackScope(
-      packCode,
-      resolveCourseScope(query),
-    );
+    const scope = resolveCourseScope(query);
+    if (query.proficiency && scope.targetLanguage !== 'en') {
+      throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
+    }
+    await this.expressionsService.assertPackScope(packCode, scope);
     const userId = req.user._id.toString();
     const progress = await this.speakingProgressService.save(
       userId,
       packCode,
       dto.index,
       dto.total,
+      query.proficiency,
     );
     // 말하기 주제를 끝까지 말한 순간이 "완료" — 그날 첫 완료면 도장, 3·6·9…일째면 상자.
     // 문장별 학습 기록은 채점(assess-expression) 때 이미 남아 있다

@@ -311,8 +311,10 @@ async function fixture(t, options = {}) {
   const item = {
     id: "expression-1",
     korean: "안녕하세요 반갑습니다",
+    ...(options.english ? { text: "Hello, nice to meet you", targetLanguage: "en" } : {}),
     progress: { isSaved: false },
   };
+  const requests = [];
   const auth = { user: { id: "learner-1" }, isLoggedIn: true };
   const { useSpeakingPractice } = loadSource(
     "features/speaking/useSpeakingPractice.ts",
@@ -341,8 +343,14 @@ async function fixture(t, options = {}) {
       },
       "@/services/expression.service": {
         ExpressionService: {
-          getPackExpressions: async () => ({ items: [item] }),
-          getSpeakingProgress: async () => ({ index: 0 }),
+          getPackExpressions: async (...args) => {
+            requests.push(["items", ...args]);
+            return { items: [item], pack: { targetLanguage: options.english ? "en" : "ko" } };
+          },
+          getSpeakingProgress: async (...args) => {
+            requests.push(["progress", ...args]);
+            return { index: 0 };
+          },
           saveSpeakingProgress: async () => ({}),
         },
       },
@@ -357,7 +365,10 @@ async function fixture(t, options = {}) {
         NotificationFeedbackType: { Success: "success", Warning: "warning" },
       },
       "./session": loadSource("features/speaking/session.ts", {}, clock),
-      "@/store/settings.store": { useContentLang: () => "en" },
+      "@/store/settings.store": {
+        useContentLang: () => "en",
+        useSettingsStore: (selector) => selector({ learnCourse: options.english ? "en" : "ko" }),
+      },
       "@/utils/streak-chest-route": { openCelebration: () => {} },
     },
     clock,
@@ -370,12 +381,13 @@ async function fixture(t, options = {}) {
       hooks.render();
     }
   }
-  hooks.mount(() => useSpeakingPractice("greetings"));
+  hooks.mount(() => useSpeakingPractice("greetings", options.proficiency));
   await flush();
   t.after(() => hooks.unmount());
   return {
     calls,
     reads,
+    requests,
     bridgeStarts,
     get page() {
       return hooks.value;
@@ -421,6 +433,23 @@ async function fixture(t, options = {}) {
     },
   };
 }
+
+test("English speaking uses the selected grade and English voice", async (t) => {
+  const app = await fixture(t, { english: true, proficiency: "intermediate" });
+  assert.deepEqual(app.requests.slice(0, 2), [
+    ["items", "greetings", undefined, undefined, "intermediate"],
+    ["progress", "greetings", "intermediate"],
+  ]);
+  await app.advance(120);
+  assert.equal(app.reads[0]?.text, "Hello, nice to meet you");
+  assert.equal(app.reads[0]?.language, "en-US");
+});
+
+test("English speaking deep links start at beginner when no grade is supplied", async (t) => {
+  const app = await fixture(t, { english: true });
+  assert.equal(app.requests[0]?.at(-1), "beginner");
+  assert.equal(app.requests[1]?.at(-1), "beginner");
+});
 
 test("automatic TTS completion starts the actual microphone recorder", async (t) => {
   const app = await fixture(t);

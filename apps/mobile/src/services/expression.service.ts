@@ -4,6 +4,7 @@ import type {
   ExpressionListResponse,
   ExpressionNodeLearningResponse,
   ExpressionOverview,
+  ExpressionProficiency,
   ExpressionPracticeSession,
   ExpressionProgress,
   ExpressionRoadmapResponse,
@@ -22,6 +23,9 @@ const scopeQuery = (section?: number, unit?: number) => {
   if (unit) params.push(`unit=${unit}`);
   return params.join("&");
 };
+
+const proficiencyQuery = (proficiency?: ExpressionProficiency) =>
+  proficiency ? `&proficiency=${encodeURIComponent(proficiency)}` : "";
 
 export const ExpressionService = {
   getRoadmap: (): Promise<ExpressionRoadmapResponse> =>
@@ -44,13 +48,18 @@ export const ExpressionService = {
       `/expressions/nodes/${encodeURIComponent(nodeCode)}/learning?lang=${encodeURIComponent(getLang())}`,
     ),
 
-  getOverview: (section?: number, unit?: number): Promise<ExpressionOverview> =>
-    api.get(`/expressions/overview?${scopeQuery(section, unit)}`),
+  getOverview: (
+    section?: number,
+    unit?: number,
+    proficiency?: ExpressionProficiency,
+  ): Promise<ExpressionOverview> =>
+    api.get(`/expressions/overview?${scopeQuery(section, unit)}${proficiencyQuery(proficiency)}`),
 
   getPackExpressions: async (
     packCode: string,
     section?: number,
     unit?: number,
+    proficiency?: ExpressionProficiency,
   ): Promise<ExpressionListResponse> => {
     const items: StudyExpression[] = [];
     let cursor: string | null = null;
@@ -60,6 +69,7 @@ export const ExpressionService = {
     do {
       const params = [
         scopeQuery(section, unit),
+        ...(proficiency ? [`proficiency=${encodeURIComponent(proficiency)}`] : []),
         `pack=${encodeURIComponent(packCode)}`,
         "limit=100",
       ];
@@ -77,9 +87,12 @@ export const ExpressionService = {
   },
 
   /** 말하기 연습 커서 조회. 주제를 끝냈으면 서버가 0 을 준다 */
-  getSpeakingProgress: (packCode: string): Promise<SpeakingProgress> =>
+  getSpeakingProgress: (
+    packCode: string,
+    proficiency?: ExpressionProficiency,
+  ): Promise<SpeakingProgress> =>
     api.get(
-      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`,
+      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress?lang=${encodeURIComponent(getLang())}${proficiencyQuery(proficiency)}`,
     ),
 
   /**
@@ -98,9 +111,10 @@ export const ExpressionService = {
     packCode: string,
     index: number,
     total: number,
+    proficiency?: ExpressionProficiency,
   ): Promise<SpeakingProgress> =>
     api.patch(
-      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress`,
+      `/expressions/packs/${encodeURIComponent(packCode)}/speaking-progress?lang=${encodeURIComponent(getLang())}${proficiencyQuery(proficiency)}`,
       { index, total },
     ),
 
@@ -156,7 +170,7 @@ export const ExpressionService = {
     success: boolean;
     xpEarned: number;
     totalXP: number;
-    progress: Array<{ expressionId: string; progress: ExpressionProgress }>;
+    progress: { expressionId: string; progress: ExpressionProgress }[];
     /** 학습 모드 완료 축하 (연속 도장·상자) */
     celebration?: StudyCelebration | null;
   }> =>

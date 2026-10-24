@@ -38,6 +38,7 @@ export const LEARNING_COURSES = [
       'grammarPractice',
       'grammar',
       'expression',
+      'speaking',
       'conversation',
     ],
   },
