@@ -44,7 +44,7 @@ export function SpeakingPracticeScreen() {
   const premium = Boolean(user?.isSuper && (!user.superExpiresAt || new Date(user.superExpiresAt).getTime() > Date.now()));
   const packCode = params.get("pack") ?? "";
   const levelParam = params.get("proficiency");
-  const proficiency: ExpressionProficiency | undefined = isEnglish && (
+  const proficiency: ExpressionProficiency | undefined = (
     levelParam === "beginner" || levelParam === "intermediate" || levelParam === "advanced"
   ) ? levelParam : undefined;
   const practice = useSpeakingPractice(premium ? packCode : "", proficiency);

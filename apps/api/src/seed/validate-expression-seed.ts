@@ -18,6 +18,9 @@ if (!EXPRESSION_PACK_SEEDS.length) {
 if (scope.targetLanguage === 'en' && EXPRESSION_PACK_SEEDS.length !== 40) {
   throw new Error('English expressions need all 40 topics before seeding');
 }
+if (scope.targetLanguage === 'ko' && EXPRESSION_PACK_SEEDS.length !== 16) {
+  throw new Error('Korean expressions need all 16 topics before seeding');
+}
 
 const codes = new Set<string>();
 const packCodes = new Set(EXPRESSION_PACK_SEEDS.map((pack) => pack.code));
@@ -90,7 +93,7 @@ for (const node of EXPRESSION_NODE_SEEDS) {
   completeI18n(node.title, `${node.code}.title`);
   completeI18n(node.description, `${node.code}.description`);
   if (!node.icon.trim()) throw new Error(`${node.code}.icon is empty`);
-  if (scope.targetLanguage === 'en') {
+  if (scope.targetLanguage === 'en' || scope.targetLanguage === 'ko') {
     const expected = [
       ExpressionProficiency.BEGINNER,
       ExpressionProficiency.BEGINNER,
@@ -166,7 +169,7 @@ for (const expression of EXPRESSION_SEEDS) {
     expression.nodeCode,
     (expressionCountByNode.get(expression.nodeCode) ?? 0) + 1,
   );
-  if (scope.targetLanguage === 'en' && node?.proficiency) {
+  if (node?.proficiency) {
     const key = `${expression.packCode}:${node.proficiency}`;
     levelCounts.set(key, (levelCounts.get(key) ?? 0) + 1);
     if (expression.speechLevel === ExpressionSpeechLevel.CASUAL) {
@@ -246,7 +249,7 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
   if (count < 4 || count > 6) {
     throw new Error(`${pack.code} must contain between 4 and 6 nodes`);
   }
-  if (scope.targetLanguage === 'en') {
+  if (scope.targetLanguage === 'en' || scope.targetLanguage === 'ko') {
     if (count !== 6) throw new Error(`${pack.code} needs six levelled nodes`);
     for (const level of Object.values(ExpressionProficiency)) {
       const key = `${pack.code}:${level}`;
@@ -258,6 +261,12 @@ for (const pack of EXPRESSION_PACK_SEEDS) {
       }
       if ((politeCounts.get(key) ?? 0) === 0) {
         throw new Error(`${key} needs polite expressions`);
+      }
+      if (
+        scope.targetLanguage === 'ko' &&
+        (casualCounts.get(key) ?? 0) >= (politeCounts.get(key) ?? 0)
+      ) {
+        throw new Error(`${key} needs more polite than casual expressions`);
       }
     }
   }

@@ -33,7 +33,7 @@ function cursorKey(packCode: string, proficiency?: ExpressionProficiency) { retu
 export function useSpeakingPractice(packCode: string, proficiency?: ExpressionProficiency) {
   const { request, updateUser, user } = useTelegramAuth();
   const isEnglish = learnCourseOf(user?.learnCourse) === "en";
-  const selectedLevel = isEnglish ? (proficiency ?? "beginner") : undefined;
+  const selectedLevel = proficiency ?? "beginner";
   const speechLocale = isEnglish ? "en-US" : "ko-KR";
   const router = useRouter();
   const [data, setData] = useState<ExpressionListResponse | null>(null);

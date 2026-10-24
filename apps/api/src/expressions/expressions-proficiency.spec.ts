@@ -8,7 +8,7 @@ jest.mock('@nestjs/mongoose', () => ({
 import { Types } from 'mongoose';
 import { ExpressionsService } from './expressions.service';
 
-describe('English expression proficiency queries', () => {
+describe('Expression proficiency queries', () => {
   const userId = new Types.ObjectId().toString();
   const packId = new Types.ObjectId();
   const pack = {
@@ -118,7 +118,7 @@ describe('English expression proficiency queries', () => {
     });
   });
 
-  it('leaves unfiltered requests intact and rejects levels on Korean scope', async () => {
+  it('leaves unfiltered requests intact and supports Korean levels', async () => {
     const { service, nodeFind } = fixture();
     const all = await service.getExpressions(userId, {
       courseId: 'en-general',
@@ -129,13 +129,24 @@ describe('English expression proficiency queries', () => {
     expect(all.total).toBe(3);
     expect(nodeFind).not.toHaveBeenCalled();
 
-    await expect(
-      service.getOverview(userId, {
-        courseId: 'ko-general',
-        targetLanguage: 'ko',
-        lang: 'uz',
-        proficiency: 'beginner',
-      }),
-    ).rejects.toThrow('EXPRESSION_PROFICIENCY_UNAVAILABLE');
+    const korean = await service.getOverview(userId, {
+      courseId: 'ko-general',
+      targetLanguage: 'ko',
+      lang: 'uz',
+      proficiency: 'beginner',
+    });
+    expect(korean.summary.total).toBe(1);
+    const koreanList = await service.getExpressions(userId, {
+      courseId: 'ko-general',
+      targetLanguage: 'ko',
+      lang: 'uz',
+      proficiency: 'beginner',
+      limit: 100,
+    });
+    expect(koreanList.items).toHaveLength(1);
+    expect(nodeFind).toHaveBeenLastCalledWith({
+      proficiency: 'beginner',
+      isActive: true,
+    });
   });
 });

@@ -451,6 +451,16 @@ test("English speaking deep links start at beginner when no grade is supplied", 
   assert.equal(app.requests[1]?.at(-1), "beginner");
 });
 
+test("Korean speaking uses the selected grade and Korean voice", async (t) => {
+  const app = await fixture(t, { proficiency: "advanced" });
+  assert.deepEqual(app.requests.slice(0, 2), [
+    ["items", "greetings", undefined, undefined, "advanced"],
+    ["progress", "greetings", "advanced"],
+  ]);
+  await app.advance(120);
+  assert.equal(app.reads[0]?.language, "ko-KR");
+});
+
 test("automatic TTS completion starts the actual microphone recorder", async (t) => {
   const app = await fixture(t);
   assert.equal(app.page.loading, false);

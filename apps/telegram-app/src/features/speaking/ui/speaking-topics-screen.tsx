@@ -33,7 +33,7 @@ export function SpeakingTopicsScreen() {
     if (!premium) return;
     let active = true;
     setPhase("loading");
-    void getExpressionOverview(request, isEnglish ? selectedLevel : undefined)
+    void getExpressionOverview(request, selectedLevel)
       .then((response) => {
         if (!active) return;
         setPacks(response.packs);
@@ -51,7 +51,7 @@ export function SpeakingTopicsScreen() {
   const openTopic = (topic: ExpressionPackSummary) => {
     if (topic.count <= 0) return;
     window.Telegram?.WebApp.HapticFeedback?.impactOccurred("light");
-    const level = isEnglish ? `&proficiency=${selectedLevel}` : "";
+    const level = `&proficiency=${selectedLevel}`;
     router.push(`/speaking-practice?pack=${encodeURIComponent(topic.code)}${level}`);
   };
   const back = () => window.history.length > 1 ? router.back() : router.replace("/practice");
@@ -70,7 +70,7 @@ export function SpeakingTopicsScreen() {
           <span className={styles.micSeal}><MobileIcon name="mic" size={25} /><i><MobileIcon name="sparkles" size={13} /></i></span>
         </section>
 
-        {isEnglish && premium ? (
+        {premium ? (
           <div aria-label="Daraja" className={styles.levelTabs} role="tablist">
             {PROFICIENCY_LEVELS.map((level) => (
               <button

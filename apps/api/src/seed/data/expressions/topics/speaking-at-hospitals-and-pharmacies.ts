@@ -1,5 +1,10 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineLeveledKoreanTopic,
+  expressionDrafts,
+  localized,
+  type ExpressionDraftRow,
+} from '../expression-topic.helpers';
 
 const PATIENT = localized('환자', 'Bemor', 'Patient', 'Пациент');
 
@@ -20,7 +25,8 @@ const CLINICIAN = localized(
 const PHARMACIST = localized('약사', 'Farmatsevt', 'Pharmacist', 'Фармацевт');
 
 function buildSpeakingAtHospitalsAndPharmaciesTopic() {
-  return defineExpressionTopic({
+  // prettier-ignore
+  return defineLeveledKoreanTopic({
     code: 'speaking-at-hospitals-and-pharmacies',
     title: localized(
       '병원과 약국에서 말하기',
@@ -1784,8 +1790,353 @@ function buildSpeakingAtHospitalsAndPharmaciesTopic() {
         ],
       },
     ],
+    additions,
+    finalNode: {
+    code: 'follow-up-referral-and-records',
+    title: localized(
+      '재진·의뢰와 진료 기록 확인하기',
+      'Qayta ko‘rik, yo‘llanma va tibbiy hujjatlar',
+      'Follow-up visits, referrals, and records',
+      'Повторный приём, направление и документы',
+    ),
+    description: localized(
+      '치료 경과를 설명하고 재진 일정, 의뢰서, 진료 기록을 확인해요.',
+      'Davolanish jarayoni, qayta ko‘rik, yo‘llanma va hujjatlarni aniqlang.',
+      'Discuss recovery and confirm follow-up visits, referrals, and records.',
+      'Обсудите лечение и уточните повторный приём, направление и записи.',
+    ),
+    icon: 'document-text-outline',
+  },
   });
 }
+
+const COMPANION = localized(
+  '친한 동행인',
+  'Yaqin hamroh',
+  'Close companion',
+  'Близкий спутник',
+);
+const extraSpeakers = new Map([
+  ['is-this-registration', COMPANION],
+  ['where-hurts-most-casual', COMPANION],
+  ['test-take-long-casual', COMPANION],
+  ['remember-dose-time-casual', COMPANION],
+  ['breathing-harder-casual', COMPANION],
+  ['symptoms-still-there-casual', COMPANION],
+  ['follow-up-results-ready', CLINICIAN],
+  ['bring-prior-results', CLINICIAN],
+]);
+
+const extra = (rows: readonly ExpressionDraftRow[]) =>
+  expressionDrafts(rows, {
+    context: localized(
+      '병원이나 약국에서 상태와 안내를 구체적으로 확인할 때 사용해요.',
+      'Shifoxona yoki dorixonada holat va ko‘rsatmalarni aniqlashda ishlatiladi.',
+      'Use this when clarifying a condition or instructions at a clinic or pharmacy.',
+      'Используйте при уточнении состояния или указаний в больнице и аптеке.',
+    ),
+    speaker: PATIENT,
+    usageNote: localized(
+      '의료진에게는 높임말을 쓰고, 반말은 친한 동행인에게만 사용해요.',
+      'Tibbiyot xodimlariga hurmat shaklida, oddiy shaklni esa yaqin hamrohga ishlating.',
+      'Use polite speech with staff; use casual speech only with a close companion.',
+      'С медперсоналом говорите вежливо; простую форму используйте лишь с близким спутником.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker: extraSpeakers.get(draft.code) ?? draft.speaker,
+  }));
+
+const additions = [
+  extra([
+    [
+      'change-appointment',
+      '예약을 변경하고 싶어요.',
+      'yeyageul byeongyeonghago sipeoyo',
+      '예약 날짜나 시간을 바꾸고 싶다는 말',
+      'Qabul vaqtini o‘zgartirmoqchiman',
+      'I would like to change my appointment.',
+      'Я хочу перенести запись.',
+    ],
+    [
+      'registration-closing-time',
+      '접수 마감이 몇 시예요?',
+      'jeopsu magami myeot siyeyo',
+      '접수를 언제까지 받는지 묻는 말',
+      'Ro‘yxatga olish qachon tugaydi?',
+      'When does registration close?',
+      'Во сколько заканчивается регистрация?',
+    ],
+    [
+      'is-this-registration',
+      '여기가 접수하는 곳이야?',
+      'yeogiga jeopsuhaneun gosiya',
+      '동행인에게 접수 장소를 확인하는 말',
+      'Ro‘yxatga olish joyi shu yermi?',
+      'Is this where we check in?',
+      'Здесь регистратура?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'stomachache-and-diarrhea',
+      '배가 아프고 설사를 해요.',
+      'baega apeugo seolsareul haeyo',
+      '복통과 설사를 함께 설명하는 말',
+      'Qornim og‘riyapti va ichim ketyapti',
+      'My stomach hurts and I have diarrhea.',
+      'У меня болит живот и диарея.',
+    ],
+    [
+      'cough-worse-at-night',
+      '밤에 기침이 심해져요.',
+      'bame gichimi simhaejyeoyo',
+      '밤에 악화되는 기침을 설명하는 말',
+      'Kechasi yo‘talim kuchayadi',
+      'My cough gets worse at night.',
+      'Ночью кашель усиливается.',
+    ],
+    [
+      'where-hurts-most-casual',
+      '어디가 제일 아파?',
+      'eodiga jeil apa',
+      '친한 사람에게 가장 아픈 곳을 묻는 말',
+      'Qayering eng ko‘p og‘riyapti?',
+      'Where does it hurt most?',
+      'Где болит сильнее всего?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'results-by-text',
+      '검사 결과를 문자로 받을 수 있나요?',
+      'geomsa gyeolgwareul munjaro badeul su innayo',
+      '검사 결과를 문자로 받을 수 있는지 묻는 말',
+      'Tahlil natijasini xabar orqali olsam bo‘ladimi?',
+      'Can I receive the test results by text?',
+      'Можно получить результаты обследования по СМС?',
+    ],
+    [
+      'stop-medicine-before-test',
+      '검사 전에 약을 끊어야 하나요?',
+      'geomsa jeone yageul kkeuneoya hanayo',
+      '검사 전 복용 약을 중단해야 하는지 묻는 말',
+      'Tekshiruvdan oldin dorini to‘xtatishim kerakmi?',
+      'Should I stop taking my medicine before the test?',
+      'Нужно ли прекратить приём лекарства перед обследованием?',
+    ],
+    [
+      'test-take-long-casual',
+      '검사 오래 걸린대?',
+      'geomsa orae geollindae',
+      '동행인에게 검사 시간을 편하게 묻는 말',
+      'Tekshiruv uzoq davom etarkanmi?',
+      'Did they say the test will take long?',
+      'Сказали, обследование долго продлится?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'refrigerate-medicine',
+      '이 약은 냉장 보관해야 하나요?',
+      'i yageun naengjang bogwanhaeya hanayo',
+      '약의 냉장 보관 여부를 묻는 말',
+      'Bu dorini muzlatkichda saqlash kerakmi?',
+      'Does this medicine need refrigeration?',
+      'Это лекарство нужно хранить в холодильнике?',
+    ],
+    [
+      'stop-treatment-early',
+      '약을 먹다가 중단해도 되나요?',
+      'yageul meokdaga jungdanhaedo doenayo',
+      '복용 중 약을 멈춰도 되는지 묻는 말',
+      'Dorini ichishni to‘xtatsam bo‘ladimi?',
+      'Can I stop taking this medicine?',
+      'Можно прекратить приём лекарства?',
+    ],
+    [
+      'remember-dose-time-casual',
+      '약 먹는 시간 기억해?',
+      'yak meongneun sigan gieokhae',
+      '동행인에게 복용 시간을 기억하는지 묻는 말',
+      'Dori ichish vaqtini eslaysanmi?',
+      'Do you remember when to take the medicine?',
+      'Помнишь, когда принимать лекарство?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'face-started-swelling',
+      '얼굴이 붓기 시작했어요.',
+      'eolguri butgi sijakhaesseoyo',
+      '얼굴에 새로운 부기가 생겼다는 말',
+      'Yuzim shisha boshladi',
+      'My face has started to swell.',
+      'У меня начало опухать лицо.',
+    ],
+    [
+      'change-prescription',
+      '처방을 바꿀 수 있을까요?',
+      'cheobangeul bakkul su isseulkkayo',
+      '처방 변경 가능 여부를 묻는 말',
+      'Retseptni o‘zgartirish mumkinmi?',
+      'Could my prescription be changed?',
+      'Можно изменить назначение?',
+    ],
+    [
+      'breathing-harder-casual',
+      '숨쉬기가 더 힘들어졌어.',
+      'sumswigiga deo himdeureojyeosseo',
+      '동행인에게 호흡이 악화됐다고 알리는 말',
+      'Nafas olishim yanada qiyinlashdi',
+      'It has become harder to breathe.',
+      'Мне стало ещё труднее дышать.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'symptoms-persist-after-treatment',
+      '치료를 받았는데도 증상이 계속돼요.',
+      'chiryoreul badanneundedo jeungsangi gyesokdwaeyo',
+      '치료 후에도 증상이 남았다는 말',
+      'Davolansam ham alomatlar davom etyapti',
+      'My symptoms persist despite treatment.',
+      'Симптомы сохраняются после лечения.',
+    ],
+    [
+      'need-follow-up-when',
+      '재진은 언제 받는 게 좋을까요?',
+      'jaejineun eonje badneun ge joeulkkayo',
+      '다음 진료 시점을 묻는 말',
+      'Qachon qayta ko‘rikdan o‘tganim ma’qul?',
+      'When should I come for a follow-up?',
+      'Когда лучше прийти на повторный приём?',
+    ],
+    [
+      'request-referral',
+      '전문 진료를 위한 의뢰서를 받을 수 있을까요?',
+      'jeonmun jillyoreul wihan uiroeseoreul badeul su isseulkkayo',
+      '전문의 진료 의뢰서를 요청하는 말',
+      'Mutaxassisga yo‘llanma olsam bo‘ladimi?',
+      'Could I get a referral to a specialist?',
+      'Можно получить направление к специалисту?',
+    ],
+    [
+      'request-medical-record-copy',
+      '진료 기록 사본을 신청하고 싶어요.',
+      'jillyo girok sabon-eul sincheonghago sipeoyo',
+      '진료 기록 복사본을 요청하는 말',
+      'Tibbiy yozuvlarim nusxasini so‘ramoqchiman',
+      'I would like a copy of my medical records.',
+      'Я хочу запросить копию медицинской карты.',
+    ],
+    [
+      'ask-result-comparison',
+      '지난 검사 결과와 비교해 주실 수 있나요?',
+      'jinan geomsa gyeolgwawa bigyohae jusil su innayo',
+      '이전 검사와 현재 결과를 비교해 달라는 말',
+      'Oldingi natijalar bilan solishtirib bera olasizmi?',
+      'Could you compare this with my previous results?',
+      'Можете сравнить это с прежними результатами?',
+    ],
+    [
+      'treatment-alternatives',
+      '다른 치료 방법도 설명해 주시겠어요?',
+      'dareun chiryo bangbeopdo seolmyeonghae jusigesseoyo',
+      '대체 치료 방법을 묻는 말',
+      'Boshqa davolash usullarini ham tushuntirasizmi?',
+      'Could you explain other treatment options?',
+      'Не могли бы вы рассказать о других методах лечения?',
+    ],
+    [
+      'recovery-timeline',
+      '회복까지 보통 얼마나 걸리나요?',
+      'hoebokkkaji botong eolmana geollinayo',
+      '예상 회복 기간을 묻는 말',
+      'Tiklanish odatda qancha vaqt oladi?',
+      'How long does recovery usually take?',
+      'Сколько обычно длится восстановление?',
+    ],
+    [
+      'activity-restrictions',
+      '회복하는 동안 피해야 할 활동이 있나요?',
+      'hoebokhaneun dongan pihaeya hal hwaldongi innayo',
+      '회복 중 활동 제한을 묻는 말',
+      'Tiklanish paytida qanday faoliyatdan saqlanish kerak?',
+      'Are there activities I should avoid while recovering?',
+      'Каких занятий следует избегать во время восстановления?',
+    ],
+    [
+      'follow-up-results-ready',
+      '추가 검사 결과가 나오면 연락드릴게요.',
+      'chuga geomsa gyeolgwaga naomyeon yeollakdeurilgeyo',
+      '추가 검사 결과를 알려 주겠다는 말',
+      'Qo‘shimcha natijalar chiqsa, sizga xabar beramiz',
+      'We will contact you when the additional results are ready.',
+      'Мы свяжемся с вами, когда будут готовы дополнительные результаты.',
+    ],
+    [
+      'bring-prior-results',
+      '지난 검사 결과를 가져와 주세요.',
+      'jinan geomsa gyeolgwaleul gajyeowa juseyo',
+      '이전 검사 자료를 가져오라는 안내',
+      'Oldingi tahlil natijalarini olib keling',
+      'Please bring your previous test results.',
+      'Принесите результаты прежних обследований.',
+    ],
+    [
+      'new-symptom-before-visit',
+      '다음 진료 전에 새 증상이 생기면 어떻게 하나요?',
+      'daeum jillyo jeone sae jeungsangi saenggimyeon eotteoke hanayo',
+      '재진 전 새 증상이 생길 때 대처를 묻는 말',
+      'Keyingi ko‘rikkacha yangi alomat paydo bo‘lsa nima qilaman?',
+      'What should I do if a new symptom appears before my next visit?',
+      'Что делать, если до следующего приёма появится новый симптом?',
+    ],
+    [
+      'need-work-note',
+      '직장에 제출할 진단서가 필요해요.',
+      'jikjange jechulhal jindanseoga piryohaeyo',
+      '직장 제출용 진단서를 요청하는 말',
+      'Ish joyimga topshirish uchun tibbiy ma’lumotnoma kerak',
+      'I need a medical certificate for work.',
+      'Мне нужна справка для работы.',
+    ],
+    [
+      'explain-in-plain-language',
+      '결과를 쉬운 말로 설명해 주실 수 있나요?',
+      'gyeolgwareul swiun mallo seolmyeonghae jusil su innayo',
+      '진료 결과를 쉽게 풀어 달라는 말',
+      'Natijani sodda qilib tushuntira olasizmi?',
+      'Could you explain the results in simpler terms?',
+      'Можете объяснить результаты простыми словами?',
+    ],
+    [
+      'ask-second-opinion',
+      '다른 전문의의 의견도 들어 보고 싶어요.',
+      'dareun jeonmunuiui uigyeondo deureo bogo sipeoyo',
+      '다른 전문의에게도 의견을 듣겠다는 말',
+      'Boshqa mutaxassis fikrini ham eshitmoqchiman',
+      'I would like a second opinion from another specialist.',
+      'Я хочу узнать мнение другого специалиста.',
+    ],
+    [
+      'symptoms-still-there-casual',
+      '치료받았는데 아직도 아파.',
+      'chiryobadanneunde ajikdo apa',
+      '친한 동행인에게 증상이 남았다고 말하기',
+      'Davolandim, lekin hali ham og‘riyapti',
+      'I got treatment, but it still hurts.',
+      'Я прошёл лечение, но всё ещё болит.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+];
 
 export const SPEAKING_AT_HOSPITALS_AND_PHARMACIES_TOPIC =
   buildSpeakingAtHospitalsAndPharmaciesTopic();

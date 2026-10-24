@@ -1,5 +1,400 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineExpressionTopic,
+  expressionDrafts,
+  localized,
+} from '../expression-topic.helpers';
+
+const addedGuideCodes = new Set([
+  'turn-into-alley',
+  'at-end-of-road',
+  'past-parking-lot',
+  'under-overpass',
+  'entrance-moved',
+  'alternate-crosswalk',
+  'follow-signs-instead',
+  'sidewalk-blocked',
+  'turn-back-at-bridge',
+]);
+const addedAsker = localized(
+  '길을 묻는 사람',
+  'Yo‘l so‘rayotgan kishi',
+  'The person asking for directions',
+  'Человек, спрашивающий дорогу',
+);
+const addedGuide = localized(
+  '길을 안내하는 사람',
+  'Yo‘l ko‘rsatayotgan kishi',
+  'The person giving directions',
+  'Человек, объясняющий дорогу',
+);
+const addedDirectionFriend = localized(
+  '친한 동행',
+  'Yaqin hamroh',
+  'A close companion',
+  'Близкий спутник',
+);
+const directionsExtra = (
+  rows: Parameters<typeof expressionDrafts>[0],
+  context: ReturnType<typeof localized>,
+) =>
+  expressionDrafts(rows, {
+    context,
+    speaker: addedAsker,
+    usageNote: localized(
+      '처음 보는 사람에게는 높임말을 쓰고 친한 사람에게만 반말을 써요.',
+      'Notanish odamga muloyim, yaqiningizga norasmiy gapiring.',
+      'Use polite speech with strangers and casual speech only with friends.',
+      'С незнакомыми говорите вежливо, с друзьями можно неформально.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker:
+      draft.speechLevel === ExpressionSpeechLevel.CASUAL
+        ? addedDirectionFriend
+        : addedGuideCodes.has(draft.code)
+          ? addedGuide
+          : addedAsker,
+  }));
+
+const DIRECTION_EXTRAS = [
+  directionsExtra(
+    [
+      [
+        'nearest-subway',
+        '가장 가까운 지하철역이 어디예요?',
+        'gajang gakkaun jihacheolyeogi eodiyeyo',
+        '가장 가까운 지하철역을 찾음',
+        'Eng yaqin metro bekati qayerda?',
+        'Where is the nearest subway station?',
+        'Где ближайшая станция метро?',
+      ],
+      [
+        'bus-stop-route',
+        '버스 정류장까지 가는 길을 알려 주세요.',
+        'beoseu jeongnyujangkkaji ganeun gireul allyeo juseyo',
+        '버스 정류장으로 가는 길을 요청함',
+        'Avtobus bekatiga yo‘lni aytib bering',
+        'Please tell me how to get to the bus stop',
+        'Подскажите дорогу до автобусной остановки',
+      ],
+      [
+        'entrance-there-casual',
+        '입구가 저기야?',
+        'ipguga jeogiya',
+        '친구에게 입구 위치를 확인함',
+        'Kirish joyi anavimi?',
+        'Is the entrance over there?',
+        'Вход там?',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '목적지의 위치를 처음 물을 때',
+      'Manzil qayerdaligini ilk bor so‘raganda',
+      'When first asking where a destination is',
+      'Когда впервые спрашивают, где находится место',
+    ),
+  ),
+  directionsExtra(
+    [
+      [
+        'turn-into-alley',
+        '오른쪽 골목으로 들어가세요.',
+        'oreunjjok golmogeuro deureogaseyo',
+        '오른쪽 골목으로 진입하라고 안내함',
+        'O‘ngdagi ko‘chaga kiring',
+        'Turn into the alley on the right',
+        'Сверните в переулок справа',
+      ],
+      [
+        'at-end-of-road',
+        '길 끝까지 가면 보여요.',
+        'gil kkeutkkaji gamyeon boyeoyo',
+        '길 끝에서 목적지를 볼 수 있음을 안내함',
+        'Yo‘l oxiriga borsangiz ko‘rasiz',
+        'You’ll see it at the end of the road',
+        'Увидите его в конце улицы',
+      ],
+      [
+        'turn-left-there-casual',
+        '저기서 왼쪽으로 꺾어.',
+        'jeogiseo oenjjogeuro kkeokkeo',
+        '친구에게 왼쪽 회전을 안내함',
+        'Anavi joydan chapga buril',
+        'Turn left over there',
+        'Там поверни налево',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '거리에서 방향을 차례로 설명할 때',
+      'Ko‘chada yo‘nalishni ketma-ket tushuntirganda',
+      'When giving step-by-step street directions',
+      'Когда объясняют путь по улицам',
+    ),
+  ),
+  directionsExtra(
+    [
+      [
+        'past-parking-lot',
+        '건물 뒤편 주차장을 지나세요.',
+        'geonmul dwipyeon juchajangeul jinaseyo',
+        '주차장을 지나라고 안내함',
+        'Bino ortidagi avtoturargohdan o‘ting',
+        'Go past the parking lot behind the building',
+        'Пройдите мимо парковки за зданием',
+      ],
+      [
+        'under-overpass',
+        '육교 아래로 내려가세요.',
+        'yukgyo araero naeryeogaseyo',
+        '육교 아래쪽 길을 안내함',
+        'Piyodalar ko‘prigi ostiga tushing',
+        'Go down under the pedestrian bridge',
+        'Спуститесь под пешеходный мост',
+      ],
+      [
+        'red-sign-casual',
+        '빨간 간판 보이면 멈춰.',
+        'ppalgan ganpan boimyeon meomchwo',
+        '친구에게 빨간 간판에서 멈추라고 함',
+        'Qizil peshlavhani ko‘rsang to‘xta',
+        'Stop when you see the red sign',
+        'Остановись, когда увидишь красную вывеску',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '건물과 표지물을 기준으로 길을 안내할 때',
+      'Bino va belgilar orqali yo‘l ko‘rsatganda',
+      'When using buildings and landmarks to give directions',
+      'Когда объясняют путь по зданиям и ориентирам',
+    ),
+  ),
+  directionsExtra(
+    [
+      [
+        'visitor-pass',
+        '방문증은 어디서 받을 수 있나요?',
+        'bangmunjeungeun eodiseo badeul su innayo',
+        '건물 방문증 수령 장소를 물음',
+        'Tashrif ruxsatnomasini qayerdan olaman?',
+        'Where can I get a visitor pass?',
+        'Где можно получить пропуск посетителя?',
+      ],
+      [
+        'accessible-entrance',
+        '휠체어로 들어갈 수 있는 출입구가 있나요?',
+        'hwilcheeoro deureogal su inneun churipguga innayo',
+        '휠체어 접근 가능한 출입구를 찾음',
+        'Nogironlar aravachasi uchun kirish joyi bormi?',
+        'Is there a wheelchair-accessible entrance?',
+        'Есть вход для людей на инвалидной коляске?',
+      ],
+      [
+        'elevator-there-casual',
+        '엘리베이터가 저쪽이래.',
+        'ellibeiteoga jeojjogirae',
+        '친구에게 엘리베이터 위치를 전달함',
+        'Lift ana u tomonda ekan',
+        'They say the elevator is over there',
+        'Говорят, лифт в той стороне',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '건물 안에서 출입구와 시설을 찾을 때',
+      'Bino ichida kirish joyi va qulayliklarni qidirganda',
+      'When locating entrances and facilities inside a building',
+      'При поиске входа и помещений внутри здания',
+    ),
+  ),
+  directionsExtra(
+    [
+      [
+        'sharing-stopped',
+        '위치 공유가 끊겼어요.',
+        'wichi gongyuga kkeun-gyeosseoyo',
+        '공유 위치가 더 이상 업데이트되지 않음',
+        'Joylashuv ulashish to‘xtadi',
+        'The shared location stopped updating',
+        'Геолокация перестала обновляться',
+      ],
+      [
+        'road-under-construction',
+        '이 길이 공사 중이라 돌아가야 해요.',
+        'i giri gongsa jungira doragaya haeyo',
+        '공사로 우회해야 함을 알림',
+        'Bu yo‘l ta’mirda, aylanib o‘tish kerak',
+        'This road is under construction, so we need a detour',
+        'Дорога на ремонте, придётся обойти',
+      ],
+      [
+        'map-differs-casual',
+        '지도랑 실제 길이 달라.',
+        'jidorang silje giri dalla',
+        '친구에게 지도와 실제 길이 다름을 알림',
+        'Xarita bilan haqiqiy yo‘l farq qiladi',
+        'The map doesn’t match the actual road',
+        'Карта не совпадает с настоящей дорогой',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '길을 잃었거나 지도 안내가 틀렸을 때',
+      'Adashganda yoki xarita noto‘g‘ri bo‘lganda',
+      'When lost or when the map is wrong',
+      'Когда заблудились или карта ошибается',
+    ),
+  ),
+  directionsExtra(
+    [
+      [
+        'pedestrian-detour',
+        '보행자는 어느 쪽으로 우회해야 하나요?',
+        'bohaengjaneun eoneu jjogeuro uhoehaeya hanayo',
+        '보행자 우회로를 물음',
+        'Piyodalar qaysi tomondan aylanib o‘tishi kerak?',
+        'Which way should pedestrians detour?',
+        'С какой стороны пешеходам обходить?',
+      ],
+      [
+        'barrier-free-route',
+        '계단 없는 길로 안내해 주실 수 있나요?',
+        'gyedan eomneun gillo annaehae jusil su innayo',
+        '계단 없는 경로를 요청함',
+        'Zinasiz yo‘lni ko‘rsata olasizmi?',
+        'Could you show me a route without stairs?',
+        'Можете показать путь без лестниц?',
+      ],
+      [
+        'entrance-moved',
+        '공사 때문에 출입구가 옮겨졌어요.',
+        'gongsa ttaemune churipguga omgyeojyeosseoyo',
+        '공사로 출입구가 변경됨을 알림',
+        'Ta’mir sabab kirish joyi ko‘chirildi',
+        'The entrance moved because of construction',
+        'Из-за ремонта вход перенесли',
+      ],
+      [
+        'passage-closed',
+        '지하 연결 통로가 지금 닫혀 있나요?',
+        'jiha yeongyeol tongnoga jigeum dacheo innayo',
+        '지하 통로 폐쇄 여부를 확인함',
+        'Yerosti yo‘lagi hozir yopiqmi?',
+        'Is the underground passage closed right now?',
+        'Подземный переход сейчас закрыт?',
+      ],
+      [
+        'alternate-crosswalk',
+        '다음 횡단보도에서 건너시면 됩니다.',
+        'daeum hoengdanbodoeseo geonneosimyeon doemnida',
+        '다음 횡단보도를 이용하도록 안내함',
+        'Keyingi piyodalar o‘tish joyidan o‘ting',
+        'You can cross at the next crosswalk',
+        'Перейдите на следующем пешеходном переходе',
+      ],
+      [
+        'which-side-of-building',
+        '건물 앞쪽이 아니라 뒤쪽 출입구로 가야 하나요?',
+        'geonmul apjjogi anira dwijjok churipguro gaya hanayo',
+        '건물 뒤편 출입구 사용 여부를 확인함',
+        'Oldidan emas, orqa kirishdan borishim kerakmi?',
+        'Should I use the back entrance rather than the front?',
+        'Нужно идти к заднему входу, а не к главному?',
+      ],
+      [
+        'gps-wrong-side',
+        '내비게이션이 건물 반대편으로 안내해요.',
+        'naebigeisyeoni geonmul bandaepyeoneuro annaehaeyo',
+        '내비게이션의 잘못된 도착 위치를 설명함',
+        'Navigator binoning boshqa tomoniga olib boryapti',
+        'The navigation is taking me to the other side of the building',
+        'Навигатор ведёт меня к другой стороне здания',
+      ],
+      [
+        'share-entrance-photo',
+        '입구 사진을 보내 주시면 찾기 쉬울 것 같아요.',
+        'ipgu sajineul bonae jusimyeon chatgi swiul geot gatayo',
+        '입구 사진을 요청함',
+        'Kirish suratini yuborsangiz topishim osonlashadi',
+        'A photo of the entrance would help me find it',
+        'Фото входа поможет мне его найти',
+      ],
+      [
+        'follow-signs-instead',
+        '지도 대신 현장 표지판을 따라가세요.',
+        'jido daesin hyeonjang pyojipaneul ttaragaseyo',
+        '지도보다 현장 표지판을 따르라고 안내함',
+        'Xarita o‘rniga joydagi belgilarga ergashing',
+        'Follow the signs on site instead of the map',
+        'Следуйте указателям на месте, а не карте',
+      ],
+      [
+        'sidewalk-blocked',
+        '인도가 막혀 있어서 맞은편으로 건너야 해요.',
+        'indoga makhyeo isseoseo majeunpyeoneuro geonneoya haeyo',
+        '보도가 막혀 맞은편으로 이동해야 함',
+        'Yo‘lak yopiq, qarshi tomonga o‘tish kerak',
+        'The sidewalk is blocked, so you need to cross over',
+        'Тротуар перекрыт, нужно перейти на другую сторону',
+      ],
+      [
+        'verify-destination-pin',
+        '목적지 핀이 정확한 건물에 찍혀 있나요?',
+        'mokjeokji pini jeonghwakhan geonmure jjikhyeo innayo',
+        '지도 핀의 정확성을 확인함',
+        'Manzil belgisi to‘g‘ri binodami?',
+        'Is the destination pin on the right building?',
+        'Метка назначения стоит на нужном здании?',
+      ],
+      [
+        'turn-back-at-bridge',
+        '다리까지 가셨다면 너무 멀리 가신 거예요.',
+        'darikkaji gasyeottamyeon neomu meolli gasin geoyeyo',
+        '다리를 기준으로 지나쳤음을 알려 줌',
+        'Ko‘prikkacha borgan bo‘lsangiz, o‘tib ketibsiz',
+        'If you reached the bridge, you went too far',
+        'Если дошли до моста, вы зашли слишком далеко',
+      ],
+      [
+        'meet-at-landmark',
+        '길이 복잡하니 정문 앞에서 만날까요?',
+        'giri bokjaphani jeongmun apeseo mannalkkayo',
+        '복잡한 길 대신 정문에서 만나자고 제안함',
+        'Yo‘l chalkash, bosh kirish oldida uchrashamizmi?',
+        'The route is confusing; shall we meet at the main entrance?',
+        'Здесь сложно, встретимся у главного входа?',
+      ],
+      [
+        'route-casual',
+        '큰길로 돌아가면 더 쉬워.',
+        'keun-gillo doragamyeon deo swiwo',
+        '친구에게 큰길 우회 경로를 제안함',
+        'Katta yo‘ldan aylansak osonroq',
+        'It’s easier if we go around by the main road',
+        'Проще обойти по большой дороге',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+      [
+        'confirm-access-hours',
+        '이 출입구는 몇 시까지 열려 있나요?',
+        'i churipguneun myeot sikkaji yeollyeo innayo',
+        '출입구 이용 가능 시간을 물음',
+        'Bu kirish joyi nechagacha ochiq?',
+        'Until what time is this entrance open?',
+        'До скольких открыт этот вход?',
+      ],
+    ],
+    localized(
+      '길이 막히거나 접근 가능한 경로를 다시 찾을 때',
+      'Yo‘l yopilganda yoki qulay yo‘l izlaganda',
+      'When finding an alternate or accessible route',
+      'При поиске обходного или доступного маршрута',
+    ),
+  ),
+] as const;
 
 const PERSON_ASKING = localized(
   '길을 묻는 사람',
@@ -36,6 +431,7 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
     nodes: [
       {
         code: 'asking-where-a-place-is',
+        proficiency: 'beginner',
         title: localized(
           '정중하게 위치 묻기',
           'Joylashuvni muloyimlik bilan so‘rash',
@@ -374,10 +770,12 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
             difficulty: 1,
             tags: ['first-step', 'straight', 'guide-instruction'],
           },
+          ...DIRECTION_EXTRAS[0],
         ],
       },
       {
         code: 'understanding-basic-directions',
+        proficiency: 'beginner',
         title: localized(
           '기본 방향 안내 이해하기',
           'Asosiy yo‘nalishlarni tushunish',
@@ -716,10 +1114,12 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
             difficulty: 2,
             tags: ['corner', 'left-turn', 'guide-instruction'],
           },
+          ...DIRECTION_EXTRAS[1],
         ],
       },
       {
         code: 'confirming-landmarks-distance-and-time',
+        proficiency: 'intermediate',
         title: localized(
           '랜드마크·거리·시간으로 확인하기',
           'Mo‘ljal, masofa va vaqt bilan aniqlash',
@@ -1058,10 +1458,12 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
             difficulty: 2,
             tags: ['sign', 'color', 'guide-instruction'],
           },
+          ...DIRECTION_EXTRAS[2],
         ],
       },
       {
         code: 'following-directions-inside-buildings',
+        proficiency: 'intermediate',
         title: localized(
           '건물 안에서 길 찾기',
           'Bino ichida yo‘l topish',
@@ -1400,10 +1802,12 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
             difficulty: 2,
             tags: ['indoors', 'exit', 'basement'],
           },
+          ...DIRECTION_EXTRAS[3],
         ],
       },
       {
         code: 'recovering-when-lost',
+        proficiency: 'advanced',
         title: localized(
           '길을 놓쳤을 때 해결하기',
           'Adashganda yo‘lni qayta topish',
@@ -1742,7 +2146,26 @@ export const ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC =
             difficulty: 2,
             tags: ['location-sharing', 'map-link', 'guide-offer'],
           },
+          ...DIRECTION_EXTRAS[4],
         ],
+      },
+      {
+        code: 'alternate-and-accessible-routes',
+        proficiency: 'advanced',
+        title: localized(
+          '우회로와 접근 경로 찾기',
+          'Muqobil va qulay yo‘lni topish',
+          'Finding alternate and accessible routes',
+          'Поиск обходного и доступного маршрута',
+        ),
+        description: localized(
+          '공사·폐쇄·접근성 문제를 설명하고 안전한 경로를 다시 찾아요.',
+          'Ta’mir, yopilish va qulaylik muammosini aytib, xavfsiz yo‘l toping.',
+          'Explain closures and access needs, then find a safe route.',
+          'Объясняйте перекрытия и потребности доступа, затем ищите безопасный путь.',
+        ),
+        icon: 'map-outline',
+        expressions: [...DIRECTION_EXTRAS[5]],
       },
     ],
   });

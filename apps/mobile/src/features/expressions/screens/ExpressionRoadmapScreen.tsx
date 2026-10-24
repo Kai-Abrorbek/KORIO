@@ -78,9 +78,7 @@ export default function ExpressionRoadmapScreen() {
   const fullUnits = useMemo(() => viewModel?.units ?? [], [viewModel]);
   const hasLevelTabs = Boolean(
     roadmap?.topics.some(
-      (topic) =>
-        topic.targetLanguage === "en" &&
-        topic.nodes.some((node) => node.proficiency),
+      (topic) => topic.nodes.some((node) => node.proficiency),
     ),
   );
   const units = useMemo(

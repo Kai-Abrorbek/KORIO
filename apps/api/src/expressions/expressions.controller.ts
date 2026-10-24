@@ -169,7 +169,11 @@ export class ExpressionsController {
     @Query() query: ExpressionProficiencyQueryDto,
   ) {
     const scope = resolveCourseScope(query);
-    if (query.proficiency && scope.targetLanguage !== 'en') {
+    if (
+      query.proficiency &&
+      scope.courseId !== 'en-general' &&
+      scope.courseId !== 'ko-general'
+    ) {
       throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
     }
     await this.expressionsService.assertPackScope(packCode, scope);
@@ -195,7 +199,11 @@ export class ExpressionsController {
     @Body() dto: SaveSpeakingProgressDto,
   ) {
     const scope = resolveCourseScope(query);
-    if (query.proficiency && scope.targetLanguage !== 'en') {
+    if (
+      query.proficiency &&
+      scope.courseId !== 'en-general' &&
+      scope.courseId !== 'ko-general'
+    ) {
       throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
     }
     await this.expressionsService.assertPackScope(packCode, scope);

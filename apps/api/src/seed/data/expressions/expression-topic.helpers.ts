@@ -34,6 +34,46 @@ export interface ExpressionDraft {
   ttsText?: string;
 }
 
+export type ExpressionDraftRow = readonly [
+  code: string,
+  korean: string,
+  romanization: string,
+  meaningKo: string,
+  meaningUz: string,
+  meaningEn: string,
+  meaningRu: string,
+  speechLevel?: ExpressionSpeechLevel,
+  speaker?: LocalizedExpressionSeedText,
+];
+
+/** Compact authoring format for complete, localized Korean expression additions. */
+export function expressionDrafts(
+  rows: readonly ExpressionDraftRow[],
+  defaults: Pick<ExpressionDraft, 'context' | 'speaker' | 'usageNote'>,
+): ExpressionDraft[] {
+  return rows.map(
+    ([
+      code,
+      korean,
+      romanization,
+      meaningKo,
+      meaningUz,
+      meaningEn,
+      meaningRu,
+      speechLevel,
+      speaker,
+    ]) => ({
+      code,
+      korean,
+      romanization,
+      meaning: localized(meaningKo, meaningUz, meaningEn, meaningRu),
+      ...defaults,
+      ...(speechLevel ? { speechLevel } : {}),
+      ...(speaker ? { speaker } : {}),
+    }),
+  );
+}
+
 export interface ExpressionNodeDraft {
   /** 주제 code가 자동으로 앞에 붙는 영구 식별자 조각 */
   code: string;
@@ -63,6 +103,43 @@ export interface BuiltExpressionTopic {
   packs: readonly ExpressionPackSeed[];
   nodes: readonly ExpressionNodeSeed[];
   expressions: readonly ExpressionSeedEntry[];
+}
+
+/** Add level groupings while retaining the five existing Korean node codes. */
+export function defineLeveledKoreanTopic(
+  draft: ExpressionTopicDraft & {
+    additions: readonly ExpressionDraft[][];
+    finalNode: Omit<ExpressionNodeDraft, 'expressions' | 'proficiency'>;
+  },
+): BuiltExpressionTopic {
+  const { additions, finalNode, ...topicDraft } = draft;
+  if (draft.nodes.length !== 5 || additions.length !== 6) {
+    throw new Error(
+      `${draft.code} needs five existing nodes and six addition groups`,
+    );
+  }
+  const levels = [
+    ExpressionProficiency.BEGINNER,
+    ExpressionProficiency.BEGINNER,
+    ExpressionProficiency.INTERMEDIATE,
+    ExpressionProficiency.INTERMEDIATE,
+    ExpressionProficiency.ADVANCED,
+  ] as const;
+  return defineExpressionTopic({
+    ...topicDraft,
+    nodes: [
+      ...draft.nodes.map((node, index) => ({
+        ...node,
+        proficiency: levels[index],
+        expressions: [...node.expressions, ...additions[index]],
+      })),
+      {
+        ...finalNode,
+        proficiency: ExpressionProficiency.ADVANCED,
+        expressions: additions[5],
+      },
+    ],
+  });
 }
 
 /**

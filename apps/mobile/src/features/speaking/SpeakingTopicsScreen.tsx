@@ -40,7 +40,7 @@ export default function SpeakingTopicsScreen() {
   const contentLang = useContentLang();
   const learnCourse = useSettingsStore((state) => state.learnCourse);
   const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
-  const proficiency = learnCourse === "en" ? selectedLevel : undefined;
+  const proficiency = selectedLevel;
   const copy = useSpeakingCopy(learnCourse);
   const palette = useSpeakingPalette();
   const { canUse, requirePremium } = useFeatureAccess();
@@ -218,26 +218,24 @@ export default function SpeakingTopicsScreen() {
               ) : null}
             </View>
 
-            {learnCourse === "en" ? (
-              <View style={[styles.levelTabs, { backgroundColor: palette.surface }]} accessibilityRole="tablist">
-                {PROFICIENCY_LEVELS.map((level) => (
-                  <Pressable
-                    key={level}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: selectedLevel === level }}
-                    onPress={() => setSelectedLevel(level)}
-                    style={[
-                      styles.levelTab,
-                      { backgroundColor: selectedLevel === level ? palette.primary : palette.bg },
-                    ]}
-                  >
-                    <Text style={[styles.levelTabText, { color: selectedLevel === level ? "#FFFFFF" : palette.muted }]}>
-                      {t(`voiceTutor.level.${level}`)}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            ) : null}
+            <View style={[styles.levelTabs, { backgroundColor: palette.surface }]} accessibilityRole="tablist">
+              {PROFICIENCY_LEVELS.map((level) => (
+                <Pressable
+                  key={level}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: selectedLevel === level }}
+                  onPress={() => setSelectedLevel(level)}
+                  style={[
+                    styles.levelTab,
+                    { backgroundColor: selectedLevel === level ? palette.primary : palette.bg },
+                  ]}
+                >
+                  <Text style={[styles.levelTabText, { color: selectedLevel === level ? "#FFFFFF" : palette.muted }]}>
+                    {t(`voiceTutor.level.${level}`)}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
 
             {featured && phase === "ready" ? (
               <Pressable

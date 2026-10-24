@@ -516,7 +516,11 @@ export class ExpressionsService {
     proficiency: ExpressionScopeQueryDto['proficiency'],
     scope: CourseScope,
   ) {
-    if (proficiency && scope.targetLanguage !== 'en') {
+    if (
+      proficiency &&
+      scope.courseId !== 'en-general' &&
+      scope.courseId !== 'ko-general'
+    ) {
       throw new BadRequestException('EXPRESSION_PROFICIENCY_UNAVAILABLE');
     }
   }

@@ -1,5 +1,394 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineExpressionTopic,
+  expressionDrafts,
+  localized,
+} from '../expression-topic.helpers';
+
+const addedStoreStaffCodes = new Set([
+  'new-item-from-back',
+  'refund-processing-days',
+  'hold-item',
+]);
+const addedStoreCustomer = localized(
+  '손님',
+  'Mijoz',
+  'The customer',
+  'Покупатель',
+);
+const addedStoreStaff = localized(
+  '편의점 직원',
+  'Do‘kon xodimi',
+  'The store clerk',
+  'Сотрудник магазина',
+);
+const addedStoreFriend = localized(
+  '친한 동행',
+  'Yaqin hamroh',
+  'A close companion',
+  'Близкий спутник',
+);
+const convenienceExtra = (
+  rows: Parameters<typeof expressionDrafts>[0],
+  context: ReturnType<typeof localized>,
+) =>
+  expressionDrafts(rows, {
+    context,
+    speaker: addedStoreCustomer,
+    usageNote: localized(
+      '친한 사람에게는 반말을, 직원이나 손님에게는 높임말을 써요.',
+      'Yaqin odamga norasmiy, xodim yoki mijozga muloyim shaklda gapiring.',
+      'Use casual speech with a close friend and polite speech with staff or customers.',
+      'С близкими говорите неформально, с сотрудниками и клиентами вежливо.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker:
+      draft.speechLevel === ExpressionSpeechLevel.CASUAL
+        ? addedStoreFriend
+        : addedStoreStaffCodes.has(draft.code)
+          ? addedStoreStaff
+          : addedStoreCustomer,
+  }));
+
+const STORE_EXTRAS = [
+  convenienceExtra(
+    [
+      [
+        'cold-water',
+        '차가운 물은 어디에 있어요?',
+        'chagaun mureun eodie isseoyo',
+        '차가운 생수 위치를 물음',
+        'Sovuq suv qayerda?',
+        'Where is the cold water?',
+        'Где холодная вода?',
+      ],
+      [
+        'stock-tomorrow',
+        '이 상품은 내일 다시 들어오나요?',
+        'i sangpumeun naeil dasi deureoonayo',
+        '재입고 시점을 확인함',
+        'Bu mahsulot ertaga keladimi?',
+        'Will this item be restocked tomorrow?',
+        'Этот товар привезут завтра?',
+      ],
+      [
+        'found-it-casual',
+        '찾았다, 이거야.',
+        'chajatta igeoya',
+        '친구에게 찾던 물건을 발견했다고 알림',
+        'Topdim, shu ekan',
+        'Found it, this is the one',
+        'Нашёл, вот оно',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '편의점에서 상품이나 재고를 찾을 때',
+      'Do‘konda mahsulot yoki zaxirani qidirganda',
+      'When looking for a product or stock',
+      'При поиске товара или проверке наличия',
+    ),
+  ),
+  convenienceExtra(
+    [
+      [
+        'price-tag-missing',
+        '가격표가 안 보이는데 얼마예요?',
+        'gagyeokpyoga an boineunde eolmayeyo',
+        '가격표 없는 상품의 가격을 물음',
+        'Narx yorlig‘i yo‘q, qancha turadi?',
+        'I can’t see a price tag. How much is it?',
+        'Не вижу ценник. Сколько это стоит?',
+      ],
+      [
+        'discount-ended',
+        '이 할인은 언제까지예요?',
+        'i harineun eonjjekkajiyeyo',
+        '할인 종료 시점을 확인함',
+        'Bu chegirma qachongacha?',
+        'When does this discount end?',
+        'До какого дня действует скидка?',
+      ],
+      [
+        'buy-three-casual',
+        '세 개 사면 하나 공짜래.',
+        'se gae samyeon hana gongjja-rae',
+        '친구에게 행사 조건을 알려 줌',
+        'Uchta olsak, bittasi bepul ekan',
+        'They say one is free if we buy three',
+        'Говорят, если взять три, одно бесплатно',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '가격과 할인 조건을 확인할 때',
+      'Narx va aksiya shartlarini tekshirganda',
+      'When checking prices and promotions',
+      'При проверке цен и акций',
+    ),
+  ),
+  convenienceExtra(
+    [
+      [
+        'open-before-heating',
+        '포장을 뜯고 데워야 하나요?',
+        'pojang-eul tteutgo dewoya hanayo',
+        '데우기 전 포장을 뜯어야 하는지 물음',
+        'Isitishdan oldin qadoqni ochish kerakmi?',
+        'Should I open the package before heating it?',
+        'Нужно вскрыть упаковку перед разогревом?',
+      ],
+      [
+        'ice-separate',
+        '얼음컵은 따로 담아 주세요.',
+        'eoreumkeobeun ttaro dama juseyo',
+        '얼음컵을 다른 상품과 분리해 달라고 요청함',
+        'Muzli stakanni alohida soling',
+        'Please bag the ice cup separately',
+        'Положите стакан со льдом отдельно',
+      ],
+      [
+        'grab-spoons-casual',
+        '수저는 내가 챙길게.',
+        'sujeoneun naega chaenggilge',
+        '친구에게 수저를 챙기겠다고 말함',
+        'Qoshiqni men olaman',
+        'I’ll grab the utensils',
+        'Приборы возьму я',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '음식을 데우고 물건을 담을 때',
+      'Taomni isitib, narsalarni qadoqlaganda',
+      'When heating food and packing items',
+      'При разогреве еды и упаковке товаров',
+    ),
+  ),
+  convenienceExtra(
+    [
+      [
+        'coupon-not-scanning',
+        '쿠폰 바코드가 인식되지 않아요.',
+        'kupon bakodeuga insikdoeji anayo',
+        '쿠폰 스캔 오류를 알림',
+        'Kupon shtrix kodi o‘qilmayapti',
+        'The coupon barcode is not scanning',
+        'Штрихкод купона не считывается',
+      ],
+      [
+        'combine-discounts',
+        '쿠폰과 멤버십 할인을 함께 쓸 수 있나요?',
+        'kupon-gwa membeosip harineul hamkke sseul su innayo',
+        '할인 중복 적용 가능 여부를 물음',
+        'Kupon va a’zolik chegirmasini birga ishlatsam bo‘ladimi?',
+        'Can I combine the coupon with the membership discount?',
+        'Можно совместить купон и скидку по программе лояльности?',
+      ],
+      [
+        'my-points-casual',
+        '내 포인트 얼마나 남았지?',
+        'nae pointeu eolmana namatji',
+        '친구에게 남은 포인트를 궁금해함',
+        'Menda qancha ball qoldi ekan?',
+        'How many points do I have left?',
+        'Сколько у меня осталось баллов?',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '멤버십과 쿠폰을 적용할 때',
+      'A’zolik va kuponni qo‘llaganda',
+      'When using membership points and coupons',
+      'При использовании баллов и купонов',
+    ),
+  ),
+  convenienceExtra(
+    [
+      [
+        'split-payment',
+        '일부는 카드로, 나머지는 현금으로 낼 수 있나요?',
+        'ilbuneun kadeuro nameojineun hyeongeumeuro nael su innayo',
+        '두 결제 수단으로 나누어 내는지 물음',
+        'Bir qismini karta, qolganini naqd to‘lasam bo‘ladimi?',
+        'Can I pay part by card and the rest in cash?',
+        'Можно часть оплатить картой, остальное наличными?',
+      ],
+      [
+        'payment-reversed',
+        '방금 결제한 내역이 취소됐나요?',
+        'banggeum gyeoljehan naeyeogi chwisodwaennayo',
+        '방금 결제의 취소 여부를 확인함',
+        'Hozirgi to‘lov bekor bo‘ldimi?',
+        'Was the payment I just made canceled?',
+        'Платёж, который я только что сделал, отменён?',
+      ],
+      [
+        'card-odd-casual',
+        '내 카드가 왜 안 되지?',
+        'nae kadeuga wae an doeji',
+        '친구에게 카드 결제 오류를 말함',
+        'Kartam nega ishlamayapti?',
+        'Why isn’t my card working?',
+        'Почему моя карта не работает?',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '여러 결제 수단과 오류를 처리할 때',
+      'Turli to‘lov usullari va xatolarni hal qilganda',
+      'When handling payment methods and errors',
+      'При выборе способа оплаты и решении ошибок',
+    ),
+  ),
+  convenienceExtra(
+    [
+      [
+        'wrong-price',
+        '진열대 가격과 계산된 금액이 달라요.',
+        'jinyeoldae gagyeokgwa gyesandoen geumaegi dallayo',
+        '표시 가격과 실제 결제액 차이를 알림',
+        'Rafdagi narx bilan chekdagi summa boshqa',
+        'The shelf price differs from the amount charged',
+        'Цена на полке отличается от суммы в чеке',
+      ],
+      [
+        'damaged-package',
+        '포장이 찢어져 있어서 교환하고 싶어요.',
+        'pojangi jjijeojyeo isseoseo gyohwanhago sipeoyo',
+        '손상된 포장 제품의 교환을 요청함',
+        'Qadoq yirtilgan, almashtirmoqchiman',
+        'The package is torn, so I’d like an exchange',
+        'Упаковка порвана, я хочу обменять товар',
+      ],
+      [
+        'expired-product',
+        '유통기한이 지난 상품을 산 것 같아요.',
+        'yutonggihani jinan sangpumeul san geot gatayo',
+        '기한 지난 상품 구매를 알림',
+        'Muddati o‘tgan mahsulot olganga o‘xshayman',
+        'I think I bought an expired product',
+        'Кажется, я купил просроченный товар',
+      ],
+      [
+        'exchange-without-receipt',
+        '영수증이 없어도 교환할 수 있나요?',
+        'yeongsujeungi eopseodo gyohwanhal su innayo',
+        '영수증 없이 교환 가능한지 물음',
+        'Cheksiz ham almashtirish mumkinmi?',
+        'Can I exchange it without a receipt?',
+        'Можно обменять без чека?',
+      ],
+      [
+        'refund-to-card',
+        '환불은 원래 카드로 들어오나요?',
+        'hwanbureun wollae kadeuro deureoonayo',
+        '환불 입금 수단을 확인함',
+        'Pul avvalgi kartamga qaytadimi?',
+        'Will the refund go back to my original card?',
+        'Возврат придёт на прежнюю карту?',
+      ],
+      [
+        'return-deadline',
+        '구매 후 며칠 안에 반품해야 하나요?',
+        'gumae hu myeochil ane banpumhaeya hanayo',
+        '반품 기한을 물음',
+        'Xariddan keyin necha kun ichida qaytarishim kerak?',
+        'How many days do I have to return it?',
+        'Через сколько дней после покупки можно вернуть товар?',
+      ],
+      [
+        'opened-food-return',
+        '개봉한 식품도 반품이 가능한가요?',
+        'gaebonghan sikpumdo banpumi ganeunghan-gayo',
+        '개봉 식품 반품 가능 여부를 물음',
+        'Ochilgan oziq-ovqatni ham qaytarish mumkinmi?',
+        'Can opened food be returned?',
+        'Можно вернуть вскрытый продукт?',
+      ],
+      [
+        'check-purchase-record',
+        '결제 내역으로 구매 기록을 확인해 주세요.',
+        'gyeolje naeyeogeuro gumae girogeul hwaginhae juseyo',
+        '결제 내역으로 구매를 확인해 달라고 요청함',
+        'To‘lov tarixidan xaridni tekshirib bering',
+        'Please verify the purchase from my payment history',
+        'Проверьте покупку по истории платежей',
+      ],
+      [
+        'need-supervisor',
+        '반품 규정을 확인할 담당자가 있나요?',
+        'banpum gyujeongeul hwaginhal damdangjaga innayo',
+        '반품 규정 담당자를 찾음',
+        'Qaytarish qoidalarini tekshiradigan mas’ul bormi?',
+        'Is there someone who can confirm the return policy?',
+        'Есть сотрудник, который уточнит правила возврата?',
+      ],
+      [
+        'new-item-from-back',
+        '같은 상품을 새 재고에서 가져다드릴게요.',
+        'gateun sangpumeul sae jaegoeseo gajyeodadeurilgeyo',
+        '직원이 교환할 새 상품을 가져옴',
+        'Xuddi shu mahsulotning yangisini olib kelaman',
+        'I’ll get a new one of the same item from stock',
+        'Я принесу новый такой же товар со склада',
+      ],
+      [
+        'refund-processing-days',
+        '환불 처리에 영업일 기준 사흘 정도 걸립니다.',
+        'hwanbul cheorie yeongeobil gijun saheul jeongdo geollimnida',
+        '환불 처리 예상 기간을 안내함',
+        'Qaytarish taxminan uch ish kuni davom etadi',
+        'The refund takes about three business days',
+        'Возврат займёт около трёх рабочих дней',
+      ],
+      [
+        'receipt-photo',
+        '영수증 사진을 보여 드려도 되나요?',
+        'yeongsujeung sajineul boyeo deuryeodo doenayo',
+        '영수증 사진 사용 가능 여부를 물음',
+        'Chek suratini ko‘rsatsam bo‘ladimi?',
+        'Can I show you a photo of the receipt?',
+        'Можно показать фотографию чека?',
+      ],
+      [
+        'already-opened-casual',
+        '이거 이미 열려 있었어.',
+        'igeo imi yeollyeo isseosseo',
+        '친구에게 제품이 이미 열려 있었다고 알림',
+        'Bu allaqachon ochiq edi',
+        'This was already open',
+        'Это уже было открыто',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+      [
+        'hold-item',
+        '교환 상품을 확인하는 동안 잠시 기다려 주세요.',
+        'gyohwan sangpumeul hwaginhaneun dongan jamsi gidaryeo juseyo',
+        '교환 제품 확인 중 대기를 요청함',
+        'Almashtiriladigan mahsulotni tekshirguncha kuting',
+        'Please wait while I check the replacement item',
+        'Подождите, пока я проверю товар для обмена',
+      ],
+      [
+        'case-number',
+        '처리 번호를 적어 주실 수 있나요?',
+        'cheori beonhoreul jeogeo jusil su innayo',
+        '문의 처리 번호를 요청함',
+        'Murojaat raqamini yozib bera olasizmi?',
+        'Could you write down the case number?',
+        'Можете записать номер обращения?',
+      ],
+    ],
+    localized(
+      '교환·반품과 결제 후 문제를 해결할 때',
+      'Almashtirish, qaytarish va to‘lovdan keyingi muammoni hal qilganda',
+      'When resolving exchanges, returns, and after-payment issues',
+      'При обмене, возврате и решении проблем после оплаты',
+    ),
+  ),
+] as const;
 
 const CUSTOMER = localized('손님', 'Mijoz', 'The customer', 'Покупатель');
 
@@ -30,6 +419,7 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
   nodes: [
     {
       code: 'finding-products-and-stock',
+      proficiency: 'beginner',
       title: localized(
         '상품 위치와 재고 찾기',
         'Mahsulot joyi va zaxirasini topish',
@@ -368,10 +758,12 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
           difficulty: 1,
           tags: ['stock', 'quantity', 'customer-request'],
         },
+        ...STORE_EXTRAS[0],
       ],
     },
     {
       code: 'checking-promotions-and-prices',
+      proficiency: 'beginner',
       title: localized(
         '행사·수량·가격 확인하기',
         'Aksiya, miqdor va narxni tekshirish',
@@ -710,10 +1102,12 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['price', 'tax', 'staff-answer'],
         },
+        ...STORE_EXTRAS[1],
       ],
     },
     {
       code: 'preparing-items-before-payment',
+      proficiency: 'intermediate',
       title: localized(
         '데우기와 포장 요청하기',
         'Isitish va qadoqlashni so‘rash',
@@ -1052,10 +1446,12 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['packaging', 'separate-bags', 'staff-response'],
         },
+        ...STORE_EXTRAS[2],
       ],
     },
     {
       code: 'membership-discounts-and-cash-receipt',
+      proficiency: 'intermediate',
       title: localized(
         '멤버십·할인·현금영수증 처리하기',
         'A’zolik, chegirma va naqd pul chekini rasmiylashtirish',
@@ -1394,10 +1790,12 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
           difficulty: 3,
           tags: ['cash-receipt', 'income-deduction', 'customer-answer'],
         },
+        ...STORE_EXTRAS[3],
       ],
     },
     {
       code: 'payment-methods-and-errors',
+      proficiency: 'advanced',
       title: localized(
         '결제하고 오류 해결하기',
         'To‘lash va xatolarni hal qilish',
@@ -1736,7 +2134,26 @@ export const PAYING_AT_CONVENIENCE_STORES_TOPIC = defineExpressionTopic({
           difficulty: 3,
           tags: ['payment-error', 'split-payment', 'cash-payment'],
         },
+        ...STORE_EXTRAS[4],
       ],
+    },
+    {
+      code: 'returns-and-follow-up',
+      proficiency: 'advanced',
+      title: localized(
+        '교환·반품 문제 해결하기',
+        'Almashtirish va qaytarishni hal qilish',
+        'Resolving returns and exchanges',
+        'Решение вопросов обмена и возврата',
+      ),
+      description: localized(
+        '가격 오류와 제품 문제를 알리고 교환·환불 절차를 확인해요.',
+        'Narx va mahsulot muammosini aytib, almashtirish yoki pul qaytarishni tekshiring.',
+        'Report price or product problems and confirm exchange or refund steps.',
+        'Сообщайте об ошибках цены и товара, уточняйте обмен и возврат.',
+      ),
+      icon: 'receipt-outline',
+      expressions: [...STORE_EXTRAS[5]],
     },
   ],
 });

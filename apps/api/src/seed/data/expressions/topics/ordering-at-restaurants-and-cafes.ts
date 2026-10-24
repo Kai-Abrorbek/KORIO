@@ -1,5 +1,390 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineExpressionTopic,
+  expressionDrafts,
+  localized,
+} from '../expression-topic.helpers';
+
+const addedStaffCodes = new Set([
+  'check-order-record',
+  'waive-extra-charge',
+  'apologize-inconvenience',
+  'replace-dish-now',
+  'keep-receipt',
+]);
+const addedCustomer = localized('손님', 'Mijoz', 'The customer', 'Клиент');
+const addedStaff = localized(
+  '식당·카페 직원',
+  'Restoran yoki kafe xodimi',
+  'Restaurant or cafe staff',
+  'Сотрудник ресторана или кафе',
+);
+const addedFriend = localized(
+  '친한 동행',
+  'Yaqin hamroh',
+  'A close companion',
+  'Близкий спутник',
+);
+const extra = (
+  rows: Parameters<typeof expressionDrafts>[0],
+  context: ReturnType<typeof localized>,
+) =>
+  expressionDrafts(rows, {
+    context,
+    speaker: addedCustomer,
+    usageNote: localized(
+      '상대방과 상황에 맞는 높임말을 골라 사용해요.',
+      'Vaziyat va suhbatdoshga mos muomala shaklini tanlang.',
+      'Choose the speech level that fits the person and situation.',
+      'Выбирайте форму речи по ситуации и собеседнику.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker:
+      draft.speechLevel === ExpressionSpeechLevel.CASUAL
+        ? addedFriend
+        : addedStaffCodes.has(draft.code)
+          ? addedStaff
+          : addedCustomer,
+  }));
+
+const REST_EXTRAS = [
+  extra(
+    [
+      [
+        'reservation-early',
+        '예약 시간보다 일찍 왔어요.',
+        'yeyak siganboda iljjik wasseoyo',
+        '예약보다 일찍 도착했음을 알림',
+        'Bron vaqtidan oldin kelganini aytish',
+        'I arrived before my reservation time',
+        'Я пришёл раньше времени брони',
+      ],
+      [
+        'high-chair',
+        '유아용 의자가 있나요?',
+        'yuayong uijaga innayo',
+        '아기 의자를 요청함',
+        'Bolalar stuli bormi?',
+        'Do you have a high chair?',
+        'У вас есть детский стульчик?',
+      ],
+      [
+        'sit-here-casual',
+        '여기 앉자.',
+        'yeogi anja',
+        '일행에게 이 자리에 앉자고 제안함',
+        'Shu yerga o‘tiraylik',
+        'Let’s sit here',
+        'Давай сядем здесь',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '식당에 들어와 자리를 정할 때',
+      'Restoranga kirib joy tanlaganda',
+      'When entering and choosing a table',
+      'При входе и выборе столика',
+    ),
+  ),
+  extra(
+    [
+      [
+        'smaller-portion',
+        '양을 조금 줄일 수 있나요?',
+        'yangeul jogeum juril su innayo',
+        '음식 양을 줄일 수 있는지 물음',
+        'Porsiyani kichraytirish mumkinmi?',
+        'Could you make the portion smaller?',
+        'Можно уменьшить порцию?',
+      ],
+      [
+        'sauce-separately',
+        '소스는 따로 주세요.',
+        'soseuneun ttaro juseyo',
+        '소스를 별도로 요청함',
+        'Sousni alohida bering',
+        'Please serve the sauce separately',
+        'Подайте соус отдельно',
+      ],
+      [
+        'share-dessert-casual',
+        '디저트 하나 나눠 먹자.',
+        'dijeoteu hana nanwo meokja',
+        '친구와 디저트를 나눠 먹자고 제안함',
+        'Bitta desertni bo‘lishib yeylik',
+        'Let’s share a dessert',
+        'Давай разделим один десерт',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '메뉴와 선택 사항을 고를 때',
+      'Menyu va qo‘shimcha tanlovlarni belgilaganda',
+      'When choosing menu items and options',
+      'При выборе блюд и дополнений',
+    ),
+  ),
+  extra(
+    [
+      [
+        'drinks-first',
+        '음료부터 먼저 주문할게요.',
+        'eumnyobuteo meonjeo jumunhalgeyo',
+        '음료를 먼저 주문함',
+        'Avval ichimlik buyurtma qilaman',
+        'I’ll order drinks first',
+        'Сначала закажу напитки',
+      ],
+      [
+        'serve-together',
+        '음식은 함께 나와도 괜찮아요.',
+        'eumsigeun hamkke nawado gwaenchanayo',
+        '요리를 한꺼번에 내도 된다고 알림',
+        'Taomlarni birga olib kelsangiz bo‘ladi',
+        'It’s fine to bring the dishes together',
+        'Можно подать блюда одновременно',
+      ],
+      [
+        'confirm-number-of-dishes',
+        '주문한 음식이 모두 세 가지 맞나요?',
+        'jumunhan eumsigi modu se gaji mannayo',
+        '주문한 메뉴 수를 확인함',
+        'Buyurtma qilingan taomlar jami uchtami?',
+        'Did I order three dishes in total?',
+        'Я заказал всего три блюда?',
+      ],
+    ],
+    localized(
+      '주문 내용을 확정하거나 확인할 때',
+      'Buyurtmani tasdiqlaganda yoki tekshirganda',
+      'When placing or checking an order',
+      'При оформлении и проверке заказа',
+    ),
+  ),
+  extra(
+    [
+      [
+        'shellfish-allergy',
+        '조개류 알레르기가 있어요.',
+        'jogaeryu allereugiga isseoyo',
+        '조개류 알레르기를 알림',
+        'Menda mollyuskalarga allergiya bor',
+        'I have a shellfish allergy',
+        'У меня аллергия на моллюсков',
+      ],
+      [
+        'separate-utensils',
+        '조리 도구를 따로 사용해 주실 수 있나요?',
+        'jori dogureul ttaro sayonghae jusil su innayo',
+        '교차 접촉을 피하려고 별도 도구를 요청함',
+        'Alohida oshxona anjomlaridan foydalana olasizmi?',
+        'Could you use separate cooking utensils?',
+        'Можете использовать отдельные приборы для готовки?',
+      ],
+      [
+        'cant-eat-this-casual',
+        '난 이 재료 못 먹어.',
+        'nan i jaeryo mot meogeo',
+        '친구에게 먹지 못하는 재료를 알림',
+        'Men bu mahsulotni yeya olmayman',
+        'I can’t eat this ingredient',
+        'Я не могу есть этот ингредиент',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '알레르기와 식단 제한을 전달할 때',
+      'Allergiya yoki parhez cheklovini aytganda',
+      'When explaining allergies or dietary needs',
+      'Когда сообщают об аллергии или ограничениях в питании',
+    ),
+  ),
+  extra(
+    [
+      [
+        'split-by-dish',
+        '메뉴별로 나눠서 계산할 수 있나요?',
+        'menyubyeollo nanwoseo gyesanhal su innayo',
+        '메뉴마다 따로 결제할 수 있는지 물음',
+        'Har taom uchun alohida to‘lasak bo‘ladimi?',
+        'Can we pay separately for each dish?',
+        'Можно оплатить каждое блюдо отдельно?',
+      ],
+      [
+        'receipt-email',
+        '영수증을 이메일로 받을 수 있나요?',
+        'yeongsujeungeul imeillo badeul su innayo',
+        '전자 영수증을 요청함',
+        'Chekni elektron pochtaga olsam bo‘ladimi?',
+        'Can I get the receipt by email?',
+        'Можно получить чек по электронной почте?',
+      ],
+      [
+        'bill-odd-casual',
+        '계산이 좀 이상한데?',
+        'gyesani jom isanghande',
+        '친구에게 계산 금액이 이상하다고 말함',
+        'Hisob biroz g‘alati ko‘rinyapti',
+        'The bill looks a bit off',
+        'Счёт какой-то странный',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '식사를 마치고 결제할 때',
+      'Ovqatdan so‘ng to‘lov qilganda',
+      'When paying after the meal',
+      'При оплате после еды',
+    ),
+  ),
+  extra(
+    [
+      [
+        'unchosen-item-on-bill',
+        '계산서에 주문하지 않은 메뉴가 포함됐어요.',
+        'gyesanseoe jumunhaji aneun menyuga poham dwaesseoyo',
+        '계산서의 잘못된 항목을 알림',
+        'Hisobda buyurtma qilmagan taom bor',
+        'The bill includes a dish I did not order',
+        'В счёте есть блюдо, которое я не заказывал',
+      ],
+      [
+        'double-charge',
+        '같은 금액이 두 번 결제된 것 같아요.',
+        'gateun geumaegi du beon gyeoljedoen geot gatayo',
+        '중복 결제 가능성을 알림',
+        'Bir summa ikki marta yechilganga o‘xshaydi',
+        'It looks like I was charged twice',
+        'Похоже, сумму списали дважды',
+      ],
+      [
+        'cold-food',
+        '음식이 식어서 다시 데워 주실 수 있나요?',
+        'eumsigi sigeoseo dasi dewo jusil su innayo',
+        '식은 음식의 재가열을 요청함',
+        'Taom sovib qolgan, qayta isitib bera olasizmi?',
+        'Could you reheat the food? It has gone cold',
+        'Еда остыла, можете её разогреть?',
+      ],
+      [
+        'check-doneness',
+        '고기가 충분히 익었는지 확인해 주시겠어요?',
+        'gogiga chungbunhi igeonneunji hwaginhae jusigesseoyo',
+        '고기 조리 상태 확인을 요청함',
+        'Go‘sht yetarlicha pishganini tekshira olasizmi?',
+        'Could you check whether the meat is fully cooked?',
+        'Можете проверить, достаточно ли прожарено мясо?',
+      ],
+      [
+        'allergy-note-missing',
+        '알레르기 요청이 주문서에 빠진 것 같아요.',
+        'allereugi yocheongi jumunseoe ppajin geot gatayo',
+        '알레르기 요청 누락을 알림',
+        'Allergiya haqidagi iltimos buyurtmada yo‘q',
+        'My allergy request seems to be missing from the order',
+        'Кажется, просьбу об аллергии не внесли в заказ',
+      ],
+      [
+        'wait-longer-than-quoted',
+        '안내받은 시간보다 더 오래 기다렸어요.',
+        'annaebadeun siganboda deo orae gidaryeosseoyo',
+        '예상 대기 시간을 넘겼음을 알림',
+        'Aytilgan vaqtdan ko‘proq kutdim',
+        'I waited longer than I was told',
+        'Я ждал дольше, чем мне сказали',
+      ],
+      [
+        'ask-manager',
+        '책임자와 이야기할 수 있을까요?',
+        'chaegimjawa iyagihal su isseulkkayo',
+        '책임자와 대화를 요청함',
+        'Mas’ul xodim bilan gaplasha olamanmi?',
+        'Could I speak with the manager?',
+        'Можно поговорить с ответственным?',
+      ],
+      [
+        'check-order-record',
+        '주문 내역을 다시 확인해 보겠습니다.',
+        'jumun naeyeogeul dasi hwaginhae bogesseumnida',
+        '직원이 주문 기록을 재확인함',
+        'Buyurtma tarixini qayta tekshiraman',
+        'I’ll check the order record again',
+        'Я ещё раз проверю запись заказа',
+      ],
+      [
+        'refund-process',
+        '환불 절차가 어떻게 되나요?',
+        'hwanbul jeol-chaga eotteoke doenayo',
+        '환불 방법을 문의함',
+        'Pulni qaytarish tartibi qanday?',
+        'What is the refund process?',
+        'Как оформить возврат денег?',
+      ],
+      [
+        'refund-timeline',
+        '결제 취소가 반영되기까지 얼마나 걸리나요?',
+        'gyeolje chwisoga banyeongdoegikkaji eolmana geollinayo',
+        '결제 취소 처리 시간을 물음',
+        'Bekor qilingan to‘lov qachon aks etadi?',
+        'How long until the canceled payment shows up?',
+        'Когда отразится отмена платежа?',
+      ],
+      [
+        'waive-extra-charge',
+        '추가 요금은 청구하지 않겠습니다.',
+        'chuga yogeumeun cheongguhaji angetseumnida',
+        '추가 비용을 받지 않겠다고 알림',
+        'Qo‘shimcha haq olmaymiz',
+        'We will not charge an additional fee',
+        'Дополнительную плату взимать не будем',
+      ],
+      [
+        'apologize-inconvenience',
+        '불편을 드려 정말 죄송합니다.',
+        'bulpyeoneul deuryeo jeongmal joesonghamnida',
+        '직원이 불편에 대해 사과함',
+        'Noqulaylik uchun chin dildan uzr so‘raymiz',
+        'We sincerely apologize for the inconvenience',
+        'Искренне извиняемся за неудобство',
+      ],
+      [
+        'replace-dish-now',
+        '새 음식으로 바로 다시 준비해 드리겠습니다.',
+        'sae eumsigeuro baro dasi junbihae deurigetseumnida',
+        '직원이 음식을 새로 준비하겠다고 약속함',
+        'Hozir yangi taom tayyorlab beramiz',
+        'We’ll prepare a fresh dish right away',
+        'Мы сразу приготовим новое блюдо',
+      ],
+      [
+        'keep-receipt',
+        '처리가 끝날 때까지 영수증을 보관해 주세요.',
+        'cheoriga kkeunnal ttaekkaji yeongsujeungeul bogwanhae juseyo',
+        '문제 해결 전 영수증 보관을 안내함',
+        'Jarayon tugaguncha chekni saqlang',
+        'Please keep the receipt until this is resolved',
+        'Сохраните чек до завершения вопроса',
+      ],
+      [
+        'discuss-later-casual',
+        '집에 가서 영수증 다시 보자.',
+        'jibe gaseo yeongsujeung dasi boja',
+        '친구와 나중에 영수증을 확인하기로 함',
+        'Uyga borib chekni qayta ko‘raylik',
+        'Let’s check the receipt again at home',
+        'Давай дома ещё раз посмотрим чек',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '식사나 결제 문제를 확인하고 해결할 때',
+      'Taom yoki to‘lov muammosini hal qilganda',
+      'When resolving a food or payment problem',
+      'При решении проблемы с блюдом или оплатой',
+    ),
+  ),
+] as const;
 
 const CUSTOMER = localized('손님', 'Mijoz', 'The customer', 'Клиент');
 
@@ -30,6 +415,7 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
   nodes: [
     {
       code: 'arrival-and-seating',
+      proficiency: 'beginner',
       title: localized(
         '입장하고 자리 안내받기',
         'Kirish va joyga o‘tirish',
@@ -368,10 +754,12 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
           difficulty: 1,
           tags: ['arrival', 'menu', 'staff-response'],
         },
+        ...REST_EXTRAS[0],
       ],
     },
     {
       code: 'choosing-menu-and-options',
+      proficiency: 'beginner',
       title: localized(
         '메뉴와 옵션 고르기',
         'Menyu va variantlarni tanlash',
@@ -710,10 +1098,12 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['restaurant', 'spice-level', 'option-question'],
         },
+        ...REST_EXTRAS[1],
       ],
     },
     {
       code: 'placing-and-confirming-order',
+      proficiency: 'intermediate',
       title: localized(
         '주문하고 확인·변경하기',
         'Buyurtma berish, tekshirish va o‘zgartirish',
@@ -1052,10 +1442,12 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
           difficulty: 3,
           tags: ['ordering', 'change-order', 'staff-response'],
         },
+        ...REST_EXTRAS[2],
       ],
     },
     {
       code: 'allergies-and-special-needs',
+      proficiency: 'intermediate',
       title: localized(
         '알레르기와 요청 사항 전달하기',
         'Allergiya va maxsus talablarni aytish',
@@ -1395,10 +1787,12 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['wait-time', 'delay-resolution', 'staff-response'],
         },
+        ...REST_EXTRAS[3],
       ],
     },
     {
       code: 'serving-and-payment',
+      proficiency: 'advanced',
       title: localized(
         '음식 받고 결제하기',
         'Buyurtmani olish va to‘lash',
@@ -1737,7 +2131,26 @@ export const ORDERING_AT_RESTAURANTS_AND_CAFES_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['payment', 'receipt', 'error-resolution'],
         },
+        ...REST_EXTRAS[4],
       ],
+    },
+    {
+      code: 'resolving-service-problems',
+      proficiency: 'advanced',
+      title: localized(
+        '불편 사항 해결하기',
+        'Xizmat muammolarini hal qilish',
+        'Resolving service problems',
+        'Решение проблем с обслуживанием',
+      ),
+      description: localized(
+        '음식과 결제 문제를 구체적으로 알리고 해결 방법을 확인해요.',
+        'Taom va to‘lov muammosini aniq aytib, yechimini tekshiring.',
+        'Explain food or billing problems and confirm the solution.',
+        'Сообщайте о проблемах с едой или счётом и уточняйте решение.',
+      ),
+      icon: 'chatbubbles-outline',
+      expressions: [...REST_EXTRAS[5]],
     },
   ],
 });

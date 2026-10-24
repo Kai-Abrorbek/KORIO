@@ -1,5 +1,389 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineExpressionTopic,
+  expressionDrafts,
+  localized,
+} from '../expression-topic.helpers';
+
+const addedPassenger = localized(
+  '승객',
+  'Yo‘lovchi',
+  'The passenger',
+  'Пассажир',
+);
+const addedTransitStaff = localized(
+  '교통 안내 직원',
+  'Transport xodimi',
+  'The transit worker',
+  'Сотрудник транспорта',
+);
+const addedTransitFriend = localized(
+  '친한 동행',
+  'Yaqin hamroh',
+  'A close companion',
+  'Близкий спутник',
+);
+const transitExtra = (
+  rows: Parameters<typeof expressionDrafts>[0],
+  context: ReturnType<typeof localized>,
+) =>
+  expressionDrafts(rows, {
+    context,
+    speaker: addedPassenger,
+    usageNote: localized(
+      '안내 직원과 기사에게는 높임말로, 친한 동행에게는 반말로 말해요.',
+      'Xodim va haydovchiga muloyim, yaqin hamrohga norasmiy gapiring.',
+      'Speak politely to staff and drivers; use casual speech with close companions.',
+      'С сотрудниками и водителями говорите вежливо, с близкими можно неформально.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker:
+      draft.speechLevel === ExpressionSpeechLevel.CASUAL
+        ? addedTransitFriend
+        : draft.code === 'vehicle-number'
+          ? addedTransitStaff
+          : addedPassenger,
+  }));
+
+const TRANSIT_EXTRAS = [
+  transitExtra(
+    [
+      [
+        'last-bus',
+        '막차가 몇 시에 출발해요?',
+        'makchaga myeot sie chulbalhaeyo',
+        '마지막 버스 출발 시간을 물음',
+        'Oxirgi avtobus soat nechada ketadi?',
+        'What time does the last bus leave?',
+        'Во сколько отправляется последний автобус?',
+      ],
+      [
+        'express-or-local',
+        '이 버스는 급행인가요?',
+        'i beoseuneun geuphaeng-in-gayo',
+        '버스가 급행인지 확인함',
+        'Bu tezkor avtobusmi?',
+        'Is this an express bus?',
+        'Это экспресс-автобус?',
+      ],
+      [
+        'bus-here-casual',
+        '우리 버스 여기서 타는 거야?',
+        'uri beoseu yeogiseo taneun geoya',
+        '친구에게 탑승 위치를 확인함',
+        'Bizning avtobusga shu yerdan chiqamizmi?',
+        'Do we catch our bus here?',
+        'Мы садимся на наш автобус здесь?',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '버스나 지하철 노선을 찾을 때',
+      'Avtobus yoki metro yo‘nalishini izlaganda',
+      'When finding a bus or subway route',
+      'При поиске маршрута автобуса или метро',
+    ),
+  ),
+  transitExtra(
+    [
+      [
+        'card-top-up-machine',
+        '교통카드는 어느 기계에서 충전하나요?',
+        'gyotongkadeuneun eoneu gigyeeseo chungjeonhanayo',
+        '교통카드 충전 기계를 찾음',
+        'Transport kartasini qaysi apparatda to‘ldiraman?',
+        'Which machine can I use to top up my transit card?',
+        'В каком автомате можно пополнить транспортную карту?',
+      ],
+      [
+        'cash-fare',
+        '현금 요금은 얼마예요?',
+        'hyeongeum yogeumeun eolmayeyo',
+        '현금 승차 요금을 물음',
+        'Naqd yo‘l haqi qancha?',
+        'How much is the cash fare?',
+        'Сколько стоит проезд наличными?',
+      ],
+      [
+        'charge-card-casual',
+        '카드에 돈 좀 충전해야겠다.',
+        'kadeue don jom chungjeonhaeyagetda',
+        '친구에게 카드 충전이 필요하다고 말함',
+        'Kartamga pul solishim kerak ekan',
+        'I need to top up my card',
+        'Надо пополнить карту',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '승차권과 교통카드를 준비할 때',
+      'Chipta va transport kartasini tayyorlaganda',
+      'When preparing tickets and transit cards',
+      'При покупке билета и подготовке транспортной карты',
+    ),
+  ),
+  transitExtra(
+    [
+      [
+        'platform-changed',
+        '승강장이 바뀌었나요?',
+        'seunggangjangi bakkwieonnayo',
+        '탑승 승강장 변경을 확인함',
+        'Platforma o‘zgardimi?',
+        'Has the platform changed?',
+        'Платформа изменилась?',
+      ],
+      [
+        'transfer-time',
+        '환승하는 데 몇 분쯤 걸리나요?',
+        'hwanseunghaneun de myeot bunjjeum geollinayo',
+        '환승 소요 시간을 물음',
+        'O‘tish uchun taxminan necha daqiqa kerak?',
+        'About how long does the transfer take?',
+        'Сколько примерно займёт пересадка?',
+      ],
+      [
+        'wrong-platform-casual',
+        '우리 반대편 승강장에 왔어.',
+        'uri bandaepyeon seunggangjange wasseo',
+        '친구에게 승강장을 잘못 찾았다고 알림',
+        'Biz qarama-qarshi platformaga kelibmiz',
+        'We came to the platform on the wrong side',
+        'Мы пришли на платформу с другой стороны',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '올바른 방향으로 타고 환승할 때',
+      'To‘g‘ri yo‘nalishga chiqib, o‘tishda',
+      'When boarding in the right direction and transferring',
+      'При посадке в нужном направлении и пересадке',
+    ),
+  ),
+  transitExtra(
+    [
+      [
+        'announcement-unclear',
+        '방금 안내 방송을 못 들었어요.',
+        'banggeum annae bangsoneul mot deureosseoyo',
+        '안내 방송을 듣지 못했음을 알림',
+        'Hozirgi e’lonni eshitmadim',
+        'I missed the announcement just now',
+        'Я не расслышал последнее объявление',
+      ],
+      [
+        'stop-request',
+        '다음 정류장에 내려야 해요.',
+        'daeum jeongnyujange naeryeoya haeyo',
+        '다음 정류장 하차를 알림',
+        'Keyingi bekatda tushishim kerak',
+        'I need to get off at the next stop',
+        'Мне нужно выйти на следующей остановке',
+      ],
+      [
+        'get-off-now-casual',
+        '이번 역에서 내려야 해.',
+        'ibeon yeogeseo naeryeoya hae',
+        '친구에게 이번 역 하차를 알림',
+        'Shu bekatda tushishimiz kerak',
+        'We need to get off at this station',
+        'Нам выходить на этой станции',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '방송을 듣고 내릴 곳을 판단할 때',
+      'E’lonni eshitib tushadigan joyni aniqlaganda',
+      'When interpreting announcements and deciding where to get off',
+      'Когда слушают объявления и определяют остановку',
+    ),
+  ),
+  transitExtra(
+    [
+      [
+        'toll-road',
+        '통행료가 드는 길은 피해주세요.',
+        'tonghaengnyoga deuneun gireun pihae juseyo',
+        '유료도로를 피하도록 요청함',
+        'Pulli yo‘ldan bormang',
+        'Please avoid toll roads',
+        'Пожалуйста, избегайте платных дорог',
+      ],
+      [
+        'trunk-open',
+        '트렁크를 열어 주실 수 있나요?',
+        'teureongkeureul yeoreo jusil su innayo',
+        '짐을 싣기 위해 트렁크를 요청함',
+        'Bagajni ochib bera olasizmi?',
+        'Could you open the trunk?',
+        'Можете открыть багажник?',
+      ],
+      [
+        'traffic-bad-casual',
+        '차가 많이 막히네.',
+        'chaga mani makhine',
+        '친구에게 교통 체증을 말함',
+        'Yo‘l juda tirband ekan',
+        'Traffic is really heavy',
+        'Какая сильная пробка',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+    ],
+    localized(
+      '택시 경로와 승차 문제를 조율할 때',
+      'Taksi yo‘li va safar muammosini kelishganda',
+      'When coordinating a taxi route and ride',
+      'При согласовании маршрута такси и поездки',
+    ),
+  ),
+  transitExtra(
+    [
+      [
+        'service-suspended',
+        '이 구간 운행이 중단됐나요?',
+        'i gugan unhaengi jungdwaennayo',
+        '구간 운행 중단 여부를 확인함',
+        'Bu yo‘nalishda qatnov to‘xtadimi?',
+        'Is service suspended on this section?',
+        'Движение на этом участке остановлено?',
+      ],
+      [
+        'replacement-bus',
+        '대체 버스는 어디서 타나요?',
+        'daeche beoseuneun eodiseo tanayo',
+        '대체 운행 버스 탑승 위치를 물음',
+        'O‘rnini bosuvchi avtobus qayerdan ketadi?',
+        'Where do I board the replacement bus?',
+        'Где сесть на заменяющий автобус?',
+      ],
+      [
+        'delay-reason',
+        '열차가 지연되는 이유가 뭔가요?',
+        'yeolchaga jiyeondoeneun iyuga mwon-gayo',
+        '열차 지연 이유를 물음',
+        'Poyezd nega kechikyapti?',
+        'What is causing the train delay?',
+        'Почему поезд задерживается?',
+      ],
+      [
+        'expected-resumption',
+        '운행은 언제쯤 다시 시작하나요?',
+        'unhaengeun eonjejjeum dasi sijakhanayo',
+        '운행 재개 예상 시간을 물음',
+        'Qatnov qachon tiklanadi?',
+        'When is service expected to resume?',
+        'Когда движение возобновится?',
+      ],
+      [
+        'alternate-line',
+        '같은 목적지로 가는 다른 노선이 있나요?',
+        'gateun mokjeokjiro ganeun dareun noseoni innayo',
+        '대체 노선을 찾음',
+        'Shu manzilga boradigan boshqa yo‘l bormi?',
+        'Is there another line to the same destination?',
+        'Есть другая линия до того же места?',
+      ],
+      [
+        'accessible-platform',
+        '엘리베이터로 갈 수 있는 승강장이 어디예요?',
+        'ellibeiteoro gal su inneun seunggangjangi eodiyeyo',
+        '엘리베이터 접근 승강장을 찾음',
+        'Lift bilan boriladigan platforma qayerda?',
+        'Which platform can I reach by elevator?',
+        'К какой платформе можно попасть на лифте?',
+      ],
+      [
+        'elevator-out-of-service',
+        '역 엘리베이터가 고장 났어요.',
+        'yeok ellibeiteoga gojang nasseoyo',
+        '역 엘리베이터 고장을 알림',
+        'Bekat lifti buzilgan',
+        'The station elevator is out of service',
+        'Лифт на станции не работает',
+      ],
+      [
+        'missed-last-train',
+        '막차를 놓쳤는데 다른 방법이 있을까요?',
+        'makchareul nochyeonneunde dareun bangbeobi isseulkkayo',
+        '막차 후 대체 교통편을 문의함',
+        'Oxirgi poyezddan qoldim, boshqa yo‘l bormi?',
+        'I missed the last train. Is there another option?',
+        'Я опоздал на последний поезд. Есть другой способ добраться?',
+      ],
+      [
+        'fare-adjustment',
+        '하차할 때 추가 요금을 내야 하나요?',
+        'hachal ttae chuga yogeumeul naeya hanayo',
+        '하차 시 추가 요금 발생 여부를 물음',
+        'Tushishda qo‘shimcha haq to‘laymanmi?',
+        'Do I need to pay an extra fare when I get off?',
+        'Нужно доплачивать при выходе?',
+      ],
+      [
+        'overcharged-fare',
+        '예상보다 요금이 많이 나왔어요.',
+        'yesangboda yogeumi mani nawasseoyo',
+        '예상보다 높은 요금을 알림',
+        'Yo‘l haqi kutilganidan yuqori chiqdi',
+        'The fare was higher than I expected',
+        'Проезд оказался дороже, чем я ожидал',
+      ],
+      [
+        'lost-item-report',
+        '버스에 물건을 두고 내렸어요.',
+        'beoseue mulgeoneul dugo naeryeosseoyo',
+        '버스 분실물을 신고함',
+        'Avtobusda buyumimni qoldirdim',
+        'I left something on the bus',
+        'Я оставил вещь в автобусе',
+      ],
+      [
+        'vehicle-number',
+        '차량 번호를 기억하시나요?',
+        'charyang beonhoreul gieokhasinayo',
+        '분실물 확인을 위해 차량 번호를 물음',
+        'Transport raqamini eslaysizmi?',
+        'Do you remember the vehicle number?',
+        'Вы помните номер машины?',
+      ],
+      [
+        'delay-certificate',
+        '지연 증명서를 받을 수 있나요?',
+        'jiyeon jeungmyeongseoreul badeul su innayo',
+        '지연 증명서 발급을 문의함',
+        'Kechikish haqida ma’lumotnoma olsam bo‘ladimi?',
+        'Can I get a delay certificate?',
+        'Можно получить справку о задержке?',
+      ],
+      [
+        'different-route-casual',
+        '다른 노선으로 돌아가자.',
+        'dareun noseoneuro doragaja',
+        '친구에게 우회 노선을 제안함',
+        'Boshqa yo‘l bilan aylanib ketaylik',
+        'Let’s take a different line around',
+        'Давай объедем по другой линии',
+        ExpressionSpeechLevel.CASUAL,
+      ],
+      [
+        'help-desk-location',
+        '교통 안내 센터가 어느 출구에 있나요?',
+        'gyotong annae senteoga eoneu chulgune innayo',
+        '안내 센터 위치를 물음',
+        'Transport ma’lumot markazi qaysi chiqishda?',
+        'Which exit is the transit help desk by?',
+        'У какого выхода находится справочная?',
+      ],
+    ],
+    localized(
+      '운행 중단·분실·추가 요금 등 문제를 해결할 때',
+      'Qatnov to‘xtashi, yo‘qotish yoki qo‘shimcha haqni hal qilganda',
+      'When resolving disruptions, lost items, or fare issues',
+      'При решении проблем с движением, потерями и оплатой',
+    ),
+  ),
+] as const;
 
 const PASSENGER = localized('승객', 'Yo‘lovchi', 'Passenger', 'Пассажир');
 
@@ -37,6 +421,7 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
   nodes: [
     {
       code: 'finding-routes-and-stops',
+      proficiency: 'beginner',
       title: localized(
         '노선과 정류장 찾기',
         'Yo‘nalish va bekatni topish',
@@ -365,10 +750,12 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
           difficulty: 1,
           tags: ['arrival-time', 'transit-announcement'],
         },
+        ...TRANSIT_EXTRAS[0],
       ],
     },
     {
       code: 'tickets-cards-and-fares',
+      proficiency: 'beginner',
       title: localized(
         '교통카드·표·요금 준비하기',
         'Transport kartasi, chipta va yo‘l haqini tayyorlash',
@@ -699,10 +1086,12 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['transit-card', 'retry', 'troubleshooting'],
         },
+        ...TRANSIT_EXTRAS[1],
       ],
     },
     {
       code: 'boarding-in-the-right-direction-and-transferring',
+      proficiency: 'intermediate',
       title: localized(
         '올바른 방향으로 승차하고 환승하기',
         'To‘g‘ri yo‘nalishda chiqish va almashish',
@@ -1029,10 +1418,12 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['boarding', 'etiquette', 'announcement'],
         },
+        ...TRANSIT_EXTRAS[2],
       ],
     },
     {
       code: 'understanding-announcements-and-getting-off',
+      proficiency: 'intermediate',
       title: localized(
         '안내 방송을 이해하고 내리기',
         'E’lonlarni tushunish va transportdan tushish',
@@ -1362,10 +1753,12 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
           difficulty: 1,
           tags: ['door-problem', 'help-request', 'getting-off'],
         },
+        ...TRANSIT_EXTRAS[3],
       ],
     },
     {
       code: 'taking-a-taxi-and-solving-problems',
+      proficiency: 'advanced',
       title: localized(
         '택시를 타고 문제 해결하기',
         'Taksiga chiqish va muammolarni hal qilish',
@@ -1694,7 +2087,26 @@ export const USING_BUSES_SUBWAYS_AND_TAXIS_TOPIC = defineExpressionTopic({
           difficulty: 2,
           tags: ['taxi-payment', 'cash', 'receipt', 'problem-solution'],
         },
+        ...TRANSIT_EXTRAS[4],
       ],
+    },
+    {
+      code: 'disruptions-and-accessibility',
+      proficiency: 'advanced',
+      title: localized(
+        '운행 차질과 접근성 문제 해결하기',
+        'Qatnov va qulaylik muammolarini hal qilish',
+        'Handling disruptions and accessibility',
+        'Решение проблем с движением и доступностью',
+      ),
+      description: localized(
+        '운행 중단과 지연, 분실물, 접근 가능한 대체 경로를 확인해요.',
+        'Qatnov to‘xtashi, kechikish, yo‘qotish va qulay muqobil yo‘lni tekshiring.',
+        'Check service disruptions, lost items, and accessible alternatives.',
+        'Уточняйте задержки, потерянные вещи и доступные альтернативы.',
+      ),
+      icon: 'alert-circle-outline',
+      expressions: [...TRANSIT_EXTRAS[5]],
     },
   ],
 });

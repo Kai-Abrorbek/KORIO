@@ -1,5 +1,10 @@
 import { ExpressionSpeechLevel } from '../../../../expressions/schemas/expression.schema';
-import { defineExpressionTopic, localized } from '../expression-topic.helpers';
+import {
+  defineLeveledKoreanTopic,
+  expressionDrafts,
+  localized,
+  type ExpressionDraftRow,
+} from '../expression-topic.helpers';
 
 const SHOPPER = localized(
   '상품을 고르는 쇼핑객',
@@ -16,7 +21,8 @@ const STORE_STAFF = localized(
 );
 
 function buildShoppingAtSupermarketsAndClothingStoresTopic() {
-  return defineExpressionTopic({
+  // prettier-ignore
+  return defineLeveledKoreanTopic({
     code: 'shopping-at-supermarkets-and-clothing-stores',
     title: localized(
       '마트와 옷가게에서 쇼핑하기',
@@ -1757,8 +1763,351 @@ function buildShoppingAtSupermarketsAndClothingStoresTopic() {
         ],
       },
     ],
+    additions,
+    finalNode: {
+    code: 'resolve-returns-exchanges-and-defects',
+    title: localized(
+      '교환·반품과 불량 문제 해결하기',
+      'Almashtirish, qaytarish va nuqsonlarni hal qilish',
+      'Resolving exchanges, returns, and defects',
+      'Решение вопросов обмена, возврата и брака',
+    ),
+    description: localized(
+      '영수증과 상품 상태를 확인하고 교환·반품 조건과 다음 절차를 물어요.',
+      'Chek, mahsulot holati va qaytarish tartibini aniqlang.',
+      'Check receipts and item condition, then ask about exchange and return procedures.',
+      'Проверьте чек и состояние товара, затем уточните возврат и обмен.',
+    ),
+    icon: 'swap-horizontal-outline',
+  },
   });
 }
+
+const CUSTOMER_EXTRA = localized('손님', 'Xaridor', 'Customer', 'Покупатель');
+const CLERK_EXTRA = localized(
+  '매장 직원',
+  'Do‘kon xodimi',
+  'Store clerk',
+  'Сотрудник магазина',
+);
+const extraSpeakers = new Map([
+  ['frozen-food-aisle', CLERK_EXTRA],
+  ['inspect-defect', CLERK_EXTRA],
+  ['refund-original-payment', CLERK_EXTRA],
+  ['replacement-out-of-stock', CLERK_EXTRA],
+  ['manager-assistance', CLERK_EXTRA],
+]);
+
+const extra = (rows: readonly ExpressionDraftRow[]) =>
+  expressionDrafts(rows, {
+    context: localized(
+      '마트나 옷가게에서 상품 상태와 선택지를 확인할 때 사용해요.',
+      'Do‘kon yoki kiyim-kechak bo‘limida mahsulotni tekshirishda ishlatiladi.',
+      'Use this when checking products and options in a grocery or clothing store.',
+      'Используйте при выборе и проверке товаров в магазине.',
+    ),
+    speaker: CUSTOMER_EXTRA,
+    usageNote: localized(
+      '직원에게는 높임말을 쓰고, 반말은 함께 쇼핑하는 친한 사람에게만 사용해요.',
+      'Xodimga hurmat bilan, oddiy shaklda esa faqat yaqin hamrohingizga gapiring.',
+      'Use polite speech with staff and casual speech only with a close shopping companion.',
+      'С сотрудником говорите вежливо, с близким спутником можно просто.',
+    ),
+  }).map((draft) => ({
+    ...draft,
+    speaker: extraSpeakers.get(draft.code) ?? draft.speaker,
+  }));
+
+const additions = [
+  extra([
+    [
+      'organic-produce-location',
+      '유기농 채소는 어느 쪽에 있어요?',
+      'yuginong chaesoneun eoneu jjoge isseoyo',
+      '유기농 채소 코너를 묻는 말',
+      'Organik sabzavotlar qayerda?',
+      'Where are the organic vegetables?',
+      'Где органические овощи?',
+    ],
+    [
+      'frozen-food-aisle',
+      '냉동식품은 뒤쪽 통로에 있어요.',
+      'naengdongsikpumeun dwijjok tongnoe isseoyo',
+      '냉동식품 위치를 알려 주는 말',
+      'Muzlatilgan mahsulotlar orqa yo‘lakda',
+      'Frozen foods are in the back aisle.',
+      'Замороженные продукты в дальнем проходе.',
+    ],
+    [
+      'buy-milk-casual',
+      '우유도 사야 해. 어디 있지?',
+      'uyudo saya hae eodi itji',
+      '친구에게 우유 위치를 묻는 말',
+      'Sut ham olishimiz kerak, qayerda ekan?',
+      'We need milk too. Where is it?',
+      'Надо ещё купить молоко. Где оно?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'discount-applies-today',
+      '이 할인은 오늘도 적용되나요?',
+      'i harineun oneuldo jeogyongdoenayo',
+      '오늘 할인 적용 여부를 묻는 말',
+      'Bu chegirma bugun ham amal qiladimi?',
+      'Does this discount apply today too?',
+      'Эта скидка действует и сегодня?',
+    ],
+    [
+      'price-per-kilogram',
+      '킬로그램당 가격이 얼마예요?',
+      'killogeuraemdang gagyeogi eolmayeyo',
+      '무게당 가격을 묻는 말',
+      'Bir kilogrammi qancha turadi?',
+      'How much is it per kilogram?',
+      'Сколько стоит килограмм?',
+    ],
+    [
+      'check-expiry-casual',
+      '이거 날짜 좀 확인해 봐.',
+      'igeo naljja jom hwaginhae bwa',
+      '친구에게 소비기한 확인을 부탁하는 말',
+      'Buning sanasini tekshirib ko‘r',
+      'Check the date on this.',
+      'Проверь дату на этом.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'linen-shirt-available',
+      '린넨 셔츠도 있나요?',
+      'rinnen syeocheudo innayo',
+      '린넨 소재 셔츠를 찾는 말',
+      'Zig‘ir matoli ko‘ylak bormi?',
+      'Do you have linen shirts?',
+      'У вас есть льняные рубашки?',
+    ],
+    [
+      'size-guide-location',
+      '사이즈 표는 어디에서 볼 수 있어요?',
+      'saijeu pyoneun eodieseo bol su isseoyo',
+      '치수 안내표를 묻는 말',
+      'O‘lcham jadvalini qayerdan ko‘rsam bo‘ladi?',
+      'Where can I see the size chart?',
+      'Где можно посмотреть таблицу размеров?',
+    ],
+    [
+      'blue-better-casual',
+      '파란색이 너한테 더 잘 어울려.',
+      'paransaegi neohante deo jal eoullyeo',
+      '친구에게 어울리는 색을 말하는 표현',
+      'Ko‘k rang senga ko‘proq yarashadi',
+      'Blue looks better on you.',
+      'Синий тебе больше идёт.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'sleeves-too-long',
+      '소매가 손을 너무 많이 덮어요.',
+      'somaega soneul neomu mani deopeoyo',
+      '옷 소매가 길다는 말',
+      'Yenglari qo‘limni juda yopib turibdi',
+      'The sleeves cover too much of my hands.',
+      'Рукава слишком сильно закрывают руки.',
+    ],
+    [
+      'alteration-available',
+      '길이 수선도 가능한가요?',
+      'giri suseondo ganeunghanayo',
+      '옷 길이 수선 가능 여부를 묻는 말',
+      'Uzunligini qisqartirib bera olasizmi?',
+      'Can you alter the length?',
+      'Можно подшить длину?',
+    ],
+    [
+      'turn-around-casual',
+      '잠깐 돌아 봐. 뒤도 잘 맞아.',
+      'jamkkan dora bwa dwido jal maja',
+      '친구에게 돌아서서 옷 뒤태를 보이게 하는 말',
+      'Bir aylanib ko‘r, orqasi ham yaxshi turibdi',
+      'Turn around a moment. It fits well in the back too.',
+      'Повернись. Сзади тоже хорошо сидит.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'compare-material',
+      '이 두 제품의 소재가 어떻게 달라요?',
+      'i du jepumui sojaega eotteoke dallayo',
+      '두 상품의 소재 차이를 묻는 말',
+      'Bu ikki mahsulot matosi qanday farq qiladi?',
+      'How do the materials of these two items differ?',
+      'Чем отличается материал этих двух вещей?',
+    ],
+    [
+      'hold-until-tomorrow',
+      '내일까지 보관은 어려울까요?',
+      'naeilkkaji bogwaneun eoryeoulkkayo',
+      '다음 날까지 상품 보관을 부탁하는 말',
+      'Ertagacha saqlab qo‘yish qiyinmi?',
+      'Would it be possible to hold it until tomorrow?',
+      'Можно отложить вещь до завтра?',
+    ],
+    [
+      'which-one-casual',
+      '둘 중에 어떤 게 더 나아 보여?',
+      'dul junge eotteon ge deo naa boyeo',
+      '친구에게 두 상품 중 의견을 묻는 말',
+      'Ikkalasidan qaysi biri yaxshiroq ko‘rinadi?',
+      'Which of the two looks better?',
+      'Какой из двух выглядит лучше?',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+  extra([
+    [
+      'item-defective',
+      '구입한 옷의 지퍼가 고장 났어요.',
+      'guiphan osui jipeoga gojang nasseoyo',
+      '구입한 옷의 지퍼 불량을 알리는 말',
+      'Sotib olgan kiyimimning zamogi buzilgan',
+      'The zipper on the clothes I bought is broken.',
+      'У купленной одежды сломалась молния.',
+    ],
+    [
+      'request-exchange',
+      '같은 상품으로 교환하고 싶어요.',
+      'gateun sangpumeuro gyohwanhago sipeoyo',
+      '동일 상품으로 교환을 요청하는 말',
+      'Shu mahsulotning boshqasiga almashtirmoqchiman',
+      'I would like to exchange it for the same item.',
+      'Я хочу обменять на такой же товар.',
+    ],
+    [
+      'request-refund',
+      '반품하고 환불받을 수 있을까요?',
+      'banpumhago hwanbulbadeul su isseulkkayo',
+      '반품과 환불 가능 여부를 묻는 말',
+      'Qaytarib, pulimni olsam bo‘ladimi?',
+      'Can I return this and get a refund?',
+      'Можно вернуть товар и получить деньги?',
+    ],
+    [
+      'receipt-on-phone',
+      '종이 영수증은 없지만 전자 영수증이 있어요.',
+      'jongi yeongsujeungeun eopjiman jeonja yeongsujeungi isseoyo',
+      '전자 영수증을 제시하는 말',
+      'Qog‘oz chek yo‘q, lekin elektron chekim bor',
+      'I do not have a paper receipt, but I have an electronic one.',
+      'Бумажного чека нет, но есть электронный.',
+    ],
+    [
+      'return-window',
+      '반품 가능한 기간이 언제까지인가요?',
+      'banpum ganeunghan gigani eonjekkajiingayo',
+      '반품 기간의 마지막 날을 묻는 말',
+      'Qaytarish muddati qachongacha?',
+      'What is the return deadline?',
+      'До какого срока можно вернуть товар?',
+    ],
+    [
+      'tags-attached',
+      '가격표는 떼지 않았어요.',
+      'gagyeokpyoneun tteji anasseoyo',
+      '가격표가 붙어 있음을 알리는 말',
+      'Narx yorlig‘ini olib tashlamadim',
+      'I have not removed the price tag.',
+      'Я не снимал ценник.',
+    ],
+    [
+      'inspect-defect',
+      '불량 여부를 확인해 드리겠습니다.',
+      'bullyang yeobureul hwaginhae deurigetseumnida',
+      '직원이 불량 상태를 확인하겠다는 말',
+      'Nuqson borligini tekshirib beramiz',
+      'We will inspect the item for a defect.',
+      'Мы проверим товар на брак.',
+    ],
+    [
+      'refund-original-payment',
+      '환불은 원래 결제 수단으로 처리됩니다.',
+      'hwanbureun wollae gyeolje sudaneuro cheoridoemnida',
+      '기존 결제 수단으로 환불된다는 안내',
+      'Pul dastlabki to‘lov usuliga qaytariladi',
+      'The refund will go to the original payment method.',
+      'Возврат будет произведён на исходный способ оплаты.',
+    ],
+    [
+      'replacement-out-of-stock',
+      '교환할 사이즈가 현재 품절입니다.',
+      'gyohwanhal saijeuga hyeonjae pumjeorimnida',
+      '교환용 사이즈가 없다는 안내',
+      'Almashtiriladigan o‘lcham hozir yo‘q',
+      'The replacement size is currently out of stock.',
+      'Нужного размера для обмена сейчас нет.',
+    ],
+    [
+      'alternative-color',
+      '다른 색상으로 교환해도 되나요?',
+      'dareun saeksangeuro gyohwanhaedo doenayo',
+      '다른 색상으로 교환 가능 여부를 묻는 말',
+      'Boshqa rangiga almashtirsam bo‘ladimi?',
+      'Can I exchange it for a different color?',
+      'Можно обменять на другой цвет?',
+    ],
+    [
+      'online-purchase-in-store',
+      '온라인에서 산 상품도 여기서 반품할 수 있나요?',
+      'onraineseo san sangpumdo yeogiseo banpumhal su innayo',
+      '온라인 구매품의 매장 반품을 묻는 말',
+      'Onlayn olgan mahsulotni bu yerda qaytarsam bo‘ladimi?',
+      'Can I return an online purchase here?',
+      'Можно вернуть здесь товар, купленный онлайн?',
+    ],
+    [
+      'return-shipping-fee',
+      '반품 배송비는 누가 부담하나요?',
+      'banpum baesongbineun nuga budamhanayo',
+      '반품 운송비 부담 주체를 묻는 말',
+      'Qaytarish yetkazib berish haqini kim to‘laydi?',
+      'Who pays the return shipping fee?',
+      'Кто оплачивает доставку при возврате?',
+    ],
+    [
+      'manager-assistance',
+      '처리 방법을 매장 책임자와 확인해 볼게요.',
+      'cheori bangbeobeul maejang chaegimjawa hwaginhae bolgeyo',
+      '직원이 책임자와 처리 방식을 확인하는 말',
+      'Qanday hal qilishni do‘kon rahbari bilan tekshiraman',
+      'I will check the procedure with the store manager.',
+      'Я уточню порядок у управляющего магазина.',
+    ],
+    [
+      'keep-packaging',
+      '포장재도 함께 가져와야 하나요?',
+      'pojangjaedo hamkke gajyeowaya hanayo',
+      '반품 때 포장재가 필요한지 묻는 말',
+      'Qadoqni ham olib kelishim kerakmi?',
+      'Do I need to bring the packaging too?',
+      'Нужно ли принести упаковку?',
+    ],
+    [
+      'zipper-broke-casual',
+      '지퍼가 벌써 고장 났어. 교환하러 가자.',
+      'jipeoga beolsseo gojang nasseo gyohwanhareo gaja',
+      '친구에게 불량 상품 교환을 제안하는 말',
+      'Zamok allaqachon buzildi, almashtirishga boraylik',
+      'The zipper already broke. Let us go exchange it.',
+      'Молния уже сломалась. Пойдём менять.',
+      ExpressionSpeechLevel.CASUAL,
+    ],
+  ]),
+];
 
 export const SHOPPING_AT_SUPERMARKETS_AND_CLOTHING_STORES_TOPIC =
   buildShoppingAtSupermarketsAndClothingStoresTopic();

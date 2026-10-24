@@ -173,7 +173,7 @@ export function ExpressionRoadmapScreen() {
   const view = useMemo(() => (roadmap ? buildView(roadmap) : null), [roadmap]);
   const fullUnits = useMemo(() => view?.units ?? [], [view]);
   const hasLevelTabs = Boolean(roadmap?.topics.some((topic) =>
-    topic.targetLanguage === "en" && topic.nodes.some((node) => node.proficiency),
+    topic.nodes.some((node) => node.proficiency),
   ));
   const units = useMemo(() => hasLevelTabs && view
     ? view.units.map((unit) => ({

@@ -70,7 +70,7 @@ const recorderErrors: Record<SpeechRecorderError, SpeakingError> = {
 export function useSpeakingPractice(packCode: string, proficiency?: ExpressionProficiency) {
   const contentLang = useContentLang();
   const learnCourse = useSettingsStore((state) => state.learnCourse);
-  const selectedLevel = learnCourse === "en" ? proficiency ?? "beginner" : undefined;
+  const selectedLevel = proficiency ?? "beginner";
   const userId = useAuthStore((s) => s.user?.id);
   const loggedIn = useAuthStore((s) => s.isLoggedIn);
   const language = contentLang;

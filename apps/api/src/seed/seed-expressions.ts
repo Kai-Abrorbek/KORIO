@@ -105,6 +105,14 @@ async function seedExpressions() {
   ) {
     throw new Error('English expressions need all 40 complete topics');
   }
+  if (
+    scope.targetLanguage === 'ko' &&
+    (EXPRESSION_PACK_SEEDS.length !== 16 ||
+      EXPRESSION_NODE_SEEDS.length !== 96 ||
+      EXPRESSION_SEEDS.length < 1440)
+  ) {
+    throw new Error('Korean expressions need all 16 complete levelled topics');
+  }
   for (const pack of EXPRESSION_PACK_SEEDS) {
     if (
       (pack.courseId ?? 'ko-general') !== scope.courseId ||
