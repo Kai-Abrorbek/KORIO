@@ -11,7 +11,9 @@
     "assets": "node prepare.mjs",
     "shoot": "bash capture/shoot-all.sh",
     "render:launch": "node prepare.mjs && remotion render src/index.ts KorioLaunchUz out/korio-launch-uz.raw.mp4 && ffmpeg -y -loglevel error -i out/korio-launch-uz.raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart out/korio-launch-uz.mp4",
-    "stills:launch": "bash capture/stills-launch.sh"
+    "stills:launch": "bash capture/stills-launch.sh",
+    "audio:story": "node audio/make-story-audio.mjs",
+    "render:story": "node prepare.mjs && remotion render src/index.ts KorioStoryUz out/korio-story-uz.raw.mp4 && ffmpeg -y -loglevel error -i out/korio-story-uz.raw.mp4 -c:v copy -af loudnorm=I=-14:TP=-1.5:LRA=11 -c:a aac -b:a 192k -movflags +faststart out/korio-story-uz.mp4"
   },
   "dependencies": {
     "@remotion/cli": "4.0.537",

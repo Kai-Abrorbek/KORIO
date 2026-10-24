@@ -2,6 +2,7 @@
 /**
  * 편집 재료를 public/ 에 모은다 (저장소의 원본을 복사만 한다 — 커밋하지 않는다):
  *   public/brand  마스코트 그림 (apps/mobile/assets)
+ *   public/story  스토리 영상 그림 (서울 장면 · 하라 · 앱 아이콘)
  *   public/fonts  Ionicons 글꼴 (텔레그램 앱과 같은 아이콘)
  *   public/sfx    앱 효과음 (촬영 때 기록한 clips/*.sounds.json 이 가리키는 것)
  *   src/cues.generated.json  장면별 효과음 시각
@@ -19,6 +20,21 @@ const BRAND = ["hangulmon_celebrating", "hangulmon_level_up", "hangulmon_cheerin
 mkdirSync(join(PUBLIC, "brand"), { recursive: true });
 for (const name of BRAND) {
   cpSync(join(REPO, "apps/mobile/assets/images/characters", `${name}.png`), join(PUBLIC, "brand", `${name}.png`));
+}
+// 스토리 영상(KorioStoryUz) — 서울 장면 그림 · 하라 · 앱 아이콘 · 불꽃
+const STORY = [
+  "scenes/scene_cvs.webp",
+  "scenes/scene_hangang.webp",
+  "scenes/scene_namsan.webp",
+  "scenes/scene_gyeongbokgung.webp",
+  "characters/hara_love.png",
+  "characters/hara_cheer.png",
+  "korio-icon.png",
+  "streak-flame.svg",
+];
+mkdirSync(join(PUBLIC, "story"), { recursive: true });
+for (const file of STORY) {
+  cpSync(join(REPO, "apps/mobile/assets/images", file), join(PUBLIC, "story", file.split("/").pop()));
 }
 cpSync(join(REPO, "apps/telegram-app/public/fonts/Ionicons.ttf"), join(PUBLIC, "fonts", "Ionicons.ttf"));
 cpSync(join(REPO, "apps/telegram-app/public/sounds"), join(PUBLIC, "sfx"), { recursive: true });

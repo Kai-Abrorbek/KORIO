@@ -3,6 +3,8 @@ import { KorioIntro } from "./KorioIntro";
 import { LaunchVideo } from "./launch/LaunchVideo";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
 import { IgCover } from "./social/ReelCovers";
+import { STORY_FPS, STORY_TOTAL } from "./story/plan";
+import { StoryVideo } from "./story/StoryVideo";
 import { LAUNCH_FPS, LAUNCH_TOTAL } from "./launch/plan";
 import { FPS, TOTAL } from "./timeline";
 
@@ -25,7 +27,15 @@ export function Root() {
         id="KorioLaunchUz"
         width={1080}
       />
-      <Composition component={IgAvatar} durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
+      <Composition
+        component={StoryVideo}
+        durationInFrames={STORY_TOTAL}
+        fps={STORY_FPS}
+        height={1920}
+        id="KorioStoryUz"
+        width={1080}
+      />
+      <Composition component={IgAvatar}durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgCover}
         defaultProps={{ variant: "launch" as const }}
