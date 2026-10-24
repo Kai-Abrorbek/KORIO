@@ -5,8 +5,9 @@
  *
  *   node social/zernio.mjs accounts
  *       연결된 SNS 계정 목록 (읽기만)
- *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--cover <표지.png>] [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
+ *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--cover <표지.png>] [--story] [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
  *       --yes 가 없으면 무엇을 올릴지 보여 주기만 한다. --at 이 없으면 바로 게시한다.
+ *       --story 면 릴스 대신 스토리 (영상 60초 · 100MB 까지, 캡션·표지는 쓰이지 않는다)
  *   node social/zernio.mjs get <경로>
  *       읽기 전용 조회 (예: get "/analytics?platform=instagram")
  *   node social/zernio.mjs status <postId>
@@ -96,9 +97,11 @@ if (command === "accounts") {
   if (!account) throw new Error("연결된 인스타그램 계정이 없다 (Zernio 대시보드에서 연결)");
   if (instagram.length > 1 && !flag("--account")) throw new Error(`인스타그램 계정이 여러 개다 — --account 로 고른다: ${instagram.map((a) => `${a.username}=${a.id}`).join(", ")}`);
   const at = flag("--at");
-  const cover = flag("--cover");
+  const story = process.argv.includes("--story");
+  const cover = story ? undefined : flag("--cover");
   const plan = {
     account: `@${account.username} (${account.id})`,
+    as: story ? "스토리" : "릴스",
     video: `${basename(video)} (${(size / 1048576).toFixed(1)} MB)`,
     cover: cover ? basename(cover) : "영상 첫 장면",
     when: at ? `${at} ${flag("--tz") ?? "UTC"}` : "지금 바로",
@@ -122,7 +125,9 @@ if (command === "accounts") {
       {
         platform: "instagram",
         accountId: account.id,
-        platformSpecificData: { shareToFeed: true, ...(coverUrl ? { instagramThumbnail: coverUrl } : { thumbOffset: 0 }) },
+        platformSpecificData: story
+          ? { contentType: "story" }
+          : { shareToFeed: true, ...(coverUrl ? { instagramThumbnail: coverUrl } : { thumbOffset: 0 }) },
       },
     ],
     ...(at ? { scheduledFor: at, timezone: flag("--tz") ?? "UTC" } : { publishNow: true }),
@@ -130,6 +135,6 @@ if (command === "accounts") {
   const post = json.post ?? json;
   console.log(JSON.stringify({ http: status, postId: post._id ?? post.id ?? json.postId, status: post.status }, null, 1));
 } else {
-  console.error("usage: zernio.mjs accounts | post <video> <caption.txt> [--cover png] [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
+  console.error("usage: zernio.mjs accounts | post <video> <caption.txt> [--cover png] [--story] [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
   process.exit(1);
 }
