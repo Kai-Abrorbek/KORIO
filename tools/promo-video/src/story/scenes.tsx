@@ -24,7 +24,7 @@ import {
   tween,
   W,
 } from "./fx";
-import { BEAT, BEATS, type Beat } from "./plan";
+import { BEAT, BEATS, DAY_T, DAYS_DUR, STORY, STORY_SECONDS, T, type Beat } from "./plan";
 
 // ───────────────────────────── 공용
 
@@ -132,53 +132,54 @@ function Handset({ x, y, w, h, children, style }: { x: number; y: number; w: num
   );
 }
 
-// ───────────────────────────── 릴스 피드 (실제 영상 대신 추상 카드 — 남의 콘텐츠를 쓰지 않는다)
+// ───────────────────────────── 릴스 피드 (Unsplash 사진 — prepare.mjs 가 public/story/reels 로 받는다)
 
 const CARDS = [
-  { a: "#FF5F6D", b: "#FFC371", e: "🐱", u: "@mushuk.tv" },
-  { a: "#4776E6", b: "#8E54E9", e: "🍔", u: "@food.zone" },
-  { a: "#11998E", b: "#38EF7D", e: "💃", u: "@dance_uz" },
-  { a: "#F7971E", b: "#FFD200", e: "😂", u: "@memlar" },
-  { a: "#C33764", b: "#1D2671", e: "🚗", u: "@cars.daily" },
-  { a: "#00C6FF", b: "#0072FF", e: "🎮", u: "@gamer777" },
-  { a: "#FC5C7D", b: "#6A82FB", e: "🐶", u: "@itcha" },
-  { a: "#F953C6", b: "#B91D73", e: "🍕", u: "@pizza.lab" },
-  { a: "#43CEA2", b: "#185A9D", e: "🎤", u: "@karaoke" },
-  { a: "#FF512F", b: "#DD2476", e: "😱", u: "@prank.tv" },
-  { a: "#DA4453", b: "#89216B", e: "🏀", u: "@sport.clips" },
-  { a: "#FDC830", b: "#F37335", e: "🍜", u: "@mukbang" },
+  { img: "bear", u: "@wild.planet", likes: "48,2K" },
+  { img: "berries", u: "@shirin.taom", likes: "12,9K" },
+  { img: "crowd", u: "@concert.live", likes: "88,1K" },
+  { img: "dog", u: "@itcha.kun", likes: "103K" },
+  { img: "car", u: "@retro.mashina", likes: "9 410" },
+  { img: "latte", u: "@kofe.vaqti", likes: "21,7K" },
+  { img: "leopard", u: "@safari.uz", likes: "64,5K" },
+  { img: "sparkler", u: "@bayram.tv", likes: "33,0K" },
+  { img: "salad", u: "@tez.retsept", likes: "15,3K" },
+  { img: "jump", u: "@sakra.sport", likes: "57,8K" },
+  { img: "balloon", u: "@sayohat.go", likes: "41,2K" },
+  { img: "concert", u: "@music.night", likes: "72,6K" },
+  { img: "santorini", u: "@travel.daily", likes: "29,9K" },
+  { img: "trails", u: "@tungi.shahar", likes: "18,4K" },
 ];
+
+/** Ionicons — 하트 · 말풍선 · 종이비행기 · 음표 */
+const GLYPH = { heart: 62314, chat: 61969, send: 62605, music: 62569 };
+function Glyph({ name, size }: { name: keyof typeof GLYPH; size: number }) {
+  return <span style={{ fontFamily: "Ionicons", fontSize: size, lineHeight: 1, color: "#fff" }}>{String.fromCodePoint(GLYPH[name])}</span>;
+}
 
 function FeedCard({ i, w, h }: { i: number; w: number; h: number }) {
   const c = CARDS[((i % CARDS.length) + CARDS.length) % CARDS.length];
-  const k = w / 920;
+  const k = w / 1080;
   return (
-    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(160deg, ${c.a}, ${c.b})`, overflow: "hidden" }}>
-      <div style={{ position: "absolute", left: 0, right: 0, top: h * 0.3, textAlign: "center", fontSize: 330 * k, lineHeight: 1 }}>{c.e}</div>
-      {/* 오른쪽 아이콘 줄 */}
-      {["❤", "💬", "➤"].map((g, j) => (
-        <div
-          key={g}
-          style={{
-            position: "absolute",
-            right: 34 * k,
-            top: h * 0.56 + j * 150 * k,
-            width: 96 * k,
-            height: 96 * k,
-            borderRadius: "50%",
-            background: "rgba(0,0,0,0.18)",
-            color: "#fff",
-            fontSize: 48 * k,
-            lineHeight: `${96 * k}px`,
-            textAlign: "center",
-          }}
-        >
-          {g}
+    <div style={{ position: "absolute", inset: 0, overflow: "hidden", background: "#111" }}>
+      <Img src={staticFile(`story/reels/${c.img}.jpg`)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.6) 100%)" }} />
+      {/* 오른쪽 버튼 줄 */}
+      {(["heart", "chat", "send"] as const).map((g, j) => (
+        <div key={g} style={{ position: "absolute", right: 40 * k, top: h * 0.55 + j * 170 * k, width: 90 * k, textAlign: "center" }}>
+          <Glyph name={g} size={78 * k} />
+          <div style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 30 * k, color: "#fff", marginTop: 6 * k }}>{j === 0 ? c.likes : j === 1 ? "1 204" : ""}</div>
         </div>
       ))}
-      <div style={{ position: "absolute", left: 44 * k, bottom: 190 * k, fontFamily: HEAD, fontWeight: 700, fontSize: 46 * k, color: "#fff" }}>{c.u}</div>
-      <div style={{ position: "absolute", left: 44 * k, bottom: 140 * k, width: 520 * k, height: 22 * k, borderRadius: 11 * k, background: "rgba(255,255,255,0.55)" }} />
-      <div style={{ position: "absolute", left: 44 * k, bottom: 100 * k, width: 340 * k, height: 22 * k, borderRadius: 11 * k, background: "rgba(255,255,255,0.35)" }} />
+      <div style={{ position: "absolute", left: 44 * k, bottom: 230 * k, display: "flex", alignItems: "center", gap: 18 * k }}>
+        <div style={{ width: 76 * k, height: 76 * k, borderRadius: "50%", border: `${4 * k}px solid #fff`, overflow: "hidden" }}>
+          <Img src={staticFile(`story/reels/${c.img}.jpg`)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
+        <div style={{ fontFamily: HEAD, fontWeight: 700, fontSize: 44 * k, color: "#fff" }}>{c.u}</div>
+      </div>
+      <div style={{ position: "absolute", left: 44 * k, bottom: 170 * k, display: "flex", alignItems: "center", gap: 12 * k, fontFamily: HEAD, fontSize: 32 * k, color: "rgba(255,255,255,0.85)" }}>
+        <Glyph name="music" size={30 * k} /> original audio
+      </div>
     </div>
   );
 }
@@ -209,15 +210,15 @@ export function HookScene() {
   const f = useCurrentFrame();
   const sec = Math.floor(f / 30);
   const bump = 1 + 0.08 * (1 - tween(f % 30, 0, 9));
-  const push = lerp(1, 1.07, tween(f, 0, 100, 0, 1, easeInOut));
+  const push = lerp(1, 1.07, tween(f, 0, T.hook.dur - 20, 0, 1, easeInOut));
   // 끝 20프레임 — 숫자 한가운데로 처박히는 크래시 줌
-  const crash = tween(f, 100, 20, 0, 1, easeIn);
+  const crash = tween(f, T.hook.dur - 20, 20, 0, 1, easeIn);
   return (
     <Cam blur={crash * 26} origin="50% 47%" scale={push * lerp(1, 9, crash)}>
       <div style={{ position: "absolute", inset: 0, background: C.night }} />
       <Glow color="rgba(119,110,226,0.35)" r={700} x={540} y={900} opacity={tween(f, 0, 40)} />
       <Centered y={560}>
-        <Rise p={tween(f, 4, 16)}>
+        <Rise p={tween(f, T.hook.voice, 16)}>
           <div style={text(70, { color: C.dim })}>Bu video</div>
         </Rise>
       </Centered>
@@ -240,14 +241,14 @@ export function HookScene() {
         0:{String(sec).padStart(2, "0")}
       </div>
       <Centered y={1080}>
-        <Rise p={tween(f, 22, 18)}>
+        <Rise p={tween(f, T.hook.total, 18)}>
           <div style={text(86)}>
-            <span style={{ color: C.violet }}>57 soniya</span> davom etadi.
+            <span style={{ color: C.violet }}>{STORY_SECONDS} soniya</span> davom etadi.
           </div>
         </Rise>
       </Centered>
       <Centered y={1210}>
-        <Rise p={tween(f, 56, 18)}>
+        <Rise p={tween(f, T.hook.count, 18)}>
           <div style={text(56, { color: C.dim })}>Keling, sanab ko‘ramiz.</div>
         </Rise>
       </Centered>
@@ -257,25 +258,22 @@ export function HookScene() {
 
 // ───────────────────────────── 2. 피드 — 넘기고 넘기고, 1년에 730시간
 
-const SWIPES = [12, 36, 60];
+const SWIPES = T.feed.swipes;
 /** 피드 스크롤(장) — 처음엔 한 장씩 넘기다가 점점 빨라져서 흐려진다, 끝에서 멈춘다 */
 function feedScroll(f: number) {
   let s = 0;
   for (const at of SWIPES) s += tween(f, at, 10, 0, 1, easeInOut);
   let v = 0;
-  for (let t = 72; t < Math.min(f, 200); t++) {
-    const vt = t < 160 ? lerp(0.06, 0.55, ((t - 72) / 88) ** 1.6) : Math.max(0, lerp(0.55, 0, (t - 160) / 26));
+  const { accelFrom, peak, stop } = T.feed;
+  for (let t = accelFrom; t < Math.min(f, stop); t++) {
+    const vt = t < peak ? lerp(0.06, 0.55, ((t - accelFrom) / (peak - accelFrom)) ** 1.6) : lerp(0.55, 0, (t - peak) / (stop - peak));
     s += vt;
     v = vt;
   }
-  return { s, v: f < 200 ? v : 0 };
+  return { s, v: f < stop ? v : 0 };
 }
 
-const COUNTS = [
-  { at: 50, value: 2, label: "bir kunda" },
-  { at: 100, value: 60, label: "bir oyda" },
-  { at: 140, value: 730, label: "bir yilda" },
-];
+const COUNTS = T.feed.counts;
 
 export function FeedScene() {
   const f = useCurrentFrame();
@@ -286,14 +284,14 @@ export function FeedScene() {
   const fast = Math.min(1, v / 0.55);
   const sh = shake(f, fast * 0.8);
   // 끝 — 카메라가 뒤로 빠지며 이게 폰 화면이었다는 게 보인다
-  const pull = tween(f, 178, 28, 0, 1, easeInOut);
+  const pull = tween(f, T.feed.pull, 28, 0, 1, easeInOut);
   const screenW = lerp(W, 420, pull);
   const screenH = lerp(H, 910, pull);
-  const grey = tween(f, 170, 26);
+  const grey = tween(f, T.feed.grey, 26);
   const value =
     f < COUNTS[1].at ? lerp(0, 2, tween(f, COUNTS[0].at, 14)) : f < COUNTS[2].at ? lerp(2, 60, tween(f, COUNTS[1].at, 22)) : lerp(60, 730, tween(f, COUNTS[2].at, 26));
   const label = [...COUNTS].reverse().find((c) => f >= c.at)?.label ?? COUNTS[0].label;
-  const panel = tween(f, 44, 14) * (1 - tween(f, 176, 14));
+  const panel = tween(f, COUNTS[0].at - 6, 14) * (1 - tween(f, T.feed.grey, 14));
   return (
     <>
       <div style={{ position: "absolute", inset: 0, background: C.night }} />
@@ -318,7 +316,7 @@ export function FeedScene() {
       </Cam>
       {/* 글자는 카메라 밖 — 흔들려도 읽힌다 */}
       <Centered y={190}>
-        <Rise p={tween(f, 18, 16) * (1 - tween(f, 170, 12))}>
+        <Rise p={tween(f, T.feed.voiceA, 16) * (1 - tween(f, T.feed.grey, 12))}>
           <div style={{ ...text(66), textShadow: "0 6px 30px rgba(0,0,0,0.6)" }}>Kuniga 2 soat reels…</div>
         </Rise>
       </Centered>
@@ -344,9 +342,9 @@ export function FeedScene() {
         <div style={text(48, { color: C.dim, marginTop: 6 })}>{label}</div>
       </div>
       <Centered y={1520}>
-        <Rise p={tween(f, 182, 16)}>
+        <Rise p={tween(f, T.feed.voiceQ, 16)}>
           <div style={text(64)}>Shulardan nechtasi</div>
-          <div style={text(64, { color: C.reel })}>esingizda?</div>
+          <div style={text(64, { color: C.reel })}>esingizda qolgan?</div>
         </Rise>
       </Centered>
     </>
@@ -361,9 +359,10 @@ const LANE_X = { a: 270, b: 790 };
 
 export function SplitScene() {
   const f = useCurrentFrame();
-  const glitch = tween(f, 14, 4) * (1 - tween(f, 22, 10));
-  const apart = tween(f, 20, 24, 0, 1, easeOut);
-  const punch = 1 + 0.08 * (1 - tween(f, 20, 18));
+  const { tear } = T.split;
+  const glitch = tween(f, tear, 4) * (1 - tween(f, tear + 8, 10));
+  const apart = tween(f, tear + 6, 24, 0, 1, easeOut);
+  const punch = 1 + 0.08 * tween(f, tear + 4, 2) * (1 - tween(f, tear + 6, 18));
   const sh = shake(f, glitch);
   const centerX = (W - 420) / 2;
   const leftX = lerp(centerX, LANE_X.a - LANE_PHONE.w / 2, apart);
@@ -371,7 +370,7 @@ export function SplitScene() {
   const phoneW = lerp(420, LANE_PHONE.w, apart);
   const phoneH = lerp(910, LANE_PHONE.h, apart);
   const top = lerp((H - 910) / 2 - 40, LANE_PHONE.top, apart);
-  const violet = tween(f, 22, 20);
+  const violet = tween(f, tear + 8, 20);
   const world = (
     <>
       <Lanes reveal={apart} />
@@ -400,13 +399,13 @@ export function SplitScene() {
         </Glitch>
       </Cam>
       <Centered y={150}>
-        <Rise p={tween(f, 0, 10) * (1 - tween(f, 16, 8))}>
+        <Rise p={tween(f, T.split.voiceA, 10) * (1 - tween(f, tear - 4, 8))}>
           <div style={text(66)}>Endi tasavvur qiling:</div>
         </Rise>
       </Centered>
-      <LaneLabels p={tween(f, 40, 16)} />
+      <LaneLabels p={tween(f, T.split.voiceC, 16)} pB={tween(f, T.split.labelB, 16)} />
       <Centered y={1300}>
-        <Rise p={tween(f, 50, 16)} style={{ display: "inline-block", padding: "26px 54px", borderRadius: 36, background: "rgba(9,8,15,0.86)", border: "2px solid rgba(255,255,255,0.1)" }}>
+        <Rise p={tween(f, T.split.voiceB, 16)} style={{ display: "inline-block", padding: "26px 54px", borderRadius: 36, background: "rgba(9,8,15,0.86)", border: "2px solid rgba(255,255,255,0.1)" }}>
           <div style={text(60)}>Bir xil odam.</div>
           <div style={text(60, { color: C.dim })}>Bir xil telefon.</div>
         </Rise>
@@ -450,7 +449,7 @@ function Lanes({ reveal, scene }: { reveal: number; scene?: string | null }) {
   );
 }
 
-function LaneLabels({ p }: { p: number }) {
+function LaneLabels({ p, pB = p }: { p: number; pB?: number }) {
   const chip = (letter: string, label: string, bg: string, fg: string): ReactNode => (
     <div style={{ display: "flex", alignItems: "center", gap: 16, justifyContent: "center" }}>
       <div style={{ width: 62, height: 62, borderRadius: 18, background: bg, color: fg, fontFamily: DIN, fontSize: 46, lineHeight: "62px", textAlign: "center" }}>{letter}</div>
@@ -458,9 +457,9 @@ function LaneLabels({ p }: { p: number }) {
     </div>
   );
   return (
-    <div style={{ position: "absolute", left: 0, right: 0, top: 268, display: "flex", opacity: p, transform: `translateY(${(1 - p) * -30}px)` }}>
-      <div style={{ width: 540 }}>{chip("A", "Faqat reels", C.grey, C.dim)}</div>
-      <div style={{ width: 540 }}>{chip("B", "+ 10 daqiqa KORIO", C.violet, "#fff")}</div>
+    <div style={{ position: "absolute", left: 0, right: 0, top: 268, display: "flex" }}>
+      <div style={{ width: 540, opacity: p, transform: `translateY(${(1 - p) * -30}px)` }}>{chip("A", "Faqat reels", C.grey, C.dim)}</div>
+      <div style={{ width: 540, opacity: pB, transform: `translateY(${(1 - pB) * -30}px)` }}>{chip("B", "+ 10 daqiqa KORIO", C.violet, "#fff")}</div>
     </div>
   );
 }
@@ -479,7 +478,7 @@ export function DaysScene() {
   const whipY = -outP * 320 + inP * 320;
   const whipBlur = (outP + inP) * 26;
   // 마지막 — B 의 폰 화면 속으로 빨려 들어간다
-  const dive = tween(f, 612, 48, 0, 1, easeIn);
+  const dive = tween(f, DAYS_DUR - 48, 48, 0, 1, easeIn);
   const drift = tween(local, 0, BEAT, 0, 1, easeInOut);
   const beat = BEATS[idx];
   return (
@@ -509,7 +508,7 @@ function DayCounter({ f }: { f: number }) {
       {BEATS.map((b, i) => {
         const start = i * BEAT;
         const inP = i === 0 ? tween(f, 0, 12) : tween(f, start - 4, 12);
-        const outP = i < BEATS.length - 1 ? tween(f, start + BEAT - 4, 12) : tween(f, 612, 20);
+        const outP = i < BEATS.length - 1 ? tween(f, start + BEAT - 4, 12) : tween(f, DAYS_DUR - 48, 20);
         const y = (1 - inP) * 130 - outP * 130;
         if (inP <= 0 || outP >= 1) return null;
         return (
@@ -548,10 +547,10 @@ function LaneA({ beat, f, idx, local }: { beat: Beat; f: number; idx: number; lo
 
 function LaneB({ beat, idx, local }: { beat: Beat; idx: number; local: number }) {
   const x = LANE_X.b - LANE_PHONE.w / 2;
-  const decode = tween(local, 40, 34, 0, 1, (t) => t);
-  const meaning = tween(local, 78, 16);
-  const gain = tween(local, 96, 16);
-  const streakPop = spring({ frame: local - 8, fps: 30, config: { damping: 9, stiffness: 160 } });
+  const decode = tween(local, DAY_T.decode, 30, 0, 1, (t) => t);
+  const meaning = tween(local, DAY_T.meaning, 16);
+  const gain = tween(local, DAY_T.gain, 16);
+  const streakPop = spring({ frame: local - DAY_T.streak, fps: 30, config: { damping: 9, stiffness: 160 } });
   return (
     <>
       <Handset h={LANE_PHONE.h} w={LANE_PHONE.w} x={x} y={LANE_PHONE.top} style={{ boxShadow: "0 40px 110px rgba(0,0,0,0.6), 0 0 80px rgba(119,110,226,0.45), inset 0 0 0 2px rgba(255,255,255,0.14)" }}>
@@ -670,22 +669,23 @@ export function MeetScene() {
   const { fps } = useVideoConfig();
   // 폰 화면 속에서 빠져나온다 → 아주 천천히 밀고 들어간다
   const enter = tween(f, 0, 26);
-  const push = lerp(1.02, 1.1, tween(f, 20, 200, 0, 1, easeInOut));
-  const tilt = tween(f, 90, 30, 0, 1, easeInOut);
-  const crumble = tween(f, 150, 50, 0, 1, (t) => t);
-  const sh = shake(f, f > 148 && f < 172 ? 0.5 : 0);
+  const M = T.meet;
+  const push = lerp(1.02, 1.1, tween(f, 20, M.rack - 20, 0, 1, easeInOut));
+  const tilt = tween(f, M.replyA - 10, 30, 0, 1, easeInOut);
+  const crumble = tween(f, M.crumble, 50, 0, 1, (t) => t);
+  const sh = shake(f, f > M.crumble - 2 && f < M.crumble + 22 ? 0.5 : 0);
   // 마무리 문장 — 배경 초점이 나간다 (랙 포커스)
-  const rack = tween(f, 212, 26, 0, 1, easeInOut);
-  const hara = spring({ frame: f - 18, fps, config: { damping: 14, stiffness: 120 } });
-  const cheer = f >= 176;
-  const cheerPop = cheer ? spring({ frame: f - 176, fps, config: { damping: 8, stiffness: 200 } }) : 1;
-  const bubble = spring({ frame: f - 46, fps, config: { damping: 12, stiffness: 170 } });
-  const aIn = spring({ frame: f - 94, fps, config: { damping: 13, stiffness: 160 } });
-  const bIn = spring({ frame: f - 122, fps, config: { damping: 13, stiffness: 160 } });
-  const bDecode = tween(f, 126, 24, 0, 1, (t) => t);
+  const rack = tween(f, M.rack, 26, 0, 1, easeInOut);
+  const hara = spring({ frame: f - M.hara, fps, config: { damping: 14, stiffness: 120 } });
+  const cheer = f >= M.cheer;
+  const cheerPop = cheer ? spring({ frame: f - M.cheer, fps, config: { damping: 8, stiffness: 200 } }) : 1;
+  const bubble = spring({ frame: f - M.bubble, fps, config: { damping: 12, stiffness: 170 } });
+  const aIn = spring({ frame: f - M.replyA, fps, config: { damping: 13, stiffness: 160 } });
+  const bIn = spring({ frame: f - M.replyB, fps, config: { damping: 13, stiffness: 160 } });
+  const bDecode = tween(f, M.voiceB, 28, 0, 1, (t) => t);
   const aText = scramble("네… 어… 저는…", 0, f, 41);
   const bText = scramble("네! 조금 할 줄 알아요", bDecode, f, 43);
-  const aShake = f > 104 && f < 150 ? Math.sin(f * 1.7) * 6 : 0;
+  const aShake = f > M.replyA + 10 && f < M.crumble ? Math.sin(f * 1.7) * 6 : 0;
   return (
     <>
       <div style={{ position: "absolute", inset: 0, background: C.night }} />
@@ -727,6 +727,11 @@ export function MeetScene() {
           <div style={{ position: "absolute", right: -18, bottom: 40, width: 0, height: 0, borderTop: "18px solid transparent", borderBottom: "18px solid transparent", borderLeft: "26px solid #fff" }} />
         </div>
       </Cam>
+      <Centered y={210}>
+        <Rise p={tween(f, M.voiceA, 16) * (1 - tween(f, M.replyA, 12))}>
+          <div style={{ ...text(72), textShadow: "0 6px 30px rgba(0,0,0,0.7)" }}>Bir kuni, Seulda…</div>
+        </Rise>
+      </Centered>
       {/* 대답 — 내 쪽(POV) 말풍선 둘 */}
       {crumble <= 0 ? (
         <Reply box={A_BOX} letter="A" p={aIn} shiftX={aShake} tone="a">
@@ -736,15 +741,15 @@ export function MeetScene() {
       <Disintegrate box={A_BOX} color="#4A4858" cols={18} p={crumble} rows={6} />
       <Reply box={{ x: 330, y: 1385, w: 640, h: 200 }} letter="B" p={bIn} tone="b">
         <div style={{ fontFamily: KO, fontWeight: 800, fontSize: 56, color: "#fff" }}>{bText}</div>
-        <div style={text(32, { color: "rgba(255,255,255,0.8)", marginTop: 8, opacity: tween(f, 152, 14) })}>Ha, biroz gapira olaman!</div>
+        <div style={text(32, { color: "rgba(255,255,255,0.8)", marginTop: 8, opacity: tween(f, M.voiceB + 30, 14) })}>Ha, biroz gapira olaman!</div>
       </Reply>
       {/* 마무리 문장 */}
       <div style={{ position: "absolute", inset: 0, background: "rgba(9,8,15,0.72)", opacity: rack }} />
       <Centered y={700}>
-        <Rise p={tween(f, 222, 16)}>
+        <Rise p={tween(f, M.voiceC, 16)}>
           <div style={text(70, { color: C.dim })}>Vaqt bir xil edi.</div>
         </Rise>
-        <Rise p={tween(f, 240, 16)} style={{ marginTop: 40 }}>
+        <Rise p={tween(f, M.voiceD, 16)} style={{ marginTop: 40 }}>
           <div style={text(84)}>Farqi — kuniga atigi</div>
           <div style={{ ...text(170, { color: C.green, letterSpacing: -2 }), fontFamily: DIN, marginTop: 10, textShadow: "0 0 60px rgba(88,204,2,0.45)" }}>10 daqiqa.</div>
         </Rise>
@@ -817,10 +822,10 @@ function Reply({
 // ───────────────────────────── 6. 얻는 것 — 폰 둘레를 카메라가 돈다
 
 const GAINS: { at: number; side: "l" | "r"; y: number; icon: ReactNode; color: string; label: string }[] = [
-  { at: 30, side: "l", y: 560, icon: <span style={{ fontFamily: KO, fontWeight: 800, fontSize: 44 }}>ㄱ</span>, color: C.violet, label: "Hangul — noldan" },
-  { at: 52, side: "r", y: 790, icon: <Icon name="school" size={44} />, color: "#F2A40B", label: "Qisqa kunlik darslar" },
-  { at: 74, side: "l", y: 1020, icon: <Icon name="mic" size={44} />, color: "#2DB55D", label: "AI ustoz bilan jonli suhbat" },
-  { at: 96, side: "r", y: 1250, icon: <Icon name="sparkles" size={44} />, color: "#F0548E", label: "TOPIK va ingliz tili" },
+  { at: T.gains.chips[0], side: "l", y: 560, icon: <span style={{ fontFamily: KO, fontWeight: 800, fontSize: 44 }}>ㄱ</span>, color: C.violet, label: "Koreys alifbosi — noldan" },
+  { at: T.gains.chips[1], side: "r", y: 790, icon: <Icon name="school" size={44} />, color: "#F2A40B", label: "Qisqa kunlik darslar" },
+  { at: T.gains.chips[2], side: "l", y: 1020, icon: <Icon name="mic" size={44} />, color: "#2DB55D", label: "Sun’iy intellekt ustoz bilan jonli suhbat" },
+  { at: T.gains.chips[3], side: "r", y: 1250, icon: <Icon name="sparkles" size={44} />, color: "#F0548E", label: "TOPIK va ingliz tili" },
 ];
 
 const FLOATERS = ["ㄱ", "한", "ㅎ", "국", "어", "ㅏ", "A", "ㄴ", "B", "말", "ㅗ", "TOPIK"];
@@ -830,7 +835,7 @@ export function GainsScene() {
   const { fps } = useVideoConfig();
   const enter = tween(f, 0, 24);
   const orbit = Math.sin(f / 34) * 16;
-  const leave = tween(f, 150, 30, 0, 1, easeIn);
+  const leave = tween(f, T.gains.leave, 28, 0, 1, easeIn);
   return (
     <>
       <div style={{ position: "absolute", inset: 0, background: C.night }} />
@@ -875,13 +880,13 @@ export function GainsScene() {
               }}
             >
               <div style={{ width: 76, height: 76, borderRadius: 24, background: g.color, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>{g.icon}</div>
-              <div style={text(38, { color: "#16132B", whiteSpace: "nowrap" })}>{g.label}</div>
+              <div style={text(36, { color: "#16132B", maxWidth: 440 })}>{g.label}</div>
             </div>
           );
         })}
       </Cam>
       <Centered y={190}>
-        <Rise p={tween(f, 6, 16) * (1 - leave)}>
+        <Rise p={tween(f, T.gains.voiceA, 16) * (1 - leave)}>
           <div style={text(72)}>KORIO’da sizni</div>
           <div style={text(72, { color: C.violet })}>nima kutadi?</div>
         </Rise>
@@ -894,7 +899,7 @@ export function GainsScene() {
 
 export const PILL_CORNER = { x: 900, y: 92, scale: 1 };
 export const PILL_END = { x: 540, y: 760, scale: 2.6 };
-export const FLIP_AT = 52;
+export const FLIP_AT = T.end.flip;
 
 export function EndScene() {
   const f = useCurrentFrame();
@@ -932,7 +937,7 @@ export function EndScene() {
         {f < FLIP_AT ? (
           <div style={{ position: "absolute", left: 0, top: 0, width: W, height: H, transform: `perspective(1400px) rotateY(${flipOut * 90}deg)`, transformOrigin: `${PILL_END.x}px ${PILL_END.y}px` }}>
             <TimerPill
-              frame={f + 1560}
+              frame={f + STORY.end.from}
               scale={lerp(PILL_CORNER.scale, PILL_END.scale, fly)}
               x={lerp(PILL_CORNER.x, PILL_END.x, fly)}
               y={lerp(PILL_CORNER.y, PILL_END.y, fly) - Math.sin(fly * Math.PI) * 120}
@@ -960,20 +965,20 @@ export function EndScene() {
         </Rise>
       </Centered>
       <Centered y={1010}>
-        <Rise p={tween(f, FLIP_AT + 8, 16)}>
+        <Rise p={tween(f, T.end.voiceB, 16)}>
           <div style={text(66, { color: C.dim })}>Keyingi 50 soniyangiz</div>
         </Rise>
-        <Rise p={tween(f, FLIP_AT + 18, 16)}>
+        <Rise p={tween(f, T.end.voiceB + 14, 16)}>
           <div style={text(104)}>
             KORIO’da <span style={{ color: C.violet }}>o‘tsin.</span>
           </div>
         </Rise>
       </Centered>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 1330, textAlign: "center", opacity: tween(f, FLIP_AT + 34, 14) }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 1330, textAlign: "center", opacity: tween(f, T.end.voiceC - 4, 14) }}>
         <div style={text(36, { color: C.dim, marginBottom: 26 })}>Yuklab olish — bepul</div>
         <div style={{ display: "flex", justifyContent: "center", gap: 26 }}>
-          <StoreButton bg="#000" icon="play" big="Google Play" small="Yuklab oling" p={spring({ frame: f - FLIP_AT - 36, fps, config: { damping: 12 } })} />
-          <StoreButton bg="#2AABEE" icon="plane" big="@KorioLoginBot" small="Telegram mini ilova" p={spring({ frame: f - FLIP_AT - 42, fps, config: { damping: 12 } })} />
+          <StoreButton bg="#000" icon="play" big="Google Play" small="Yuklab oling" p={spring({ frame: f - T.end.voiceC + 2, fps, config: { damping: 12 } })} />
+          <StoreButton bg="#2AABEE" icon="plane" big="@KorioLoginBot" small="Telegram mini ilova" p={spring({ frame: f - T.end.voiceC - 4, fps, config: { damping: 12 } })} />
         </div>
       </div>
     </>
@@ -1005,6 +1010,12 @@ function StoreButton({ bg, icon, small, big, p }: { bg: string; icon: "play" | "
 
 // ───────────────────────────── 화면 위 고정 (카메라 밖)
 
+/** "1:07" — 영상 길이를 넘지 않는다 */
+const clockOf = (frame: number) => {
+  const sec = Math.min(STORY_SECONDS, Math.floor(frame / 30));
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
+};
+
 /** 이 영상 자신의 시계 — 오른쪽 위 알약. 끝에서 가운데로 와서 커진다 */
 export function TimerPill({ frame, x, y, scale }: { frame: number; x: number; y: number; scale: number }) {
   return (
@@ -1025,8 +1036,8 @@ export function TimerPill({ frame, x, y, scale }: { frame: number; x: number; y:
       }}
     >
       <span style={{ width: 14, height: 14, borderRadius: 7, background: C.reel, opacity: frame % 30 < 15 ? 1 : 0.3 }} />
-      <span style={{ fontFamily: DIN, fontSize: 38, color: C.ink }}>{`0:${String(Math.floor(frame / 30)).padStart(2, "0")}`}</span>
-      <span style={{ fontFamily: DIN, fontSize: 30, color: C.dim }}>/ 0:57</span>
+      <span style={{ fontFamily: DIN, fontSize: 38, color: C.ink }}>{clockOf(frame)}</span>
+      <span style={{ fontFamily: DIN, fontSize: 30, color: C.dim }}>/ {clockOf(STORY_SECONDS * 30)}</span>
     </div>
   );
 }

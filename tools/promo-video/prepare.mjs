@@ -36,6 +36,16 @@ mkdirSync(join(PUBLIC, "story"), { recursive: true });
 for (const file of STORY) {
   cpSync(join(REPO, "apps/mobile/assets/images", file), join(PUBLIC, "story", file.split("/").pop()));
 }
+// 스토리 영상의 릴스 피드 사진 — Unsplash 사진(Unsplash License, 상업 사용 가능)을 Picsum 번호로 받는다. 없을 때만
+const REELS = { bear: 433, dog: 237, leopard: 219, berries: 429, salad: 488, latte: 431, crowd: 452, sparkler: 407, balloon: 174, car: 111, jump: 390, santorini: 49, trails: 352, concert: 158 };
+mkdirSync(join(PUBLIC, "story", "reels"), { recursive: true });
+for (const [name, id] of Object.entries(REELS)) {
+  const out = join(PUBLIC, "story", "reels", `${name}.jpg`);
+  if (existsSync(out)) continue;
+  const response = await fetch(`https://picsum.photos/id/${id}/1080/1920`);
+  if (!response.ok) throw new Error(`reel photo ${name}: ${response.status}`);
+  writeFileSync(out, Buffer.from(await response.arrayBuffer()));
+}
 cpSync(join(REPO, "apps/telegram-app/public/fonts/Ionicons.ttf"), join(PUBLIC, "fonts", "Ionicons.ttf"));
 cpSync(join(REPO, "apps/telegram-app/public/sounds"), join(PUBLIC, "sfx"), { recursive: true });
 
