@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AdminModule } from '../admin/admin.module';
 import { RateLimitGuard } from '../common/rate-limit';
@@ -16,6 +17,8 @@ import {
 @Module({
   imports: [
     AdminModule,
+    // AdminGuard 가 JwtService 를 받는다 (SupportModule 과 같다)
+    JwtModule.register({}),
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: AppReview.name, schema: AppReviewSchema },
