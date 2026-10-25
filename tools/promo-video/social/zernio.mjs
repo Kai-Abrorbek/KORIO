@@ -11,6 +11,8 @@
  *   node social/zernio.mjs carousel <이미지 폴더> <캡션.txt> [--account <id>] [--yes]
  *       폴더의 01.png ~ 10.png (또는 jpg)를 번호 순서대로 인스타그램 캐러셀로 게시한다.
  *       --yes 가 없으면 계정, 이미지 순서, 캡션만 보여 준다.
+ *   node social/zernio.mjs image <이미지.png> <캡션.txt> [--ai-generated] [--account <id>] [--yes]
+ *       이미지 한 장을 피드에 게시한다. --ai-generated 는 인스타그램의 AI 정보 표시를 켠다.
  *   node social/zernio.mjs get <경로>
  *       읽기 전용 조회 (예: get "/analytics?platform=instagram")
  *   node social/zernio.mjs status <postId>
@@ -130,6 +132,35 @@ if (command === "accounts") {
   const post = json.post ?? json;
   console.log(JSON.stringify({ http: status, postId: post._id ?? post.id ?? json.postId, status: post.status, platforms: post.platforms?.map((p) => ({ platform: p.platform, status: p.status, url: p.platformPostUrl ?? p.url, error: p.errorMessage ?? p.error })) }, null, 1));
   if (post.status === "failed" || status === 207) process.exitCode = 1;
+} else if (command === "image") {
+  const [imageFile, captionFile] = args;
+  if (!imageFile || !captionFile) throw new Error("image <이미지.png> <캡션.txt> 를 지정한다");
+  const contentType = /\.png$/i.test(imageFile) ? "image/png" : /\.jpe?g$/i.test(imageFile) ? "image/jpeg" : undefined;
+  if (!contentType) throw new Error("인스타그램 피드 이미지는 PNG 또는 JPEG여야 한다");
+  const size = statSync(imageFile).size;
+  if (size > 8 * 1024 * 1024) throw new Error("인스타그램 이미지 크기 8MB 초과");
+  const caption = readFileSync(captionFile, "utf8").trim();
+  if (!caption || caption.length > 2200) throw new Error("캡션은 1~2200자여야 한다");
+  const instagram = (await accounts()).filter((a) => a.platform === "instagram" && a.active !== false);
+  const account = flag("--account") ? instagram.find((a) => a.id === flag("--account")) : instagram[0];
+  if (!account) throw new Error("연결된 인스타그램 계정이 없다");
+  if (instagram.length > 1 && !flag("--account")) throw new Error(`인스타그램 계정이 여러 개다 — --account 로 고른다: ${instagram.map((a) => `${a.username}=${a.id}`).join(", ")}`);
+  const aiGenerated = process.argv.includes("--ai-generated");
+  console.log(JSON.stringify({ account: `@${account.username} (${account.id})`, as: "피드 이미지", image: basename(imageFile), imageMB: +(size / 1048576).toFixed(2), aiGenerated, when: "지금 바로", captionChars: caption.length, caption }, null, 1));
+  if (!process.argv.includes("--yes")) {
+    console.log("\n(--yes 가 없어 올리지 않았다)");
+    process.exit(0);
+  }
+  const imageUrl = await upload(imageFile, contentType);
+  const { status, json } = await api("POST", "/posts", {
+    content: caption,
+    mediaItems: [{ type: "image", url: imageUrl }],
+    platforms: [{ platform: "instagram", accountId: account.id, ...(aiGenerated ? { platformSpecificData: { isAiGenerated: true } } : {}) }],
+    publishNow: true,
+  }, { "x-request-id": randomUUID() });
+  const post = json.post ?? json;
+  console.log(JSON.stringify({ http: status, postId: post._id ?? post.id ?? json.postId, status: post.status, platforms: post.platforms?.map((p) => ({ platform: p.platform, status: p.status, url: p.platformPostUrl ?? p.url, error: p.errorMessage ?? p.error })) }, null, 1));
+  if (post.status === "failed" || status === 207) process.exitCode = 1;
 } else if (command === "post") {
   const [video, captionFile] = args;
   const caption = readFileSync(captionFile, "utf8").trim();
@@ -177,6 +208,6 @@ if (command === "accounts") {
   const post = json.post ?? json;
   console.log(JSON.stringify({ http: status, postId: post._id ?? post.id ?? json.postId, status: post.status }, null, 1));
 } else {
-  console.error("usage: zernio.mjs accounts | carousel <image-dir> <caption.txt> [--account id] [--yes] | post <video> <caption.txt> [--cover png] [--story] [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
+  console.error("usage: zernio.mjs accounts | image <image.png> <caption.txt> [--ai-generated] [--account id] [--yes] | carousel <image-dir> <caption.txt> [--account id] [--yes] | post <video> <caption.txt> [--cover png] [--story] [--account id] [--at ISO --tz zone] [--yes] | status <postId>");
   process.exit(1);
 }
