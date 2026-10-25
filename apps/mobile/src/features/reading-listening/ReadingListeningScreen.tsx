@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -12,7 +11,11 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Pressable, TouchableOpacity, PressableText } from "@/components/ui/Pressables";
+import {
+  Pressable,
+  TouchableOpacity,
+  PressableText,
+} from "@/components/ui/Pressables";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { buildSpokenTimeline } from "@/features/expressions/utils/speech-timing";
@@ -111,23 +114,18 @@ const UI_COPY: Record<
     unit: string;
     minutes: string;
     steps: Record<StepKey, string>;
-    readEyebrow: string;
-    readLead: string;
     listenAll: string;
     stopListening: string;
     fontSize: string;
     highlightedWord: string;
     tapWord: string;
-    checkEyebrow: string;
     checkTitle: string;
     checkLead: string;
     explanation: string;
-    writeEyebrow: string;
     writeTitle: string;
     writeGuide: string;
     exampleAnswer: string;
     hideExample: string;
-    vocabularyEyebrow: string;
     vocabularyTitle: string;
     vocabularyLead: string;
     tapToReveal: string;
@@ -155,23 +153,18 @@ const UI_COPY: Record<
       write: "써 봅시다",
       vocabulary: "새 어휘를 배워 봅시다",
     },
-    readEyebrow: "오늘의 문화 읽기",
-    readLead: "서두르지 말고 문장의 흐름을 느끼며 읽어 보세요.",
     listenAll: "전체 지문 듣기",
     stopListening: "듣기 멈추기",
     fontSize: "글자 크기",
     highlightedWord: "선택한 어휘",
     tapWord: "색이 있는 단어를 누르면 뜻을 바로 볼 수 있어요.",
-    checkEyebrow: "내용 이해",
     checkTitle: "읽은 내용을 차분히 떠올려 보세요",
     checkLead: "정답을 고르면 바로 근거를 확인할 수 있어요.",
     explanation: "본문에서 찾은 근거",
-    writeEyebrow: "나의 문장",
     writeTitle: "읽은 표현으로 내 이야기를 써 보세요",
     writeGuide: "생각을 여는 질문",
     exampleAnswer: "예시 답안 보기",
     hideExample: "예시 답안 닫기",
-    vocabularyEyebrow: "핵심 어휘",
     vocabularyTitle: "지문에서 만난 단어를 정리해요",
     vocabularyLead: "카드를 눌러 뜻과 예문을 확인해 보세요.",
     tapToReveal: "눌러서 뜻 보기",
@@ -215,23 +208,18 @@ const UI_COPY: Record<
       write: "Yozib ko‘ramiz",
       vocabulary: "Yangi so‘zlar",
     },
-    readEyebrow: "Bugungi madaniy matn",
-    readLead: "Shoshilmang, gaplar oqimini his qilib o‘qing.",
     listenAll: "Matnni to‘liq tinglash",
     stopListening: "Tinglashni to‘xtatish",
     fontSize: "Matn o‘lchami",
     highlightedWord: "Tanlangan so‘z",
     tapWord: "Rangli so‘zga tegib, ma’nosini darhol ko‘ring.",
-    checkEyebrow: "Mazmunni tushunish",
     checkTitle: "O‘qiganlaringizni xotirjam eslang",
     checkLead: "Javobni tanlasangiz, matndagi asosni ko‘rasiz.",
     explanation: "Matndagi asos",
-    writeEyebrow: "Mening gaplarim",
     writeTitle: "O‘qigan iboralaringiz bilan o‘z hikoyangizni yozing",
     writeGuide: "Fikrni ochuvchi savollar",
     exampleAnswer: "Namuna javobni ko‘rish",
     hideExample: "Namunani yopish",
-    vocabularyEyebrow: "Asosiy so‘zlar",
     vocabularyTitle: "Matnda uchragan so‘zlarni jamlaymiz",
     vocabularyLead: "Ma’no va misolni ko‘rish uchun kartani bosing.",
     tapToReveal: "Ma’nosini ko‘rish",
@@ -276,23 +264,18 @@ const UI_COPY: Record<
       write: "Write",
       vocabulary: "New words",
     },
-    readEyebrow: "Today’s culture reading",
-    readLead: "Take your time and follow the flow of each sentence.",
     listenAll: "Listen to the full text",
     stopListening: "Stop listening",
     fontSize: "Text size",
     highlightedWord: "Selected word",
     tapWord: "Tap a colored word to see its meaning right away.",
-    checkEyebrow: "Comprehension",
     checkTitle: "Gently recall what you just read",
     checkLead: "Choose an answer to see the evidence from the passage.",
     explanation: "Evidence from the passage",
-    writeEyebrow: "My sentences",
     writeTitle: "Use the expressions you read to tell your story",
     writeGuide: "Questions to get you started",
     exampleAnswer: "Show an example",
     hideExample: "Hide the example",
-    vocabularyEyebrow: "Key vocabulary",
     vocabularyTitle: "Review the words you met in the passage",
     vocabularyLead: "Tap a card to reveal its meaning and example.",
     tapToReveal: "Tap to reveal",
@@ -336,23 +319,18 @@ const UI_COPY: Record<
       write: "Пишем",
       vocabulary: "Новые слова",
     },
-    readEyebrow: "Сегодняшний текст о культуре",
-    readLead: "Не спешите и почувствуйте ход каждой фразы.",
     listenAll: "Прослушать весь текст",
     stopListening: "Остановить",
     fontSize: "Размер текста",
     highlightedWord: "Выбранное слово",
     tapWord: "Нажмите на цветное слово, чтобы увидеть значение.",
-    checkEyebrow: "Понимание текста",
     checkTitle: "Спокойно вспомните прочитанное",
     checkLead: "Выберите ответ и сразу увидите основание в тексте.",
     explanation: "Основание в тексте",
-    writeEyebrow: "Мои предложения",
     writeTitle: "Расскажите свою историю с выражениями из текста",
     writeGuide: "Вопросы для начала",
     exampleAnswer: "Показать пример",
     hideExample: "Скрыть пример",
-    vocabularyEyebrow: "Ключевые слова",
     vocabularyTitle: "Повторим слова из текста",
     vocabularyLead: "Нажмите на карточку, чтобы увидеть значение и пример.",
     tapToReveal: "Показать значение",
@@ -463,16 +441,16 @@ const READING_PRACTICE_COPY: Record<
 
 function readingPalette(isDark: boolean): ReadingPalette {
   return {
-    bg: isDark ? "#151B18" : "#F6F5EF",
-    surface: isDark ? "#222A26" : "#FFFFFF",
-    ink: isDark ? "#F4F7F5" : "#21342C",
-    sub: isDark ? "#A7B5AD" : "#6F7E76",
-    line: isDark ? "#36433C" : "#E3E7E1",
-    sage: "#70A487",
-    sageDark: isDark ? "#9CC8AE" : "#37694F",
-    sageSoft: isDark ? "#263B31" : "#E8F2EB",
-    sageGlow: isDark ? "#385746" : "#CFE4D5",
-    cream: isDark ? "#2B2B25" : "#FBF8EE",
+    bg: isDark ? "#15151D" : "#FAFAFC",
+    surface: isDark ? "#25252E" : "#FFFFFF",
+    ink: isDark ? "#FFFFFF" : "#1A1A2E",
+    sub: isDark ? "#A6A6B3" : "#5D5B68",
+    line: isDark ? "#3A3A44" : "#E9E7EF",
+    sage: "#5B4DD4",
+    sageDark: isDark ? "#C4BEF0" : "#5B4DD4",
+    sageSoft: isDark ? "#302B48" : "#F0EEFD",
+    sageGlow: isDark ? "#544988" : "#DCD6FA",
+    cream: isDark ? "#2D2B31" : "#F5F4F7",
     peach: isDark ? "#4A3629" : "#F6E3D2",
     peachDark: isDark ? "#F1C19B" : "#9A5E34",
     blueSoft: isDark ? "#25383E" : "#E9F3F5",
@@ -766,27 +744,6 @@ function Passage({
           })}
         </Text>
       ))}
-    </View>
-  );
-}
-
-function Eyebrow({
-  icon,
-  children,
-  palette,
-}: {
-  icon: IconName;
-  children: string;
-  palette: ReadingPalette;
-}) {
-  return (
-    <View style={styles.eyebrowRow}>
-      <View style={[styles.eyebrowIcon, { backgroundColor: palette.sageSoft }]}>
-        <Ionicons name={icon} size={14} color={palette.sageDark} />
-      </View>
-      <Text style={[styles.eyebrow, { color: palette.sageDark }]}>
-        {children}
-      </Text>
     </View>
   );
 }
@@ -1187,42 +1144,21 @@ export default function ReadingListeningScreen() {
         </TouchableOpacity>
 
         <View style={styles.headerCopy}>
-          <Text style={[styles.headerEyebrow, { color: palette.sageDark }]}>
-            {copy.lesson} · {lesson.level}
-            {copy.level}
-          </Text>
           <Text style={[styles.headerTitle, { color: palette.ink }]}>
             {copy.screenTitle}
           </Text>
-        </View>
-
-        <View
-          style={[styles.stepCounter, { backgroundColor: palette.sageSoft }]}
-        >
-          <Text style={[styles.stepCounterText, { color: palette.sageDark }]}>
-            {stepIndex + 1}
-            <Text style={styles.stepCounterSmall}> / {STEPS.length}</Text>
+          <Text style={[styles.headerEyebrow, { color: palette.sub }]}>
+            {copy.lesson} · {lesson.level}
+            {copy.level}
           </Text>
         </View>
-      </View>
-
-      <View style={[styles.progressTrack, { backgroundColor: palette.line }]}>
-        <View
-          style={[
-            styles.progressFill,
-            {
-              backgroundColor: palette.sage,
-              width: `${((stepIndex + 1) / STEPS.length) * 100}%`,
-            },
-          ]}
-        />
       </View>
 
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.stepRail}
-        style={styles.stepRailScroll}
+        style={[styles.stepRailScroll, { borderBottomColor: palette.line }]}
       >
         {STEPS.map((step, index) => {
           const selected = index === stepIndex;
@@ -1235,21 +1171,18 @@ export default function ReadingListeningScreen() {
               onPress={() => selectStep(index)}
               style={[
                 localStyles.stepPill,
-                selected && {
-                  backgroundColor: palette.sageDark,
-                  borderColor: palette.sageDark,
-                },
+                selected && { borderBottomColor: palette.sageDark },
               ]}
             >
               <Ionicons
                 name={completed ? "checkmark" : step.icon}
                 size={15}
-                color={selected ? "#FFFFFF" : palette.sageDark}
+                color={selected ? palette.sageDark : palette.sub}
               />
               <Text
                 style={[
                   styles.stepPillText,
-                  { color: selected ? "#FFFFFF" : palette.ink },
+                  { color: selected ? palette.sageDark : palette.sub },
                 ]}
               >
                 {copy.steps[step.key]}
@@ -1329,9 +1262,7 @@ export default function ReadingListeningScreen() {
             <View
               style={[
                 styles.hero,
-                {
-                  backgroundColor: isDark ? "#203229" : "#E8F1E8",
-                },
+                { backgroundColor: palette.surface, borderColor: palette.line },
               ]}
             >
               <View style={styles.heroImageWrap}>
@@ -1343,54 +1274,33 @@ export default function ReadingListeningScreen() {
                   isDark={isDark}
                   style={styles.heroImage}
                 />
-                <LinearGradient
-                  colors={["rgba(15, 34, 25, 0.04)", "rgba(15, 34, 25, 0.62)"]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  style={styles.heroImageShade}
-                />
-                <View style={styles.heroMetaOverlay}>
-                  <View style={styles.heroBadge}>
-                    <Text style={styles.heroBadgeText}>
-                      {String(lesson.unit).padStart(2, "0")} {copy.unit}
-                    </Text>
-                  </View>
-                  <View style={styles.heroTime}>
-                    <Ionicons name="time-outline" size={15} color="#244234" />
-                    <Text style={styles.heroTimeText}>
-                      {lesson.estimatedMinutes} {copy.minutes}
-                    </Text>
-                  </View>
-                </View>
               </View>
 
-              <LinearGradient
-                colors={
-                  isDark ? ["#233A30", "#1E3029"] : ["#E6F1E5", "#F5F6EC"]
-                }
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.heroCopy}
-              >
-                <Text style={[styles.heroEyebrow, { color: palette.sageDark }]}>
-                  {copy.readEyebrow}
-                </Text>
+              <View style={styles.heroCopy}>
                 <Text style={[styles.heroTitle, { color: palette.ink }]}>
                   {lesson.title}
                 </Text>
                 <Text style={[styles.heroTopic, { color: palette.sub }]}>
                   {localizedReadingText(lesson.topic, contentLanguage)}
                 </Text>
-                <Text style={[styles.heroLead, { color: palette.sageDark }]}>
-                  {copy.readLead}
-                </Text>
-              </LinearGradient>
+                <View style={styles.heroMetaRow}>
+                  <Text style={[styles.heroMetaText, { color: palette.sub }]}>
+                    {String(lesson.unit).padStart(2, "0")} {copy.unit}
+                  </Text>
+                  <View
+                    style={[
+                      styles.heroMetaDot,
+                      { backgroundColor: palette.line },
+                    ]}
+                  />
+                  <Text style={[styles.heroMetaText, { color: palette.sub }]}>
+                    {lesson.estimatedMinutes} {copy.minutes}
+                  </Text>
+                </View>
+              </View>
             </View>
 
-            <Animated.View
-              entering={FadeInDown.delay(80).duration(360)}
-              style={localStyles.readingCard}
-            >
+            <View style={localStyles.readingCard}>
               <View style={styles.readingToolbar}>
                 <Pressable
                   accessibilityRole="button"
@@ -1399,7 +1309,7 @@ export default function ReadingListeningScreen() {
                     styles.audioButton,
                     {
                       backgroundColor: isPassageSpeaking
-                        ? palette.sageDark
+                        ? palette.sage
                         : palette.sageSoft,
                     },
                   ]}
@@ -1472,11 +1382,11 @@ export default function ReadingListeningScreen() {
                     {
                       backgroundColor:
                         failedReadingWordIndex !== null
-                          ? palette.danger
+                          ? "#B95660"
                           : readingPracticePhase === "complete"
                             ? palette.sageSoft
                             : readingPracticeActive
-                              ? palette.blue
+                              ? "#397D8B"
                               : palette.blueSoft,
                       opacity: pressed ? 0.76 : 1,
                     },
@@ -1596,91 +1506,93 @@ export default function ReadingListeningScreen() {
                 </View>
               </View>
 
-              <View
-                style={[
-                  styles.readingCoach,
-                  {
-                    backgroundColor:
-                      failedReadingWordIndex !== null
-                        ? palette.dangerSoft
-                        : readingPracticePhase === "complete"
-                          ? palette.sageSoft
-                          : readingPracticeActive
-                            ? palette.blueSoft
-                            : palette.cream,
-                  },
-                ]}
-              >
+              {(readingPracticeVisible || readingPracticeError) && (
                 <View
                   style={[
-                    styles.readingCoachIcon,
+                    styles.readingCoach,
                     {
-                      backgroundColor: palette.surface,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name={
-                      failedReadingWordIndex !== null
-                        ? "refresh"
-                        : readingPracticePhase === "complete"
-                          ? "checkmark"
-                          : readingPracticeActive
-                            ? "ear-outline"
-                            : "sparkles-outline"
-                    }
-                    size={16}
-                    color={
-                      failedReadingWordIndex !== null
-                        ? palette.danger
-                        : readingPracticePhase === "complete"
-                          ? palette.sageDark
-                          : readingPracticeActive
-                            ? palette.blue
-                            : palette.sageDark
-                    }
-                  />
-                </View>
-                <Text
-                  numberOfLines={2}
-                  style={[
-                    styles.readingCoachText,
-                    {
-                      color:
+                      backgroundColor:
                         failedReadingWordIndex !== null
-                          ? palette.danger
-                          : palette.sub,
+                          ? palette.dangerSoft
+                          : readingPracticePhase === "complete"
+                            ? palette.sageSoft
+                            : readingPracticeActive
+                              ? palette.blueSoft
+                              : palette.cream,
                     },
                   ]}
                 >
-                  {readingPracticeStatus}
-                </Text>
-                {readingPracticeVisible &&
-                currentReadingWord &&
-                readingPracticePhase !== "complete" ? (
                   <View
                     style={[
-                      styles.readingTargetChip,
-                      { backgroundColor: palette.surface },
+                      styles.readingCoachIcon,
+                      {
+                        backgroundColor: palette.surface,
+                      },
                     ]}
                   >
-                    <Text
-                      numberOfLines={1}
+                    <Ionicons
+                      name={
+                        failedReadingWordIndex !== null
+                          ? "refresh"
+                          : readingPracticePhase === "complete"
+                            ? "checkmark"
+                            : readingPracticeActive
+                              ? "ear-outline"
+                              : "sparkles-outline"
+                      }
+                      size={16}
+                      color={
+                        failedReadingWordIndex !== null
+                          ? palette.danger
+                          : readingPracticePhase === "complete"
+                            ? palette.sageDark
+                            : readingPracticeActive
+                              ? palette.blue
+                              : palette.sageDark
+                      }
+                    />
+                  </View>
+                  <Text
+                    numberOfLines={2}
+                    style={[
+                      styles.readingCoachText,
+                      {
+                        color:
+                          failedReadingWordIndex !== null
+                            ? palette.danger
+                            : palette.sub,
+                      },
+                    ]}
+                  >
+                    {readingPracticeStatus}
+                  </Text>
+                  {readingPracticeVisible &&
+                  currentReadingWord &&
+                  readingPracticePhase !== "complete" ? (
+                    <View
                       style={[
-                        styles.readingTargetText,
-                        {
-                          color:
-                            failedReadingWordIndex !== null
-                              ? palette.danger
-                              : palette.blue,
-                        },
+                        styles.readingTargetChip,
+                        { backgroundColor: palette.surface },
                       ]}
                     >
-                      {currentReadingWord}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.readingTargetText,
+                          {
+                            color:
+                              failedReadingWordIndex !== null
+                                ? palette.danger
+                                : palette.blue,
+                          },
+                        ]}
+                      >
+                        {currentReadingWord}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              )}
 
               <View
                 style={[
@@ -1791,16 +1703,13 @@ export default function ReadingListeningScreen() {
                   </Text>
                 </Animated.View>
               ) : null}
-            </Animated.View>
+            </View>
           </Animated.View>
         ) : null}
 
         {stepIndex === 1 ? (
           <Animated.View key="check" entering={FadeIn.duration(260)}>
             <View style={styles.sectionIntro}>
-              <Eyebrow icon="checkmark-done-outline" palette={palette}>
-                {copy.checkEyebrow}
-              </Eyebrow>
               <Text style={[styles.sectionTitle, { color: palette.ink }]}>
                 {copy.checkTitle}
               </Text>
@@ -1836,16 +1745,12 @@ export default function ReadingListeningScreen() {
                 canShowQuestionTranslation &&
                 translatedQuestionIds.includes(question.id);
               return (
-                <Animated.View
-                  key={question.id}
-                  entering={FadeInDown.delay(questionIndex * 80).duration(320)}
-                  style={localStyles.questionCard}
-                >
+                <View key={question.id} style={localStyles.questionCard}>
                   <View style={styles.questionHeader}>
                     <View
                       style={[
                         styles.questionNumber,
-                        { backgroundColor: palette.sageDark },
+                        { backgroundColor: palette.sage },
                       ]}
                     >
                       <Text style={styles.questionNumberText}>
@@ -1915,10 +1820,7 @@ export default function ReadingListeningScreen() {
                           { color: palette.ink },
                         ]}
                       >
-                        {localizedReadingText(
-                          question.prompt,
-                          contentLanguage,
-                        )}
+                        {localizedReadingText(question.prompt, contentLanguage)}
                       </Text>
                     </Animated.View>
                   ) : null}
@@ -1995,10 +1897,7 @@ export default function ReadingListeningScreen() {
                                   { color: palette.sub },
                                 ]}
                               >
-                                {localizedReadingText(
-                                  option,
-                                  contentLanguage,
-                                )}
+                                {localizedReadingText(option, contentLanguage)}
                               </Text>
                             ) : null}
                           </View>
@@ -2054,7 +1953,7 @@ export default function ReadingListeningScreen() {
                       ) : null}
                     </Animated.View>
                   ) : null}
-                </Animated.View>
+                </View>
               );
             })}
           </Animated.View>
@@ -2063,20 +1962,17 @@ export default function ReadingListeningScreen() {
         {stepIndex === 2 ? (
           <Animated.View key="write" entering={FadeIn.duration(260)}>
             <View style={styles.sectionIntro}>
-              <Eyebrow icon="pencil-outline" palette={palette}>
-                {copy.writeEyebrow}
-              </Eyebrow>
               <Text style={[styles.sectionTitle, { color: palette.ink }]}>
                 {copy.writeTitle}
               </Text>
             </View>
 
             <View style={localStyles.writingCard}>
-              <LinearGradient
-                colors={
-                  isDark ? ["#3F3026", "#312A24"] : ["#F8E7D8", "#FBF3E8"]
-                }
-                style={styles.writingPrompt}
+              <View
+                style={[
+                  styles.writingPrompt,
+                  { backgroundColor: palette.cream },
+                ]}
               >
                 <View
                   style={[
@@ -2095,7 +1991,7 @@ export default function ReadingListeningScreen() {
                 >
                   {lesson.writing.prompt.ko}
                 </Text>
-              </LinearGradient>
+              </View>
 
               {canShowWritingTranslation ? (
                 <Pressable
@@ -2262,9 +2158,6 @@ export default function ReadingListeningScreen() {
         {stepIndex === 3 ? (
           <Animated.View key="vocabulary" entering={FadeIn.duration(260)}>
             <View style={styles.sectionIntro}>
-              <Eyebrow icon="sparkles-outline" palette={palette}>
-                {copy.vocabularyEyebrow}
-              </Eyebrow>
               <Text style={[styles.sectionTitle, { color: palette.ink }]}>
                 {copy.vocabularyTitle}
               </Text>
@@ -2277,10 +2170,7 @@ export default function ReadingListeningScreen() {
               {lesson.vocabulary.map((item, index) => {
                 const revealed = revealedVocabulary.includes(item.id);
                 return (
-                  <Animated.View
-                    key={item.id}
-                    entering={FadeInDown.delay(index * 65).duration(320)}
-                  >
+                  <View key={item.id}>
                     <Pressable
                       onPress={() => {
                         setRevealedVocabulary((current) =>
@@ -2322,10 +2212,7 @@ export default function ReadingListeningScreen() {
                               {item.pronunciation}
                             </Text>
                           </View>
-                          {localizedReadingText(
-                            item.note,
-                            contentLanguage,
-                          ) ? (
+                          {localizedReadingText(item.note, contentLanguage) ? (
                             <View
                               style={[
                                 styles.partChip,
@@ -2416,7 +2303,7 @@ export default function ReadingListeningScreen() {
                         />
                       </Pressable>
                     </Pressable>
-                  </Animated.View>
+                  </View>
                 );
               })}
             </View>
@@ -2452,7 +2339,7 @@ export default function ReadingListeningScreen() {
           style={({ pressed }) => [
             styles.continueButton,
             {
-              backgroundColor: palette.sageDark,
+              backgroundColor: palette.sage,
               opacity: pressed ? 0.88 : 1,
             },
           ]}
@@ -2629,7 +2516,7 @@ export default function ReadingListeningScreen() {
                             styles.lessonPickerNumber,
                             {
                               backgroundColor: selected
-                                ? palette.sageDark
+                                ? palette.sage
                                 : palette.surface,
                             },
                           ]}
@@ -2649,7 +2536,7 @@ export default function ReadingListeningScreen() {
                               style={[
                                 styles.lessonPickerDone,
                                 {
-                                  backgroundColor: palette.sageDark,
+                                  backgroundColor: palette.sage,
                                   borderColor: palette.bg,
                                 },
                               ]}
@@ -2679,10 +2566,7 @@ export default function ReadingListeningScreen() {
                               { color: palette.sub },
                             ]}
                           >
-                            {localizedReadingText(
-                              item.topic,
-                              contentLanguage,
-                            )}
+                            {localizedReadingText(item.topic, contentLanguage)}
                           </Text>
                         </View>
                         <Ionicons
@@ -2708,54 +2592,35 @@ export default function ReadingListeningScreen() {
 const styles = StyleSheet.create({
   headerCopy: { flex: 1, minWidth: 0 },
   headerEyebrow: {
-    fontSize: 10,
-    lineHeight: 13,
-    fontWeight: "900",
-    letterSpacing: 0.7,
-    textTransform: "uppercase",
+    marginTop: 3,
+    fontSize: 11.5,
+    lineHeight: 16,
+    fontWeight: "600",
   },
   headerTitle: {
-    marginTop: 2,
-    fontSize: 18,
-    lineHeight: 23,
+    fontSize: 19,
+    lineHeight: 24,
     fontWeight: "900",
   },
-  stepCounter: {
-    minWidth: 54,
-    height: 38,
-    borderRadius: 19,
-    paddingHorizontal: 11,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  stepCounterText: { fontSize: 15, fontWeight: "900" },
-  stepCounterSmall: { fontSize: 10, fontWeight: "800" },
-  progressTrack: {
-    height: 3,
-    marginHorizontal: 18,
-    overflow: "hidden",
-    borderRadius: 2,
-  },
-  progressFill: { height: "100%", borderRadius: 2 },
-  stepRailScroll: { flexGrow: 0 },
-  stepRail: { gap: 8, paddingHorizontal: 18, paddingVertical: 12 },
-  stepPillText: { fontSize: 12, lineHeight: 16, fontWeight: "800" },
-  scrollContent: { paddingHorizontal: 18, paddingTop: 4 },
+  stepRailScroll: { flexGrow: 0, borderBottomWidth: 1 },
+  stepRail: { gap: 20, paddingHorizontal: 20 },
+  stepPillText: { fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  scrollContent: { paddingHorizontal: 20, paddingTop: 16 },
   lessonSelector: {
-    minHeight: 76,
-    marginBottom: 14,
-    borderRadius: 22,
+    minHeight: 62,
+    marginBottom: 20,
+    borderRadius: 13,
     borderWidth: 1,
-    paddingHorizontal: 13,
-    paddingVertical: 11,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
   },
   lessonSelectorIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -2773,9 +2638,9 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   lessonSelectorChevron: {
-    width: 34,
-    height: 34,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -2922,8 +2787,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  hero: { borderRadius: 28, overflow: "hidden" },
-  heroImageWrap: { height: 188, position: "relative" },
+  hero: { borderRadius: 16, borderWidth: 1, overflow: "hidden" },
+  heroImageWrap: { height: 172, position: "relative" },
   heroImage: {
     position: "absolute",
     top: 0,
@@ -2931,89 +2796,52 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
   },
-  heroImageShade: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  },
-  heroMetaOverlay: {
-    position: "absolute",
-    top: 15,
-    right: 15,
-    left: 15,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  heroBadge: {
-    borderRadius: 99,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
-    backgroundColor: "rgba(255,255,255,0.92)",
-  },
-  heroBadgeText: { color: "#244234", fontSize: 11, fontWeight: "900" },
-  heroTime: {
-    borderRadius: 99,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  heroTimeText: { color: "#244234", fontSize: 11, fontWeight: "800" },
-  heroCopy: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 20 },
-  heroEyebrow: {
-    fontSize: 11,
-    lineHeight: 15,
-    fontWeight: "900",
-    letterSpacing: 0.8,
-  },
+  heroCopy: { paddingHorizontal: 17, paddingTop: 16, paddingBottom: 18 },
   heroTitle: {
-    marginTop: 7,
     maxWidth: "100%",
-    fontSize: 24,
-    lineHeight: 32,
+    fontSize: 22,
+    lineHeight: 29,
     fontWeight: "900",
-    letterSpacing: -0.5,
+    letterSpacing: -0.35,
   },
   heroTopic: {
-    marginTop: 7,
-    fontSize: 12.5,
-    lineHeight: 18,
-    fontWeight: "700",
+    marginTop: 5,
+    fontSize: 13,
+    lineHeight: 19,
+    fontWeight: "600",
   },
-  heroLead: {
-    marginTop: 16,
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: "700",
-    maxWidth: "100%",
+  heroMetaRow: {
+    marginTop: 13,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  readingToolbar: { flexDirection: "row", alignItems: "center", gap: 8 },
+  heroMetaText: { fontSize: 11.5, lineHeight: 16, fontWeight: "700" },
+  heroMetaDot: { width: 4, height: 4, borderRadius: 2 },
+  readingToolbar: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   readingMicButton: {
     position: "relative",
-    width: 64,
-    minHeight: 64,
-    borderRadius: 19,
+    flex: 1,
+    minHeight: 52,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 3,
+    gap: 8,
   },
   readingMicIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: 9,
     alignItems: "center",
     justifyContent: "center",
   },
   readingMicLabel: {
-    maxWidth: 56,
-    fontSize: 9.5,
-    lineHeight: 12,
-    fontWeight: "900",
+    flexShrink: 1,
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "800",
   },
   readingLiveDot: {
     position: "absolute",
@@ -3062,10 +2890,10 @@ const styles = StyleSheet.create({
     fontWeight: "900",
   },
   audioButton: {
-    flex: 1,
+    width: "100%",
     minHeight: 64,
-    borderRadius: 19,
-    paddingHorizontal: 11,
+    borderRadius: 12,
+    paddingHorizontal: 13,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
@@ -3082,13 +2910,14 @@ const styles = StyleSheet.create({
   audioTrack: { height: 4, marginTop: 8, borderRadius: 2, overflow: "hidden" },
   audioProgress: { height: 4, borderRadius: 2 },
   fontControl: {
-    width: 88,
-    minHeight: 64,
-    borderRadius: 19,
+    width: 110,
+    minHeight: 52,
+    borderRadius: 12,
     borderWidth: 1,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 1,
+    gap: 4,
     paddingHorizontal: 5,
   },
   fontLabel: { fontSize: 14, fontWeight: "900" },
@@ -3162,28 +2991,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  eyebrowRow: { flexDirection: "row", alignItems: "center", gap: 8 },
-  eyebrowIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  eyebrow: {
-    fontSize: 11,
-    lineHeight: 15,
-    fontWeight: "900",
-    letterSpacing: 0.8,
-  },
-  sectionIntro: { paddingHorizontal: 4, paddingTop: 14, paddingBottom: 22 },
+  sectionIntro: { paddingHorizontal: 2, paddingTop: 8, paddingBottom: 22 },
   sectionTitle: {
-    marginTop: 14,
     maxWidth: 330,
-    fontSize: 25,
-    lineHeight: 34,
+    fontSize: 23,
+    lineHeight: 31,
     fontWeight: "900",
-    letterSpacing: -0.55,
+    letterSpacing: -0.35,
   },
   sectionLead: {
     marginTop: 9,
@@ -3278,16 +3092,16 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   writingPrompt: {
-    borderRadius: 22,
-    padding: 18,
+    borderRadius: 12,
+    padding: 16,
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
   },
   writingPromptIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 15,
+    width: 38,
+    height: 38,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -3407,8 +3221,8 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     marginTop: 22,
-    minHeight: 58,
-    borderRadius: 19,
+    minHeight: 54,
+    borderRadius: 14,
     paddingLeft: 20,
     paddingRight: 9,
     flexDirection: "row",
@@ -3417,9 +3231,9 @@ const styles = StyleSheet.create({
   },
   continueText: { color: "#FFFFFF", fontSize: 15, fontWeight: "900" },
   continueIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 14,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     justifyContent: "center",
@@ -3430,63 +3244,53 @@ const createLocalStyles = (palette: ReadingPalette) =>
   StyleSheet.create({
     screen: { flex: 1 },
     header: {
-      height: 63,
-      paddingHorizontal: 18,
+      height: 66,
+      paddingHorizontal: 20,
       flexDirection: "row",
       alignItems: "center",
       gap: 11,
     },
     closeButton: {
-      width: 42,
-      height: 42,
-      borderRadius: 15,
-      backgroundColor: palette.surface,
-      borderWidth: 1,
-      borderColor: palette.line,
+      width: 40,
+      height: 40,
+      borderRadius: 12,
       alignItems: "center",
       justifyContent: "center",
     },
     stepPill: {
-      minHeight: 38,
-      borderRadius: 19,
-      borderWidth: 1,
-      borderColor: palette.line,
-      backgroundColor: palette.surface,
-      paddingHorizontal: 12,
+      minHeight: 48,
+      borderBottomWidth: 2,
+      borderBottomColor: "transparent",
+      paddingHorizontal: 2,
       flexDirection: "row",
       alignItems: "center",
       gap: 6,
     },
     readingCard: {
-      marginTop: 14,
-      borderRadius: 27,
+      marginTop: 16,
+      borderRadius: 16,
       borderWidth: 1,
       borderColor: palette.line,
       backgroundColor: palette.surface,
       padding: 18,
-      shadowColor: "#10261B",
-      shadowOpacity: 0.06,
-      shadowRadius: 18,
-      shadowOffset: { width: 0, height: 8 },
-      elevation: 2,
     },
     questionCard: {
       marginBottom: 13,
-      borderRadius: 23,
+      borderRadius: 16,
       borderWidth: 1,
       borderColor: palette.line,
       backgroundColor: palette.surface,
       padding: 18,
     },
     writingCard: {
-      borderRadius: 25,
+      borderRadius: 16,
       borderWidth: 1,
       borderColor: palette.line,
       backgroundColor: palette.surface,
       padding: 16,
     },
     vocabularyCard: {
-      borderRadius: 22,
+      borderRadius: 16,
       borderWidth: 1,
       borderColor: palette.line,
       backgroundColor: palette.surface,
