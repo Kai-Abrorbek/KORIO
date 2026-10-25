@@ -122,6 +122,26 @@ export default {
         multiple: "Choose as many as you like",
       },
       start: "Start",
+      notebook: "My study notebook",
+      course: {
+        title: "Which language will you learn?",
+        subtitle: "First, let me note what you'll learn",
+        ko: "Korean",
+        en: "English",
+      },
+      // 영어 코스를 고른 사람에게 바뀌는 문구
+      en: {
+        selfLevelTitle: "How much English do you know?",
+        interests: {
+          kpop: "Music",
+          drama: "Movies & series",
+          travel: "Travel",
+          business: "Work & career",
+          topik: "IELTS exam",
+          game: "Games",
+          food: "Everyday life",
+        },
+      },
       selfLevel: {
         title: "How much Korean do you know?",
         completeBeginner: "Total beginner",

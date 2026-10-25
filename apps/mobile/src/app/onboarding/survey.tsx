@@ -1,4 +1,4 @@
-import { type ComponentProps, useEffect, useState } from "react";
+import { type ComponentProps, useState } from "react";
 import {
   ActivityIndicator,
   View,
@@ -15,8 +15,6 @@ import Animated, {
   ZoomIn,
   useSharedValue,
   useAnimatedStyle,
-  withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "@/utils/haptics";
@@ -33,10 +31,20 @@ import { onboardingService } from "@/services/onboarding.service";
 import { UserService } from "@/services/user.service";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
-import HaneulmonMascot from "@/components/home/HaneulmonMascot";
+import OnboardingNotebook, {
+  type NotebookEntry,
+} from "@/components/onboarding/OnboardingNotebook";
+import { useSettingsStore } from "@/store/settings.store";
+import { LEARN_COURSES, type LearnCourse } from "@/constants/learnCourses";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const STEPS = [
+/**
+ * 설문 순서. 맨 처음에 배울 언어를 고르고, 질문은 그 언어에 맞게 바뀐다.
+ * 한글 읽기는 한국어 코스만 묻는다. 레벨 테스트는 없다 (2026-10-26) — 시작 자리는
+ * 서버가 "얼마나 알아?" 답으로 정한다 (selfReportedPlacement).
+ */
+const ALL_STEPS = [
+  "course",
   "selfLevel",
   "hangul",
   "interests",
@@ -44,7 +52,9 @@ const STEPS = [
   "daily",
   "reminder",
 ] as const;
-type StepId = (typeof STEPS)[number];
+type StepId = (typeof ALL_STEPS)[number];
+const stepsFor = (course: LearnCourse | null): StepId[] =>
+  course === "en" ? ALL_STEPS.filter((id) => id !== "hangul") : [...ALL_STEPS];
 
 const REMINDER_HOURS: Record<string, number> = {
   morning: 9,
@@ -199,8 +209,10 @@ export default function SurveyScreen() {
   const { setSurvey, sessionId, markGuestOnboardingDone } =
     useOnboardingStore();
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const updateUser = useAuthStore((state) => state.updateUser);
 
   const [stepIdx, setStepIdx] = useState(0);
+  const [course, setCourse] = useState<LearnCourse | null>(null);
   const [selfLevel, setSelfLevel] = useState<SelfReportedLevel | null>(null);
   const [hangul, setHangul] = useState<HangulLevel | null>(null);
   const [interests, setInterests] = useState<Interest[]>([]);
@@ -209,25 +221,34 @@ export default function SurveyScreen() {
   const [reminder, setReminder] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const STEPS = stepsFor(course);
   const step = STEPS[stepIdx];
-  // 마스코트 둥실
-  const bob = useSharedValue(0);
-  useEffect(() => {
-    bob.value = withRepeat(
-      withSequence(
-        withTiming(-6, { duration: 1200 }),
-        withTiming(0, { duration: 1200 }),
-      ),
-      -1,
-    );
-  }, [bob]);
-  const bobStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: bob.value }],
-  }));
+  const isEnglish = course === "en";
 
   const toggle = <T,>(v: T, arr: T[], set: (x: T[]) => void) =>
     set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
+  const courseOpts: Option[] = [
+    {
+      value: "ko",
+      label: t("onboarding.survey.course.ko"),
+      icon: "language",
+      color: "#776EE2",
+    },
+    {
+      value: "en",
+      label: t("onboarding.survey.course.en"),
+      icon: "earth",
+      color: "#45B7D1",
+    },
+  ];
+  // 관심사 값은 서버 enum 그대로, 영어 코스면 글만 바뀐다 (K-pop → 음악, TOPIK → IELTS …)
+  const interestLabel = (key: string) =>
+    t(
+      isEnglish
+        ? `onboarding.survey.en.interests.${key}`
+        : `onboarding.survey.interests.${key}`,
+    );
   const selfOpts: Option[] = [
     {
       value: SelfReportedLevel.COMPLETE_BEGINNER,
@@ -277,43 +298,43 @@ export default function SurveyScreen() {
   const interestOpts: Option[] = [
     {
       value: Interest.KPOP,
-      label: t("onboarding.survey.interests.kpop"),
+      label: interestLabel("kpop"),
       icon: "musical-notes",
       color: "#FF6B6B",
     },
     {
       value: Interest.DRAMA,
-      label: t("onboarding.survey.interests.drama"),
+      label: interestLabel("drama"),
       icon: "tv",
       color: "#A78BFA",
     },
     {
       value: Interest.TRAVEL,
-      label: t("onboarding.survey.interests.travel"),
+      label: interestLabel("travel"),
       icon: "airplane",
       color: "#4ECDC4",
     },
     {
       value: Interest.BUSINESS,
-      label: t("onboarding.survey.interests.business"),
+      label: interestLabel("business"),
       icon: "briefcase",
       color: "#45B7D1",
     },
     {
       value: Interest.TOPIK,
-      label: t("onboarding.survey.interests.topik"),
+      label: interestLabel("topik"),
       icon: "school",
       color: "#96CEB4",
     },
     {
       value: Interest.GAME,
-      label: t("onboarding.survey.interests.game"),
+      label: interestLabel("game"),
       icon: "game-controller",
       color: "#F5A623",
     },
     {
       value: Interest.FOOD,
-      label: t("onboarding.survey.interests.food"),
+      label: interestLabel("food"),
       icon: "restaurant",
       color: "#FF8FA3",
     },
@@ -401,6 +422,7 @@ export default function SurveyScreen() {
     StepId,
     { opts: Option[]; multi: boolean; variant: "grid" | "row" }
   > = {
+    course: { opts: courseOpts, multi: false, variant: "row" },
     selfLevel: { opts: selfOpts, multi: false, variant: "row" },
     hangul: { opts: hangulOpts, multi: false, variant: "row" },
     interests: { opts: interestOpts, multi: true, variant: "grid" },
@@ -411,6 +433,8 @@ export default function SurveyScreen() {
 
   const selectedFor = (id: StepId): string | string[] => {
     switch (id) {
+      case "course":
+        return course ?? "";
       case "selfLevel":
         return selfLevel ?? "";
       case "hangul":
@@ -428,6 +452,8 @@ export default function SurveyScreen() {
 
   const onSelect = (id: StepId, v: string) => {
     switch (id) {
+      case "course":
+        return setCourse(v as LearnCourse);
       case "selfLevel":
         return setSelfLevel(v as SelfReportedLevel);
       case "hangul":
@@ -465,12 +491,16 @@ export default function SurveyScreen() {
       return;
     }
     const reminderEnabled = reminder !== null && reminder !== "skip";
+    const learnCourse: LearnCourse = course ?? "ko";
+    const targetLanguage = learnCourse === "en" ? "english" : "korean";
+    // 영어 코스는 한글을 묻지 않는다 — 나중에 한국어로 바꾸면 한글부터 열리게 "모름"
+    const hangulLevel = learnCourse === "en" ? HangulLevel.NONE : hangul!;
     const data = {
-      targetLanguage: "korean",
+      targetLanguage,
       learningGoals: [],
       learningStyle: style!,
       dailyGoalMinutes: minutes!,
-      hangulLevel: hangul!,
+      hangulLevel,
       interests,
       selfReportedLevel: selfLevel!,
       reminderHour: reminderEnabled ? REMINDER_HOURS[reminder!] : undefined,
@@ -484,39 +514,60 @@ export default function SurveyScreen() {
       // 저장 실패해도 진행 — store에 있고 가입 시 재동기화
     }
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const isBeginner = selfLevel === SelfReportedLevel.COMPLETE_BEGINNER;
+
+    // 고른 코스로 바로 — 지금 모드가 그 코스에 없으면(예: TOPIK → 영어) 어휘부터
+    const settings = useSettingsStore.getState();
+    settings.setLearnCourse(learnCourse);
+    if (!LEARN_COURSES[learnCourse].modes.includes(settings.learnMode)) {
+      settings.setLearnMode("vocabulary");
+    }
 
     // 설문은 onboarding 컬렉션에만 저장돼서 유저 문서엔 안 남는다.
     // 로드맵이 hangulLevel 을 보고 한글 노드를 띄우므로 여기서 직접 반영.
+    // 레벨 테스트가 없어져 설문이 온보딩의 끝이다 — 시작 자리는 서버가 자기 수준으로 정한다.
     try {
       await UserService.syncOnboardingSurvey({
-        hangulLevel: hangul!,
+        hangulLevel,
         selfReportedLevel: selfLevel!,
         dailyGoalMinutes: minutes!,
-        targetLanguage: "korean",
+        targetLanguage,
         interests,
         reminderHour: reminderEnabled ? REMINDER_HOURS[reminder!] : undefined,
-        // 완전초보는 레벨 테스트를 건너뛰므로 온보딩을 여기서 마감
-        completeNow: isBeginner,
+        completeNow: true,
       });
     } catch {
       // 실패해도 진행 — 다음 getMe 때 재동기화
     }
     setSubmitting(false);
 
-    if (isBeginner) {
-      // 완전초보는 진단을 건너뛴다 — 여기가 온보딩의 끝이다.
-      markGuestOnboardingDone();
-      // 비로그인이면 홈으로 못 간다(가드가 로그인으로 밀어낸다). 요금제로.
-      // 로그인 상태면 로드맵 첫 노드가 "한글 배우기" 로 열려 있으니 홈으로.
-      router.replace(isLoggedIn ? "/(tabs)" : "/onboarding/plan");
-    } else {
-      router.push({ pathname: "/lesson", params: { mode: "levelTest" } });
-    }
+    markGuestOnboardingDone();
+    // 가드가 로컬 값을 본다 — 서버 반영을 기다리지 않고 바로 홈으로 갈 수 있게
+    if (isLoggedIn) updateUser({ isOnboardingCompleted: true });
+    // 비로그인이면 홈으로 못 간다(가드가 로그인으로 밀어낸다). 요금제로.
+    router.replace(isLoggedIn ? "/(tabs)" : "/onboarding/plan");
   };
 
   const m = meta[step];
   const isLast = stepIdx === STEPS.length - 1;
+
+  // 지금까지 고른 답 — 하늘몬이 공책에 한 줄씩 적는다 (지금 질문의 답은 고르는 순간 써진다)
+  const notebookEntries: NotebookEntry[] = STEPS.slice(0, stepIdx + 1).flatMap(
+    (id) => {
+      const sel = selectedFor(id);
+      const values = Array.isArray(sel) ? sel : sel ? [sel] : [];
+      if (!values.length) return [];
+      const picked = meta[id].opts.filter((o) => values.includes(o.value));
+      if (!picked.length) return [];
+      return [
+        {
+          key: id,
+          label: picked.map((o) => o.label).join(", "),
+          icon: picked[0].icon,
+          color: picked[0].color,
+        },
+      ];
+    },
+  );
 
   return (
     <View style={[s.container, { paddingTop: insets.top + 8 }]}>
@@ -566,28 +617,16 @@ export default function SurveyScreen() {
           contentContainerStyle={s.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View
-            style={[
-              s.coachCard,
-              {
-                backgroundColor: `${theme.primary}0D`,
-                borderColor: `${theme.primary}20`,
-              },
-            ]}
-          >
-            <View
-              style={[s.mascotStage, { backgroundColor: `${theme.primary}16` }]}
-            >
-              <Animated.View style={bobStyle}>
-                <HaneulmonMascot size={50} mood="thinking" />
-              </Animated.View>
-            </View>
-            <Text style={[s.coachText, { color: theme.textSecondary }]}>
-              {t(`onboarding.survey.subtitle.${step}`)}
-            </Text>
-          </View>
+          <OnboardingNotebook
+            title={t("onboarding.survey.notebook")}
+            entries={notebookEntries}
+          />
 
-          <Text style={s.title}>{t(`onboarding.survey.${step}.title`)}</Text>
+          <Text style={s.title}>
+            {step === "selfLevel" && isEnglish
+              ? t("onboarding.survey.en.selfLevelTitle")
+              : t(`onboarding.survey.${step}.title`)}
+          </Text>
           <View style={s.helperRow}>
             <Ionicons
               name={m.multi ? "layers-outline" : "checkmark-circle-outline"}
@@ -781,25 +820,6 @@ const getStyles = (theme: ThemeColors) =>
       paddingTop: 2,
       paddingBottom: 28,
     },
-    coachCard: {
-      minHeight: 68,
-      borderRadius: 20,
-      borderWidth: 1,
-      paddingHorizontal: 12,
-      paddingVertical: 9,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    mascotStage: {
-      width: 50,
-      height: 50,
-      borderRadius: 17,
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-    },
-    coachText: { flex: 1, fontSize: 13.5, lineHeight: 19, fontWeight: "700" },
     title: {
       marginTop: 24,
       fontSize: 28,

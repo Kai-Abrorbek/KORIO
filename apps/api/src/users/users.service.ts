@@ -21,7 +21,7 @@ import {
   UserProgress,
   UserProgressDocument,
 } from './schemas/user-progress.schema';
-import { calculateLevel, UserLevel } from '../common/enums/level.enum';
+import { calculateLevel } from '../common/enums/level.enum';
 import { HangulLevel } from '../common/enums/hangul-level.enum';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import {
@@ -110,6 +110,7 @@ import {
 import {
   recommendedSectionForLevel,
   scoreToPlacementLevel,
+  selfReportedPlacement,
 } from '../lessons/placement.const';
 
 @Injectable()
@@ -137,9 +138,10 @@ export class UsersService {
    * 경로(login/register → survey)에서는 그 복사가 이미 지나간 뒤라
    * hangulLevel 같은 값이 유저에 영영 안 남는다. 그래서 여기서 직접 반영한다.
    *
-   * completeNow=true 면 레벨 테스트를 건너뛰는 완전 초보자라
-   * 온보딩까지 마감한다. 안 그러면 isOnboardingCompleted 가 false 로 남아
-   * 앱을 다시 켤 때마다 온보딩으로 되돌아간다.
+   * completeNow=true 면 온보딩까지 마감한다 (레벨 테스트가 없어져 이제 설문이 끝이다).
+   * 안 그러면 isOnboardingCompleted 가 false 로 남아 앱을 다시 켤 때마다
+   * 온보딩으로 되돌아간다. 시작 자리는 자기 수준 밴드의 가장 낮은 급
+   * (selfReportedPlacement). 한국어 코스 필드라 영어를 고른 사람은 건드리지 않는다.
    */
   async syncOnboardingSurvey(
     userId: string,
@@ -162,10 +164,13 @@ export class UsersService {
     if (dto.reminderHour !== undefined) update.reminderHour = dto.reminderHour;
 
     if (dto.completeNow) {
-      update.level = UserLevel.BEGINNER;
-      update.placementLevel = 1;
-      update.placementLevelSetAt = new Date();
       update.isOnboardingCompleted = true;
+      if (courseOf(dto.targetLanguage) === 'ko') {
+        const placement = selfReportedPlacement(dto.selfReportedLevel);
+        update.level = placement.level;
+        update.placementLevel = placement.placementLevel;
+        update.placementLevelSetAt = new Date();
+      }
     }
 
     await this.userModel.findByIdAndUpdate(

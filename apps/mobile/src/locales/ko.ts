@@ -122,6 +122,26 @@ export default {
         multiple: "여러 개 선택해도 좋아",
       },
       start: "시작하기",
+      notebook: "나의 학습 노트",
+      course: {
+        title: "어떤 언어를 배울까?",
+        subtitle: "뭘 배울지 먼저 적어 둘게",
+        ko: "한국어",
+        en: "영어",
+      },
+      // 영어 코스를 고른 사람에게 바뀌는 문구
+      en: {
+        selfLevelTitle: "영어 얼마나 알아?",
+        interests: {
+          kpop: "음악",
+          drama: "영화·드라마",
+          travel: "여행",
+          business: "일·취업",
+          topik: "IELTS 시험",
+          game: "게임",
+          food: "일상 생활",
+        },
+      },
       selfLevel: {
         title: "한국어 얼마나 알아?",
         completeBeginner: "완전 처음이야",

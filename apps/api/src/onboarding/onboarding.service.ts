@@ -8,7 +8,9 @@ import { calculateLevel } from '../common/enums/level.enum';
 import {
   recommendedSectionForLevel,
   scoreToPlacementLevel,
+  selfReportedPlacement,
 } from '../lessons/placement.const';
+import { courseOf } from '../users/learn-mode.constants';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 
 export interface LevelTestPlacementResult {
@@ -29,6 +31,18 @@ export class OnboardingService {
   ) {}
 
   async saveSurvey(dto: SaveSurveyDto): Promise<Onboarding> {
+    // 레벨 테스트가 없어졌다 — 가입 때 attachOnboarding 이 이 자리를 그대로 옮긴다.
+    // 한국어 코스 자리라 영어를 고른 사람은 기본값(1급) 그대로 둔다.
+    const placement =
+      courseOf(dto.targetLanguage) === 'ko'
+        ? selfReportedPlacement(dto.selfReportedLevel)
+        : null;
+    const placed = placement
+      ? {
+          placementLevel: placement.placementLevel,
+          detectedLevel: placement.level,
+        }
+      : {};
     const existing = await this.onboardingModel.findOne({
       sessionId: dto.sessionId,
     });
@@ -46,6 +60,7 @@ export class OnboardingService {
           selfReportedLevel: dto.selfReportedLevel,
           reminderHour: dto.reminderHour,
           reminderEnabled: dto.reminderEnabled,
+          ...placed,
         },
         { returnDocument: 'after' },
       ) as any;
@@ -62,6 +77,7 @@ export class OnboardingService {
       selfReportedLevel: dto.selfReportedLevel,
       reminderHour: dto.reminderHour,
       reminderEnabled: dto.reminderEnabled,
+      ...placed,
     });
   }
 

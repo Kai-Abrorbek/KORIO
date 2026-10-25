@@ -1,3 +1,4 @@
+import { UserLevel } from '../common/enums/level.enum';
 import { SelfReportedLevel } from '../common/enums/self-level.enum';
 import { DEFAULT_COURSE_ID } from '../common/learning-course';
 
@@ -66,6 +67,27 @@ export function scoreToPlacementLevel(
   const band = SELF_LEVEL_BAND[self];
   const span = band.maxLevel - band.minLevel;
   return clampLevel(band.minLevel + Math.round((score / 100) * span));
+}
+
+/**
+ * 레벨 테스트 없이 시작할 때의 자리 (2026-10-26 온보딩에서 테스트를 뺐다 — 앱을 써 보기도
+ * 전에 시험부터 보게 하면 그 자리에서 나간다).
+ *
+ * 자기 수준 밴드의 **가장 낮은 급**부터 — 실제보다 높게 앉히면 어려워서 나가고,
+ * 낮게 앉히면 로드맵의 건너뛰기 테스트로 스스로 올라갈 수 있다.
+ */
+export function selfReportedPlacement(self?: SelfReportedLevel | null): {
+  placementLevel: number;
+  level: UserLevel;
+} {
+  const band =
+    SELF_LEVEL_BAND[self ?? SelfReportedLevel.COMPLETE_BEGINNER] ??
+    SELF_LEVEL_BAND[SelfReportedLevel.COMPLETE_BEGINNER];
+  const placementLevel = clampLevel(band.minLevel);
+  return {
+    placementLevel,
+    level: placementLevel >= 2 ? UserLevel.INTERMEDIATE : UserLevel.BEGINNER,
+  };
 }
 
 /**
