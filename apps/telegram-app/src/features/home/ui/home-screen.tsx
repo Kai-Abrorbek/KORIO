@@ -52,6 +52,8 @@ import {
   StreakChips,
   XpBoostBanner,
 } from "../../retention/ui/home-retention";
+import { AppReviewDialog } from "../../app-review/ui/app-review-dialog";
+import { useAppReviewPrompt } from "../../app-review/model/use-app-review-prompt";
 import { energySpendsSettled } from "../../energy/energy-sync";
 import { setLevelUp, takeQueuedLevelUp } from "../../level-up/model/level-up";
 
@@ -228,7 +230,7 @@ function UserArtwork({
 
 export function HomeScreen() {
   const router = useRouter();
-  const { request, user: authenticatedUser } = useTelegramAuth();
+  const { request, updateUser, user: authenticatedUser } = useTelegramAuth();
   const { speak: speakAvatarWord } = useKoreanSpeech(request);
   const [profile, setProfile] = useState<HomeUser | null>(authenticatedUser);
   // 지금 코스·모드의 진행도. undefined = 아직 모름, null = 셀 게 없는 모드
@@ -255,6 +257,19 @@ export function HomeScreen() {
     [],
   );
   const questGlance = questsGlance(retention);
+  // 앱 평가 — 리텐션 요약을 받고, 다른 대화상자·시트가 다 지나간 뒤에만 (한 번에 하나)
+  const appReview = useAppReviewPrompt({
+    enabled: Boolean(authenticatedUser?.isOnboardingCompleted),
+    blocked:
+      !retention ||
+      chatOpen ||
+      notificationsOpen ||
+      calendarOpen ||
+      Boolean(checkinReward) ||
+      Boolean(retention.comeback) ||
+      Boolean(retention.freeze.notice) ||
+      Boolean(retention.streakGoal.result),
+  });
 
   // 섹션을 끝낸 축하 화면들을 지나 홈으로 왔으면 여기서 레벨업 연출 (로드맵과 같다)
   useEffect(() => {
@@ -749,6 +764,27 @@ export function HomeScreen() {
         onCheckinRewardClose={() => setCheckinReward(null)}
         patch={patchRetention}
         summary={retention}
+      />
+
+      <AppReviewDialog
+        onAlready={appReview.finish}
+        onClose={() => appReview.dismiss("close")}
+        onDone={(res) => {
+          appReview.finish();
+          setProfile((current) => (current ? { ...current, gems: res.gems } : current));
+          updateUser({ gems: res.gems });
+          const query = new URLSearchParams({
+            grade: "gold",
+            gems: String(res.reward),
+            gemTotal: String(Math.max(0, res.gems - res.reward)),
+            kind: "review",
+            next: "back",
+          });
+          router.push(`/chest-reward?${query.toString()}`);
+        }}
+        onSnooze={() => appReview.dismiss("snooze")}
+        open={appReview.visible}
+        reward={appReview.reward}
       />
     </main>
   );

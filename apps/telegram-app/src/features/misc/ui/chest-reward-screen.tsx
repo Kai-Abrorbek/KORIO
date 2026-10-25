@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { uzt } from "../../../shared/i18n/uz-text";
 
 import { Confetti } from "../../../shared/ui/confetti";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
@@ -348,7 +349,7 @@ export function ChestRewardScreen() {
       {/* 보석 카운터 — 보석이 닿을 때마다 오른다 */}
       <header><span/><span className={styles.counterWrap} ref={counter}><GemCounter target={counted}/></span></header>
       <section className={`${styles.rewardSection} ${phase === "revealed" ? styles.sectionHidden : ""}`} ref={section}>
-        <h1>{params.get("kind") === "streak" ? `${Number(params.get("days")) || 3} kun ketma-ket o‘qiganingiz uchun sovg‘a!` : TITLES[grade]}</h1>
+        <h1>{params.get("kind") === "streak" ? `${Number(params.get("days")) || 3} kun ketma-ket o‘qiganingiz uchun sovg‘a!` : params.get("kind") === "review" ? <span data-i18n="chestReward.reviewTitle">{uzt("chestReward.reviewTitle")}</span> : TITLES[grade]}</h1>
         <button aria-label="Sandiqni ochish" className={styles.chestButton} onClick={tap} type="button"><Sparkles/><Chest grade={grade} opening={phase === "opening"} ready={ready} ref={chest} shaking={shaking}/></button>
         <div className={styles.tapBottom}>
           <div className={styles.tapDots}>{Array.from({ length: 3 },(_,index)=>{
