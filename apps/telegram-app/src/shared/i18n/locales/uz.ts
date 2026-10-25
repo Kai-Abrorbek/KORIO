@@ -121,6 +121,26 @@ export default {
         multiple: "Bir nechtasini tanlashingiz mumkin",
       },
       start: "Boshlash",
+      notebook: "Mening o‘quv daftarim",
+      course: {
+        title: "Qaysi tilni o‘rganamiz?",
+        subtitle: "Avval nimani o‘rganishingizni yozib qo‘yaman",
+        ko: "Koreys tili",
+        en: "Ingliz tili",
+      },
+      // 영어 코스를 고른 사람에게 바뀌는 문구
+      en: {
+        selfLevelTitle: "Ingliz tilini qanchalik bilasiz?",
+        interests: {
+          kpop: "Musiqa",
+          drama: "Kino va seriallar",
+          travel: "Sayohat",
+          business: "Ish va karyera",
+          topik: "IELTS imtihoni",
+          game: "O‘yinlar",
+          food: "Kundalik hayot",
+        },
+      },
       selfLevel: {
         title: "Koreys tilini qanchalik bilasiz?",
         completeBeginner: "Umuman birinchi marta",

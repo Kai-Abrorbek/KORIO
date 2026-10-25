@@ -238,7 +238,7 @@ export default function SurveyScreen() {
     {
       value: "en",
       label: t("onboarding.survey.course.en"),
-      icon: "earth",
+      icon: "globe",
       color: "#45B7D1",
     },
   ];

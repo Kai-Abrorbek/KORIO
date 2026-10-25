@@ -10,7 +10,7 @@ export interface OnboardingSurveyBody {
   interests: string[];
   reminderHour?: number;
   selfReportedLevel: string;
-  targetLanguage: "korean";
+  targetLanguage: "korean" | "english";
 }
 
 export function saveOnboardingSurvey(

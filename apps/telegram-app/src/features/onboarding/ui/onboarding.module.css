@@ -796,10 +796,31 @@
 .svSegments .svSegmentOn{background:var(--sv-primary)}
 .svScroll{position:relative;z-index:1;min-height:0;flex:1;overflow-y:auto;padding:2px 20px 28px;scrollbar-width:none;-webkit-overflow-scrolling:touch;animation:svIn .32s ease-out both}
 .svScroll::-webkit-scrollbar{display:none}
-.svCoach{display:flex;min-height:68px;align-items:center;gap:12px;border:1px solid color-mix(in srgb,var(--sv-primary) 13%,transparent);border-radius:20px;background:color-mix(in srgb,var(--sv-primary) 5%,transparent);padding:9px 12px}
-.svMascot{display:grid;width:50px;height:50px;flex:0 0 auto;place-items:center;overflow:hidden;border-radius:17px;background:color-mix(in srgb,var(--sv-primary) 9%,transparent)}
-.svMascot img{width:50px;height:50px;object-fit:contain;animation:svBob 2.4s ease-in-out infinite}
-.svCoach p{flex:1;margin:0;color:var(--sv-muted);font-size:13.5px;font-weight:700;line-height:19px}
+/* 하늘몬 공책 — 고른 답을 한 줄씩 적는다 (앱 OnboardingNotebook 과 같은 값) */
+.nbRow{display:flex;align-items:flex-end;gap:6px}
+.nbMascot{display:block;flex:0 0 auto;margin-bottom:-4px;transform-origin:50% 90%}
+.nbMascot img{display:block;width:88px;height:88px;object-fit:contain;animation:svBob 2.6s ease-in-out infinite}
+.nbScribble{animation:nbScribble .62s ease-out}
+.nbBook{position:relative;min-width:0;height:122px;flex:1;overflow:hidden;border:1px solid var(--sv-border);border-radius:16px;background:#fffdf7;padding:18px 12px 0 14px}
+:root[data-theme="dark"] .nbBook{background:var(--sv-surface)}
+.nbHoles{position:absolute;top:5px;left:18px;right:18px;display:flex;justify-content:space-between}
+.nbHoles i{width:6px;height:6px;border-radius:50%;background:#e4e0f7}
+:root[data-theme="dark"] .nbHoles i{background:var(--sv-bg)}
+.nbBook small{display:block;margin-bottom:2px;overflow:hidden;color:var(--sv-primary);font-size:10.5px;font-weight:900;letter-spacing:.4px;white-space:nowrap;text-overflow:ellipsis}
+.nbPage{position:relative;height:72px;padding-left:12px;background:linear-gradient(transparent 23px,var(--sv-border) 23px,var(--sv-border) 24px) 0 0/100% 24px}
+.nbPage::before{content:"";position:absolute;top:0;bottom:0;left:4px;width:1px;background:#d9d4f5}
+:root[data-theme="dark"] .nbPage::before{background:var(--sv-border)}
+.nbLine{display:flex;height:24px;align-items:center}
+.nbInk{position:relative;display:inline-flex;max-width:100%;align-items:center;gap:6px;padding-right:4px;color:var(--accent)}
+.nbText{overflow:hidden;color:#5b4dd4;font-size:13.5px;font-weight:800;white-space:nowrap;text-overflow:ellipsis}
+:root[data-theme="dark"] .nbText{color:#c4bef0}
+/* 글이 왼쪽부터 드러나고, 연필이 그 끝을 따라간다 */
+.nbWrite{animation:nbReveal var(--write) ease-out both}
+.nbPencil{position:absolute;top:-2px;left:0;display:block;color:#5b4dd4;pointer-events:none;animation:nbPencil var(--write) ease-out both}
+.nbPencil svg{display:block;transform:rotate(-35deg)}
+@keyframes nbReveal{from{clip-path:inset(-4px 100% -4px 0)}to{clip-path:inset(-4px -20px -4px 0)}}
+@keyframes nbPencil{0%{left:0;transform:translateY(0)}20%{transform:translateY(-1.5px)}40%{transform:translateY(1.5px)}60%{transform:translateY(-1.5px)}80%{transform:translateY(1.5px)}96%{opacity:1}100%{left:100%;opacity:0;transform:translateY(0)}}
+@keyframes nbScribble{0%,100%{transform:none}15%{transform:rotate(3deg) translateY(-1.5px)}30%{transform:rotate(-3deg)}45%{transform:rotate(3deg) translateY(-1.5px)}60%{transform:rotate(-3deg)}75%{transform:rotate(2deg)}}
 .svTitle{margin:24px 0 0;font-size:28px;font-weight:900;letter-spacing:-.65px;line-height:36px}
 .svHelper{display:flex;align-items:center;gap:6px;margin:9px 0 20px;color:var(--sv-primary)}
 .svHelper span{color:var(--sv-muted);font-size:12.5px;font-weight:700;line-height:17px}
@@ -826,4 +847,4 @@
 @keyframes svPop{from{transform:scale(.5)}}
 @keyframes svBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes svSpin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.svScroll,.svCard,.svMascot img,.svCardOn .svCheck{animation:none}}
+@media (prefers-reduced-motion:reduce){.svScroll,.svCard,.nbMascot img,.nbScribble,.nbWrite,.nbPencil,.svCardOn .svCheck{animation:none}.nbPencil{display:none}}

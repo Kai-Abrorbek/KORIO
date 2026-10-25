@@ -1,6 +1,10 @@
+import { uzt } from "../../../shared/i18n/uz-text";
 import type { IoniconName } from "../../../shared/ui/mobile-icon";
 
+export type SurveyCourse = "ko" | "en";
+
 export type SurveyStepId =
+  | "course"
   | "selfLevel"
   | "hangul"
   | "interests"
@@ -31,7 +35,21 @@ export const REMINDER_HOURS: Record<string, number> = {
   morning: 9,
 };
 
-export const SURVEY_STEPS: SurveyStep[] = [
+/** 맨 처음 — 배울 언어 (앱 onboarding/survey.tsx 와 같다) */
+const COURSE_STEP: SurveyStep = {
+  helper: "Bittasini tanlang",
+  id: "course",
+  multi: false,
+  subtitle: uzt("onboarding.survey.course.subtitle"),
+  title: uzt("onboarding.survey.course.title"),
+  variant: "row",
+  options: [
+    { color: "#776EE2", icon: "language", label: uzt("onboarding.survey.course.ko"), value: "ko" },
+    { color: "#45B7D1", icon: "globe", label: uzt("onboarding.survey.course.en"), value: "en" },
+  ],
+};
+
+const KOREAN_STEPS: SurveyStep[] = [
   {
     helper: "Bittasini tanlang",
     id: "selfLevel",
@@ -119,6 +137,36 @@ export const SURVEY_STEPS: SurveyStep[] = [
     ],
   },
 ];
+
+/** 영어 코스면 관심사 값은 그대로, 글만 바뀐다 (K-pop → 음악, TOPIK → IELTS …) */
+const ENGLISH_INTEREST_KEYS = ["kpop", "drama", "travel", "business", "topik", "game", "food"];
+
+/**
+ * 고른 언어에 맞는 설문. 레벨 테스트는 없다 (2026-10-26) — 시작 자리는 서버가
+ * "얼마나 알아?" 답으로 정한다. 영어 코스는 한글을 묻지 않는다.
+ */
+export function surveyStepsFor(course: SurveyCourse | null): SurveyStep[] {
+  if (course !== "en") return [COURSE_STEP, ...KOREAN_STEPS];
+  return [
+    COURSE_STEP,
+    ...KOREAN_STEPS.filter((step) => step.id !== "hangul").map((step) => {
+      if (step.id === "selfLevel") {
+        return { ...step, title: uzt("onboarding.survey.en.selfLevelTitle") };
+      }
+      if (step.id === "interests") {
+        return {
+          ...step,
+          options: step.options.map((option) =>
+            ENGLISH_INTEREST_KEYS.includes(option.value)
+              ? { ...option, label: uzt(`onboarding.survey.en.interests.${option.value}`) }
+              : option,
+          ),
+        };
+      }
+      return step;
+    }),
+  ];
+}
 
 export interface OnboardingPlacement {
   placementLevel: number;
