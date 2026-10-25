@@ -98,6 +98,11 @@ export default function RootLayout() {
                 gestureEnabled: false,
               }}
             />
+            {/* 구독 결제 직후 감사 연출 */}
+            <Stack.Screen
+              name="super-welcome"
+              options={{ animation: "fade", gestureEnabled: false }}
+            />
             <Stack.Screen
               name="hangul"
               options={{ animation: "slide_from_right" }}

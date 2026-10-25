@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getAvailablePurchases as queryPurchases, useIAP } from "expo-iap";
 import type { Purchase } from "expo-iap";
 import { SubscriptionApi } from "../services/subscription.api";
@@ -16,6 +17,19 @@ import {
 
 type Phase = "idle" | "loading" | "purchasing" | "verifying" | "restoring";
 
+/** 감사 연출을 이미 보여 준 결제 토큰 — 같은 결제로 두 번 띄우지 않는다 (재실행 때 리스너가 다시 불려도) */
+const CELEBRATED_KEY = "korio-celebrated-purchases";
+async function firstCelebration(token: string): Promise<boolean> {
+  try {
+    const seen: string[] = JSON.parse((await AsyncStorage.getItem(CELEBRATED_KEY)) ?? "[]");
+    if (seen.includes(token)) return false;
+    await AsyncStorage.setItem(CELEBRATED_KEY, JSON.stringify([...seen, token].slice(-20)));
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 /**
  * Google Play 결제 한 사이클.
  *
@@ -27,7 +41,11 @@ type Phase = "idle" | "loading" | "purchasing" | "verifying" | "restoring";
  * 반대로 검증 뒤에 부르면, 검증이 실패해도 거래가 살아있어서 다음 실행 때
  * purchaseUpdated 로 다시 들어온다(자동 복구).
  */
-export function useBilling(onPremiumChanged?: () => void) {
+export function useBilling(
+  onPremiumChanged?: () => void,
+  /** 새 결제가 서버 검증까지 끝났다 — 감사 연출을 띄울 순간 (결제 한 번에 한 번) */
+  onPurchased?: (productId: string) => void,
+) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [plans, setPlans] = useState<StorePlan[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +114,9 @@ export function useBilling(onPremiumChanged?: () => void) {
         await finishTransaction({ purchase, isConsumable: false });
         onPremiumChanged?.();
         setError(null);
+        if (onPurchased && (await firstCelebration(info.purchaseToken))) {
+          onPurchased(info.productId);
+        }
       } catch (e) {
         // 거래를 닫지 않았으므로 다음 실행 때 다시 들어온다
         setError((e as Error)?.message ?? "VERIFY_FAILED");
@@ -104,7 +125,7 @@ export function useBilling(onPremiumChanged?: () => void) {
         setPhase("idle");
       }
     },
-    [finishTransaction, onPremiumChanged],
+    [finishTransaction, onPremiumChanged, onPurchased],
   );
 
   const subscribe = useCallback(

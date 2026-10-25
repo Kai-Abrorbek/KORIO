@@ -3393,4 +3393,12 @@ export default {
       cta: "Stikerlarimni yaratish",
     },
   },
+  // 구독 결제 직후 감사 연출 (app/super-welcome)
+  superWelcome: {
+    letter: "{{name}}, {{days}} kun birga bo‘lganingiz uchun rahmat",
+    letterFirst: "{{name}}, biz bilan bo‘lganingiz uchun katta rahmat",
+    title: "Endi siz KORIO {{tier}} a’zosisiz!",
+    cta: "{{tier}} bilan boshlash",
+    skip: "O‘tkazib yuborish uchun bosing",
+  },
 };

@@ -18,6 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { GestureDetector } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
+import { useRouter, type Href } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemeColors } from "@/constants/theme";
 import { TAB_BAR_HEIGHT } from "@/constants/layout";
@@ -25,6 +26,7 @@ import {
   MAX_FEATURES,
   SUPER_FEATURES,
   TIERS,
+  tierOf,
   type SubscriptionTier,
 } from "@/features/subscription/services/products";
 import {
@@ -50,6 +52,7 @@ export default function PremiumScreen() {
   const insets = useSafeAreaInsets();
   const s = styles(theme);
 
+  const router = useRouter();
   const { subscription, isPremium, loading: subLoading, refresh } =
     useSubscription();
   const {
@@ -63,7 +66,14 @@ export default function PremiumScreen() {
     subscribe,
     restore,
     reloadPlans,
-  } = useBilling(refresh);
+  } = useBilling(refresh, (productId) =>
+    // 결제가 끝나고 돌아오자마자 — 감사 연출 (결제 한 번에 한 번)
+    // 라우트 타입 목록은 다음 dev 실행 때 새로 만들어진다 — 새 화면이라 Href 로 단언
+    router.push({
+      pathname: "/super-welcome",
+      params: { tier: tierOf(productId) },
+    } as unknown as Href),
+  );
 
   const [selected, setSelected] = useState<string | null>(null);
   /** 보고 있는 등급. MAX 를 먼저 보여준다 — AI 튜터가 우리 킬러 기능이다 */

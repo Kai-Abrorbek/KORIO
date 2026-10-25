@@ -3383,4 +3383,12 @@ export default {
       cta: "Make my stickers",
     },
   },
+  // 구독 결제 직후 감사 연출 (app/super-welcome)
+  superWelcome: {
+    letter: "{{name}}, thank you for {{days}} days together",
+    letterFirst: "{{name}}, thank you so much for joining us",
+    title: "You're now a KORIO {{tier}} member!",
+    cta: "Start with {{tier}}",
+    skip: "Tap to skip",
+  },
 };
