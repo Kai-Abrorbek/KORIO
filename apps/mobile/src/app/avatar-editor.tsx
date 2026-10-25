@@ -53,6 +53,7 @@ import { PetGrid } from "@/components/avatar/PetPicker";
 import { PET_LOOK, isPet, type PetId } from "@/components/avatar/AvatarPet";
 import Button3D from "@/features/retention/components/Button3D";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import { triggerFeatureTip } from "@/features/feature-tips/featureTips.store";
 
 /** 상점 칸 — 아바타에 장착되는 꾸미기 */
 const SHOP_SLOTS: ShopSlot[] = ["aura", "scene", "pet", "costume", "hat", "hand", "title"];
@@ -355,6 +356,8 @@ export default function AvatarEditorScreen() {
       updateUser({
         avatar: result.avatar,
       });
+      // 방금 꾸민 캐릭터 — 홈에 가면 "텔레그램 스티커로 만들어요" 를 알릴 순간
+      triggerFeatureTip("stickers");
 
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 

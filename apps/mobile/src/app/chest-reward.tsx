@@ -18,6 +18,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { backToRoadmap } from "@/store/settings.store";
 import { ThemeColors } from "@/constants/theme";
 import { CHEST_TITLES } from "@/constants/chest";
+import { triggerFeatureTip } from "@/features/feature-tips/featureTips.store";
 import { ChestPhase } from "@/types/chest-reward";
 import Chest, { ChestHandle } from "@/components/chest-reward/Chest";
 import TapDots from "@/components/chest-reward/TapDots";
@@ -188,6 +189,8 @@ export default function ChestRewardScreen() {
 
   /** 결과 화면 ("보석 +N개") 으로 페이드 */
   const showResult = () => {
+    // 보석을 막 받았다 — 홈에 돌아가면 "친구 초대하면 더 받아요" 를 알릴 순간
+    triggerFeatureTip("invite");
     setCounted(reward.currentGemTotal + reward.gemAmount);
     setPhase("revealed");
     chestSectionOpacity.value = withTiming(0, { duration: 250 });

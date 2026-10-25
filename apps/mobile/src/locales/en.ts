@@ -3354,4 +3354,29 @@ export default {
     error: "Couldn't send it. Please try again in a moment",
     already: "You've already rated this week",
   },
+  // 잘 안 보이는 기능 안내 모달 (features/feature-tips)
+  featureTips: {
+    never: "Don't show again",
+    close: "Close",
+    payout: {
+      title: "Your gems turn into real money",
+      body: "1 gem = 1 so'm. Collect {{min}} gems and withdraw them to your card.",
+      rate: "1 gem = {{som}} so'm",
+      cta: "See how to withdraw",
+    },
+    invite: {
+      title: "Invite friends, get gems",
+      body: "When a friend signs up with your link, you both get {{n}} gems.",
+      each: "For every friend — for you and for them",
+      milestone: "{{count}} friends +{{gems}}",
+      cta: "Invite friends",
+    },
+    stickers: {
+      title: "Your character as Telegram stickers!",
+      body: "Turn the character you just styled into your own sticker pack and use it in chats with friends.",
+      free: "Make it for free",
+      how: "The Telegram bot sends your sticker pack right away",
+      cta: "Make my stickers",
+    },
+  },
 };

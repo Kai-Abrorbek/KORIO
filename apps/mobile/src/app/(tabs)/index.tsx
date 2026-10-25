@@ -61,7 +61,12 @@ import CheckinCard from "@/features/retention/components/CheckinCard";
 import XpBoostBanner from "@/features/retention/components/XpBoostBanner";
 import RetentionOverlays from "@/features/retention/components/RetentionOverlays";
 import AppReviewModal from "@/features/app-review/AppReviewModal";
-import { useAppReviewPrompt } from "@/features/app-review/useAppReviewPrompt";
+import {
+  appReviewShownThisLaunch,
+  useAppReviewPrompt,
+} from "@/features/app-review/useAppReviewPrompt";
+import FeatureTipModal from "@/features/feature-tips/FeatureTipModal";
+import { useFeatureTip } from "@/features/feature-tips/useFeatureTip";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
@@ -361,18 +366,25 @@ export default function HomeScreen() {
   // 앱 평가 — 다른 대화상자·투어·시트가 다 지나간 뒤에만 (한 번에 하나)
   const activeTour = useTourStore((st) => st.activeTour);
   const updateUser = useAuthStore((st) => st.updateUser);
+  const othersOpen =
+    !!activeTour ||
+    languagePending ||
+    chatVisible ||
+    notifOpen ||
+    calendarVisible ||
+    !!checkinReward ||
+    !!retention?.comeback ||
+    !!retention?.freeze.notice ||
+    !!retention?.streakGoal.result;
   const appReview = useAppReviewPrompt({
     enabled: isLoggedIn,
-    blocked:
-      !!activeTour ||
-      languagePending ||
-      chatVisible ||
-      notifOpen ||
-      calendarVisible ||
-      !!checkinReward ||
-      !!retention?.comeback ||
-      !!retention?.freeze.notice ||
-      !!retention?.streakGoal.result,
+    blocked: othersOpen,
+  });
+  // 잘 안 보이는 기능 안내 (출금 · 친구 초대 · 스티커팩) — 평가 모달이 이번에 떴으면 쉰다
+  const featureTip = useFeatureTip({
+    enabled: isLoggedIn,
+    blocked: othersOpen || appReview.visible || appReviewShownThisLaunch(),
+    gems: user?.gems ?? 0,
   });
 
   return (
@@ -910,6 +922,22 @@ export default function HomeScreen() {
               next: "back",
             },
           });
+        }}
+      />
+
+      <FeatureTipModal
+        tip={featureTip.tip}
+        onClose={featureTip.close}
+        onNever={featureTip.neverAgain}
+        onGo={(tip) => {
+          featureTip.close();
+          if (tip.id === "payout") {
+            router.push({ pathname: "/shop", params: { focus: "withdraw" } });
+          } else if (tip.id === "invite") {
+            router.push("/invite");
+          } else {
+            router.push("/stickers");
+          }
         }}
       />
 

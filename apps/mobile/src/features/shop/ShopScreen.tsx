@@ -11,7 +11,12 @@ import { Pressable } from "@/components/ui/Pressables";
 import { useSoundAlert } from "@/hooks/useSoundAlert";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useFocusEffect, useRouter, type Href } from "expo-router";
+import {
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+  type Href,
+} from "expo-router";
 import { useTranslation } from "react-i18next";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
@@ -68,6 +73,17 @@ export default function ShopScreen() {
   const [kbPad, setKbPad] = useState(0);
 
   const scrollRef = useRef<ScrollView>(null);
+  // 기능 안내(보석 출금)에서 오면 출금 카드까지 내려 준다
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
+  const scrolledToFocus = useRef(false);
+  const onWithdrawLayout = (y: number) => {
+    if (focus !== "withdraw" || scrolledToFocus.current) return;
+    scrolledToFocus.current = true;
+    setTimeout(
+      () => scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true }),
+      250,
+    );
+  };
   // 복구펜 보유·가격은 리텐션 요약에서 (서버가 정한다)
   const freeze = useRetentionStore((st) => st.summary?.freeze ?? null);
   const refreshRetention = useRetentionStore((st) => st.refresh);
@@ -339,14 +355,16 @@ export default function ShopScreen() {
         )}
 
         {/* ── 출금 ── */}
-        <WithdrawCard
-          gems={gems}
-          onInputFocus={onInputFocus}
-          onGemsChange={(next) => {
-            syncUser({ gems: next });
-            load();
-          }}
-        />
+        <View onLayout={(e) => onWithdrawLayout(e.nativeEvent.layout.y)}>
+          <WithdrawCard
+            gems={gems}
+            onInputFocus={onInputFocus}
+            onGemsChange={(next) => {
+              syncUser({ gems: next });
+              load();
+            }}
+          />
+        </View>
 
         <View style={{ height: kbPad }} />
       </ScrollView>

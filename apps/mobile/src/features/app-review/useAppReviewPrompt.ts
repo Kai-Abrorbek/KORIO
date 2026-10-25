@@ -9,6 +9,9 @@ import { AppReviewService } from "@/services/app-review.service";
 let closedThisLaunch = false;
 /** 이번 실행에서 이미 한 번 물어봤다 — 홈에 올 때마다 서버를 두드리지 않는다 */
 let checkedThisLaunch = false;
+/** 이번 실행에 평가 모달이 떴다 — 기능 안내(useFeatureTip)가 연달아 뜨지 않게 본다 */
+let shownThisLaunch = false;
+export const appReviewShownThisLaunch = () => shownThisLaunch;
 
 /** 홈이 자리를 잡고 다른 안내가 먼저 지나가도록 조금 기다렸다 띄운다 */
 const SHOW_DELAY_MS = 1800;
@@ -51,7 +54,10 @@ export function useAppReviewPrompt({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!eligible || !focused || blocked || visible || closedThisLaunch) return;
-    timer.current = setTimeout(() => setVisible(true), SHOW_DELAY_MS);
+    timer.current = setTimeout(() => {
+      shownThisLaunch = true;
+      setVisible(true);
+    }, SHOW_DELAY_MS);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
