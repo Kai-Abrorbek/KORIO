@@ -3456,4 +3456,12 @@ export default {
       cta: "내 스티커 만들기",
     },
   },
+  // 구독 결제 직후 감사 연출 (app/super-welcome)
+  superWelcome: {
+    letter: "{{name}}, {{days}}일 동안 함께해 줘서 고마워요",
+    letterFirst: "{{name}}, 함께해 줘서 정말 고마워요",
+    title: "이제 KORIO {{tier}} 멤버예요!",
+    cta: "{{tier}}로 시작하기",
+    skip: "탭하면 건너뛰어요",
+  },
 };

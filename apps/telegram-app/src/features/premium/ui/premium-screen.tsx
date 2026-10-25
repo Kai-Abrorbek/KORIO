@@ -45,6 +45,7 @@ import {
   type SubscriptionTier,
 } from "../model/premium";
 import { CardPayFlow } from "./card-pay-flow";
+import { SuperWelcome } from "./super-welcome";
 import styles from "./premium-screen.module.css";
 
 function formatDate(value: string) {
@@ -899,6 +900,8 @@ export function PremiumScreen() {
   const [catalog, setCatalog] = useState<StarsCatalog | null>(null);
   const [catalogFailed, setCatalogFailed] = useState(false);
   const [paid, setPaid] = useState<{ subscription: MySubscription | null; tier: SubscriptionTier } | null>(null);
+  /** 결제 직후 감사 연출 — 끝나면 결제 완료 시트(만료일)로 */
+  const [welcoming, setWelcoming] = useState(false);
   const [cardConfig, setCardConfig] = useState<CardConfig | null>(null);
   /** 카드 입금 화면 — 새 주문(product) 또는 진행 중 주문 이어 보기(resume) */
   const [cardFlow, setCardFlow] = useState<{ product?: CardProduct; resume?: CardOrder } | null>(null);
@@ -958,6 +961,7 @@ export function PremiumScreen() {
       if (result) applySubscription(result);
       else updateUser({ isSuper: true });
       setPaid({ subscription: result, tier: boughtTier });
+      setWelcoming(true);
     },
     [applySubscription, updateUser],
   );
@@ -1042,7 +1046,10 @@ export function PremiumScreen() {
           resume={cardFlow.resume}
         />
       ) : null}
-      {paid ? (
+      {paid && welcoming ? (
+        <SuperWelcome onDone={() => setWelcoming(false)} tier={paid.tier === "max" ? "max" : "super"} />
+      ) : null}
+      {paid && !welcoming ? (
         <PaidSheet onClose={closePaid} subscription={paid.subscription} tier={paid.tier} />
       ) : null}
     </>

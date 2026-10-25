@@ -1,0 +1,57 @@
+/* 구독 결제 직후 감사 연출 — 앱 app/super-welcome 과 같은 값·타임라인 (시각은 tsx 가 --*-at 으로 넘긴다) */
+
+.root{position:fixed;inset:0;z-index:130;display:flex;flex-direction:column;overflow:hidden;background:linear-gradient(#7b5cff,#4a33c7 55%,#1f1460);color:#fff;-webkit-tap-highlight-color:transparent;animation:swIn .25s ease-out both}
+.body{display:flex;flex:1;flex-direction:column;align-items:center;width:100%;max-width:var(--content-width,560px);margin:0 auto;padding:calc(var(--korio-top,0px) + 76px) 20px 0}
+
+/* 무대 — 하늘몬 + 왕관 */
+.stage{position:relative;width:var(--stage);height:var(--stage)}
+.squash{width:100%;height:100%;transform-origin:50% 100%}
+.squashGo{animation:swSquash .55s ease-out both}
+.cheer{display:block;width:100%;height:100%;object-fit:contain;transform:scale(1.12)}
+/* 왕관 — 기뻐하는 그림(1.12배)의 머리 꼭대기 (원본 768px 기준 머리 위 ≈ 0.25) */
+.crown{position:absolute;top:calc(var(--stage) * .06);left:calc(var(--stage) * .344);width:calc(var(--stage) * .3);transform-origin:50% 100%;animation:swCrown .9s var(--crown-at) both}
+.crown svg{display:block;width:100%;height:auto}
+.ring{position:absolute;inset:0;border:6px solid #ffd900;border-radius:50%;opacity:0;pointer-events:none}
+.ringGo{animation:swRing .65s cubic-bezier(.22,1,.36,1) both}
+
+.hangul{margin-top:18px;font-size:44px;font-weight:900;letter-spacing:-.5px;animation:swPop .5s var(--words-at) both}
+.letter{max-width:320px;margin:6px 0 0;color:rgb(255 255 255/88%);font-size:15.5px;font-weight:800;line-height:22px;text-align:center;animation:swWrite .9s var(--letter-at) ease-out both}
+
+.titleRow{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:22px;animation:swRise .45s var(--title-at) cubic-bezier(.34,1.56,.64,1) both}
+.titleRow h2{margin:0;font-size:20px;font-weight:900;line-height:26px;text-align:center}
+.tag{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:linear-gradient(135deg,#ff8ad8,#b86cff);padding:5px 12px;color:#fff;font-size:13px;font-weight:900;letter-spacing:1.2px}
+.tagMax{background:linear-gradient(135deg,#ffe066,#ffb800);color:#5b3a00}
+
+/* 혜택 — 도장처럼 크게 기울어져 내려와 '쾅' */
+.perks{display:grid;align-self:stretch;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.perks li{display:flex;align-items:center;gap:12px;border:1px solid rgb(255 255 255/18%);border-radius:16px;background:rgb(255 255 255/12%);padding:10px 12px;animation:swStamp .4s var(--perk-at) cubic-bezier(.34,1.56,.64,1) both}
+.perks li>i{display:grid;width:32px;height:32px;flex:0 0 auto;place-items:center;border-radius:10px;background:#ffd900;color:#3b2a00}
+.perks li>span{flex:1;font-size:14.5px;font-weight:800}
+.check{color:#ffd900}
+
+.footer{width:100%;max-width:var(--content-width,560px);margin:0 auto;padding:12px 20px calc(16px + var(--korio-bottom,0px))}
+.footer small{display:block;padding:18px 0;color:rgb(255 255 255/55%);font-size:12.5px;font-weight:700;text-align:center}
+.cta{animation:swIn .26s ease-out both}
+.gold.gold.gold{--b:#ffd900;--d:#e5ae00;color:#3b2a00}
+
+/* 탭으로 건너뜀 · 동작 줄이기 — 끝 장면 */
+.done .crown,.done .hangul,.done .letter,.done .titleRow,.done .perks li{animation:none}
+
+@keyframes swIn{from{opacity:0}}
+@keyframes swPop{0%{opacity:0;transform:scale(.7)}60%{opacity:1;transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+@keyframes swWrite{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes swRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+/* 떨어지고(가속 420ms) → 닿아서 눌렸다 튄다 */
+@keyframes swCrown{
+  0%{opacity:1;transform:translateY(-360px);animation-timing-function:cubic-bezier(.55,0,1,.45)}
+  46.7%{transform:translateY(0) scale(1)}
+  54%{transform:scale(1.22,.78)}
+  70%{transform:scale(.92,1.08)}
+  84%{transform:scale(1.04,.96)}
+  100%{opacity:1;transform:none}
+}
+@keyframes swSquash{0%{transform:none}15%{transform:scale(1.1,.9)}45%{transform:scale(.95,1.05)}70%{transform:scale(1.02,.98)}100%{transform:none}}
+@keyframes swRing{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(2.2)}}
+@keyframes swStamp{0%{opacity:0;transform:scale(1.5) rotate(-8deg)}60%{opacity:1;transform:scale(.97) rotate(0)}100%{opacity:1;transform:none}}
+
+@media (prefers-reduced-motion:reduce){.root,.crown,.hangul,.letter,.titleRow,.perks li,.squashGo,.ringGo,.cta{animation:none}}

@@ -397,7 +397,7 @@ const s = StyleSheet.create({
   // 왕관 — 기뻐하는 그림(1.12배)의 머리 꼭대기에 앉는 자리 (원본 768px 기준 머리 위 ≈ 0.25)
   crown: {
     position: "absolute",
-    top: STAGE * 0.005,
+    top: STAGE * 0.06,
     left: STAGE * (0.494 - 0.15),
     transformOrigin: "bottom",
   },
