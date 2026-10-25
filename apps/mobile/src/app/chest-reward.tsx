@@ -92,7 +92,7 @@ export default function ChestRewardScreen() {
     category?: string;
     /** 학습 로드 모드에서 왔으면 "studyPath" */
     from?: string;
-    /** "streak" = 연속 학습 보상 상자 (제목이 다르다) */
+    /** "streak" = 연속 학습 보상 상자, "review" = 앱 평가 감사 상자 (제목이 다르다) */
     kind?: string;
     /** 연속 일수 (kind=streak) */
     days?: string;
@@ -290,7 +290,9 @@ export default function ChestRewardScreen() {
         <Text style={styles.title}>
           {params.kind === "streak"
             ? t("chestReward.streakTitle", { days: Number(params.days) || 3 })
-            : t(CHEST_TITLES[reward.rewardType])}
+            : params.kind === "review"
+              ? t("chestReward.reviewTitle")
+              : t(CHEST_TITLES[reward.rewardType])}
         </Text>
 
         <View style={styles.chestArea}>

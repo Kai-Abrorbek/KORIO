@@ -60,6 +60,8 @@ import { questsGlance } from "@/features/retention/questMeta";
 import CheckinCard from "@/features/retention/components/CheckinCard";
 import XpBoostBanner from "@/features/retention/components/XpBoostBanner";
 import RetentionOverlays from "@/features/retention/components/RetentionOverlays";
+import AppReviewModal from "@/features/app-review/AppReviewModal";
+import { useAppReviewPrompt } from "@/features/app-review/useAppReviewPrompt";
 
 // 차트 카테고리: DayStats 필드와 1:1 매핑 (새 카테고리는 여기만 추가하면 자동 반영)
 const CATEGORIES = [
@@ -355,6 +357,23 @@ export default function HomeScreen() {
   const avatarBackground = user?.avatar
     ? AVATAR_BACKGROUNDS[mergeAvatarConfig(user.avatar).background]
     : AVATAR_BACKGROUNDS.background_cloud;
+
+  // 앱 평가 — 다른 대화상자·투어·시트가 다 지나간 뒤에만 (한 번에 하나)
+  const activeTour = useTourStore((st) => st.activeTour);
+  const updateUser = useAuthStore((st) => st.updateUser);
+  const appReview = useAppReviewPrompt({
+    enabled: isLoggedIn,
+    blocked:
+      !!activeTour ||
+      languagePending ||
+      chatVisible ||
+      notifOpen ||
+      calendarVisible ||
+      !!checkinReward ||
+      !!retention?.comeback ||
+      !!retention?.freeze.notice ||
+      !!retention?.streakGoal.result,
+  });
 
   return (
     <View style={styles.container}>
@@ -870,6 +889,28 @@ export default function HomeScreen() {
       <RetentionOverlays
         checkinReward={checkinReward}
         onCheckinRewardClose={() => setCheckinReward(null)}
+      />
+
+      <AppReviewModal
+        visible={appReview.visible}
+        reward={appReview.reward}
+        onClose={() => appReview.dismiss("close")}
+        onSnooze={() => appReview.dismiss("snooze")}
+        onAlready={appReview.finish}
+        onDone={(res) => {
+          appReview.finish();
+          updateUser({ gems: res.gems } as any);
+          router.push({
+            pathname: "/chest-reward",
+            params: {
+              grade: "gold",
+              gems: String(res.reward),
+              gemTotal: String(Math.max(0, res.gems - res.reward)),
+              kind: "review",
+              next: "back",
+            },
+          });
+        }}
       />
 
       {/* AI 플로팅 버튼 */}

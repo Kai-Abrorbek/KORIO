@@ -13,6 +13,7 @@ export const GEM_SOURCES = [
   'quest_chest', // 퀘스트 상자
   'monthly_challenge', // 월간 챌린지 칸 { at }
   'checkin', // 출석 { day }
+  'app_review', // 앱 평가 보상 (7일에 한 번) { rating }
   // 연속 학습
   'streak_goal', // 목표를 걸 때 미리 받는 보석 { days }
   'streak_goal_lost', // 목표 실패로 돌려놓은 보석 { days }

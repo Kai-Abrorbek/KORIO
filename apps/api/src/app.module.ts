@@ -34,6 +34,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { AdminModule } from './admin/admin.module';
 import { RetentionModule } from './retention/retention.module';
 import { SupportModule } from './support/support.module';
+import { AppReviewModule } from './app-review/app-review.module';
 import { AppSettingsModule } from './app-settings/app-settings.module';
 import { RewardInboxModule } from './reward-inbox/reward-inbox.module';
 import { GemPayoutsModule } from './gem-payouts/gem-payouts.module';
@@ -85,6 +86,7 @@ import { LearningCoursesModule } from './learning-courses/learning-courses.modul
     AnalyticsModule,
     AdminModule,
     SupportModule,
+    AppReviewModule,
     AppSettingsModule,
     RewardInboxModule,
     GemPayoutsModule,

@@ -14,6 +14,7 @@ export const GEM_LOOK: Record<string, { icon: IconName; color: string }> = {
   quest_chest: { icon: "gift", color: "#1DBB7F" },
   monthly_challenge: { icon: "ribbon", color: "#1899D6" },
   checkin: { icon: "calendar", color: "#1899D6" },
+  app_review: { icon: "star", color: "#E2A83A" },
   streak_goal: { icon: "flag", color: "#FF7A00" },
   streak_goal_lost: { icon: "flag", color: "#E5379B" },
   streak_freeze: { icon: "create", color: "#3BB6E5" },
@@ -62,6 +63,9 @@ export function describeGemTx(item: GemTx, t: TFunction): { title: string; detai
       break;
     case "checkin":
       if (has(p.day)) details.push(t("gemHistory.details.checkin", { n: p.day }));
+      break;
+    case "app_review":
+      if (has(p.rating)) details.push(t("gemHistory.details.rating", { n: p.rating }));
       break;
     case "streak_goal":
     case "streak_goal_lost":
