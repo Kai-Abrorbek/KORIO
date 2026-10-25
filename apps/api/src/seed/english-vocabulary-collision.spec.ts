@@ -4,6 +4,7 @@ import {
   ENGLISH_VOCABULARY_MODULES,
 } from './english-vocabulary-seed.data';
 import { buildWordSeedData } from './word-seed.data';
+import { buildVocabularyCourseSeed } from './vocabulary-course.data';
 
 jest.mock('@nestjs/mongoose', () => ({
   Prop: () => () => undefined,
@@ -20,6 +21,19 @@ describe('English vocabulary collision handling', () => {
 
   afterEach(() => log.mockRestore());
 
+  it('publishes all ten Section 1 units with five nodes each', () => {
+    const { nodes } = buildVocabularyCourseSeed({ courseId: 'en-general' });
+    const section1Units = new Map<number, number>();
+
+    for (const node of nodes.filter((node) => node.section === 1)) {
+      section1Units.set(node.unit, (section1Units.get(node.unit) ?? 0) + 1);
+    }
+
+    expect([...section1Units.entries()].sort(([a], [b]) => a - b)).toEqual(
+      Array.from({ length: 10 }, (_, index) => [index + 1, 5]),
+    );
+  });
+
   it('normalizes every published unit to unique codes and dictionary senses', () => {
     const authoredArrays = ENGLISH_VOCABULARY_MODULES.flatMap((data) =>
       Object.keys(data).filter((name) =>
@@ -28,8 +42,8 @@ describe('English vocabulary collision handling', () => {
     );
     const words = buildWordSeedData({ courseId: 'en-general' });
 
-    expect(authoredArrays).toHaveLength(45);
-    expect(words).toHaveLength(659);
+    expect(authoredArrays).toHaveLength(50);
+    expect(words).toHaveLength(934);
     expect(new Set(words.map((word) => word.code)).size).toBe(words.length);
     expect(
       new Set(
