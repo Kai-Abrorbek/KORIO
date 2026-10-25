@@ -3443,4 +3443,29 @@ export default {
     error: "Yuborib bo‘lmadi. Birozdan keyin qayta urinib ko‘ring",
     already: "Bu hafta baho bergansiz",
   },
+  // 잘 안 보이는 기능 안내 모달 (features/feature-tips)
+  featureTips: {
+    never: "Boshqa ko‘rsatmaslik",
+    close: "Yopish",
+    payout: {
+      title: "Yig‘gan toshlaringiz haqiqiy pulga aylanadi",
+      body: "1 tosh — 1 so‘m. {{min}} ta tosh yig‘sangiz, kartangizga yechib olishingiz mumkin.",
+      rate: "1 tosh = {{som}} so‘m",
+      cta: "Pul yechishni ko‘rish",
+    },
+    invite: {
+      title: "Do‘st chaqirsangiz, toshlar yog‘iladi",
+      body: "Do‘stingiz havolangiz orqali ro‘yxatdan o‘tsa, siz ham, u ham {{n}} tadan tosh olasiz.",
+      each: "Har bir do‘st uchun — sizga ham, unga ham",
+      milestone: "{{count}} kishi +{{gems}}",
+      cta: "Do‘stlarni taklif qilish",
+    },
+    stickers: {
+      title: "Qahramoningiz Telegram stikeriga aylanadi!",
+      body: "Hozirgina bezagan qahramoningizdan o‘z stikerlar to‘plamingizni yarating va do‘stlar bilan chatda ishlating.",
+      free: "Bepul yaratish",
+      how: "Telegram bot stikerlar to‘plamini darhol yuboradi",
+      cta: "Stikerlarimni yaratish",
+    },
+  },
 };

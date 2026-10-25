@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { uzt } from "../../../shared/i18n/uz-text";
+import { triggerFeatureTip } from "../../feature-tips/model/feature-tips";
 
 import { Confetti } from "../../../shared/ui/confetti";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
@@ -247,6 +248,8 @@ export function ChestRewardScreen() {
 
   /** 결과 화면 ("Tosh +N") 으로 */
   const showResult = () => {
+    // 보석을 막 받았다 — 홈에 돌아가면 "친구 초대하면 더 받아요" 를 알릴 순간
+    triggerFeatureTip("invite");
     setCounted(gemTotal + gems);
     setPhase("revealed");
   };

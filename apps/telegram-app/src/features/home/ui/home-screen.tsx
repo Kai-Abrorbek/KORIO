@@ -53,7 +53,12 @@ import {
   XpBoostBanner,
 } from "../../retention/ui/home-retention";
 import { AppReviewDialog } from "../../app-review/ui/app-review-dialog";
-import { useAppReviewPrompt } from "../../app-review/model/use-app-review-prompt";
+import {
+  appReviewShownThisLaunch,
+  useAppReviewPrompt,
+} from "../../app-review/model/use-app-review-prompt";
+import { FeatureTipDialog } from "../../feature-tips/ui/feature-tip-dialog";
+import { useFeatureTip } from "../../feature-tips/model/use-feature-tip";
 import { energySpendsSettled } from "../../energy/energy-sync";
 import { setLevelUp, takeQueuedLevelUp } from "../../level-up/model/level-up";
 
@@ -258,17 +263,24 @@ export function HomeScreen() {
   );
   const questGlance = questsGlance(retention);
   // 앱 평가 — 리텐션 요약을 받고, 다른 대화상자·시트가 다 지나간 뒤에만 (한 번에 하나)
+  const othersOpen =
+    !retention ||
+    chatOpen ||
+    notificationsOpen ||
+    calendarOpen ||
+    Boolean(checkinReward) ||
+    Boolean(retention.comeback) ||
+    Boolean(retention.freeze.notice) ||
+    Boolean(retention.streakGoal.result);
   const appReview = useAppReviewPrompt({
     enabled: Boolean(authenticatedUser?.isOnboardingCompleted),
-    blocked:
-      !retention ||
-      chatOpen ||
-      notificationsOpen ||
-      calendarOpen ||
-      Boolean(checkinReward) ||
-      Boolean(retention.comeback) ||
-      Boolean(retention.freeze.notice) ||
-      Boolean(retention.streakGoal.result),
+    blocked: othersOpen,
+  });
+  // 잘 안 보이는 기능 안내 (출금 · 친구 초대 · 스티커팩) — 평가 대화상자가 이번에 떴으면 쉰다
+  const featureTip = useFeatureTip({
+    enabled: Boolean(authenticatedUser?.isOnboardingCompleted),
+    blocked: othersOpen || appReview.visible || appReviewShownThisLaunch(),
+    gems: profile?.gems ?? 0,
   });
 
   // 섹션을 끝낸 축하 화면들을 지나 홈으로 왔으면 여기서 레벨업 연출 (로드맵과 같다)
@@ -785,6 +797,18 @@ export function HomeScreen() {
         onSnooze={() => appReview.dismiss("snooze")}
         open={appReview.visible}
         reward={appReview.reward}
+      />
+
+      <FeatureTipDialog
+        onClose={featureTip.close}
+        onGo={(tip) => {
+          featureTip.close();
+          router.push(
+            tip.id === "payout" ? "/shop?focus=withdraw" : tip.id === "invite" ? "/invite" : "/stickers",
+          );
+        }}
+        onNever={featureTip.neverAgain}
+        tip={featureTip.tip}
       />
     </main>
   );

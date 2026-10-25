@@ -1,0 +1,36 @@
+/* 기능 안내 대화상자 — 앱 FeatureTipModal 과 같은 값 (평가 대화상자와 같은 틀) */
+
+.root{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;padding:0 16px;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.shown{opacity:1;pointer-events:auto}
+.backdrop{position:absolute;inset:0;border:0;background:rgb(16 11 44/62%);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+
+.card{position:relative;display:flex;flex-direction:column;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:52px 20px 14px}
+.sky{position:absolute;top:0;left:0;right:0;height:150px;border-radius:27px 27px 0 0;background:linear-gradient(rgb(119 110 226/18%),rgb(119 110 226/0));pointer-events:none}
+.peek{position:absolute;top:-60px;left:50%;transform:translateX(-50%)}
+.peek img{display:block;width:108px;height:108px;object-fit:contain}
+.card h2{position:relative;margin:0;font-size:22px;font-weight:900;line-height:28px;letter-spacing:-.3px;text-align:center}
+.card>p{position:relative;margin:6px 0 0;color:var(--muted);font-size:14px;font-weight:600;line-height:20px;text-align:center}
+
+.benefit{display:flex;flex-direction:column;align-items:center;margin-top:16px;border:1px solid var(--border);border-radius:18px;background:var(--app-bg);padding:14px}
+.benefit small{display:block;margin-top:8px;color:var(--muted);font-size:12.5px;font-weight:700;line-height:17px;text-align:center}
+.gem{color:#5cd0f0}
+.payoutRow{display:flex;align-items:baseline;gap:6px}
+.payoutRow strong{font-size:24px;font-weight:900}
+.payoutRow span{color:var(--muted);font-size:15px;font-weight:800}
+.track{align-self:stretch;height:10px;margin-top:10px;overflow:hidden;border-radius:999px;background:var(--border)}
+.track i{display:block;height:100%;border-radius:999px;background:#ffd900}
+.bigRow{display:flex;align-items:center;gap:6px}
+.bigRow strong{font-size:30px;font-weight:900;letter-spacing:-.5px}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px}
+.chips span{border:1px solid #ffe38a;border-radius:999px;background:#fff1c7;padding:4px 9px;color:#9a6a00;font-size:11.5px;font-weight:900}
+.chips .chipDone{opacity:.5}
+.stickerBenefit{flex-direction:row;align-items:center;gap:12px}
+.stickerBenefit>div{display:flex;flex:1;flex-direction:column}
+.stickerBenefit strong{font-size:17px;font-weight:900}
+.stickerBenefit small{margin-top:4px;text-align:left}
+.stickerIcon{display:grid;width:46px;height:46px;flex:0 0 auto;place-items:center;border-radius:14px;background:#1cb0f6;color:#fff}
+
+.cta{margin-top:16px}
+.footer{display:flex;align-items:center;margin-top:10px}
+.footer button{flex:1;border:0;background:none;padding:8px 4px;color:var(--muted);font-size:13px;font-weight:800;line-height:17px}
+.footer i{width:1px;height:14px;background:var(--border)}

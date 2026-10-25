@@ -18,6 +18,7 @@ import {
   GeneratedAvatar,
 } from "../../league/ui/generated-avatar";
 import { updateAvatar } from "../api/profile";
+import { triggerFeatureTip } from "../../feature-tips/model/feature-tips";
 import { getCosmetics, purchaseCosmetic, type CosmeticsState } from "../api/cosmetics";
 import { AVATAR_CATEGORIES, type AvatarOption } from "../model/avatar-catalog";
 import styles from "./avatar-editor-screen.module.css";
@@ -311,6 +312,8 @@ export function AvatarEditorScreen() {
     try {
       const result = await updateAvatar(request, skipPending ? withoutPending : draft);
       updateUser({ avatar: result.avatar });
+      // 방금 꾸민 캐릭터 — 홈에 가면 "텔레그램 스티커로 만들어요" 를 알릴 순간
+      triggerFeatureTip("stickers");
       window.Telegram?.WebApp.HapticFeedback?.notificationOccurred("success");
       goBack(router);
     } catch {
