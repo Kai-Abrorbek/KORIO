@@ -1641,6 +1641,9 @@ export default {
     gemsEarned: "Получено самоцветов",
     milestonesTitle: "Бонусы за приглашения",
     nextMilestone: "Ещё {{n}} — и +{{gems}}💎",
+    // 보석과 함께 SUPER 이용권을 주는 단계 (10·25·50명)
+    nextMilestonePass: "Ещё {{n}} — и +{{gems}}💎 + SUPER на {{days}} дн.",
+    superDays: "SUPER {{n}} дн.",
     haveCode: "Есть код друга?",
     haveCodeDesc: "Введите код друга и сразу получите {{gems}} самоцветов.",
     codePlaceholder: "Введите код",
@@ -3374,6 +3377,7 @@ export default {
       body: "Если друг зарегистрируется по вашей ссылке, вы оба получите по {{n}} камней.",
       each: "За каждого друга — и вам, и ему",
       milestone: "{{count}} друзей +{{gems}}",
+      milestonePass: "{{count}} друзей +{{gems}} · SUPER {{days}} дн.",
       cta: "Пригласить друзей",
     },
     stickers: {

@@ -6,6 +6,7 @@ import {
   Optional,
 } from '@nestjs/common';
 import { GemLedgerService } from '../gem-ledger/gem-ledger.service';
+import { GemPassService } from '../payments/gems/gem-pass.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -44,6 +45,7 @@ export class ReferralService {
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
     @Optional() private readonly gemLedger?: GemLedgerService,
+    @Optional() private readonly gemPass?: GemPassService,
   ) {}
 
   // ─────────────────────────── 내 초대 현황 ───────────────────────────
@@ -103,6 +105,8 @@ export class ReferralService {
       milestones: REFERRAL_MILESTONES.map((m) => ({
         count: m.count,
         gems: m.gems,
+        /** 보석과 함께 주는 SUPER 이용권 일수 (0 이면 없음) */
+        superDays: m.superDays,
         reached: invitedCount >= m.count,
         claimed: paid.includes(m.count),
       })),
@@ -274,6 +278,21 @@ export class ReferralService {
         await this.gemLedger?.record(inviterId, m.gems, 'referral_milestone', {
           count: m.count,
         });
+        // SUPER 이용권 — key 로 멱등이라 다시 불려도 한 번만 들어간다.
+        // 실패해도 보석은 이미 나갔다 (로그만 남기고 초대 처리는 계속)
+        if (m.superDays > 0) {
+          await this.gemPass
+            ?.grantRewardDays(
+              inviterId.toString(),
+              m.superDays,
+              `referral${m.count}`,
+            )
+            .catch((error: unknown) =>
+              this.logger.error(
+                `초대 ${m.count}명 SUPER ${m.superDays}일 지급 실패: user=${String(inviterId)} ${String(error)}`,
+              ),
+            );
+        }
       }
     }
     return paid;

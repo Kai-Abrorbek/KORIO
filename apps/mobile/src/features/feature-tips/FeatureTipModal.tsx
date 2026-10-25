@@ -149,10 +149,12 @@ function Benefit({ tip, theme }: { tip: FeatureTip; theme: ThemeColors }) {
             {tip.milestones.map((m) => (
               <View key={m.count} style={[s.chip, m.reached && s.chipDone]}>
                 <Text style={s.chipText}>
-                  {t("featureTips.invite.milestone", {
-                    count: m.count,
-                    gems: n(m.gems),
-                  })}
+                  {t(
+                    m.superDays
+                      ? "featureTips.invite.milestonePass"
+                      : "featureTips.invite.milestone",
+                    { count: m.count, gems: n(m.gems), days: m.superDays },
+                  )}
                 </Text>
               </View>
             ))}

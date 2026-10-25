@@ -35,14 +35,20 @@ export const MAX_REWARDED_REFERRALS = 100;
  *
  * 1명당 1000 보석만 주면 "한 명 초대하고 끝" 이 된다. 계단을 놓아야
  * 두 번째·세 번째를 부른다. 각 단계는 딱 한 번만 지급된다.
+ *
+ * superDays — 보석과 함께 주는 SUPER(프리미엄) 이용권 일수 (2026-10-26, 초기 유입용).
+ * 10명 7일 · 25명 1개월 · 50명 2개월. 0 이면 보석만. 어드민 숫자 설정에서 바꾼다.
  */
-export const REFERRAL_MILESTONES: { count: number; gems: number }[] =
-  runtimeConfig('REFERRAL_MILESTONES', [
-    { count: 3, gems: 1000 },
-    { count: 10, gems: 3000 },
-    { count: 25, gems: 8000 },
-    { count: 50, gems: 20000 },
-  ]);
+export const REFERRAL_MILESTONES: {
+  count: number;
+  gems: number;
+  superDays: number;
+}[] = runtimeConfig('REFERRAL_MILESTONES', [
+  { count: 3, gems: 1000, superDays: 0 },
+  { count: 10, gems: 3000, superDays: 7 },
+  { count: 25, gems: 8000, superDays: 30 },
+  { count: 50, gems: 20000, superDays: 60 },
+]);
 
 /** 초대 코드 길이 */
 export const CODE_LENGTH = 7;

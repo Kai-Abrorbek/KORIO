@@ -1614,6 +1614,9 @@ export default {
     gemsEarned: "Gems earned",
     milestonesTitle: "Invite bonuses",
     nextMilestone: "{{n}} more for +{{gems}}💎",
+    // 보석과 함께 SUPER 이용권을 주는 단계 (10·25·50명)
+    nextMilestonePass: "{{n}} more for +{{gems}}💎 + {{days}}-day SUPER",
+    superDays: "SUPER {{n}}d",
     haveCode: "Got a friend's code?",
     haveCodeDesc: "Enter your friend's invite code and get {{gems}} gems now.",
     codePlaceholder: "Enter code",
@@ -3448,6 +3451,7 @@ export default {
       body: "When a friend signs up with your link, you both get {{n}} gems.",
       each: "For every friend — for you and for them",
       milestone: "{{count}} friends +{{gems}}",
+      milestonePass: "{{count}} friends +{{gems}} · SUPER {{days}}d",
       cta: "Invite friends",
     },
     stickers: {

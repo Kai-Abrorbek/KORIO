@@ -1619,6 +1619,9 @@ export default {
     gemsEarned: "Olingan gavhar",
     milestonesTitle: "Taklif bonuslari",
     nextMilestone: "Yana {{n}} kishi — +{{gems}}💎",
+    // 보석과 함께 SUPER 이용권을 주는 단계 (10·25·50명)
+    nextMilestonePass: "Yana {{n}} kishi — +{{gems}}💎 + {{days}} kunlik SUPER",
+    superDays: "SUPER {{n}} kun",
     haveCode: "Do'stingizning kodi bormi?",
     haveCodeDesc: "Do'stingiz kodini kiriting va {{gems}} ta gavhar oling.",
     codePlaceholder: "Kodni kiriting",
@@ -3458,6 +3461,7 @@ export default {
       body: "Do‘stingiz havolangiz orqali ro‘yxatdan o‘tsa, siz ham, u ham {{n}} tadan tosh olasiz.",
       each: "Har bir do‘st uchun — sizga ham, unga ham",
       milestone: "{{count}} kishi +{{gems}}",
+      milestonePass: "{{count}} kishi +{{gems}} · SUPER {{days}} kun",
       cta: "Do‘stlarni taklif qilish",
     },
     stickers: {

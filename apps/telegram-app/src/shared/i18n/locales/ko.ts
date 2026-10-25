@@ -1612,6 +1612,9 @@ export default {
     gemsEarned: "받은 보석",
     milestonesTitle: "초대 보너스",
     nextMilestone: "{{n}}명 더 부르면 +{{gems}}💎",
+    // 보석과 함께 SUPER 이용권을 주는 단계 (10·25·50명)
+    nextMilestonePass: "{{n}}명 더 부르면 +{{gems}}💎 + SUPER {{days}}일",
+    superDays: "SUPER {{n}}일",
     haveCode: "친구 코드가 있나요?",
     haveCodeDesc: "친구의 초대 코드를 넣으면 보석 {{gems}}개를 바로 받아요.",
     codePlaceholder: "코드 입력",
@@ -3442,6 +3445,7 @@ export default {
       body: "친구가 내 링크로 가입하면 나도 친구도 보석 {{n}}개씩 받아요.",
       each: "친구 1명마다 나도 친구도",
       milestone: "{{count}}명 +{{gems}}",
+      milestonePass: "{{count}}명 +{{gems}} · SUPER {{days}}일",
       cta: "친구 초대하기",
     },
     stickers: {

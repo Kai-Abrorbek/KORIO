@@ -129,10 +129,12 @@ function Benefit({ tip }: { tip: FeatureTip }) {
             {tip.milestones.map((m) => (
               <span
                 className={m.reached ? styles.chipDone : undefined}
-                data-i18n="featureTips.invite.milestone"
+                data-i18n={m.superDays ? "featureTips.invite.milestonePass" : "featureTips.invite.milestone"}
                 key={m.count}
               >
-                {uzt("featureTips.invite.milestone", { count: m.count, gems: n(m.gems) })}
+                {m.superDays
+                  ? uzt("featureTips.invite.milestonePass", { count: m.count, days: m.superDays, gems: n(m.gems) })
+                  : uzt("featureTips.invite.milestone", { count: m.count, gems: n(m.gems) })}
               </span>
             ))}
           </div>

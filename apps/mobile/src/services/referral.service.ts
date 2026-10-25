@@ -3,6 +3,8 @@ import api from "./api";
 export interface InviteMilestone {
   count: number;
   gems: number;
+  /** 보석과 함께 주는 SUPER 이용권 일수 (0 · 없으면 보석만) */
+  superDays?: number;
   reached: boolean;
   claimed: boolean;
 }

@@ -62,6 +62,8 @@ export interface VersusWeek {
 }
 
 export interface InviteMilestone {
+  /** 보석과 함께 주는 SUPER 이용권 일수 (0 · 없으면 보석만) */
+  superDays?: number;
   count: number;
   gems: number;
   reached: boolean;

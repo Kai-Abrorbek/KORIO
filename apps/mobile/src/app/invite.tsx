@@ -280,10 +280,16 @@ export default function InviteScreen() {
             <Text style={s.cardLabel}>{t("invite.milestonesTitle")}</Text>
             {!!nextMilestone && (
               <Text style={s.nextHint}>
-                {t("invite.nextMilestone", {
-                  n: nextMilestone.count - (data?.invitedCount ?? 0),
-                  gems: nextMilestone.gems,
-                })}
+                {t(
+                  nextMilestone.superDays
+                    ? "invite.nextMilestonePass"
+                    : "invite.nextMilestone",
+                  {
+                    n: nextMilestone.count - (data?.invitedCount ?? 0),
+                    gems: nextMilestone.gems,
+                    days: nextMilestone.superDays,
+                  },
+                )}
               </Text>
             )}
           </View>
@@ -414,11 +420,18 @@ function MilestoneRail({
   s,
   theme,
 }: {
-  milestones: { count: number; gems: number; reached: boolean; claimed: boolean }[];
+  milestones: {
+    count: number;
+    gems: number;
+    superDays?: number;
+    reached: boolean;
+    claimed: boolean;
+  }[];
   invited: number;
   s: any;
   theme: ThemeColors;
 }) {
+  const { t } = useTranslation();
   const max = milestones.length ? milestones[milestones.length - 1].count : 1;
   const pct = Math.min(100, (invited / max) * 100);
 
@@ -440,6 +453,11 @@ function MilestoneRail({
             <Text style={[s.nodeGems, m.reached && { color: theme.primary }]}>
               +{m.gems}
             </Text>
+            {m.superDays ? (
+              <Text style={s.nodePass} numberOfLines={1}>
+                {t("invite.superDays", { n: m.superDays })}
+              </Text>
+            ) : null}
           </View>
         ))}
       </View>
@@ -583,6 +601,18 @@ const styles = (theme: ThemeColors, isDark: boolean) =>
     nodeDotOn: { backgroundColor: theme.primary },
     nodeCount: { color: theme.textSecondary, fontSize: 11, fontWeight: "900" },
     nodeGems: { color: theme.textSecondary, fontSize: 10.5, fontWeight: "800" },
+    // SUPER 이용권 — 프리미엄 색(보라)으로 작은 알약
+    nodePass: {
+      marginTop: 3,
+      paddingHorizontal: 6,
+      paddingVertical: 1,
+      borderRadius: 999,
+      overflow: "hidden",
+      backgroundColor: "#776EE2",
+      color: "#FFFFFF",
+      fontSize: 9.5,
+      fontWeight: "900",
+    },
 
     inputRow: { flexDirection: "row", gap: 10, marginTop: 12 },
     input: {

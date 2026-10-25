@@ -326,6 +326,17 @@ export const SETTING_CATALOG: SettingSpec[] = [
       100000,
     ),
   ),
+  ...REFERRAL_MILESTONES.map((milestone, index) =>
+    item(
+      `REFERRAL_MILESTONES.${index}.superDays`,
+      `${milestone.count}명 초대 SUPER 이용권`,
+      '친구 초대',
+      '일',
+      milestone.superDays,
+      0,
+      365,
+    ),
+  ),
   item(
     'QUEST_CHEST_FREEZE_FALLBACK_GEMS',
     '보호권 만석 시 상자 대체 보석',
