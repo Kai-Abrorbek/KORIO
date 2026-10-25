@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import Animated, {
@@ -178,19 +179,23 @@ export default function AppReviewModal({
     >
       <GestureHandlerRootView style={s.root}>
         <View style={[StyleSheet.absoluteFill, s.backdrop]} />
-        <View pointerEvents="none" style={s.glow} />
 
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={s.center}
         >
           <View style={s.card}>
+            {/* 카드 위쪽만 하늘몬 보라로 은은하게 물든다 — 하늘몬은 그 위에 서서 가장자리 너머로 고개를 내민다 */}
+            <LinearGradient
+              pointerEvents="none"
+              colors={["rgba(119,110,226,0.18)", "rgba(119,110,226,0)"]}
+              style={s.sky}
+            />
             <Animated.View
               style={formStyle}
               pointerEvents={thanks ? "none" : "auto"}
             >
               <View style={s.peek}>
-                <View style={s.halo} />
                 <HaneulmonMascot size={108} mood={MOOD_BY_RATING[rating]} />
               </View>
 
@@ -371,23 +376,13 @@ const getStyles = (theme: ThemeColors) =>
     root: { flex: 1 },
     // 흐린 배경 대신 보라빛이 도는 짙은 막 — 홈이 은은하게 비친다
     backdrop: { backgroundColor: "rgba(16, 11, 44, 0.74)" },
-    glow: {
-      position: "absolute",
-      alignSelf: "center",
-      top: "18%",
-      width: 360,
-      height: 360,
-      borderRadius: 180,
-      backgroundColor: "#9D8DFF",
-      opacity: 0.16,
-    },
     center: { flex: 1, alignItems: "center", justifyContent: "center" },
     card: {
       width: "88%",
       maxWidth: 380,
       backgroundColor: theme.surface,
       borderRadius: 28,
-      paddingTop: 62,
+      paddingTop: 52,
       paddingHorizontal: 20,
       paddingBottom: 14,
       borderWidth: 1,
@@ -395,18 +390,19 @@ const getStyles = (theme: ThemeColors) =>
     },
     peek: {
       position: "absolute",
-      top: -122,
+      top: -112,
       alignSelf: "center",
       alignItems: "center",
       justifyContent: "center",
     },
-    halo: {
+    sky: {
       position: "absolute",
-      width: 148,
-      height: 148,
-      borderRadius: 74,
-      backgroundColor: "#9D8DFF",
-      opacity: 0.35,
+      top: 0,
+      left: 0,
+      right: 0,
+      height: 150,
+      borderTopLeftRadius: 27,
+      borderTopRightRadius: 27,
     },
     gift: {
       alignSelf: "center",
