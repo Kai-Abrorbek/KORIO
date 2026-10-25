@@ -17,7 +17,6 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withDelay,
-  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -33,6 +32,7 @@ import type { ThemeColors } from "@/constants/theme";
 import { ApiError } from "@/services/api";
 import { AppReviewService } from "@/services/app-review.service";
 import * as Haptics from "@/utils/haptics";
+import HaneulmonBow, { BOW_BOTTOM_AT, BOW_CHEER_AT } from "./HaneulmonBow";
 
 const COMMENT_MAX = 1000;
 const STAR_DEPTH = 3;
@@ -49,13 +49,8 @@ const MOOD_BY_RATING: HaneulmonMood[] = [
   "celebrating",
 ];
 
-/** 감사 연출 타임라인 (ms) — 걸어온다 → 90도 인사 → 일어나 기뻐한다 → 상자로 */
-const WALK_MS = 1100;
-const BOW_AT = WALK_MS + 80;
-const BOW_DOWN_MS = 380;
-const BOW_HOLD_MS = 700;
-const RISE_AT = BOW_AT + BOW_DOWN_MS + BOW_HOLD_MS;
-const DONE_AT = RISE_AT + 900;
+/** 기뻐하는 모습을 잠깐 보여 주고 상자로 */
+const DONE_AT = BOW_CHEER_AT + 700;
 
 export interface AppReviewModalProps {
   visible: boolean;
@@ -75,7 +70,7 @@ export interface AppReviewModalProps {
  *
  * 열림/닫힘은 RewardDialog 처럼 Modal 기본 페이드 하나만 쓴다 (2026-10-06 규칙).
  * 카드와 버튼은 열릴 때 움직이지 않는다. 움직이는 건 유저가 누른 별과,
- * 보낸 뒤의 감사 연출(하늘몬이 걸어 나와 90도로 인사)뿐이다.
+ * 보낸 뒤의 감사 연출(하늘몬이 걸어 나와 고개 숙여 인사 — HaneulmonBow)뿐이다.
  */
 export default function AppReviewModal({
   visible,
@@ -96,7 +91,6 @@ export default function AppReviewModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [thanks, setThanks] = useState(false);
-  const [stageMood, setStageMood] = useState<HaneulmonMood>("cheering");
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -107,36 +101,13 @@ export default function AppReviewModal({
     setComment("");
     setError(null);
     setThanks(false);
-    setStageMood("cheering");
   }, [visible]);
 
-  // ── 감사 연출 값 ──
+  // ── 감사 연출 값 (하늘몬 움직임은 HaneulmonBow 가 맡는다) ──
   const formFade = useSharedValue(1);
-  const walk = useSharedValue(0); // 0 = 카드 위에 빼꼼, 1 = 앞으로 다 걸어옴
-  const step = useSharedValue(0); // 걸음 — 위아래 출렁 + 좌우 기우뚱
-  const bow = useSharedValue(0); // 0 = 서 있음, 1 = 90도 인사
   const words = useSharedValue(0); // "감사합니다" 팝
 
   const formStyle = useAnimatedStyle(() => ({ opacity: formFade.value }));
-  const stageStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: -150 + walk.value * 150 + step.value * -7 },
-      { scale: 0.62 + walk.value * 0.5 },
-    ],
-  }));
-  const wobbleStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${(step.value - 0.5) * 9 * (1 - walk.value * 0.4)}deg` }],
-  }));
-  // 정면을 보고 서 있으니 "인사" 는 머리가 보는 사람 쪽으로 숙여지는 것 —
-  // 발끝을 축으로 앞으로 눕히고(rotateX) 살짝 내려앉는다
-  const bowStyle = useAnimatedStyle(() => ({
-    transform: [
-      { perspective: 520 },
-      { rotateX: `${bow.value * 52}deg` },
-      { translateY: bow.value * 10 },
-      { scaleY: 1 - bow.value * 0.06 },
-    ],
-  }));
   const wordsStyle = useAnimatedStyle(() => ({
     opacity: words.value,
     transform: [{ scale: 0.7 + words.value * 0.3 }],
@@ -151,47 +122,25 @@ export default function AppReviewModal({
     formFade.value = withTiming(0, { duration: 200 });
 
     if (reducedMotion) {
-      walk.value = 1;
       words.value = 1;
-      setStageMood("shy");
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
       later(() => onDone(res), 1600);
       return;
     }
 
-    const ease = Easing.out(Easing.cubic);
-    walk.value = withTiming(1, { duration: WALK_MS, easing: Easing.inOut(Easing.quad) });
-    // 걸음 네 번
-    step.value = withSequence(
-      withRepeat(
-        withSequence(
-          withTiming(1, { duration: WALK_MS / 8, easing: ease }),
-          withTiming(0, { duration: WALK_MS / 8, easing: Easing.in(Easing.quad) }),
-        ),
-        4,
-        false,
-      ),
-      withTiming(0, { duration: 0 }),
-    );
-
+    // 다 숙였을 때 "감사합니다" — 일어나서 기뻐할 때 딩
     later(() => {
-      setStageMood("shy");
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
-    }, BOW_AT);
-    bow.value = withDelay(
-      BOW_AT,
-      withSequence(
-        withTiming(1, { duration: BOW_DOWN_MS, easing: ease }),
-        withDelay(BOW_HOLD_MS, withSpring(0, { damping: 9, stiffness: 140 })),
-      ),
-    );
-    words.value = withDelay(BOW_AT + 120, withSpring(1, { damping: 9 }));
-
+    }, BOW_BOTTOM_AT);
+    words.value = withDelay(BOW_BOTTOM_AT - 120, withSpring(1, { damping: 9 }));
     later(() => {
-      setStageMood("celebrating");
       play("correct");
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    }, RISE_AT);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {},
+      );
+    }, BOW_CHEER_AT);
     later(() => onDone(res), DONE_AT);
   };
 
@@ -236,7 +185,10 @@ export default function AppReviewModal({
           style={s.center}
         >
           <View style={s.card}>
-            <Animated.View style={formStyle} pointerEvents={thanks ? "none" : "auto"}>
+            <Animated.View
+              style={formStyle}
+              pointerEvents={thanks ? "none" : "auto"}
+            >
               <View style={s.peek}>
                 <View style={s.halo} />
                 <HaneulmonMascot size={108} mood={MOOD_BY_RATING[rating]} />
@@ -244,7 +196,9 @@ export default function AppReviewModal({
 
               <View style={s.gift}>
                 <Ionicons name="diamond" size={14} color="#5CD0F0" />
-                <Text style={s.giftText}>{t("appReview.reward", { n: reward })}</Text>
+                <Text style={s.giftText}>
+                  {t("appReview.reward", { n: reward })}
+                </Text>
               </View>
 
               <Text style={s.title}>{t("appReview.title")}</Text>
@@ -267,14 +221,18 @@ export default function AppReviewModal({
                 ))}
               </View>
               <Text style={[s.rateLabel, !rating && s.rateHint]}>
-                {rating ? t(`appReview.rating${rating}`) : t("appReview.rateHint")}
+                {rating
+                  ? t(`appReview.rating${rating}`)
+                  : t("appReview.rateHint")}
               </Text>
 
               <TextInput
                 value={comment}
                 onChangeText={setComment}
                 placeholder={t(
-                  rating && rating <= 3 ? "appReview.placeholderLow" : "appReview.placeholderHigh",
+                  rating && rating <= 3
+                    ? "appReview.placeholderLow"
+                    : "appReview.placeholderHigh",
                 )}
                 placeholderTextColor={theme.textSecondary + "B3"}
                 multiline
@@ -300,13 +258,23 @@ export default function AppReviewModal({
               />
 
               <View style={s.footer}>
-                <Pressable onPress={onSnooze} disabled={busy} hitSlop={10} style={s.footBtn}>
+                <Pressable
+                  onPress={onSnooze}
+                  disabled={busy}
+                  hitSlop={10}
+                  style={s.footBtn}
+                >
                   <Text style={s.footText} numberOfLines={2}>
                     {t("appReview.later")}
                   </Text>
                 </Pressable>
                 <View style={s.footDivider} />
-                <Pressable onPress={onClose} disabled={busy} hitSlop={10} style={s.footBtn}>
+                <Pressable
+                  onPress={onClose}
+                  disabled={busy}
+                  hitSlop={10}
+                  style={s.footBtn}
+                >
                   <Text style={s.footText} numberOfLines={2}>
                     {t("appReview.close")}
                   </Text>
@@ -316,14 +284,7 @@ export default function AppReviewModal({
 
             {thanks ? (
               <View style={s.stage} pointerEvents="none">
-                <Animated.View style={stageStyle}>
-                  <Animated.View style={wobbleStyle}>
-                    <Animated.View style={[bowStyle, s.bowPivot]}>
-                      <HaneulmonMascot size={150} mood={stageMood} />
-                    </Animated.View>
-                  </Animated.View>
-                </Animated.View>
-                <View style={s.ground} />
+                <HaneulmonBow size={160} reducedMotion={reducedMotion} />
                 <Animated.View style={[s.words, wordsStyle]}>
                   <Text style={s.hangul}>감사합니다</Text>
                   <Text style={s.thanksSub}>{t("appReview.thanks")}</Text>
@@ -361,7 +322,9 @@ function Star({
       withSpring(1, { damping: 8, stiffness: 260 }),
     );
   }, [picked, pop]);
-  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+  const popStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pop.value }],
+  }));
 
   const dark = theme.bg !== "#ffffff";
   const face = on ? GOLD : theme.border;
@@ -545,16 +508,7 @@ const getStyles = (theme: ThemeColors) =>
       justifyContent: "center",
       paddingBottom: 40,
     },
-    bowPivot: { transformOrigin: "bottom" },
-    ground: {
-      marginTop: -14,
-      width: 120,
-      height: 14,
-      borderRadius: 60,
-      backgroundColor: theme.text,
-      opacity: 0.08,
-    },
-    words: { marginTop: 22, alignItems: "center", paddingHorizontal: 12 },
+    words: { marginTop: 12, alignItems: "center", paddingHorizontal: 12 },
     hangul: {
       fontSize: 40,
       fontWeight: "900",
