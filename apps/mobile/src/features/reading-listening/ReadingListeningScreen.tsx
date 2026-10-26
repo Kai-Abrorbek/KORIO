@@ -71,13 +71,6 @@ function passageSegmentsOf(
 
 type StepKey = "read" | "check" | "write" | "vocabulary";
 type SpeechTarget = "passage" | "vocabulary" | null;
-type IconName = keyof typeof Ionicons.glyphMap;
-
-interface StepDefinition {
-  key: StepKey;
-  icon: IconName;
-}
-
 interface ReadingPalette {
   bg: string;
   surface: string;
@@ -98,17 +91,13 @@ interface ReadingPalette {
   unread: string;
 }
 
-const STEPS: StepDefinition[] = [
-  { key: "read", icon: "book-outline" },
-  { key: "check", icon: "checkmark-circle-outline" },
-  { key: "write", icon: "create-outline" },
-  { key: "vocabulary", icon: "sparkles-outline" },
-];
+const STEPS: StepKey[] = ["read", "check", "write", "vocabulary"];
 
 const UI_COPY: Record<
   ReadingLanguage,
   {
     screenTitle: string;
+    back: string;
     lesson: string;
     level: string;
     unit: string;
@@ -143,15 +132,16 @@ const UI_COPY: Record<
 > = {
   ko: {
     screenTitle: "읽기 · 듣기",
+    back: "뒤로 가기",
     lesson: "문화 읽기",
     level: "급",
     unit: "과",
     minutes: "분",
     steps: {
-      read: "읽어 봅시다",
-      check: "읽고 확인해 봅시다",
-      write: "써 봅시다",
-      vocabulary: "새 어휘를 배워 봅시다",
+      read: "읽기",
+      check: "확인",
+      write: "쓰기",
+      vocabulary: "어휘",
     },
     listenAll: "전체 지문 듣기",
     stopListening: "듣기 멈추기",
@@ -198,15 +188,16 @@ const UI_COPY: Record<
   },
   uz: {
     screenTitle: "O‘qish · tinglash",
+    back: "Orqaga",
     lesson: "Madaniy o‘qish",
     level: "-daraja",
     unit: "-dars",
     minutes: "daq.",
     steps: {
-      read: "O‘qib ko‘ramiz",
-      check: "Tekshiramiz",
-      write: "Yozib ko‘ramiz",
-      vocabulary: "Yangi so‘zlar",
+      read: "O‘qish",
+      check: "Tekshirish",
+      write: "Yozish",
+      vocabulary: "So‘zlar",
     },
     listenAll: "Matnni to‘liq tinglash",
     stopListening: "Tinglashni to‘xtatish",
@@ -254,6 +245,7 @@ const UI_COPY: Record<
   },
   en: {
     screenTitle: "Reading · listening",
+    back: "Go back",
     lesson: "Culture reading",
     level: "Level",
     unit: "Unit",
@@ -262,7 +254,7 @@ const UI_COPY: Record<
       read: "Read",
       check: "Check",
       write: "Write",
-      vocabulary: "New words",
+      vocabulary: "Words",
     },
     listenAll: "Listen to the full text",
     stopListening: "Stop listening",
@@ -309,15 +301,16 @@ const UI_COPY: Record<
   },
   ru: {
     screenTitle: "Чтение · аудирование",
+    back: "Назад",
     lesson: "Культура через чтение",
     level: "уровень",
     unit: "урок",
     minutes: "мин.",
     steps: {
-      read: "Читаем",
-      check: "Проверяем",
-      write: "Пишем",
-      vocabulary: "Новые слова",
+      read: "Читать",
+      check: "Проверить",
+      write: "Писать",
+      vocabulary: "Слова",
     },
     listenAll: "Прослушать весь текст",
     stopListening: "Остановить",
@@ -1135,12 +1128,12 @@ export default function ReadingListeningScreen() {
       <View style={localStyles.header}>
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel="Back"
+          accessibilityLabel={copy.back}
           onPress={goBack}
           activeOpacity={0.78}
           style={localStyles.closeButton}
         >
-          <Ionicons name="close" size={23} color={palette.ink} />
+          <Ionicons name="arrow-back" size={23} color={palette.ink} />
         </TouchableOpacity>
 
         <View style={styles.headerCopy}>
@@ -1154,18 +1147,12 @@ export default function ReadingListeningScreen() {
         </View>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.stepRail}
-        style={[styles.stepRailScroll, { borderBottomColor: palette.line }]}
-      >
+      <View style={[styles.stepRail, { borderBottomColor: palette.line }]}>
         {STEPS.map((step, index) => {
           const selected = index === stepIndex;
-          const completed = index < stepIndex;
           return (
             <Pressable
-              key={step.key}
+              key={step}
               accessibilityRole="tab"
               accessibilityState={{ selected }}
               onPress={() => selectStep(index)}
@@ -1174,23 +1161,19 @@ export default function ReadingListeningScreen() {
                 selected && { borderBottomColor: palette.sageDark },
               ]}
             >
-              <Ionicons
-                name={completed ? "checkmark" : step.icon}
-                size={15}
-                color={selected ? palette.sageDark : palette.sub}
-              />
               <Text
+                numberOfLines={2}
                 style={[
                   styles.stepPillText,
                   { color: selected ? palette.sageDark : palette.sub },
                 ]}
               >
-                {copy.steps[step.key]}
+                {copy.steps[step]}
               </Text>
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
 
       <ScrollView
         ref={scrollRef}
@@ -1208,24 +1191,11 @@ export default function ReadingListeningScreen() {
           style={({ pressed }) => [
             styles.lessonSelector,
             {
-              backgroundColor: palette.surface,
               borderColor: palette.line,
               opacity: pressed ? 0.88 : 1,
             },
           ]}
         >
-          <View
-            style={[
-              styles.lessonSelectorIcon,
-              { backgroundColor: palette.sageSoft },
-            ]}
-          >
-            <Ionicons
-              name="library-outline"
-              size={21}
-              color={palette.sageDark}
-            />
-          </View>
           <View style={styles.lessonSelectorCopy}>
             <Text
               style={[styles.lessonSelectorLabel, { color: palette.sageDark }]}
@@ -1242,29 +1212,13 @@ export default function ReadingListeningScreen() {
           {isCatalogLoading || isLessonLoading ? (
             <ActivityIndicator size="small" color={palette.sageDark} />
           ) : (
-            <View
-              style={[
-                styles.lessonSelectorChevron,
-                { backgroundColor: palette.sageSoft },
-              ]}
-            >
-              <Ionicons
-                name="chevron-down"
-                size={18}
-                color={palette.sageDark}
-              />
-            </View>
+            <Ionicons name="chevron-down" size={20} color={palette.sageDark} />
           )}
         </Pressable>
 
         {stepIndex === 0 ? (
           <Animated.View key="read" entering={FadeIn.duration(260)}>
-            <View
-              style={[
-                styles.hero,
-                { backgroundColor: palette.surface, borderColor: palette.line },
-              ]}
-            >
+            <View>
               <View style={styles.heroImageWrap}>
                 <ReadingLessonImage
                   code={lesson.code}
@@ -2602,27 +2556,27 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     fontWeight: "900",
   },
-  stepRailScroll: { flexGrow: 0, borderBottomWidth: 1 },
-  stepRail: { gap: 20, paddingHorizontal: 20 },
-  stepPillText: { fontSize: 12, lineHeight: 17, fontWeight: "800" },
+  stepRail: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+  },
+  stepPillText: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: "800",
+    textAlign: "center",
+  },
   scrollContent: { paddingHorizontal: 20, paddingTop: 16 },
   lessonSelector: {
-    minHeight: 62,
-    marginBottom: 20,
-    borderRadius: 13,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    minHeight: 68,
+    marginBottom: 24,
+    borderBottomWidth: 1,
+    paddingHorizontal: 2,
+    paddingVertical: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  lessonSelectorIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
   },
   lessonSelectorCopy: { flex: 1, minWidth: 0 },
   lessonSelectorLabel: {
@@ -2636,13 +2590,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 21,
     fontWeight: "900",
-  },
-  lessonSelectorChevron: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
-    alignItems: "center",
-    justifyContent: "center",
   },
   lessonPickerRoot: {
     flex: 1,
@@ -2787,8 +2734,12 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  hero: { borderRadius: 16, borderWidth: 1, overflow: "hidden" },
-  heroImageWrap: { height: 172, position: "relative" },
+  heroImageWrap: {
+    height: 172,
+    position: "relative",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
   heroImage: {
     position: "absolute",
     top: 0,
@@ -2796,7 +2747,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
   },
-  heroCopy: { paddingHorizontal: 17, paddingTop: 16, paddingBottom: 18 },
+  heroCopy: { paddingHorizontal: 2, paddingTop: 16, paddingBottom: 8 },
   heroTitle: {
     maxWidth: "100%",
     fontSize: 22,
@@ -3251,20 +3202,20 @@ const createLocalStyles = (palette: ReadingPalette) =>
       gap: 11,
     },
     closeButton: {
-      width: 40,
-      height: 40,
+      width: 48,
+      height: 48,
       borderRadius: 12,
       alignItems: "center",
       justifyContent: "center",
     },
     stepPill: {
-      minHeight: 48,
+      flex: 1,
+      minHeight: 52,
       borderBottomWidth: 2,
       borderBottomColor: "transparent",
-      paddingHorizontal: 2,
-      flexDirection: "row",
+      paddingHorizontal: 3,
       alignItems: "center",
-      gap: 6,
+      justifyContent: "center",
     },
     readingCard: {
       marginTop: 16,

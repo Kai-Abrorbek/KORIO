@@ -21,10 +21,10 @@ import type {
 import * as Haptics from "@/utils/haptics";
 
 interface LevelCopy {
-  eyebrow: string;
   title: string;
   subtitle: string;
-  available: string;
+  back: string;
+  bands: [string, string, string];
   texts: string;
   comingSoon: string;
   loading: string;
@@ -38,11 +38,10 @@ const LEVELS = [1, 2, 3, 4, 5, 6] as const;
 
 const COPY: Record<ReadingLanguage, LevelCopy> = {
   ko: {
-    eyebrow: "문화 읽기 · 듣기",
-    title: "어떤 급수로 읽어 볼까요?",
-    subtitle:
-      "내 수준에 맞는 글을 골라 읽고, 듣고, 어휘와 생각까지 차근차근 익혀 보세요.",
-    available: "학습 가능",
+    title: "읽기 · 듣기",
+    subtitle: "급수를 선택하고 읽을 글을 골라 보세요.",
+    back: "뒤로 가기",
+    bands: ["초급", "중급", "고급"],
     texts: "개 지문",
     comingSoon: "준비 중",
     loading: "급수를 확인하고 있어요",
@@ -59,11 +58,10 @@ const COPY: Record<ReadingLanguage, LevelCopy> = {
     ],
   },
   uz: {
-    eyebrow: "Madaniy o‘qish · tinglash",
-    title: "Qaysi darajadan boshlaymiz?",
-    subtitle:
-      "Darajangizga mos matnni o‘qing, tinglang va yangi so‘zlarni bosqichma-bosqich o‘rganing.",
-    available: "O‘rganish mumkin",
+    title: "O‘qish · tinglash",
+    subtitle: "Darajani tanlang va matnni boshlang.",
+    back: "Orqaga",
+    bands: ["Boshlang‘ich", "O‘rta", "Yuqori"],
     texts: " ta matn",
     comingSoon: "Tayyorlanmoqda",
     loading: "Darajalar tekshirilmoqda",
@@ -80,11 +78,10 @@ const COPY: Record<ReadingLanguage, LevelCopy> = {
     ],
   },
   en: {
-    eyebrow: "Culture reading · listening",
-    title: "Which level will you read?",
-    subtitle:
-      "Choose a text that fits you, then read, listen, and build vocabulary one calm step at a time.",
-    available: "Available",
+    title: "Reading · listening",
+    subtitle: "Choose a level, then pick a text.",
+    back: "Go back",
+    bands: ["Beginner", "Intermediate", "Advanced"],
     texts: " texts",
     comingSoon: "Coming soon",
     loading: "Checking available levels",
@@ -101,11 +98,10 @@ const COPY: Record<ReadingLanguage, LevelCopy> = {
     ],
   },
   ru: {
-    eyebrow: "Культурное чтение · аудирование",
-    title: "Какой уровень выберем?",
-    subtitle:
-      "Выберите подходящий текст, читайте, слушайте и постепенно пополняйте словарный запас.",
-    available: "Доступно",
+    title: "Чтение · аудирование",
+    subtitle: "Выберите уровень, затем текст.",
+    back: "Назад",
+    bands: ["Начальный", "Средний", "Продвинутый"],
     texts: " текстов",
     comingSoon: "Готовится",
     loading: "Проверяем доступные уровни",
@@ -171,10 +167,6 @@ export default function ReadingListeningLevelScreen() {
     () => new Map(levels.map((item) => [item.level, item.total])),
     [levels],
   );
-  const availableCount = LEVELS.filter(
-    (level) => (totalsByLevel.get(level) ?? 0) > 0,
-  ).length;
-
   const goBack = () => {
     if (router.canGoBack()) router.back();
     else router.replace("/course-categories");
@@ -198,7 +190,7 @@ export default function ReadingListeningLevelScreen() {
         <View style={styles.topBar}>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Close"
+            accessibilityLabel={copy.back}
             hitSlop={10}
             onPress={goBack}
             style={({ pressed }) => [
@@ -206,12 +198,8 @@ export default function ReadingListeningLevelScreen() {
               pressed && styles.pressed,
             ]}
           >
-            <Ionicons name="close" size={24} color={theme.text} />
+            <Ionicons name="arrow-back" size={23} color={theme.text} />
           </Pressable>
-
-          <Text style={styles.topBarTitleText}>{copy.eyebrow}</Text>
-
-          <View style={styles.topBarSpacer} />
         </View>
 
         <View style={styles.intro}>
@@ -219,18 +207,12 @@ export default function ReadingListeningLevelScreen() {
           <Text style={styles.subtitle}>{copy.subtitle}</Text>
         </View>
 
-        <View style={styles.listHeading}>
-          <Text style={styles.listHeadingText}>
-            {loading ? copy.loading : copy.available}
-          </Text>
-          {loading ? (
+        {loading ? (
+          <View style={styles.loadingRow}>
             <ActivityIndicator size="small" color={theme.primary} />
-          ) : (
-            <Text style={styles.availableCount}>
-              {availableCount} / {LEVELS.length}
-            </Text>
-          )}
-        </View>
+            <Text style={styles.loadingText}>{copy.loading}</Text>
+          </View>
+        ) : null}
 
         {error ? (
           <Pressable
@@ -238,7 +220,7 @@ export default function ReadingListeningLevelScreen() {
             onPress={() => void loadLevels()}
             style={({ pressed }) => [
               styles.errorCard,
-              pressed && styles.pressed,
+              pressed && styles.errorPressed,
             ]}
           >
             <View style={styles.errorIcon}>
@@ -260,69 +242,82 @@ export default function ReadingListeningLevelScreen() {
           </Pressable>
         ) : null}
 
-        <View style={styles.levelList}>
-          {LEVELS.map((level, index) => {
-            const total = totalsByLevel.get(level) ?? 0;
-            const available = total > 0;
-
-            return (
-              <Pressable
-                key={level}
-                accessibilityRole="button"
-                accessibilityLabel={`${levelTitle(normalizedLanguage, level, copy.levelSuffix)}, ${available ? textCount(total, copy.texts) : copy.comingSoon}`}
-                accessibilityState={{ disabled: !available || loading }}
-                disabled={!available || loading}
-                onPress={() => openLevel(level)}
-                style={({ pressed }) => [
-                  styles.levelRow,
-                  !available && styles.unavailableRow,
-                  index < LEVELS.length - 1 && styles.levelDivider,
-                  pressed && available && styles.pressed,
-                ]}
-              >
-                <Text
-                  style={[styles.levelNumber, !available && styles.mutedText]}
-                >
-                  {String(level).padStart(2, "0")}
-                </Text>
-                <View style={styles.levelCopy}>
-                  <Text
-                    style={[
-                      styles.levelTitle,
-                      !available && styles.unavailableTitle,
-                    ]}
-                  >
-                    {levelTitle(normalizedLanguage, level, copy.levelSuffix)}
-                  </Text>
-                  {available ? (
-                    <Text style={styles.levelDescription}>
-                      {copy.descriptions[level - 1]}
-                    </Text>
-                  ) : null}
-                  <Text
-                    style={[
-                      styles.levelStatus,
-                      !available && styles.unavailableStatus,
-                    ]}
-                  >
-                    {available ? textCount(total, copy.texts) : copy.comingSoon}
-                  </Text>
+        {!error ? (
+          <View style={styles.groups}>
+            {copy.bands.map((band, bandIndex) => (
+              <View key={band} style={styles.group}>
+                <View style={styles.groupHeading}>
+                  <Text style={styles.groupTitle}>{band}</Text>
+                  <View style={styles.groupRule} />
                 </View>
-                <Ionicons
-                  name={available ? "chevron-forward" : "lock-closed-outline"}
-                  size={18}
-                  color={
-                    available
-                      ? isDark
-                        ? "#C4BEF0"
-                        : theme.primary
-                      : theme.textSecondary
-                  }
-                />
-              </Pressable>
-            );
-          })}
-        </View>
+                {LEVELS.slice(bandIndex * 2, bandIndex * 2 + 2).map((level) => {
+                  const total = totalsByLevel.get(level) ?? 0;
+                  const available = total > 0;
+                  const disabled = !available || loading;
+
+                  return (
+                    <Pressable
+                      key={level}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${levelTitle(normalizedLanguage, level, copy.levelSuffix)}, ${copy.descriptions[level - 1]}, ${loading ? copy.loading : available ? textCount(total, copy.texts) : copy.comingSoon}`}
+                      accessibilityState={{ disabled }}
+                      disabled={disabled}
+                      onPress={() => openLevel(level)}
+                      style={({ pressed }) => [
+                        styles.levelRow,
+                        pressed && available && styles.pressed,
+                      ]}
+                    >
+                      <View style={styles.levelCopy}>
+                        <Text
+                          style={[
+                            styles.levelTitle,
+                            !available && !loading && styles.unavailableTitle,
+                          ]}
+                        >
+                          {levelTitle(
+                            normalizedLanguage,
+                            level,
+                            copy.levelSuffix,
+                          )}
+                        </Text>
+                        <Text
+                          style={[
+                            styles.levelDescription,
+                            !available && !loading && styles.unavailableText,
+                          ]}
+                        >
+                          {copy.descriptions[level - 1]}
+                        </Text>
+                      </View>
+                      <View style={styles.levelEnd}>
+                        <Text
+                          style={[
+                            styles.levelStatus,
+                            !available && styles.unavailableText,
+                          ]}
+                        >
+                          {loading
+                            ? "—"
+                            : available
+                              ? textCount(total, copy.texts)
+                              : copy.comingSoon}
+                        </Text>
+                        {!loading && available ? (
+                          <Ionicons
+                            name="arrow-forward"
+                            size={17}
+                            color={theme.primary}
+                          />
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+        ) : null}
       </ScrollView>
     </View>
   );
@@ -330,126 +325,103 @@ export default function ReadingListeningLevelScreen() {
 
 const createStyles = (theme: ThemeColors, isDark: boolean) =>
   StyleSheet.create({
-    screen: { flex: 1, backgroundColor: isDark ? theme.bg : "#FAFAFC" },
+    screen: { flex: 1, backgroundColor: theme.bg },
     content: { paddingHorizontal: 20 },
     topBar: {
-      minHeight: 56,
+      minHeight: 54,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
     },
     closeButton: {
-      width: 40,
-      height: 40,
-      borderRadius: 12,
+      width: 48,
+      height: 48,
+      borderRadius: 14,
       alignItems: "center",
       justifyContent: "center",
     },
-    topBarTitleText: {
-      flex: 1,
-      fontSize: 14,
-      lineHeight: 19,
-      fontWeight: "800",
-      textAlign: "center",
-      color: theme.text,
-    },
-    topBarSpacer: { width: 40 },
-    pressed: { opacity: 0.7 },
-    intro: { paddingTop: 26, paddingBottom: 6 },
+    pressed: { backgroundColor: isDark ? "#302B48" : "#F4F2FF" },
+    intro: { paddingTop: 12, paddingBottom: 28 },
     title: {
-      fontSize: 27,
-      lineHeight: 35,
-      letterSpacing: -0.6,
+      fontSize: 29,
+      lineHeight: 36,
+      letterSpacing: -0.5,
       fontWeight: "900",
       color: theme.text,
     },
     subtitle: {
-      marginTop: 10,
-      maxWidth: 360,
+      marginTop: 6,
       fontSize: 14,
-      lineHeight: 21,
+      lineHeight: 20,
       fontWeight: "600",
       color: theme.textSecondary,
     },
-    listHeading: {
-      marginTop: 31,
-      marginBottom: 12,
+    loadingRow: {
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "space-between",
-      gap: 12,
+      gap: 10,
+      marginBottom: 16,
     },
-    listHeadingText: {
-      flex: 1,
-      fontSize: 15,
-      lineHeight: 21,
-      fontWeight: "800",
-      color: theme.text,
+    loadingText: {
+      fontSize: 13,
+      fontWeight: "700",
+      color: theme.textSecondary,
     },
-    availableCount: {
-      fontSize: 11.5,
-      lineHeight: 17,
-      fontWeight: "800",
-      color: isDark ? "#C4BEF0" : theme.primary,
-      textAlign: "right",
-    },
-    levelList: {
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: theme.border,
-      backgroundColor: theme.surface,
-      overflow: "hidden",
-    },
-    levelRow: {
-      minHeight: 112,
-      paddingHorizontal: 16,
-      paddingVertical: 17,
+    groups: { gap: 25 },
+    group: { gap: 0 },
+    groupHeading: {
       flexDirection: "row",
       alignItems: "center",
       gap: 14,
+      marginBottom: 3,
     },
-    unavailableRow: { minHeight: 72, paddingVertical: 11 },
-    levelDivider: {
+    groupTitle: {
+      fontSize: 14,
+      lineHeight: 20,
+      fontWeight: "900",
+      color: isDark ? "#C4BEF0" : "#5B4DD4",
+    },
+    groupRule: { flex: 1, height: 1, backgroundColor: theme.border },
+    levelRow: {
+      minHeight: 83,
+      paddingHorizontal: 3,
+      paddingVertical: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 12,
       borderBottomWidth: 1,
       borderBottomColor: theme.border,
     },
-    levelNumber: {
-      width: 34,
-      alignSelf: "flex-start",
-      paddingTop: 1,
-      fontSize: 21,
-      lineHeight: 26,
-      fontWeight: "900",
-      color: isDark ? "#C4BEF0" : theme.primary,
-    },
     levelCopy: { flex: 1, minWidth: 0 },
     levelTitle: {
-      fontSize: 17,
-      lineHeight: 23,
-      fontWeight: "800",
+      fontSize: 23,
+      lineHeight: 28,
+      fontWeight: "900",
       color: theme.text,
     },
-    unavailableTitle: { fontSize: 15, color: theme.textSecondary },
+    unavailableTitle: { color: theme.textSecondary },
     levelDescription: {
-      marginTop: 3,
-      fontSize: 12.5,
+      marginTop: 4,
+      fontSize: 13,
       lineHeight: 18,
       fontWeight: "600",
       color: theme.textSecondary,
     },
+    levelEnd: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      gap: 6,
+      maxWidth: "42%",
+    },
     levelStatus: {
-      marginTop: 8,
-      fontSize: 11.5,
+      flexShrink: 1,
+      fontSize: 12,
       lineHeight: 17,
       fontWeight: "800",
-      color: isDark ? "#C4BEF0" : theme.primary,
+      color: isDark ? "#C4BEF0" : "#5B4DD4",
+      textAlign: "right",
     },
-    unavailableStatus: {
-      marginTop: 1,
-      fontWeight: "600",
-      color: theme.textSecondary,
-    },
-    mutedText: { color: theme.textSecondary },
+    unavailableText: { color: theme.textSecondary },
     errorCard: {
       minHeight: 66,
       marginTop: 16,
@@ -461,6 +433,7 @@ const createStyles = (theme: ThemeColors, isDark: boolean) =>
       gap: 11,
       backgroundColor: isDark ? "#342725" : "#FFF0EC",
     },
+    errorPressed: { opacity: 0.75 },
     errorIcon: {
       width: 36,
       height: 36,
