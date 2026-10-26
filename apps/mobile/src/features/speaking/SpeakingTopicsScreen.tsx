@@ -38,13 +38,6 @@ const PROFICIENCY_LEVELS: ExpressionProficiency[] = [
   "intermediate",
   "advanced",
 ];
-const WIDE_SCENE_TOPICS = new Set([
-  "en-family-and-relationships",
-  "en-social-invitations",
-  "en-giving-and-receiving-advice",
-  "en-agreement-and-disagreement",
-  "en-persuasion-and-negotiation",
-]);
 
 type LoadState = {
   scope: string;
@@ -142,8 +135,8 @@ export default function SpeakingTopicsScreen() {
           .includes(normalized),
     );
   }, [packs, query]);
-  const cardWidth = Math.min(width, 520) - 44;
-  const stackedCards = width < 360 || fontScale >= 1.1;
+  const columns = width < 350 || fontScale > 1.3 ? 1 : 2;
+  const cardWidth = (Math.min(width, 760) - 44 - (columns - 1) * 14) / columns;
   const phraseCount = (count: number) =>
     formatSpeaking(copy.phrases, { count });
 
@@ -188,13 +181,16 @@ export default function SpeakingTopicsScreen() {
       </View>
 
       <FlatList
+        key={columns}
         data={phase === "ready" && allowed ? topics : []}
+        numColumns={columns}
         keyExtractor={(item) => item.code}
         style={styles.list}
         contentContainerStyle={[
           styles.content,
           { paddingBottom: insets.bottom + 32 },
         ]}
+        columnWrapperStyle={columns === 2 ? styles.columns : undefined}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
@@ -323,13 +319,6 @@ export default function SpeakingTopicsScreen() {
         renderItem={({ item, index }) => {
           const look = topicLookOf(item.code);
           const scene = topicSceneOf(item.code);
-          const stacked =
-            stackedCards ||
-            item.title.length > 40 ||
-            WIDE_SCENE_TOPICS.has(item.code);
-          const introduction =
-            item.code === "self-introduction" ||
-            item.code === "en-introductions-and-personal-details";
           const disabled = item.count <= 0;
           return (
             <Pressable
@@ -342,7 +331,6 @@ export default function SpeakingTopicsScreen() {
                 styles.topic,
                 {
                   width: cardWidth,
-                  height: stacked ? undefined : 210,
                   backgroundColor: look.to,
                 },
                 disabled && styles.disabled,
@@ -353,9 +341,8 @@ export default function SpeakingTopicsScreen() {
                 <Image
                   source={scene}
                   contentFit="cover"
-                  style={
-                    stacked ? styles.topicImageStacked : StyleSheet.absoluteFill
-                  }
+                  contentPosition="left"
+                  style={StyleSheet.absoluteFill}
                   accessible={false}
                 />
               ) : (
@@ -363,57 +350,43 @@ export default function SpeakingTopicsScreen() {
                   colors={[look.from, look.to]}
                   start={{ x: 0.05, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={
-                    stacked ? styles.topicImageStacked : StyleSheet.absoluteFill
-                  }
+                  style={StyleSheet.absoluteFill}
                 />
               )}
-              {!stacked ? (
-                <LinearGradient
-                  colors={["transparent", "rgba(0,0,0,0.28)"]}
-                  start={{ x: 0.26, y: 0 }}
-                  end={{ x: 0.76, y: 0 }}
-                  style={StyleSheet.absoluteFill}
-                  pointerEvents="none"
-                />
-              ) : null}
-              {learnCourse !== "en" ? (
-                <Text
-                  allowFontScaling={false}
-                  style={styles.topicMark}
-                  numberOfLines={1}
-                >
-                  {look.mark}
-                </Text>
-              ) : null}
+              <LinearGradient
+                colors={[
+                  "rgba(0,0,0,0.02)",
+                  "rgba(0,0,0,0.50)",
+                  "rgba(0,0,0,0.82)",
+                ]}
+                locations={[0, 0.42, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={StyleSheet.absoluteFill}
+                pointerEvents="none"
+              />
               <Text style={styles.topicIndex}>
                 {String(index + 1).padStart(2, "0")}
               </Text>
-              <View
-                style={[
-                  styles.topicFoot,
-                  stacked && styles.topicFootStacked,
-                  stacked && { backgroundColor: palette.hero },
-                ]}
-              >
+              <View style={styles.topicFoot}>
                 <Text
                   style={[
                     styles.topicTitle,
-                    !stacked && introduction && styles.topicTitleIntroduction,
+                    columns === 1 && styles.topicTitleWide,
                   ]}
-                  numberOfLines={stacked ? undefined : 4}
+                  numberOfLines={3}
                 >
                   {item.title}
                 </Text>
                 <View style={styles.topicMeta}>
                   <View style={styles.topicPill}>
-                    <Ionicons name="mic" size={13} color="#FFFFFF" />
+                    <Ionicons name="mic" size={11} color="#FFFFFF" />
                     <Text style={styles.topicPillText} numberOfLines={1}>
                       {phraseCount(item.count)}
                     </Text>
                   </View>
                   <View style={styles.topicArrow}>
-                    <Ionicons name="arrow-forward" size={17} color={look.to} />
+                    <Ionicons name="arrow-forward" size={15} color={look.to} />
                   </View>
                 </View>
               </View>
@@ -561,7 +534,7 @@ const styles = StyleSheet.create({
   brand: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1 },
   brandDot: { width: 6, height: 6, borderRadius: 3 },
   eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 2 },
-  list: { flex: 1, width: "100%", maxWidth: 520, alignSelf: "center" },
+  list: { flex: 1, width: "100%", maxWidth: 760, alignSelf: "center" },
   content: { paddingHorizontal: 22 },
   headingRow: {
     flexDirection: "row",
@@ -638,34 +611,18 @@ const styles = StyleSheet.create({
   },
   countPill: { borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 },
   countText: { fontSize: 10, fontWeight: "800" },
+  columns: { gap: 14 },
   topic: {
-    borderRadius: 22,
+    height: 176,
+    borderRadius: 26,
     overflow: "hidden",
-    marginBottom: 12,
-  },
-  topicImageStacked: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 160,
-  },
-  topicMark: {
-    position: "absolute",
-    right: 4,
-    top: -16,
-    fontSize: 128,
-    lineHeight: 145,
-    fontWeight: "800",
-    letterSpacing: -4,
-    color: "#FFFFFF",
-    opacity: 0.12,
+    marginBottom: 14,
   },
   topicIndex: {
     position: "absolute",
-    top: 17,
-    left: 18,
-    fontSize: 13,
+    top: 14,
+    left: 15,
+    fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1.2,
     color: "#FFFFFF",
@@ -674,56 +631,44 @@ const styles = StyleSheet.create({
   },
   topicFoot: {
     position: "absolute",
-    top: 43,
-    right: 15,
+    right: 13,
     bottom: 15,
-    left: "47%",
+    left: 13,
     justifyContent: "flex-end",
-    gap: 13,
+    gap: 8,
   },
-  topicFootStacked: {
-    position: "relative",
-    top: undefined,
-    right: undefined,
-    bottom: undefined,
-    left: undefined,
-    marginTop: 160,
-    paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 17,
-  },
-  topicTitleIntroduction: { marginLeft: "16%" },
   topicTitle: {
-    fontSize: 18,
-    lineHeight: 23,
-    fontWeight: "900",
-    letterSpacing: -0.4,
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: "800",
+    letterSpacing: -0.3,
     color: "#FFFFFF",
     textShadowColor: "rgba(0,0,0,0.24)",
     textShadowRadius: 5,
   },
-  topicMeta: { flexDirection: "row", alignItems: "center", gap: 7 },
+  topicTitleWide: { fontSize: 18, lineHeight: 23 },
+  topicMeta: { flexDirection: "row", alignItems: "center", gap: 6 },
   topicPill: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    minHeight: 36,
-    paddingHorizontal: 6,
+    gap: 3,
+    minHeight: 28,
+    paddingHorizontal: 5,
     borderRadius: 20,
     backgroundColor: "rgba(0,0,0,0.58)",
   },
   topicPillText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "800",
     color: "#FFFFFF",
     flexShrink: 1,
   },
   topicArrow: {
-    height: 34,
-    width: 34,
-    borderRadius: 17,
+    height: 28,
+    width: 28,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#FFFFFF",
