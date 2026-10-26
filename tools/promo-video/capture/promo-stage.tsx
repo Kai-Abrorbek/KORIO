@@ -34,8 +34,8 @@ import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pro
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
- * "맛있어요" 를 가르친다. 시각(ms)은 촬영 시작 기준. 튜터 목소리(public/audio/tutor-*.mp3)는
- * 편집에서 말하기가 시작하는 같은 시각(1100, 6800)에 붙인다 — 자막 길이 speakMs = 목소리 길이.
+ * "맛있어요" 를 가르친다. 시각(ms)은 촬영 시작 기준. 튜터 목소리는 녹화에 없다 — 소리가 필요한 영상은
+ * 목소리를 새로 만들어 편집에서 말하기가 시작하는 같은 시각(1100, 6800)에 붙인다 — 자막 길이 speakMs = 목소리 길이.
  */
 const TUTOR_SCRIPT: {
   at: number;
