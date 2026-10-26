@@ -1,11 +1,26 @@
 /**
  * "lugʻat" 형식 부품 — 참고 영상(Choʻntak lugʻati)의 화면 문법:
  * 공책 종이 · 흰 테두리 스티커 인물 · 쾅 찍히는 도장 · 타자 친 종이 띠 · 말풍선 · 표제어 카드 · 사전 표지 · 댓글 칸.
- * 모든 움직임은 절대 프레임(at)만 보고 계산한다.
+ * 모든 움직임은 절대 프레임(at)만 보고 계산한다. 영상 맨 위에 <StampInkDefs /> 를 한 번 둔다.
+ * 처음 쓴 영상: "Telefon lugʻati" (2026-10-27 게시, 파일은 게시 후 정리됨)
  */
 import type { CSSProperties, ReactNode } from "react";
 import { AbsoluteFill, Img, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
-import { FPS } from "./plan";
+
+export const FPS = 30;
+
+/** 도장 잉크 결 필터 — Stamp 가 url(#stamp-ink) 로 쓴다 */
+export function StampInkDefs() {
+  return (
+    <svg height={0} style={{ position: "absolute" }} width={0}>
+      <filter id="stamp-ink">
+        <feTurbulence baseFrequency="0.9" numOctaves={2} result="noise" seed={3} type="fractalNoise" />
+        <feColorMatrix in="noise" result="mask" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -0.9 1.45" />
+        <feComposite in="SourceGraphic" in2="mask" operator="in" />
+      </filter>
+    </svg>
+  );
+}
 
 export const W = 1080;
 export const H = 1920;
@@ -118,7 +133,7 @@ export function Sticker({ src, x, y, height, at, out, rot = 0, flip = false, sty
   );
 }
 
-/** 고무 도장 — 크게 떨어져 쾅. 잉크 결은 #stamp-ink 필터 (Ep2 맨 위에 한 번 둔다) */
+/** 고무 도장 — 크게 떨어져 쾅. 잉크 결은 #stamp-ink 필터 (StampInkDefs) */
 export function Stamp({ text, at, x, y, color = RED, size = 70, rot = -8, out }: {
   text: string; at: number; x: number; y: number; color?: string; size?: number; rot?: number; out?: number;
 }) {
