@@ -1,4 +1,5 @@
 import { Composition } from "remotion";
+import { EP1_TEST_TOTAL, Ep1Test } from "./ep1/Ep1Test";
 import { KorioIntro } from "./KorioIntro";
 import { LaunchVideo } from "./launch/LaunchVideo";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
@@ -33,6 +34,14 @@ export function Root() {
         fps={STORY_FPS}
         height={1920}
         id="KorioStoryUz"
+        width={1080}
+      />
+      <Composition
+        component={Ep1Test}
+        durationInFrames={EP1_TEST_TOTAL}
+        fps={30}
+        height={1920}
+        id="BittaTovushEp1Test"
         width={1080}
       />
       <Composition component={IgAvatar}durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
