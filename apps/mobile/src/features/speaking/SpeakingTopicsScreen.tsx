@@ -342,7 +342,7 @@ export default function SpeakingTopicsScreen() {
                   source={scene}
                   contentFit="cover"
                   contentPosition="left"
-                  style={StyleSheet.absoluteFill}
+                  style={[StyleSheet.absoluteFill, styles.topicArtwork]}
                   accessible={false}
                 />
               ) : (
@@ -350,7 +350,7 @@ export default function SpeakingTopicsScreen() {
                   colors={[look.from, look.to]}
                   start={{ x: 0.05, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={StyleSheet.absoluteFill}
+                  style={[StyleSheet.absoluteFill, styles.topicArtwork]}
                 />
               )}
               <LinearGradient
@@ -362,7 +362,7 @@ export default function SpeakingTopicsScreen() {
                 locations={[0, 0.42, 1]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 0, y: 1 }}
-                style={StyleSheet.absoluteFill}
+                style={[StyleSheet.absoluteFill, styles.topicArtwork]}
                 pointerEvents="none"
               />
               <Text style={styles.topicIndex}>
@@ -614,9 +614,13 @@ const styles = StyleSheet.create({
   columns: { gap: 14 },
   topic: {
     height: 176,
-    borderRadius: 26,
+    borderRadius: 32,
+    borderCurve: "continuous",
     overflow: "hidden",
     marginBottom: 14,
+  },
+  topicArtwork: {
+    borderRadius: 32,
   },
   topicIndex: {
     position: "absolute",
