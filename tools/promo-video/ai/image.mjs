@@ -4,8 +4,9 @@
  * 키는 apps/api/.env 의 OPENAI_API_KEY · GOOGLE_API_KEY 에서 읽는다 (화면에 찍지 않는다).
  * 결과는 public/ai/ 아래에 둔다 — 다시 만들려면 돈이 드니 지우지 않는다 (git 에는 안 올린다).
  *
- *   node ai/image.mjs <프롬프트.txt> <결과.png> [--model gpt-image-2 | gemini-3-pro-image] [--ref <참고.png> ...]
+ *   node ai/image.mjs <프롬프트.txt> <결과.png> [--model gpt-image-2 | gemini-3-pro-image] [--ref <참고.png> ...] [--transparent] [--size 1024x1024]
  *       --ref 를 주면 같은 인물 · 같은 장소를 이어 가도록 참고 사진으로 넘긴다.
+ *       --transparent 는 배경 없는 스티커 (gpt-image 만)
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
@@ -30,6 +31,8 @@ const flag = (name) => {
 };
 const refs = process.argv.flatMap((arg, i) => (arg === "--ref" ? [process.argv[i + 1]] : []));
 const model = flag("--model") ?? "gpt-image-2";
+const size = flag("--size") ?? "1024x1536";
+const background = process.argv.includes("--transparent") ? "transparent" : undefined;
 // 같은 장면을 이어 붙일 공통 설명 (prompts/_style.txt) + 장면별 설명
 const style = readFileSync(join(dirname(promptFile), "_style.txt"), "utf8").trim();
 const prompt = `${style}\n\n${readFileSync(promptFile, "utf8").trim()}`;
@@ -40,8 +43,9 @@ async function openai() {
     const form = new FormData();
     form.set("model", model);
     form.set("prompt", prompt);
-    form.set("size", "1024x1536");
+    form.set("size", size);
     form.set("quality", "high");
+    if (background) form.set("background", background);
     for (const ref of refs) form.append("image[]", new Blob([readFileSync(ref)], { type: "image/png" }), basename(ref));
     response = await fetch("https://api.openai.com/v1/images/edits", {
       method: "POST",
@@ -52,7 +56,7 @@ async function openai() {
     response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model, prompt, size: "1024x1536", quality: "high", n: 1 }),
+      body: JSON.stringify({ model, prompt, size, quality: "high", n: 1, ...(background ? { background, output_format: "png" } : {}) }),
     });
   }
   const json = await response.json();
