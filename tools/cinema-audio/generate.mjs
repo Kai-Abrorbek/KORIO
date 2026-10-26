@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스 · 연속 학습일 · 리그 결과.
+ * 연출(시네마) 소리를 ElevenLabs 로 만든다 — 레슨 결과 도장 · 상자 · 에너지 보너스 · 연속 학습일 · 리그 결과 · 구독 감사.
  * (레벨업 로켓 소리는 tools/levelup-audio 가 따로 만든다)
  *
  * 만든 mp3 는 두 앱에 똑같이 들어간다 —
@@ -100,6 +100,16 @@ const CATALOG = {
     { file: "vo-promote-en.mp3", voice: "[excited] Promoted! Congratulations!", lang: "en" },
     { file: "vo-stay-en.mp3", voice: "[cheerfully] You held your league!", lang: "en" },
     { file: "vo-demote-en.mp3", voice: "[warmly] It's okay, you'll climb back up next week!", lang: "en" },
+  ],
+  // 구독 결제 감사 — 한글 열쇠로 궁궐 문을 연다 (subscriptionThanksCinematic 의 THANKS_SOUND_CUES)
+  thanks: [
+    { file: "key-fly.mp3", sfx: `A small golden key flying through the air: a soft airy whoosh with a delicate magical jingle of tiny bells. ${NO_VOICE}`, duration: 1.0 },
+    { file: "unlock.mp3", sfx: `An old heavy brass padlock being unlocked: a key turning with a crisp mechanical click-clack, then the shackle snapping open with a satisfying metallic clank. ${NO_VOICE}`, duration: 1.0 },
+    { file: "gate.mp3", sfx: `Huge old wooden palace gate doors swinging open: a deep wooden creak that rises, a heavy boom as they open wide, then a warm bright shimmering swell of light. Cinematic. ${NO_VOICE}`, duration: 2.6 },
+    { file: "light.mp3", sfx: `Flying forward into blinding magical golden light: a rising airy whoosh that blooms into a bright shimmering flash with soft chimes. ${NO_VOICE}`, duration: 1.6 },
+    { file: "lantern.mp3", sfx: `A paper lantern lighting up: a soft warm fwump of flame and one gentle bell chime. ${NO_VOICE}`, duration: 0.6 },
+    { file: "vo-thanks.mp3", voice: "[excited] 감사합니다! 환영해요!" },
+    { file: "vo-thanks-en.mp3", voice: "[excited] Thank you! Welcome aboard!", lang: "en" },
   ],
 };
 

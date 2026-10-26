@@ -3395,6 +3395,7 @@ export default {
   },
   // 구독 결제 직후 감사 연출 (app/super-welcome)
   superWelcome: {
+    chip: "To‘lov qabul qilindi",
     letter: "{{name}}, {{days}} kun birga bo‘lganingiz uchun rahmat",
     letterFirst: "{{name}}, biz bilan bo‘lganingiz uchun katta rahmat",
     title: "Endi siz KORIO {{tier}} a’zosisiz!",

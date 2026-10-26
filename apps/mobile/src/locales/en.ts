@@ -3385,6 +3385,7 @@ export default {
   },
   // 구독 결제 직후 감사 연출 (app/super-welcome)
   superWelcome: {
+    chip: "Payment received",
     letter: "{{name}}, thank you for {{days}} days together",
     letterFirst: "{{name}}, thank you so much for joining us",
     title: "You're now a KORIO {{tier}} member!",
