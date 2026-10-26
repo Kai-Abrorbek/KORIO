@@ -1,5 +1,5 @@
 import { Composition } from "remotion";
-import { EP1_TEST_TOTAL, Ep1Test } from "./ep1/Ep1Test";
+import { EP1_TOTAL, Ep1, Ep1Cover } from "./ep1/Ep1";
 import { KorioIntro } from "./KorioIntro";
 import { LaunchVideo } from "./launch/LaunchVideo";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
@@ -37,13 +37,14 @@ export function Root() {
         width={1080}
       />
       <Composition
-        component={Ep1Test}
-        durationInFrames={EP1_TEST_TOTAL}
+        component={Ep1}
+        durationInFrames={EP1_TOTAL}
         fps={30}
         height={1920}
-        id="BittaTovushEp1Test"
+        id="BittaTovushEp1"
         width={1080}
       />
+      <Composition component={Ep1Cover} durationInFrames={1} fps={30} height={1920} id="BittaTovushEp1Cover" width={1080} />
       <Composition component={IgAvatar}durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgCover}

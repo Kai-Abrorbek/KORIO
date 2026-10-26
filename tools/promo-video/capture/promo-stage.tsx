@@ -30,6 +30,7 @@ import { HomeScreen } from "../../src/features/home/ui/home-screen";
 import { CourseCategoriesScreen } from "../../src/features/learning/ui/course-categories-screen";
 import { StatsScreen } from "../../src/features/stats/ui/stats-screen";
 import { QuestsScreen } from "../../src/features/retention/ui/quests-screen";
+import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pronunciation-quiz-screen";
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
@@ -168,6 +169,9 @@ function Scene({ name }: { name: string }): ReactNode {
     case "quests":
     case "quests-ready":
       return <QuestsScreen />;
+    case "pronQuiz":
+      // ?level=lv2&step=1&mode=hard — 문제 순서는 PROMO_SEED 로 고정한다
+      return <PronunciationQuizScreen />;
     default:
       return <p>unknown scene {name}</p>;
   }

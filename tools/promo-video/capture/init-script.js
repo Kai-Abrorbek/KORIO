@@ -7,6 +7,17 @@
  */
 (() => {
   const config = window.__PROMO_CONFIG ?? { mocks: [], user: null };
+  if (config.seed !== null && config.seed !== undefined) {
+    // 같은 씨앗이면 같은 난수 (mulberry32)
+    let s = config.seed >>> 0;
+    Math.random = () => {
+      s = (s + 0x6d2b79f5) >>> 0;
+      let t = s;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
   localStorage.setItem("korio-language", "uz");
   // 처음 온 사람용 홈 안내 말풍선은 이미 본 것으로
   localStorage.setItem("korio-tour-seen", JSON.stringify({ "home.v1": true }));

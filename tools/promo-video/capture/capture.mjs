@@ -51,7 +51,8 @@ const context = await browser.newContext({
   colorScheme: process.env.PROMO_DARK ? "dark" : "light",
 });
 // 가짜 텔레그램 · 장면 데이터 · 소리 기록 (capture/init-script.js, capture/mocks.mjs)
-const config = { mocks: mocksFor(scene), user: USER };
+// PROMO_SEED 를 주면 Math.random 을 고정한다 — 문제 순서가 섞이는 화면도 매번 같게
+const config = { mocks: mocksFor(scene), user: USER, seed: process.env.PROMO_SEED ? Number(process.env.PROMO_SEED) : null };
 await context.addInitScript(`window.__PROMO_CONFIG = ${JSON.stringify(config)};`);
 await context.addInitScript({ path: join(ROOT, "capture", "init-script.js") });
 // 진짜 텔레그램 SDK 는 막는다 — 텔레그램 밖에선 빈 initData 로 우리 가짜를 덮어쓴다

@@ -5,8 +5,9 @@
  *
  *   node social/zernio.mjs accounts
  *       연결된 SNS 계정 목록 (읽기만)
- *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--cover <표지.png>] [--story] [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
+ *   node social/zernio.mjs post <영상.mp4> <캡션.txt> [--cover <표지.png>] [--story] [--ai-generated] [--account <id>] [--at <ISO 시각> --tz Asia/Tashkent] [--yes]
  *       --yes 가 없으면 무엇을 올릴지 보여 주기만 한다. --at 이 없으면 바로 게시한다.
+ *       --ai-generated 는 인스타그램의 AI 정보 표시를 켠다 (실사처럼 보이는 AI 인물이 나오면 켠다).
  *       --story 면 릴스 대신 스토리 (영상 60초 · 100MB 까지, 캡션·표지는 쓰이지 않는다)
  *   node social/zernio.mjs carousel <이미지 폴더> <캡션.txt> [--account <id>] [--yes]
  *       폴더의 01.png ~ 10.png (또는 jpg)를 번호 순서대로 인스타그램 캐러셀로 게시한다.
@@ -172,11 +173,13 @@ if (command === "accounts") {
   const at = flag("--at");
   const story = process.argv.includes("--story");
   const cover = story ? undefined : flag("--cover");
+  const aiGenerated = process.argv.includes("--ai-generated");
   const plan = {
     account: `@${account.username} (${account.id})`,
     as: story ? "스토리" : "릴스",
     video: `${basename(video)} (${(size / 1048576).toFixed(1)} MB)`,
     cover: cover ? basename(cover) : "영상 첫 장면",
+    aiGenerated,
     when: at ? `${at} ${flag("--tz") ?? "UTC"}` : "지금 바로",
     captionChars: caption.length,
     caption,
@@ -198,9 +201,10 @@ if (command === "accounts") {
       {
         platform: "instagram",
         accountId: account.id,
-        platformSpecificData: story
-          ? { contentType: "story" }
-          : { shareToFeed: true, ...(coverUrl ? { instagramThumbnail: coverUrl } : { thumbOffset: 0 }) },
+        platformSpecificData: {
+          ...(story ? { contentType: "story" } : { shareToFeed: true, ...(coverUrl ? { instagramThumbnail: coverUrl } : { thumbOffset: 0 }) }),
+          ...(aiGenerated ? { isAiGenerated: true } : {}),
+        },
       },
     ],
     ...(at ? { scheduledFor: at, timezone: flag("--tz") ?? "UTC" } : { publishNow: true }),
