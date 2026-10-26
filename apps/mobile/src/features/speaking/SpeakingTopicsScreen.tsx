@@ -11,20 +11,40 @@ import {
 import { Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { type Href, useFocusEffect, useRouter } from "expo-router";
+import { Image } from "expo-image";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { useAuthHydrated } from "@/hooks/useAuthGuard";
 import { useAuthStore } from "@/store/auth.store";
 import { ExpressionService } from "@/services/expression.service";
-import type { ExpressionPackSummary, ExpressionProficiency } from "@/types/expression";
+import type {
+  ExpressionPackSummary,
+  ExpressionProficiency,
+} from "@/types/expression";
 import { useFeatureAccess } from "@/features/subscription/useFeatureAccess";
 import { formatSpeaking, useSpeakingCopy } from "./copy";
 import { useSpeakingPalette } from "./palette";
 import { LinearGradient } from "expo-linear-gradient";
-import TopicIllustration, { topicLookOf } from "./TopicIllustration";
-import { useContentLang, getContentLang, useSettingsStore } from "@/store/settings.store";
+import { topicLookOf } from "./TopicIllustration";
+import { topicSceneOf } from "./topicScenes";
+import {
+  useContentLang,
+  getContentLang,
+  useSettingsStore,
+} from "@/store/settings.store";
 
-const PROFICIENCY_LEVELS: ExpressionProficiency[] = ["beginner", "intermediate", "advanced"];
+const PROFICIENCY_LEVELS: ExpressionProficiency[] = [
+  "beginner",
+  "intermediate",
+  "advanced",
+];
+const WIDE_SCENE_TOPICS = new Set([
+  "en-family-and-relationships",
+  "en-social-invitations",
+  "en-giving-and-receiving-advice",
+  "en-agreement-and-disagreement",
+  "en-persuasion-and-negotiation",
+]);
 
 type LoadState = {
   scope: string;
@@ -39,7 +59,8 @@ export default function SpeakingTopicsScreen() {
   const { t } = useTranslation();
   const contentLang = useContentLang();
   const learnCourse = useSettingsStore((state) => state.learnCourse);
-  const [selectedLevel, setSelectedLevel] = useState<ExpressionProficiency>("beginner");
+  const [selectedLevel, setSelectedLevel] =
+    useState<ExpressionProficiency>("beginner");
   const proficiency = selectedLevel;
   const copy = useSpeakingCopy(learnCourse);
   const palette = useSpeakingPalette();
@@ -121,10 +142,8 @@ export default function SpeakingTopicsScreen() {
           .includes(normalized),
     );
   }, [packs, query]);
-  const featured = packs?.[0];
-  const columns = width < 350 || fontScale > 1.3 ? 1 : 2;
-  const compactHero = width < 370 || fontScale > 1.2;
-  const cardWidth = (Math.min(width, 760) - 44 - (columns - 1) * 14) / columns;
+  const cardWidth = Math.min(width, 520) - 44;
+  const stackedCards = width < 360 || fontScale >= 1.1;
   const phraseCount = (count: number) =>
     formatSpeaking(copy.phrases, { count });
 
@@ -169,16 +188,13 @@ export default function SpeakingTopicsScreen() {
       </View>
 
       <FlatList
-        key={columns}
         data={phase === "ready" && allowed ? topics : []}
-        numColumns={columns}
         keyExtractor={(item) => item.code}
         style={styles.list}
         contentContainerStyle={[
           styles.content,
           { paddingBottom: insets.bottom + 32 },
         ]}
-        columnWrapperStyle={columns === 2 ? styles.columns : undefined}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
@@ -218,7 +234,10 @@ export default function SpeakingTopicsScreen() {
               ) : null}
             </View>
 
-            <View style={[styles.levelTabs, { backgroundColor: palette.surface }]} accessibilityRole="tablist">
+            <View
+              style={[styles.levelTabs, { backgroundColor: palette.surface }]}
+              accessibilityRole="tablist"
+            >
               {PROFICIENCY_LEVELS.map((level) => (
                 <Pressable
                   key={level}
@@ -227,76 +246,26 @@ export default function SpeakingTopicsScreen() {
                   onPress={() => setSelectedLevel(level)}
                   style={[
                     styles.levelTab,
-                    { backgroundColor: selectedLevel === level ? palette.primary : palette.bg },
+                    {
+                      backgroundColor:
+                        selectedLevel === level ? palette.primary : palette.bg,
+                    },
                   ]}
                 >
-                  <Text style={[styles.levelTabText, { color: selectedLevel === level ? "#FFFFFF" : palette.muted }]}>
+                  <Text
+                    style={[
+                      styles.levelTabText,
+                      {
+                        color:
+                          selectedLevel === level ? "#FFFFFF" : palette.muted,
+                      },
+                    ]}
+                  >
                     {t(`voiceTutor.level.${level}`)}
                   </Text>
                 </Pressable>
               ))}
             </View>
-
-            {featured && phase === "ready" ? (
-              <Pressable
-                onPress={() => openTopic(featured)}
-                disabled={featured.count <= 0}
-                accessibilityRole="button"
-                accessibilityLabel={`${copy.featured}. ${featured.title}. ${phraseCount(featured.count)}. ${copy.start}`}
-                accessibilityState={{ disabled: featured.count <= 0 }}
-                style={({ pressed }) => [
-                  styles.hero,
-                  { backgroundColor: palette.hero },
-                  featured.count <= 0 && styles.disabled,
-                  pressed && styles.pressed,
-                ]}
-              >
-                <View style={styles.heroTop}>
-                  <View style={styles.heroLabel}>
-                    <Ionicons name="sparkles" size={13} color="#E5D6FF" />
-                    <Text style={styles.heroEyebrow}>{copy.featured}</Text>
-                  </View>
-                  <Ionicons
-                    name="arrow-forward"
-                    size={20}
-                    color={palette.onHero}
-                    style={styles.diagonalArrow}
-                  />
-                </View>
-                <View
-                  style={[
-                    styles.heroBody,
-                    compactHero && styles.heroBodyCompact,
-                  ]}
-                >
-                  <View style={styles.heroCopy}>
-                    <Text style={[styles.heroTitle, { color: palette.onHero }]}>
-                      {featured.title}
-                    </Text>
-                    <Text style={styles.heroCount}>
-                      {phraseCount(featured.count)}
-                    </Text>
-                    <View style={styles.heroAction}>
-                      <Ionicons name="mic-outline" size={16} color="#422D68" />
-                      <Text style={styles.heroActionText}>{copy.start}</Text>
-                      <Ionicons
-                        name="arrow-forward"
-                        size={16}
-                        color="#422D68"
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.heroArt} pointerEvents="none">
-                    <View style={styles.heroOrbit} />
-                    <TopicIllustration
-                      code={featured.code}
-                      mark={learnCourse === "en" ? featured.title.charAt(0).toUpperCase() : undefined}
-                      size={112}
-                    />
-                  </View>
-                </View>
-              </Pressable>
-            ) : null}
 
             {allowed && phase === "ready" && (packs?.length ?? 0) > 0 ? (
               <>
@@ -353,6 +322,14 @@ export default function SpeakingTopicsScreen() {
         }
         renderItem={({ item, index }) => {
           const look = topicLookOf(item.code);
+          const scene = topicSceneOf(item.code);
+          const stacked =
+            stackedCards ||
+            item.title.length > 40 ||
+            WIDE_SCENE_TOPICS.has(item.code);
+          const introduction =
+            item.code === "self-introduction" ||
+            item.code === "en-introductions-and-personal-details";
           const disabled = item.count <= 0;
           return (
             <Pressable
@@ -363,44 +340,83 @@ export default function SpeakingTopicsScreen() {
               accessibilityState={{ disabled }}
               style={({ pressed }) => [
                 styles.topic,
-                { width: cardWidth, shadowColor: look.to },
+                {
+                  width: cardWidth,
+                  height: stacked ? undefined : 210,
+                  backgroundColor: look.to,
+                },
                 disabled && styles.disabled,
                 pressed && styles.pressed,
               ]}
             >
-              <LinearGradient
-                colors={[look.from, look.to]}
-                start={{ x: 0.05, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.topicFill}
-              >
+              {scene ? (
+                <Image
+                  source={scene}
+                  contentFit="cover"
+                  style={
+                    stacked ? styles.topicImageStacked : StyleSheet.absoluteFill
+                  }
+                  accessible={false}
+                />
+              ) : (
+                <LinearGradient
+                  colors={[look.from, look.to]}
+                  start={{ x: 0.05, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={
+                    stacked ? styles.topicImageStacked : StyleSheet.absoluteFill
+                  }
+                />
+              )}
+              {!stacked ? (
+                <LinearGradient
+                  colors={["transparent", "rgba(0,0,0,0.28)"]}
+                  start={{ x: 0.26, y: 0 }}
+                  end={{ x: 0.76, y: 0 }}
+                  style={StyleSheet.absoluteFill}
+                  pointerEvents="none"
+                />
+              ) : null}
+              {learnCourse !== "en" ? (
                 <Text
                   allowFontScaling={false}
                   style={styles.topicMark}
                   numberOfLines={1}
                 >
-                  {learnCourse === "en" ? item.title.charAt(0).toUpperCase() : look.mark}
+                  {look.mark}
                 </Text>
-                <Text style={styles.topicIndex}>
-                  {String(index + 1).padStart(2, "0")}
+              ) : null}
+              <Text style={styles.topicIndex}>
+                {String(index + 1).padStart(2, "0")}
+              </Text>
+              <View
+                style={[
+                  styles.topicFoot,
+                  stacked && styles.topicFootStacked,
+                  stacked && { backgroundColor: palette.hero },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.topicTitle,
+                    !stacked && introduction && styles.topicTitleIntroduction,
+                  ]}
+                  numberOfLines={stacked ? undefined : 4}
+                >
+                  {item.title}
                 </Text>
-                <View style={styles.topicFoot}>
-                  <Text style={styles.topicTitle} numberOfLines={2}>
-                    {item.title}
-                  </Text>
-                  <View style={styles.topicMeta}>
-                    <View style={styles.topicPill}>
-                      <Ionicons name="mic" size={11} color="#FFFFFF" />
-                      <Text style={styles.topicPillText} numberOfLines={1}>
-                        {phraseCount(item.count)}
-                      </Text>
-                    </View>
-                    <View style={styles.topicArrow}>
-                      <Ionicons name="arrow-forward" size={15} color={look.to} />
-                    </View>
+                <View style={styles.topicMeta}>
+                  <View style={styles.topicPill}>
+                    <Ionicons name="mic" size={13} color="#FFFFFF" />
+                    <Text style={styles.topicPillText} numberOfLines={1}>
+                      {phraseCount(item.count)}
+                    </Text>
+                  </View>
+                  <View style={styles.topicArrow}>
+                    <Ionicons name="arrow-forward" size={17} color={look.to} />
                   </View>
                 </View>
-              </LinearGradient>
+              </View>
             </Pressable>
           );
         }}
@@ -545,19 +561,19 @@ const styles = StyleSheet.create({
   brand: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1 },
   brandDot: { width: 6, height: 6, borderRadius: 3 },
   eyebrow: { fontSize: 11, fontWeight: "800", letterSpacing: 2 },
-  list: { flex: 1, width: "100%", maxWidth: 760, alignSelf: "center" },
+  list: { flex: 1, width: "100%", maxWidth: 520, alignSelf: "center" },
   content: { paddingHorizontal: 22 },
   headingRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 12,
     paddingTop: 20,
-    paddingBottom: 26,
+    paddingBottom: 20,
   },
   headingCopy: { flex: 1 },
   title: {
-    fontSize: 30,
-    lineHeight: 40,
+    fontSize: 28,
+    lineHeight: 36,
     letterSpacing: -1.2,
     fontWeight: "800",
   },
@@ -596,77 +612,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   levelTabText: { fontSize: 14, fontWeight: "800" },
-  hero: { borderRadius: 28, padding: 22, overflow: "hidden", marginBottom: 24 },
-  heroTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-  heroLabel: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 7,
-    flexShrink: 1,
-  },
-  heroEyebrow: {
-    color: "#E5D6FF",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    flexShrink: 1,
-  },
-  diagonalArrow: { transform: [{ rotate: "-45deg" }] },
-  heroBody: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingTop: 21,
-  },
-  heroBodyCompact: { flexDirection: "column-reverse", alignItems: "stretch" },
-  heroCopy: { flex: 1 },
-  heroTitle: {
-    fontSize: 25,
-    fontWeight: "800",
-    lineHeight: 34,
-    letterSpacing: -0.5,
-  },
-  heroCount: { fontSize: 12, lineHeight: 18, color: "#DED0F5", marginTop: 7 },
-  heroAction: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    alignSelf: "flex-start",
-    borderRadius: 13,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    backgroundColor: "#FBF7FF",
-    marginTop: 23,
-    maxWidth: "100%",
-  },
-  heroActionText: {
-    fontSize: 12,
-    lineHeight: 18,
-    fontWeight: "800",
-    color: "#422D68",
-    flexShrink: 1,
-  },
-  heroArt: {
-    width: 130,
-    height: 132,
-    alignItems: "center",
-    justifyContent: "center",
-    alignSelf: "center",
-  },
-  heroOrbit: {
-    position: "absolute",
-    width: 125,
-    height: 125,
-    borderRadius: 63,
-    borderWidth: 1,
-    borderColor: "#FFFFFF24",
-    backgroundColor: "#FFFFFF0A",
-  },
   search: {
     flexDirection: "row",
     alignItems: "center",
@@ -675,7 +620,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     paddingHorizontal: 15,
     minHeight: 52,
-    marginBottom: 25,
+    marginBottom: 19,
   },
   searchInput: { flex: 1, fontSize: 13, paddingVertical: 15 },
   sectionHeading: {
@@ -683,7 +628,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexWrap: "wrap",
     gap: 10,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 19,
@@ -693,60 +638,92 @@ const styles = StyleSheet.create({
   },
   countPill: { borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 },
   countText: { fontSize: 10, fontWeight: "800" },
-  columns: { gap: 14 },
   topic: {
-    borderRadius: 26,
+    borderRadius: 22,
     overflow: "hidden",
-    marginBottom: 14,
-    boxShadow: "0 10px 20px rgba(38,28,64,0.18)",
+    marginBottom: 12,
   },
-  topicFill: { minHeight: 176, padding: 15, justifyContent: "flex-end" },
-  // 한글 한 글자가 카드의 얼굴이다 — 크게 깔고 투명도로 뒤로 물린다
+  topicImageStacked: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 160,
+  },
   topicMark: {
     position: "absolute",
-    right: -4,
-    top: -12,
-    fontSize: 112,
-    lineHeight: 130,
+    right: 4,
+    top: -16,
+    fontSize: 128,
+    lineHeight: 145,
     fontWeight: "800",
     letterSpacing: -4,
     color: "#FFFFFF",
-    opacity: 0.19,
+    opacity: 0.12,
   },
   topicIndex: {
     position: "absolute",
-    top: 14,
-    left: 15,
-    fontSize: 10,
+    top: 17,
+    left: 18,
+    fontSize: 13,
     fontWeight: "800",
-    letterSpacing: 1.4,
+    letterSpacing: 1.2,
     color: "#FFFFFF",
-    opacity: 0.7,
+    textShadowColor: "rgba(0,0,0,0.22)",
+    textShadowRadius: 4,
   },
-  topicFoot: { gap: 10 },
+  topicFoot: {
+    position: "absolute",
+    top: 43,
+    right: 15,
+    bottom: 15,
+    left: "47%",
+    justifyContent: "flex-end",
+    gap: 13,
+  },
+  topicFootStacked: {
+    position: "relative",
+    top: undefined,
+    right: undefined,
+    bottom: undefined,
+    left: undefined,
+    marginTop: 160,
+    paddingHorizontal: 18,
+    paddingTop: 16,
+    paddingBottom: 17,
+  },
+  topicTitleIntroduction: { marginLeft: "16%" },
   topicTitle: {
-    fontSize: 15,
-    lineHeight: 21,
-    fontWeight: "800",
-    letterSpacing: -0.3,
+    fontSize: 18,
+    lineHeight: 23,
+    fontWeight: "900",
+    letterSpacing: -0.4,
     color: "#FFFFFF",
+    textShadowColor: "rgba(0,0,0,0.24)",
+    textShadowRadius: 5,
   },
-  topicMeta: { flexDirection: "row", alignItems: "center", gap: 6 },
+  topicMeta: { flexDirection: "row", alignItems: "center", gap: 7 },
   topicPill: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 9,
-    paddingVertical: 5,
+    justifyContent: "center",
+    gap: 4,
+    minHeight: 36,
+    paddingHorizontal: 6,
     borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.22)",
+    backgroundColor: "rgba(0,0,0,0.58)",
   },
-  topicPillText: { fontSize: 10, fontWeight: "700", color: "#FFFFFF", flexShrink: 1 },
+  topicPillText: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    flexShrink: 1,
+  },
   topicArrow: {
-    height: 28,
-    width: 28,
-    borderRadius: 14,
+    height: 34,
+    width: 34,
+    borderRadius: 17,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#FFFFFF",
