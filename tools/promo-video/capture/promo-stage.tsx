@@ -148,6 +148,7 @@ function Scene({ name }: { name: string }): ReactNode {
     case "league":
       return <LeagueScreen />;
     case "hangul":
+    case "hangulGames":
       return <HangulScreen />;
     case "avatar":
       return <AvatarEditorScreen />;
@@ -161,6 +162,7 @@ function Scene({ name }: { name: string }): ReactNode {
     case "stickers":
       return <StickersScreen />;
     case "home":
+    case "hangulTour":
       return <HomeScreen />;
     case "categories":
       return <CourseCategoriesScreen />;

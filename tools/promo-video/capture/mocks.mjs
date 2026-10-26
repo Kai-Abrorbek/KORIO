@@ -94,6 +94,19 @@ function leagueMembers() {
   });
 }
 
+/** 한글 진도 — learned 글자만큼 배운 상태 */
+function hangulProgress(learned) {
+  return {
+    pattern: "^/hangul/progress(\\?|$)",
+    body: {
+      hangulCompletedAt: null, justCompleted: false, learnedCount: learned, total: HANGUL_IDS.length,
+      progress: HANGUL_IDS.slice(0, learned).map((characterId, i) => ({
+        characterId, correctCount: 6, wrongCount: 1, score: 90, mastery: i < learned * 0.7 ? 3 : i < learned * 0.9 ? 2 : 1,
+      })),
+    },
+  };
+}
+
 /** 장면 → [{ pattern(정규식 문자열), method?, body }] */
 export function mocksFor(scene) {
   const common = [{ pattern: "^/users/me(\\?|$)", body: USER }];
@@ -124,18 +137,12 @@ export function mocksFor(scene) {
         },
       ];
     case "hangul":
-      return [
-        ...common,
-        {
-          pattern: "^/hangul/progress(\\?|$)",
-          body: {
-            hangulCompletedAt: null, justCompleted: false, learnedCount: 28, total: HANGUL_IDS.length,
-            progress: HANGUL_IDS.slice(0, 28).map((characterId, i) => ({
-              characterId, correctCount: 6, wrongCount: 1, score: 90, mastery: i < 20 ? 3 : i < 25 ? 2 : 1,
-            })),
-          },
-        },
-      ];
+      return [...common, hangulProgress(28)];
+    // 홈 → Kurslar → Koreys tili → 학습 카드 → Hangul → 글자 · 게임 (사용법 영상 한 번에)
+    case "hangulTour":
+      return [...common, ...homeMocks(), hangulProgress(12)];
+    case "hangulGames":
+      return [...common, hangulProgress(12)];
     case "avatar":
       return [
         ...common,
