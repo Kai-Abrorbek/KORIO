@@ -15,6 +15,13 @@ import {
   type VoiceTutorDispatchMetadata,
 } from "./voice-tutor-metadata.js";
 import { VoiceTutorElevenLabsTTS } from "./voice-tutor-elevenlabs-tts.js";
+import {
+  ATTR_END_REASON,
+  END_REASON_UNAVAILABLE,
+  PROVIDER_BLOCKED_WARNING,
+  isProviderBlocked,
+  unavailableSpeech,
+} from "./voice-tutor-provider.js";
 import { buttonRequest, sttLanguageOptions, sttPrompt } from "./voice-tutor-stt.js";
 import {
   AudioTagStripper,
@@ -103,6 +110,31 @@ function apiBaseUrl(): URL {
   return url;
 }
 
+/**
+ * OpenAI 구간 받아쓰기 + "계정이 막혔다" 알림.
+ *
+ * LiveKit 의 StreamAdapter 는 recognize 실패를 로그만 남기고 삼킨다 — 세션 Error
+ * 이벤트로도 안 올라온다. 그래서 크레딧이 떨어지면 튜터가 인사만 하고 영원히
+ * "듣고 있어요" 였다. 여기서 직접 보고, 막힘이면 알린다 (오류는 그대로 다시 던진다).
+ */
+class GuardedOpenAiSTT extends openai.STT {
+  constructor(
+    opts: ConstructorParameters<typeof openai.STT>[0],
+    private readonly onBlocked: (error: unknown) => void,
+  ) {
+    super(opts);
+  }
+
+  async _recognize(...args: Parameters<openai.STT["_recognize"]>) {
+    try {
+      return await super._recognize(...args);
+    } catch (error) {
+      if (isProviderBlocked(error)) this.onBlocked(error);
+      throw error;
+    }
+  }
+}
+
 /** LiveKit requires an LLM instance to schedule a user reply; all actual lesson work stays in the API. */
 class ApiDelegatedLLM extends llm.LLM {
   label(): string {
@@ -131,6 +163,8 @@ class VoiceTutorAgent extends voice.Agent {
     private readonly baseUrl: URL,
     /** Called with what the teacher actually said out loud (not unheard drafts). */
     private readonly onTeacherSpoke?: (text: string) => void,
+    /** The API could not reach its model (credits/key) and said goodbye in this turn. */
+    private readonly onProviderBlocked?: () => void,
   ) {
     super({
       instructions:
@@ -368,6 +402,8 @@ class VoiceTutorAgent extends voice.Agent {
           throw new Error("Voice Tutor API stream broke mid-turn");
         } else if (event.t === "done") {
           done = true;
+          // 대답 모델(OpenAI)이 막혔다 — API 가 이 턴에 "지금은 수업을 못 해요" 를 말했다
+          if (event.warning === PROVIDER_BLOCKED_WARNING) this.onProviderBlocked?.();
         }
       }
     }
@@ -392,6 +428,13 @@ class VoiceTutorAgent extends voice.Agent {
     const response = await this.postTurn(url, turnId, transcript, signal);
     if (!response.ok) await this.rejectTurn(url, response);
     const result: unknown = await response.json();
+    if (
+      typeof result === "object" &&
+      result !== null &&
+      "warning" in result &&
+      result.warning === PROVIDER_BLOCKED_WARNING
+    )
+      this.onProviderBlocked?.();
     const speechText =
       typeof result === "object" &&
       result !== null &&
@@ -450,7 +493,78 @@ export default defineAgent({
       return;
     }
 
-    const stt = new openai.STT({
+    // ── 바깥 계정(OpenAI·ElevenLabs)이 막혔을 때: 한 마디 하고 통화를 끝낸다 ──
+    // 크레딧 소진·키 무효는 기다려도 안 풀린다. 예전엔 받아쓰기 실패가 조용히 삼켜져서
+    // 인사만 하고 "듣고 있어요" 에 멈춰 있었다 (2026-10-28).
+    let ending = false;
+    let sessionRef: voice.AgentSession | undefined;
+    const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+    /** 지금 하는 말(API 가 이 턴에 한 안내)이 끝날 때까지 */
+    const untilSpoken = (session: voice.AgentSession) =>
+      new Promise<void>((resolve) => {
+        let spoke = session.agentState === "speaking";
+        const onState = (event: voice.AgentStateChangedEvent) => {
+          if (event.newState === "speaking") spoke = true;
+          else if (spoke && event.newState === "listening") {
+            session.off(voice.AgentSessionEventTypes.AgentStateChanged, onState);
+            resolve();
+          }
+        };
+        session.on(voice.AgentSessionEventTypes.AgentStateChanged, onState);
+      });
+    const closeCall = async () => {
+      try {
+        // 앱·텔레그램이 "연결이 끊겼어요" 대신 "지금은 튜터를 쓸 수 없어요" 를 보이게
+        await ctx.room.localParticipant?.setAttributes({ [ATTR_END_REASON]: END_REASON_UNAVAILABLE });
+        // 방이 지워지면 attribute 도 같이 사라진다 — 앱이 받을 틈을 준다
+        await sleep(700);
+      } catch (error) {
+        log(`End reason not published: ${describeError(error)}`);
+      }
+      try {
+        // 방을 지워야 학습자 쪽 통화도 끝난다 (워커만 나가면 앱은 혼자 남아 계속 기다린다)
+        await ctx.deleteRoom();
+      } catch (error) {
+        log(`Room delete failed: ${describeError(error)}`);
+      }
+      ctx.shutdown("provider_unavailable");
+    };
+    /** say: 워커가 직접 안내한다 (받아쓰기 쪽). false 면 API 가 이 턴에 이미 말했다 */
+    const endUnavailable = (source: string, say: boolean, error?: unknown) => {
+      if (ending) return;
+      ending = true;
+      log(
+        `🚫 ${source} 계정이 막혔다${error ? ` — ${describeError(error)}` : ""} → 안내하고 통화를 끝낸다 (크레딧·키 확인)`,
+      );
+      void (async () => {
+        const session = sessionRef;
+        try {
+          if (session && say) {
+            try {
+              await session.interrupt({ force: true });
+            } catch {
+              // 말하던 게 없으면 그만
+            }
+            await Promise.race([
+              session
+                .say(unavailableSpeech(metadata.explanationLanguage), {
+                  allowInterruptions: false,
+                  addToChatCtx: false,
+                })
+                .waitForPlayout(),
+              sleep(15_000),
+            ]);
+          } else if (session) {
+            await Promise.race([untilSpoken(session), sleep(15_000)]);
+          }
+        } catch (error) {
+          log(`Goodbye not spoken: ${describeError(error)}`);
+        }
+        await closeCall();
+      })();
+    };
+
+    const stt = new GuardedOpenAiSTT({
       apiKey: openaiKey,
       model: STT_MODEL,
       useRealtime: STT_REALTIME,
@@ -463,7 +577,7 @@ export default defineAgent({
       /^gpt-(live-)?transcribe/.test(STT_MODEL)
         ? { keywords: metadata.sttKeywords }
         : {}),
-    });
+    }, (error) => endUnavailable("OpenAI 받아쓰기", true, error));
     const session = new voice.AgentSession({
       stt,
       llm: new ApiDelegatedLLM(),
@@ -487,6 +601,7 @@ export default defineAgent({
       // Do not strip Eleven v3 directions such as [laughs] before synthesis.
       ttsTextTransforms: null,
     });
+    sessionRef = session;
 
     const hardStop = setTimeout(() => {
       log("Session duration limit reached");
@@ -503,6 +618,9 @@ export default defineAgent({
       log(
         `Audio pipeline error: ${event.error.type}${inner ? ` — ${describeError(inner)}` : ""}`,
       );
+      // 실시간 받아쓰기·목소리 쪽 막힘은 여기로 온다. 목소리가 막혔으면 안내도 못 하니 바로 끝낸다
+      if (isProviderBlocked(inner ?? event.error))
+        endUnavailable(event.error.type, event.error.type !== "tts_error", inner);
     });
     session.on(voice.AgentSessionEventTypes.UserInputTranscribed, (event) => {
       if (event.isFinal) log(`Heard learner (${event.transcript.length} chars)`);
@@ -516,16 +634,22 @@ export default defineAgent({
     });
 
     await session.start({
-      agent: new VoiceTutorAgent(metadata, baseUrl, (said) => {
-        if (!STT_PROMPT_ENABLED) return;
-        try {
-          stt.updateOptions({
-            prompt: sttPrompt(metadata.explanationLanguage, said, learned),
-          });
-        } catch (error) {
-          log(`STT context update skipped: ${describeError(error)}`);
-        }
-      }),
+      agent: new VoiceTutorAgent(
+        metadata,
+        baseUrl,
+        (said) => {
+          if (!STT_PROMPT_ENABLED) return;
+          try {
+            stt.updateOptions({
+              prompt: sttPrompt(metadata.explanationLanguage, said, learned),
+            });
+          } catch (error) {
+            log(`STT context update skipped: ${describeError(error)}`);
+          }
+        },
+        // API 의 대답 모델이 막혔다 — 그 턴에 API 가 안내를 이미 말했다
+        () => endUnavailable("OpenAI 대답 (API)", false),
+      ),
       room: ctx.room,
       inputOptions: { closeOnDisconnect: true },
       outputOptions: { transcriptionEnabled: true, syncTranscription: true },

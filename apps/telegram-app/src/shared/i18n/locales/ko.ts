@@ -3134,6 +3134,7 @@ export default {
       VOICE_TUTOR_TTS_UNAVAILABLE: "선생님 답변은 표시했지만 음성을 만들지 못했어요. 다음 대화는 계속할 수 있어요.",
       VOICE_TUTOR_LESSON_UNAVAILABLE: "선생님 연결이 잠시 불안정해요. 다시 말해 주세요.",
       VOICE_TUTOR_AGENT_UNAVAILABLE: "선생님이 아직 연결되지 않았어요. 잠시 후 다시 시작해 주세요.",
+      VOICE_TUTOR_UNAVAILABLE: "지금은 AI 튜터를 쓸 수 없어요. 잠시 후 다시 시작해 주세요.",
       CONNECTION_LOST: "실시간 통화가 끊겼어요. 수업을 종료하고 다시 시작해 주세요.",
       CONNECTION_ERROR: "실시간 통화에 문제가 생겼어요. 다시 시도해 주세요.",
     },

@@ -34,6 +34,11 @@ import {
  */
 
 const ATTR_AGENT_STATE = "lk.agent.state";
+/**
+ * Agent 가 통화를 스스로 끝낼 때 적는 이유 ("unavailable" = 바깥 계정 크레딧·키가 막혔다).
+ * 곧 방이 지워진다 — "연결이 끊겼어요" 대신 이 이유를 보여 준다 (앱 voice-tutor livekit 과 같다)
+ */
+const ATTR_END_REASON = "korio.end_reason";
 const TOPIC_TRANSCRIPTION = "lk.transcription";
 const ATTR_FINAL = "lk.transcription_final";
 const ATTR_SEGMENT_ID = "lk.segment_id";
@@ -60,6 +65,8 @@ export interface LiveKitTutorHandlers {
   onAgentState?: (state: LiveKitAgentState) => void;
   onTranscript?: (chunk: TranscriptChunk) => void;
   onAgentMissing?: () => void;
+  /** Agent 가 이유를 남기고 통화를 끝낸다 (곧 방이 지워진다). 한 번만 온다 */
+  onAgentEnded?: (reason: string) => void;
   onDisconnected?: (reason?: string) => void;
   onError?: (error: Error) => void;
   /** 브라우저가 소리 재생을 막았다 (true) / 풀렸다 (false) */
@@ -115,6 +122,7 @@ export async function connectLiveKitTutor(
   const audioElements = new Set<HTMLMediaElement>();
 
   let agentSeen = false;
+  let endReported = false;
   let watchdog: ReturnType<typeof setTimeout> | undefined;
 
   const reportAgentState = (next: string) => {
@@ -185,6 +193,11 @@ export async function connectLiveKitTutor(
         if (participant === room.localParticipant) return;
         const next = changed[ATTR_AGENT_STATE];
         if (next) reportAgentState(next);
+        const ended = changed[ATTR_END_REASON];
+        if (ended && !endReported) {
+          endReported = true;
+          handlers.onAgentEnded?.(ended);
+        }
       },
     )
     .on(RoomEvent.ParticipantConnected, (participant: RemoteParticipant) => {

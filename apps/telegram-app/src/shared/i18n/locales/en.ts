@@ -3140,6 +3140,7 @@ export default {
       VOICE_TUTOR_TTS_UNAVAILABLE: "The teacher's reply is shown, but audio could not be generated. You can keep talking.",
       VOICE_TUTOR_LESSON_UNAVAILABLE: "The teacher's connection is unstable. Please try speaking again.",
       VOICE_TUTOR_AGENT_UNAVAILABLE: "Your teacher has not joined yet. Please try starting again shortly.",
+      VOICE_TUTOR_UNAVAILABLE: "The AI tutor is unavailable right now. Please try again a little later.",
       CONNECTION_LOST: "The live call disconnected. End this lesson and start again.",
       CONNECTION_ERROR: "There was a problem with the live call. Please try again.",
     },

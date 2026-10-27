@@ -78,6 +78,8 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
   const sessionId = useRef<string | null>(null);
   const actionBusy = useRef(false);
   const closing = useRef(false);
+  /** 선생님이 이유를 남기고 통화를 끝냈다 — 뒤따르는 방 끊김을 "연결이 끊겼어요" 로 덮지 않는다 */
+  const agentEnded = useRef(false);
   const playbackEpoch = useRef(0);
   const ending = useRef(false);
   const mounted = useRef(true);
@@ -283,6 +285,7 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
     if (!settings || actionBusy.current || sessionId.current) return;
     actionBusy.current = true;
     setError(null);
+    agentEnded.current = false;
     setPhase("starting");
     try {
       await stopPlayback();
@@ -329,8 +332,17 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
           setError("VOICE_TUTOR_AGENT_UNAVAILABLE");
           setPhase("ending");
         },
-        onDisconnected: () => {
+        // 바깥 계정(크레딧·키)이 막혀 선생님이 안내하고 끝냈다 — 곧 방이 지워진다
+        onAgentEnded: () => {
           if (!mounted.current || closing.current) return;
+          agentEnded.current = true;
+          connection.current?.setMicEnabled(false);
+          setMicOn(false);
+          setError("VOICE_TUTOR_UNAVAILABLE");
+          setPhase("ending");
+        },
+        onDisconnected: () => {
+          if (!mounted.current || closing.current || agentEnded.current) return;
           connection.current = null;
           setMicOn(false);
           setError("CONNECTION_LOST");

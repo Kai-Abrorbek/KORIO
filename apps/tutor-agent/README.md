@@ -75,6 +75,19 @@ metadata 전체를 로그에 찍지 않는다.
   있지만 그건 앱을 고치면 우회된다.
 - 한도 자체는 API `voice-tutor-quota.service.ts` 가 세션을 발급할 때 정한다.
 
+## 바깥 계정이 막혔을 때 (크레딧 소진 · 키 무효)
+
+2026-10-28 OpenAI 크레딧이 떨어지자 튜터가 인사만 하고 "듣고 있어요" 에 멈췄다 — LiveKit 의 구간
+받아쓰기는 실패를 로그로만 남기고 삼킨다. 이제는:
+
+- 받아쓰기(`GuardedOpenAiSTT`)·실시간 오류에서 막힘을 알아채면 워커가 안내 한 마디
+  (`voice-tutor-provider` `UNAVAILABLE_SPEECH`)를 하고, 에이전트 attribute `korio.end_reason=unavailable`
+  을 남긴 뒤 방을 지운다 → 앱·텔레그램은 "지금은 AI 튜터를 쓸 수 없어요" 를 보인다.
+- 대답(API 의 OpenAI)이 막히면 API 가 그 턴에 같은 안내를 말하고 `done.warning=VOICE_TUTOR_PROVIDER_BLOCKED`
+  를 보낸다 → 워커가 그 말이 끝난 뒤 같은 방법으로 끝낸다.
+- 워커 로그에 `🚫 … 계정이 막혔다` 가 찍히면 OpenAI(또는 ElevenLabs) 결제·키부터 본다.
+  잠깐의 429(속도 제한)·5xx 는 막힘이 아니라 원래대로 다시 시도한다.
+
 ## 정리 대기
 
 `package.json` 의 `@google/genai`, `@livekit/agents-plugin-google` 은 옛 Gemini worker 용이라

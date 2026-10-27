@@ -96,6 +96,33 @@ export function connectionFallback(
 }
 
 /**
+ * The model account refused us (credits/key — VoiceTutorProviderError BLOCKED).
+ * Said once; the worker then ends the call (same meaning as the worker's own
+ * goodbye in apps/tutor-agent voice-tutor-provider).
+ */
+export function unavailableFallback(
+  language: ExplanationLanguage,
+  style: 'polite' | 'casual',
+): string {
+  switch (language) {
+    case 'en':
+      return "Sorry, I can't continue the lesson right now because of a technical problem. Please try again a little later.";
+    case 'ru':
+      return style === 'casual'
+        ? 'Извини, сейчас я не могу продолжить урок из-за технической проблемы. Попробуй чуть позже.'
+        : 'Извините, сейчас я не могу продолжить урок из-за технической проблемы. Попробуйте, пожалуйста, чуть позже.';
+    case 'uz':
+      return style === 'casual'
+        ? 'Kechirasan, texnik muammo tufayli darsni hozir davom ettira olmayman. Birozdan keyin qayta boshla.'
+        : 'Kechirasiz, texnik muammo tufayli darsni hozir davom ettira olmayman. Birozdan keyin qayta boshlang.';
+    default:
+      return style === 'casual'
+        ? '미안, 지금은 기술적인 문제로 수업을 이어 갈 수 없어. 잠시 후에 다시 시작해 줘.'
+        : '죄송해요, 지금은 기술적인 문제로 수업을 이어 갈 수 없어요. 잠시 후에 다시 시작해 주세요.';
+  }
+}
+
+/**
  * This lesson only: the chosen conversation topic takes over the goal and the
  * material. The topic's phrases are a word pool for the teacher's word
  * ping-pong, and its opener is a role-play idea for later — leading with the

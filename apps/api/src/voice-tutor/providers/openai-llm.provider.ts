@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VoiceTutorProviderError } from './provider-error';
+import { VoiceTutorProviderError, openAiResponseError } from './provider-error';
 
 @Injectable()
 export class OpenAiTutorLlmProvider {
@@ -40,7 +40,7 @@ export class OpenAiTutorLlmProvider {
     } catch {
       throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');
     }
-    if (!response.ok) throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');
+    if (!response.ok) throw await openAiResponseError(response, 'LLM');
     const payload = (await response.json()) as {
       choices?: { message?: { content?: string | null } }[];
     };
@@ -101,8 +101,8 @@ export class OpenAiTutorLlmProvider {
     } catch {
       throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');
     }
-    if (!response.ok || !response.body)
-      throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');
+    if (!response.ok) throw await openAiResponseError(response, 'LLM');
+    if (!response.body) throw new VoiceTutorProviderError('UNAVAILABLE', 'LLM');
 
     const decoder = new TextDecoder();
     let buffered = '';

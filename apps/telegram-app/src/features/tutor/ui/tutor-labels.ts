@@ -19,6 +19,7 @@ export const TUTOR_ERROR_LABELS: Record<string, string> = {
   VOICE_TUTOR_TTS_UNAVAILABLE: "Ustoz javobi ko‘rsatildi, ammo ovoz yaratilmadi. Suhbatni davom ettirishingiz mumkin.",
   VOICE_TUTOR_LESSON_UNAVAILABLE: "Ustoz bilan aloqa vaqtincha beqaror. Yana gapirib ko‘ring.",
   VOICE_TUTOR_AGENT_UNAVAILABLE: "Ustoz hali ulanmagan. Birozdan so‘ng qayta boshlang.",
+  VOICE_TUTOR_UNAVAILABLE: "Hozir AI ustozdan foydalanib bo‘lmaydi. Birozdan so‘ng qayta boshlang.",
   CONNECTION_LOST: "Jonli aloqa uzildi. Darsni tugatib qayta boshlang.",
   CONNECTION_ERROR: "Jonli aloqada xatolik yuz berdi. Qayta urinib ko‘ring.",
 };

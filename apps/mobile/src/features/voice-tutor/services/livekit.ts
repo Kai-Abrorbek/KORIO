@@ -30,6 +30,13 @@ import { holdUiSoundsForCapture } from "@/utils/ui-sound-capture";
 /** Agent 가 자기 상태를 적어두는 참가자 attribute */
 const ATTR_AGENT_STATE = "lk.agent.state";
 
+/**
+ * Agent 가 통화를 스스로 끝낼 때 적는 이유. 지금은 "unavailable" 하나 —
+ * 바깥 계정(OpenAI 크레딧·키)이 막혀서 수업을 못 한다 (tutor-agent voice-tutor-provider).
+ * 이걸 보면 곧 방이 지워진다 — "연결이 끊겼어요" 대신 이 이유를 보여 준다.
+ */
+const ATTR_END_REASON = "korio.end_reason";
+
 /** 자막이 흐르는 text stream 토픽 */
 const TOPIC_TRANSCRIPTION = "lk.transcription";
 /** 확정 자막인지 */
@@ -83,6 +90,8 @@ export interface LiveKitTutorHandlers {
    * 경우다. 둘 다 유저 입장에선 "아무 말도 안 하는 화면"이라 구분할 필요가 없다.
    */
   onAgentMissing?: () => void;
+  /** Agent 가 이유를 남기고 통화를 끝낸다 (곧 방이 지워진다). 한 번만 온다 */
+  onAgentEnded?: (reason: string) => void;
   /** 방이 끊겼다. 유저가 끊은 게 아니면 에러로 다룬다 */
   onDisconnected?: (reason?: string) => void;
   onError?: (e: Error) => void;
@@ -152,6 +161,7 @@ export async function connectLiveKitTutor(
 
   /** Agent 가 살아 있다는 신호를 한 번이라도 받았나 */
   let agentSeen = false;
+  let endReported = false;
   let watchdog: ReturnType<typeof setTimeout> | undefined;
 
   /** 상태 보고 = Agent 가 살아 있다는 뜻. 워치독을 푼다 */
@@ -212,6 +222,11 @@ export async function connectLiveKitTutor(
         if (participant === room.localParticipant) return;
         const next = changed[ATTR_AGENT_STATE];
         if (next) reportAgentState(next);
+        const ended = changed[ATTR_END_REASON];
+        if (ended && !endReported) {
+          endReported = true;
+          handlers.onAgentEnded?.(ended);
+        }
       },
     )
     .on(RoomEvent.ParticipantConnected, (p: RemoteParticipant) => {

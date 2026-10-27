@@ -43,7 +43,9 @@ import {
   lessonProgress,
   planForTopic,
   sttKeywordsFromPlan,
+  unavailableFallback,
 } from './voice-tutor-turn-helpers';
+import { VoiceTutorProviderError } from './providers/provider-error';
 import { voiceTutorTopic } from './topics/voice-tutor-topics';
 import {
   VoiceTutorLiveKitService,
@@ -519,8 +521,18 @@ export class VoiceTutorService {
             ]);
           throw error;
         }
-        warning = 'VOICE_TUTOR_LESSON_UNAVAILABLE';
-        const fallback = connectionFallback(
+        // 계정이 막혔으면(크레딧·키) 매 턴 "연결이 불안정해요" 대신 한 번 안내하고,
+        // 워커가 이 경고를 보고 통화를 끝낸다 (apps/tutor-agent voice-tutor-provider)
+        const blocked =
+          error instanceof VoiceTutorProviderError && error.code === 'BLOCKED';
+        if (blocked)
+          this.logger.error(
+            `Voice Tutor model account blocked (credits/key) — session ${sessionId} ends`,
+          );
+        warning = blocked
+          ? 'VOICE_TUTOR_PROVIDER_BLOCKED'
+          : 'VOICE_TUTOR_LESSON_UNAVAILABLE';
+        const fallback = (blocked ? unavailableFallback : connectionFallback)(
           session.settings.explanationLanguage,
           session.settings.speechStyle,
         );
