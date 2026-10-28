@@ -7,6 +7,7 @@ import { ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC } from './topics/asking-f
 import { ASKING_FOR_CLARIFICATION_TOPIC } from './topics/asking-for-clarification';
 import { CALLING_AND_LEAVING_MESSAGES_TOPIC } from './topics/calling-and-leaving-messages';
 import { CHECKING_TIME_AND_DATE_TOPIC } from './topics/checking-time-and-date';
+import { EXPRESSING_FEELINGS_AND_OPINIONS_TOPIC } from './topics/expressing-feelings-and-opinions';
 import { GREETINGS_AND_GOODBYES_TOPIC } from './topics/greetings-and-goodbyes';
 import { MAKING_AND_CHANGING_APPOINTMENTS_TOPIC } from './topics/making-and-changing-appointments';
 import { MAKING_SMALL_TALK_ABOUT_WEATHER_AND_LIFE_TOPIC } from './topics/making-small-talk-about-weather-and-life';
@@ -52,6 +53,7 @@ const EXPRESSION_TOPICS = [
   SHOPPING_AT_SUPERMARKETS_AND_CLOTHING_STORES_TOPIC,
   REQUESTING_EXCHANGES_AND_REFUNDS_TOPIC,
   ORDERING_DELIVERY_FOOD_AND_RECEIVING_PACKAGES_TOPIC,
+  EXPRESSING_FEELINGS_AND_OPINIONS_TOPIC,
 ] as const;
 
 export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =

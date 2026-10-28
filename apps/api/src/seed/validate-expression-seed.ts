@@ -18,8 +18,8 @@ if (!EXPRESSION_PACK_SEEDS.length) {
 if (scope.targetLanguage === 'en' && EXPRESSION_PACK_SEEDS.length !== 40) {
   throw new Error('English expressions need all 40 topics before seeding');
 }
-if (scope.targetLanguage === 'ko' && EXPRESSION_PACK_SEEDS.length !== 18) {
-  throw new Error('Korean expressions need all 18 topics before seeding');
+if (scope.targetLanguage === 'ko' && EXPRESSION_PACK_SEEDS.length !== 19) {
+  throw new Error('Korean expressions need all 19 topics before seeding');
 }
 
 const codes = new Set<string>();
