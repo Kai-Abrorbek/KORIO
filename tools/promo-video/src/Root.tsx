@@ -1,6 +1,5 @@
 import { Composition } from "remotion";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
-import { LUGAT_GUIDE_TOTAL, LugatGuide, LugatGuideCover } from "./tutorial/LugatGuide";
 
 /**
  * 영상은 게시가 끝나면 코드째 지운다 — 새 영상은 여기에 등록하고, 올린 뒤 등록도 함께 뺀다.
@@ -9,8 +8,6 @@ import { LUGAT_GUIDE_TOTAL, LugatGuide, LugatGuideCover } from "./tutorial/Lugat
 export function Root() {
   return (
     <>
-      <Composition component={LugatGuide} durationInFrames={LUGAT_GUIDE_TOTAL} fps={30} height={1920} id="LugatGuide" width={1080} />
-      <Composition component={LugatGuideCover} durationInFrames={1} fps={30} height={1920} id="LugatGuideCover" width={1080} />
       <Composition component={IgAvatar} durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgHighlight}
