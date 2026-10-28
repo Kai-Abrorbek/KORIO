@@ -32,6 +32,7 @@ import {
   stripAudioTags,
   type TutorSpeechMeta,
 } from "./voice-tutor-speech.js";
+import { TutorEchoGuard } from "./voice-tutor-echo.js";
 
 const AGENT_NAME =
   process.env.VOICE_TUTOR_LIVEKIT_AGENT_NAME?.trim() || "korio-voice-tutor";
@@ -86,6 +87,9 @@ const ENDPOINTING_MAX_MS = (() => {
 
 /** 받아쓰기 문맥 프롬프트 (voice-tutor-stt). 끄려면 VOICE_TUTOR_STT_PROMPT=false. */
 const STT_PROMPT_ENABLED = process.env.VOICE_TUTOR_STT_PROMPT?.trim() !== "false";
+
+/** 목소리로 튜터 말 끊기. 기본 꺼짐 — 스피커 에코가 끼어들기로 잡힌다 (turnHandling 참고) */
+const VOICE_INTERRUPT = process.env.VOICE_TUTOR_VOICE_INTERRUPT?.trim() === "true";
 
 function requiredEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -165,6 +169,8 @@ class VoiceTutorAgent extends voice.Agent {
     private readonly onTeacherSpoke?: (text: string) => void,
     /** The API could not reach its model (credits/key) and said goodbye in this turn. */
     private readonly onProviderBlocked?: () => void,
+    /** True when a "learner turn" is the tutor's own voice leaking into the mic. */
+    private readonly isEcho?: (transcript: string) => boolean,
   ) {
     super({
       instructions:
@@ -186,6 +192,14 @@ class VoiceTutorAgent extends voice.Agent {
     if (!message?.textContent?.trim()) return null;
 
     const transcript = message.textContent.trim();
+    // The tutor's own voice came back through the speaker: answering it made
+    // the tutor talk to itself while the learner stayed silent.
+    if (this.isEcho?.(transcript)) {
+      console.log(
+        `[voice-tutor ${this.metadata.sessionId}] Ignored own voice picked up by the mic (${transcript.length} chars)`,
+      );
+      return null;
+    }
     // Stable across LiveKit retries, short enough for the API idempotency contract.
     const turnId = createHash("sha256")
       .update(this.metadata.sessionId)
@@ -591,6 +605,15 @@ export default defineAgent({
         // 기다렸다 — 이게 "생각이 길다" 의 큰 몫. 대신 preemptive generation(기본 켜짐)
         // 이 문장이 들어오자마자 답을 미리 만들어 둔다 (API 가 버려진 초안을 정리한다)
         endpointing: { minDelay: ENDPOINTING_MIN_MS, maxDelay: ENDPOINTING_MAX_MS },
+        // 목소리로 끼어들기는 끈다. 켜 두면 스피커로 새어 든 튜터 목소리(특히 고함·웃음)가
+        // "학습자가 끼어들었다" 가 되어 튜터 말이 끊기고, 그 소리가 받아써져 튜터가 자기
+        // 말에 대답했다. 튜터가 말하는 동안 들어온 소리는 버린다. 끊고 싶으면 통화 화면의
+        // 끼어들기 버튼(voice_tutor_interrupt) — 이어폰 테스트용으로만
+        // VOICE_TUTOR_VOICE_INTERRUPT=true
+        interruption: {
+          enabled: VOICE_INTERRUPT,
+          discardAudioIfUninterruptible: true,
+        },
       },
       ttsReadIdleTimeout: 20_000,
       // Eleven v3 는 첫 소리까지 느리다. 기본 10초면 합성은 끝났는데 출력이 먼저
@@ -622,6 +645,14 @@ export default defineAgent({
       if (isProviderBlocked(inner ?? event.error))
         endUnavailable(event.error.type, event.error.type !== "tts_error", inner);
     });
+    // 튜터가 언제 말을 멈췄고 학습자가 언제 말을 시작했는지 — 에코 판별용
+    const echo = new TutorEchoGuard();
+    session.on(voice.AgentSessionEventTypes.AgentStateChanged, (event) =>
+      echo.agentState(event.newState),
+    );
+    session.on(voice.AgentSessionEventTypes.UserStateChanged, (event) =>
+      echo.learnerState(event.newState),
+    );
     session.on(voice.AgentSessionEventTypes.UserInputTranscribed, (event) => {
       if (event.isFinal) log(`Heard learner (${event.transcript.length} chars)`);
     });
@@ -638,6 +669,7 @@ export default defineAgent({
         metadata,
         baseUrl,
         (said) => {
+          echo.tutorSaid(said);
           if (!STT_PROMPT_ENABLED) return;
           try {
             stt.updateOptions({
@@ -649,6 +681,7 @@ export default defineAgent({
         },
         // API 의 대답 모델이 막혔다 — 그 턴에 API 가 안내를 이미 말했다
         () => endUnavailable("OpenAI 대답 (API)", false),
+        (transcript) => echo.isEcho(transcript),
       ),
       room: ctx.room,
       inputOptions: { closeOnDisconnect: true },
