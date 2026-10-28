@@ -33,6 +33,7 @@ describe('voice tutor lesson instructions', () => {
         'THE LOOP',
         'Never make them repeat what they already said correctly',
         'A line gets ONE retry',
+        'ASK, THEN STOP. Never answer your own question',
         'Never treat good Korean as dodging',
         'WHAT TO TEACH',
         'student.agenda.next',
@@ -87,11 +88,8 @@ describe('voice tutor lesson instructions', () => {
       );
       expect(style).toContain('a scale, not a menu');
       expect(style).toContain('never reuse them');
-      expect(style).toContain('never to rotate through');
-      expect(style).toContain('A soft teaching-language curse is not a peak');
-      expect(style).toContain(
-        'When you do hit a peak, it has at least one real swear',
-      );
+      expect(style).toContain('Mistakes are your favourite material');
+      expect(style).toContain('it is seasoning, not the point');
       expect(style).toContain('five calm answers made the sixth land');
       for (const quota of [
         'Swear in about',

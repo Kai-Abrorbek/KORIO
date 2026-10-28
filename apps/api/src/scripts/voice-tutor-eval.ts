@@ -89,6 +89,21 @@ const SWEARS_ALL = new RegExp(SWEARS.source, 'gi');
 const AUDIO_TAG = /\[[a-z][a-z' -]{0,40}\]/i;
 /** 글로 쓴 웃음. 5.6 점검에서 9턴 중 8턴이 "…, 욕 ㅋㅋㅋ." 로 끝났다 */
 const WRITTEN_LAUGH = /ㅋㅋ|ㅎㅎ|\bhaha|\blol\b|хаха/i;
+/**
+ * 질문하고 같은 턴에 답까지 준 턴: "Qaysi ovqatni yoqtirasan? “김치를 좋아해요” deb
+ * ayt." 마지막 질문(?, "?!" 는 감탄이라 제외) 뒤에 배우는 언어 문장과 "말해" 류가
+ * 또 나오면 학습자가 답할 기회를 뺏은 것이다.
+ */
+const SAY_CUE = /say|말해|해 봐|따라|\bayt|\bde\b|deb|takrorla|скажи|повтори/i;
+function answersOwnQuestion(text: string, learn: 'ko' | 'en'): boolean {
+  const questions = [...text.matchAll(/[?？](?!\s*!)/g)];
+  const last = questions.at(-1);
+  if (last?.index === undefined) return false;
+  const after = text.slice(last.index + 1);
+  const target = learn === 'ko' ? /[가-힣]/ : /["“‘][^"”’]{2,}["”’]/;
+  return target.test(after) && SAY_CUE.test(after);
+}
+
 /** 끝부분에 질문이나 "말해 봐" 류가 있으면 공을 넘긴 것으로 본다 */
 const PASSES_BALL =
   /[?？]|say it|say:|give me|말해|해 봐|해봐|따라|ayt|takrorla|de-chi|повтори|скажи|попробуй/i;
@@ -100,16 +115,12 @@ const PASSES_BALL =
  */
 const TARGETS: Record<
   TutorPersonality,
-  { bigOnProvoke: number; calmSwearMax: number; swearOnProvoke: boolean }
+  { bigOnProvoke: number; calmSwearMax: number }
 > = {
-  friendly: { bigOnProvoke: 0.6, calmSwearMax: 0, swearOnProvoke: false },
-  close_friend: { bigOnProvoke: 0.7, calmSwearMax: 0.5, swearOnProvoke: false },
-  savage: { bigOnProvoke: 0.75, calmSwearMax: 0.6, swearOnProvoke: false },
-  chaotic_savage: {
-    bigOnProvoke: 0.8,
-    calmSwearMax: 0.6,
-    swearOnProvoke: true,
-  },
+  friendly: { bigOnProvoke: 0.6, calmSwearMax: 0 },
+  close_friend: { bigOnProvoke: 0.7, calmSwearMax: 0.5 },
+  savage: { bigOnProvoke: 0.75, calmSwearMax: 0.6 },
+  chaotic_savage: { bigOnProvoke: 0.8, calmSwearMax: 0.6 },
 };
 
 function loadEnv() {
@@ -296,6 +307,9 @@ async function main() {
       lastTargetPhrase(reply.displayText, learn).replace(/\s+/g, ''),
     ),
   );
+  const selfAnswered = replies.filter(({ reply }) =>
+    answersOwnQuestion(reply.displayText, learn),
+  );
   const target = TARGETS[personality];
   const bigOnProvoke = provoked.filter(
     ({ reply }) => reply.intensity >= target.bigOnProvoke,
@@ -318,16 +332,15 @@ async function main() {
     `${check(sameAsk === 0)} 같은 문장 3턴 연속 요구: ${sameAsk}번  (목표 0)`,
   );
   console.log(
+    `${check(selfAnswered.length === 0)} 질문하고 답까지 줌: ${selfAnswered.length}턴  (목표 0 — 묻고, 학습자 답을 기다린다)`,
+  );
+  console.log(
     `${check(average(calmWords) <= 30)} 평범한 턴 평균 길이: ${average(calmWords).toFixed(1)}단어  (목표 30 이하 — 폭발 턴은 길어도 된다)`,
   );
   console.log('[레퍼런스 영상처럼 반응하나]');
   console.log(
     `${check(bigOnProvoke.length === provoked.length)} 도발에 크게 반응: ${bigOnProvoke.length}/${provoked.length}  (도발 턴 강도 ${target.bigOnProvoke} 이상)`,
   );
-  if (target.swearOnProvoke)
-    console.log(
-      `${check(swore(provoked).length === provoked.length)} 도발에 진짜 욕: ${swore(provoked).length}/${provoked.length}  (영상처럼 터질 땐 욕이 나와야 한다)`,
-    );
   console.log(
     `${check(calmSwearRate <= target.calmSwearMax)} 평범한 답에도 욕: ${percent(swore(calm).length, calm.length)}  (목표 ${Math.round(target.calmSwearMax * 100)}% 이하 — 매 턴 욕이면 공식이다)`,
   );
