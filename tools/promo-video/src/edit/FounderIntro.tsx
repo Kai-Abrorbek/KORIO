@@ -366,8 +366,8 @@ function Graphics() {
               <div style={{ display: "flex", alignItems: "stretch", borderRadius: 22, overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.4)" }}>
                 <div style={{ width: 16, background: `linear-gradient(${PURPLE}, ${PINK})` }} />
                 <div style={{ padding: "18px 30px", background: "rgba(255,255,255,0.95)" }}>
-                  <div style={{ fontFamily: HEAVY, fontSize: 52, color: "#1C1A2E" }}>KORIO asoschisi</div>
-                  <div style={{ fontFamily: BODY, fontWeight: 600, fontSize: 30, color: "#6B6585" }}>Koreys va ingliz tili — o‘zbek tilida</div>
+                  <div style={{ fontFamily: HEAVY, fontSize: 60, lineHeight: 1.05, color: "#1C1A2E" }}>Abror</div>
+                  <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 32, color: PURPLE }}>KORIO asoschisi</div>
                 </div>
               </div>
             </div>
@@ -457,7 +457,8 @@ function Graphics() {
       {/* D1 · D2: 받는 곳 */}
       <Show from={at("D1", 2.0)} to={seg("D2").from}>
         {(_, out) => (
-          <div style={{ position: "absolute", left: 0, right: 0, top: 260, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, opacity: 1 - out }}>
+          // 얼굴을 가리지 않게 가슴 높이 (자막 바로 위)
+          <div style={{ position: "absolute", left: 0, right: 0, top: 1040, display: "flex", flexDirection: "column", alignItems: "center", gap: 18, opacity: 1 - out }}>
             <div style={{ transform: `scale(${pop(frame, at("D1", 2.0), 300, 13)})` }}>
               <Pill color="#3DDC84" style={{ color: "#0B2A17" }}>ANDROID</Pill>
             </div>
@@ -471,7 +472,7 @@ function Graphics() {
       </Show>
       <Show from={at("D2", 6.15)} to={END}>
         {(_, out) => (
-          <div style={{ position: "absolute", left: 0, right: 0, top: 240, display: "flex", flexDirection: "column", alignItems: "center", gap: 20, opacity: 1 - out }}>
+          <div style={{ position: "absolute", left: 0, right: 0, top: 1040, display: "flex", flexDirection: "column", alignItems: "center", gap: 18, opacity: 1 - out }}>
             <div style={{ transform: `scale(${pop(frame, at("D2", 6.15), 300, 13)})` }}>
               <Pill color="#fff" style={{ color: "#111" }}>iPHONE</Pill>
             </div>
