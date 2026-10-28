@@ -26,6 +26,7 @@ import {
   type TutorPersonality,
 } from '../voice-tutor/personality/voice-tutor-personalities';
 import { stripAudioTags } from '../voice-tutor/personality/speech-performance';
+import { lastTargetPhrase } from '../voice-tutor/agents/lesson-context';
 import { OpenAiTutorLlmProvider } from '../voice-tutor/providers/openai-llm.provider';
 import { voiceTutorTopic } from '../voice-tutor/topics/voice-tutor-topics';
 import {
@@ -157,25 +158,7 @@ function repeatsInARow<T>(items: T[], key: (item: T) => string | undefined) {
   return count;
 }
 
-/** 같은 문장을 세 턴 연속 시킨 횟수. 비교 대상은 lastTargetPhrase */
-/**
- * 턴의 마지막 "배우는 언어" 표현. 한국어 튜터면 마지막 한글 덩어리, 영어 튜터면
- * 마지막 따옴표 표현. 끝 6글자로 비교했더니 "Qani, ayt." 로 끝나는 서로 다른
- * 요구를 같은 문장으로 셌다.
- */
-function lastTargetPhrase(text: string, learn: 'ko' | 'en'): string {
-  const found =
-    learn === 'ko'
-      ? text
-          .match(/[가-힣][가-힣\s]*[가-힣]|[가-힣]/g)
-          // "말해 봐" 같은 지시어는 요구한 문장이 아니다
-          ?.filter((run) => !/^(다시\s*)?(따라\s*)?(말해|해)\s*봐$/.test(run))
-      : [...text.matchAll(/["“'‘]([^"”'’]{2,})["”'’]/g)].map(
-          ([, inner]) => inner,
-        );
-  return found?.at(-1)?.replace(/\s+/g, '') ?? '';
-}
-
+/** 같은 문장을 세 턴 연속 시킨 횟수. 서버와 같은 lastTargetPhrase 로 비교한다 */
 function sameAskThreeTimes(endings: string[]) {
   let runs = 0;
   let run = 1;
@@ -305,7 +288,9 @@ async function main() {
     WRITTEN_LAUGH.test(reply.speechText),
   );
   const sameAsk = sameAskThreeTimes(
-    replies.map(({ reply }) => lastTargetPhrase(reply.displayText, learn)),
+    replies.map(({ reply }) =>
+      lastTargetPhrase(reply.displayText, learn).replace(/\s+/g, ''),
+    ),
   );
   const target = TARGETS[personality];
   const bigOnProvoke = provoked.filter(

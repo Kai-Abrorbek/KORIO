@@ -87,6 +87,8 @@ describe('voice tutor lesson instructions', () => {
       );
       expect(style).toContain('a scale, not a menu');
       expect(style).toContain('never reuse them');
+      expect(style).toContain('never to rotate through');
+      expect(style).toContain('A soft teaching-language curse is not a peak');
       expect(style).toContain('five calm answers made the sixth land');
       for (const quota of [
         'Swear in about',
