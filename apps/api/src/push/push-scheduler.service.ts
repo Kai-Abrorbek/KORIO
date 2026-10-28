@@ -16,7 +16,9 @@ import {
   startOfDay,
 } from '../common/date.util';
 import { PushService } from './push.service';
+import { PushMailService } from './push-mail.service';
 import { PushType } from './push.types';
+import type { SendOptions } from './push.service';
 import {
   QUIET_END_HOUR,
   QUIET_START_HOUR,
@@ -34,6 +36,9 @@ const TRIAL_REMIND_DAYS = [3, 1];
 /** 한 번에 훑을 유저 수 */
 const BATCH = 300;
 
+/** 푸시로 보낼지, 푸시가 닿지 않아 메일로 보낼지 */
+type Channel = 'push' | 'mail';
+
 /** 규칙에 필요한 유저 필드 — 크론과 미리보기가 같은 걸 읽는다 */
 const USER_FIELDS =
   'timezone reminderHour studyMode streak streakFreeze streakFrozenDays nickname targetLanguage createdAt superPlan superExpiresAt';
@@ -44,6 +49,7 @@ export class PushSchedulerService {
 
   constructor(
     private readonly push: PushService,
+    private readonly mail: PushMailService,
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
     @InjectModel(UserStats.name)
@@ -135,16 +141,52 @@ export class PushSchedulerService {
     if (isShuttingDown()) return;
 
     const ids = await this.push.userIdsWithTokens();
-    if (!ids.length) return;
 
     let sent = 0;
     for (let i = 0; i < ids.length; i += BATCH) {
-      sent += await this.runBatch(ids.slice(i, i + BATCH));
+      sent += await this.runBatch(ids.slice(i, i + BATCH), 'push');
     }
     if (sent) this.logger.log(`푸시 ${sent}건 발송 (대상 ${ids.length}명)`);
+
+    const mailed = await this.mailRound(ids);
+    if (mailed) this.logger.log(`알림 메일 ${mailed}건 발송`);
   }
 
-  private async runBatch(ids: Types.ObjectId[]): Promise<number> {
+  /**
+   * 푸시가 닿지 않는 사람(살아 있는 토큰이 없음 — 알림을 껐거나 앱을 지움) 중 메일이 있는
+   * 사람에게 같은 규칙으로 메일. 하루 한 통 · 수신 거부 · 앱 알림 설정은 PushMailService 가 본다.
+   */
+  private async mailRound(tokenIds: Types.ObjectId[]): Promise<number> {
+    const reachable = new Set(tokenIds.map(String));
+    let after: Types.ObjectId | null = null;
+    let mailed = 0;
+    for (;;) {
+      const rows: { _id: Types.ObjectId }[] = await this.userModel
+        .find({
+          ...(after ? { _id: { $gt: after } } : {}),
+          email: { $regex: '@' },
+          emailNotifications: { $ne: false },
+          isBot: { $ne: true },
+        })
+        .sort({ _id: 1 })
+        .limit(BATCH)
+        .select('_id')
+        .lean();
+      if (!rows.length) break;
+      after = rows[rows.length - 1]._id;
+      const targets = rows
+        .map((r) => r._id)
+        .filter((id) => !reachable.has(String(id)));
+      if (targets.length) mailed += await this.runBatch(targets, 'mail');
+      if (isShuttingDown()) break;
+    }
+    return mailed;
+  }
+
+  private async runBatch(
+    ids: Types.ObjectId[],
+    channel: Channel,
+  ): Promise<number> {
     const users = await this.userModel
       .find({ _id: { $in: ids }, isBot: { $ne: true } })
       .select(USER_FIELDS)
@@ -169,7 +211,7 @@ export class PushSchedulerService {
     let sent = 0;
     for (const user of users) {
       try {
-        if (await this.handleUser(user, lastStudy)) sent++;
+        if (await this.handleUser(user, lastStudy, channel)) sent++;
       } catch (e) {
         this.logger.warn(
           `푸시 판단 실패 (${String(user._id)}): ${(e as Error).message}`,
@@ -182,6 +224,7 @@ export class PushSchedulerService {
   private async handleUser(
     user: EngagementUser,
     lastStudy: Map<string, Date>,
+    channel: Channel,
   ): Promise<boolean> {
     const tz = resolveTimezone(user.timezone);
     const now = new Date();
@@ -194,7 +237,10 @@ export class PushSchedulerService {
     const day = dayKey(now, tz);
 
     // ── 체험 종료 임박 (한도를 안 먹는 안내) ──
-    if (hour === TRIAL_HOUR && (await this.maybeTrialEnding(user, tz, today))) {
+    if (
+      hour === TRIAL_HOUR &&
+      (await this.maybeTrialEnding(user, tz, today, channel))
+    ) {
       return true;
     }
 
@@ -207,11 +253,26 @@ export class PushSchedulerService {
     if (!decision) return false;
 
     // 문구는 쉰 날짜 단계 안에서 순서대로 (랜덤이면 이틀 연속 같은 문장이 나온다)
-    return this.push.send(user._id, decision.type, {
+    return this.deliver(channel, user._id, decision.type, {
       params: decision.params,
       link: decision.link,
       dedupKey: `${decision.dedupPrefix}:${day}`,
       rotation: decision.rotation,
+    });
+  }
+
+  /** 같은 알림을 푸시로, 또는 푸시가 닿지 않는 사람에게 메일로 */
+  private deliver(
+    channel: Channel,
+    userId: Types.ObjectId,
+    type: PushType,
+    opts: SendOptions & { dedupKey: string },
+  ): Promise<boolean> {
+    if (channel === 'push') return this.push.send(userId, type, opts);
+    return this.mail.send(userId, type, {
+      dedupKey: opts.dedupKey,
+      params: opts.params,
+      rotation: opts.rotation,
     });
   }
 
@@ -230,6 +291,7 @@ export class PushSchedulerService {
     },
     tz: string,
     today: Date,
+    channel: Channel,
   ): Promise<boolean> {
     if (user.superPlan !== 'trial' || !user.superExpiresAt) return false;
 
@@ -237,7 +299,7 @@ export class PushSchedulerService {
     const daysLeft = daysBetween(today, endsOn);
     if (!TRIAL_REMIND_DAYS.includes(daysLeft)) return false;
 
-    return this.push.send(user._id, PushType.TRIAL_ENDING, {
+    return this.deliver(channel, user._id, PushType.TRIAL_ENDING, {
       params: { days: daysLeft },
       link: '/premium',
       // 만료일까지 키에 넣는다. 체험을 다시 받는 일이 생겨도 안 섞인다.

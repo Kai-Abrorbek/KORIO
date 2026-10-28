@@ -155,6 +155,17 @@ export function usePushNotifications() {
       diagnostics.permission = granted ? 'granted' : perm.status;
       if (!granted) {
         diagnostics.lastError = 'PERMISSION_DENIED (안드로이드 앱 설정에서 알림 허용 필요)';
+        // 휴대폰 설정에서 알림을 껐다 — 서버에 남은 이 기기 토큰을 지워야 서버가
+        // "푸시가 닿지 않는 사람" 으로 보고 같은 알림을 메일로 보낸다.
+        // 토큰 발급은 알림 권한 없이도 된다 (못 받으면 그냥 넘어간다).
+        const pid = projectId();
+        if (pid) {
+          const res = await Notifications.getExpoPushTokenAsync({
+            projectId: pid,
+          }).catch(() => null);
+          if (res?.data) await PushApi.unregister(res.data).catch(() => {});
+        }
+        tokenRef.current = null;
         return;
       }
       if (cancelled) return;

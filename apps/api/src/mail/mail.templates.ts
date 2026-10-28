@@ -234,6 +234,82 @@ function shell(inner: string, footer: string): string {
 </body></html>`;
 }
 
+type NoticeCopy = {
+  open: string;
+  why: string;
+  unsubscribe: string;
+  footer: string;
+};
+
+const NOTICE_COPY: Record<MailLang, NoticeCopy> = {
+  ko: {
+    open: 'KORIO 열기',
+    why: '앱 알림이 꺼져 있어서 메일로 보내드려요.',
+    unsubscribe: '알림 메일 그만 받기',
+    footer: 'KORIO — 한국어를 재미있게',
+  },
+  uz: {
+    open: 'KORIO’ni ochish',
+    why: 'Ilova bildirishnomalari o‘chiq bo‘lgani uchun xat orqali yubordik.',
+    unsubscribe: 'Bunday xatlarni olmaslik',
+    footer: 'KORIO — koreys tilini qiziqarli o‘rganing',
+  },
+  en: {
+    open: 'Open KORIO',
+    why: 'Your app notifications are off, so we sent this by email.',
+    unsubscribe: 'Stop these emails',
+    footer: 'KORIO — Korean, made fun',
+  },
+  ru: {
+    open: 'Открыть KORIO',
+    why: 'Уведомления в приложении выключены, поэтому пишем на почту.',
+    unsubscribe: 'Больше не присылать такие письма',
+    footer: 'KORIO — корейский с удовольствием',
+  },
+};
+
+const escapeHtml = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+/**
+ * 알림 메일 — 푸시가 닿지 않는 사람에게 같은 알림을 메일로 (미접속 알림 · 운영 공지).
+ * 제목 = 푸시 제목, 본문 = 푸시 본문. 아래에 수신 거부 링크 + List-Unsubscribe 헤더.
+ */
+export function notificationMail(
+  to: string,
+  lang: MailLang,
+  input: {
+    title: string;
+    body: string;
+    openUrl: string;
+    unsubscribeUrl: string;
+  },
+): MailMessage {
+  const c = NOTICE_COPY[lang];
+  const title = escapeHtml(input.title);
+  const body = escapeHtml(input.body).replace(/\n/g, '<br>');
+  const inner = `
+    <div style="font-size:21px;font-weight:800;color:${INK};margin-bottom:10px;">${title}</div>
+    <div style="font-size:15px;line-height:1.6;color:${MUTED};margin-bottom:26px;">${body}</div>
+    <a href="${input.openUrl}" style="display:inline-block;background:${BRAND};color:#FFFFFF;text-decoration:none;font-size:15px;font-weight:800;padding:13px 26px;border-radius:14px;">${c.open}</a>
+    <div style="height:1px;background:#EDEDF3;margin:26px 0 18px 0;"></div>
+    <div style="font-size:12px;line-height:1.6;color:#9A9AAB;">${c.why}<br><a href="${input.unsubscribeUrl}" style="color:#9A9AAB;">${c.unsubscribe}</a></div>`;
+  return {
+    to,
+    subject: input.title,
+    html: shell(inner, c.footer),
+    text: `${input.title}\n\n${input.body}\n\n${c.open}: ${input.openUrl}\n\n${c.why}\n${c.unsubscribe}: ${input.unsubscribeUrl}`,
+    headers: {
+      'List-Unsubscribe': `<${input.unsubscribeUrl}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
+  };
+}
+
 /** 재설정 코드 메일 */
 export function passwordResetMail(
   to: string,

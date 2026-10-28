@@ -5,6 +5,12 @@ import { MailMessage, MailTransport } from './mail.types';
 const SEND_TIMEOUT_MS = 10_000;
 
 /**
+ * 한 통씩 이 간격을 두고 보낸다. Resend 는 기본이 초당 2건이라, 알림 메일을 한꺼번에
+ * 몰아 보내면(전체 공지 · 매시 미접속 알림) 429 로 떨어진다.
+ */
+const SEND_GAP_MS = 550;
+
+/**
  * Resend HTTP API.
  *
  * SMTP(nodemailer) 대신 이걸 쓴 이유: 의존성이 하나도 안 늘어난다.
@@ -36,6 +42,7 @@ class ResendTransport implements MailTransport {
           subject: msg.subject,
           html: msg.html,
           text: msg.text,
+          ...(msg.headers ? { headers: msg.headers } : {}),
         }),
         signal: ac.signal,
       });
@@ -70,6 +77,8 @@ class LogTransport implements MailTransport {
 export class MailService implements OnModuleInit {
   private readonly logger = new Logger(MailService.name);
   private readonly transport: MailTransport;
+  /** 보내기 줄 — 앞 메일이 끝나고 SEND_GAP_MS 가 지나야 다음이 나간다 */
+  private queue: Promise<unknown> = Promise.resolve();
 
   constructor() {
     this.transport = MailService.pickTransport();
@@ -108,6 +117,15 @@ export class MailService implements OnModuleInit {
    * 알려주는 신호가 되기 때문이다. 실패는 로그로만 남긴다.
    */
   async send(msg: MailMessage): Promise<boolean> {
+    const turn = this.queue.then(() => this.sendNow(msg));
+    // 다음 메일은 이 메일이 끝나고(성공·실패 상관없이) 간격을 둔 뒤에
+    this.queue = turn.then(
+      () => new Promise((resolve) => setTimeout(resolve, SEND_GAP_MS)),
+    );
+    return turn;
+  }
+
+  private async sendNow(msg: MailMessage): Promise<boolean> {
     try {
       await this.transport.send(msg);
       return true;

@@ -14,6 +14,7 @@ import { STREAK_FREEZE } from '../../retention/retention.config';
 import { GemPassService } from '../../payments/gems/gem-pass.service';
 import { SubscriptionService } from '../../payments/subscriptions/subscription.service';
 import { PushService } from '../../push/push.service';
+import { PushMailService } from '../../push/push-mail.service';
 import { PushType } from '../../push/push.types';
 import { AdminAuditService } from '../admin-audit.service';
 import type { AdminRequestContext } from '../guards/admin.guard';
@@ -39,6 +40,7 @@ export class AdminUserActionsService {
     private readonly gemPass: GemPassService,
     private readonly subscriptions: SubscriptionService,
     private readonly pushService: PushService,
+    private readonly pushMail: PushMailService,
     private readonly audit: AdminAuditService,
     @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
@@ -199,7 +201,13 @@ export class AdminUserActionsService {
 
   async push(
     id: string,
-    input: { requestId: string; title: string; body: string; reason: string },
+    input: {
+      requestId: string;
+      title: string;
+      body: string;
+      reason: string;
+      email?: boolean;
+    },
     admin: AdminRequestContext,
   ) {
     await this.target(id);
@@ -212,20 +220,32 @@ export class AdminUserActionsService {
       copy: { title, body },
       dedupKey: `admin-personal:${input.requestId}`,
     });
+    // 푸시가 닿지 않았으면 메일로 (체크했을 때만)
+    const mailed =
+      !accepted && input.email
+        ? await this.pushMail.send(id, PushType.ANNOUNCEMENT, {
+            copy: { title, body },
+            dedupKey: `admin-personal:${input.requestId}`,
+          })
+        : false;
     await this.audit.record({
       admin,
       action: 'user.push.send',
       targetType: 'user',
       targetId: id,
       reason,
-      success: accepted,
-      errorCode: accepted ? '' : 'NOT_ACCEPTED_OR_DUPLICATE',
+      success: accepted || mailed,
+      errorCode: accepted || mailed ? '' : 'NOT_ACCEPTED_OR_DUPLICATE',
       changes: {
-        push: { from: null, to: { title, body, requestId: input.requestId } },
+        push: {
+          from: null,
+          to: { title, body, requestId: input.requestId, mailed },
+        },
       },
     });
     return {
       accepted,
+      mailed,
       note: accepted
         ? 'EXPO_ACCEPTED_RECEIPT_PENDING'
         : 'NOT_ACCEPTED_OR_DUPLICATE',
@@ -239,6 +259,7 @@ export class AdminUserActionsService {
       title: string;
       body: string;
       reason: string;
+      email?: boolean;
     },
     admin: AdminRequestContext,
   ) {
@@ -270,8 +291,12 @@ export class AdminUserActionsService {
     if (targets.length !== userIds.length)
       throw new BadRequestException('INVALID_PUSH_TARGETS');
 
-    const results: { userId: string; accepted: boolean; error: boolean }[] =
-      new Array(userIds.length);
+    const results: {
+      userId: string;
+      accepted: boolean;
+      mailed: boolean;
+      error: boolean;
+    }[] = new Array(userIds.length);
     let next = 0;
     await Promise.all(
       Array.from({ length: Math.min(5, userIds.length) }, async () => {
@@ -287,14 +312,28 @@ export class AdminUserActionsService {
                 dedupKey: `admin-selected:${input.requestId}`,
               },
             );
-            results[index] = { userId, accepted, error: false };
+            // 푸시가 닿지 않았으면 메일로 (체크했을 때만)
+            const mailed =
+              !accepted && input.email
+                ? await this.pushMail.send(userId, PushType.ANNOUNCEMENT, {
+                    copy: { title, body },
+                    dedupKey: `admin-selected:${input.requestId}`,
+                  })
+                : false;
+            results[index] = { userId, accepted, mailed, error: false };
           } catch {
-            results[index] = { userId, accepted: false, error: true };
+            results[index] = {
+              userId,
+              accepted: false,
+              mailed: false,
+              error: true,
+            };
           }
         }
       }),
     );
     const accepted = results.filter((result) => result.accepted).length;
+    const mailed = results.filter((result) => result.mailed).length;
     const failed = results.filter((result) => result.error).length;
     await this.audit.record({
       admin,
@@ -312,7 +351,8 @@ export class AdminUserActionsService {
             body,
             requestId: input.requestId,
             accepted,
-            notAccepted: userIds.length - accepted - failed,
+            mailed,
+            notAccepted: userIds.length - accepted - mailed - failed,
             failed,
           },
         },
@@ -321,7 +361,8 @@ export class AdminUserActionsService {
     return {
       requested: userIds.length,
       accepted,
-      notAccepted: userIds.length - accepted - failed,
+      mailed,
+      notAccepted: userIds.length - accepted - mailed - failed,
       failed,
       results,
       note: 'EXPO_ACCEPTED_RECEIPT_PENDING',

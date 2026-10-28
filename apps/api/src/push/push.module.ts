@@ -11,6 +11,8 @@ import { PushTicket, PushTicketSchema } from './schemas/push-ticket.schema';
 import { PushService } from './push.service';
 import { PushSchedulerService } from './push-scheduler.service';
 import { PushController } from './push.controller';
+import { PushMailService } from './push-mail.service';
+import { MailUnsubscribeController } from './mail-unsubscribe.controller';
 
 /**
  * 푸시.
@@ -29,8 +31,9 @@ import { PushController } from './push.controller';
       { name: UserStats.name, schema: UserStatsSchema },
     ]),
   ],
-  controllers: [PushController],
-  providers: [PushService, PushSchedulerService],
-  exports: [PushService],
+  controllers: [PushController, MailUnsubscribeController],
+  // PushMailService — 푸시가 닿지 않는 사람에게 같은 알림을 메일로 (MailModule 은 @Global)
+  providers: [PushService, PushSchedulerService, PushMailService],
+  exports: [PushService, PushMailService],
 })
 export class PushModule {}

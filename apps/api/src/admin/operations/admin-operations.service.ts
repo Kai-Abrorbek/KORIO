@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { APP_RELEASES, STORE } from '../../app-release/app-releases.data';
 import { PlayVersionService } from '../../app-release/play-version.service';
 import { PushService } from '../../push/push.service';
+import { PushMailService } from '../../push/push-mail.service';
+import { PushType } from '../../push/push.types';
+import { User, UserDocument } from '../../users/schemas/user.schema';
 import {
   DeviceToken,
   DeviceTokenDocument,
@@ -22,14 +25,20 @@ export interface SendAnnouncementInput {
   title: Record<string, string>;
   body: Record<string, string>;
   reason: string;
+  /** 푸시가 닿지 않는 사람(토큰 없음)에게 메일로도 */
+  email?: boolean;
 }
 
 @Injectable()
 export class AdminOperationsService {
+  private readonly logger = new Logger(AdminOperationsService.name);
+
   constructor(
     private readonly play: PlayVersionService,
     private readonly push: PushService,
+    private readonly pushMail: PushMailService,
     private readonly audit: AdminAuditService,
+    @InjectModel(User.name) private readonly users: Model<UserDocument>,
     @InjectModel(DeviceToken.name)
     private readonly tokens: Model<DeviceTokenDocument>,
     @InjectModel(AdminAuditLog.name)
@@ -121,6 +130,9 @@ export class AdminOperationsService {
       title: input.title,
       body: input.body,
     });
+    // 메일은 몇 분이 걸린다 (초당 2통) — 응답을 붙잡지 않고 뒤에서 보낸다
+    const mailTargets = input.email ? await this.mailTargets() : [];
+    if (mailTargets.length) void this.mailAnnouncement(key, input, mailTargets);
     await this.audit.record({
       admin,
       action: 'operations.announcement_send',
@@ -131,8 +143,62 @@ export class AdminOperationsService {
       changes: {
         sent: { from: 0, to: result.sent },
         targets: { from: 0, to: 'targets' in result ? result.targets : 0 },
+        mailQueued: { from: 0, to: mailTargets.length },
       },
     });
-    return result;
+    return { ...result, mailQueued: mailTargets.length };
+  }
+
+  /** 푸시가 닿지 않는 사람 — 살아 있는 토큰이 없고, 메일이 있고, 수신 거부 안 함 */
+  private async mailTargets(): Promise<Types.ObjectId[]> {
+    const stale = new Date(Date.now() - 120 * 86400_000);
+    const reachable = new Set(
+      (
+        await this.tokens.distinct('userId', {
+          invalidAt: null,
+          lastSeenAt: { $gte: stale },
+        })
+      ).map(String),
+    );
+    const rows = await this.users
+      .find({
+        email: { $regex: '@' },
+        emailNotifications: { $ne: false },
+        isBot: { $ne: true },
+      })
+      .select('_id')
+      .lean<{ _id: Types.ObjectId }[]>();
+    return rows.map((r) => r._id).filter((id) => !reachable.has(String(id)));
+  }
+
+  private async mailAnnouncement(
+    key: string,
+    input: SendAnnouncementInput,
+    ids: Types.ObjectId[],
+  ) {
+    const copyByLang: Record<string, { title: string; body: string }> = {};
+    for (const lang of LANGS) {
+      copyByLang[lang] = {
+        title: input.title[lang].trim(),
+        body: input.body[lang].trim(),
+      };
+    }
+    let mailed = 0;
+    for (const id of ids) {
+      try {
+        if (
+          await this.pushMail.send(id, PushType.ANNOUNCEMENT, {
+            copyByLang,
+            dedupKey: `announce:${key}`,
+          })
+        )
+          mailed++;
+      } catch (e) {
+        this.logger.warn(
+          `공지 메일 실패 (${String(id)}): ${(e as Error).message}`,
+        );
+      }
+    }
+    this.logger.log(`공지 ${key} 메일 ${mailed}/${ids.length}건 발송`);
   }
 }

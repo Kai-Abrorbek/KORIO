@@ -155,6 +155,13 @@ export class User {
    * 따라가야 하고, 무엇보다 발송하는 쪽(서버 크론)이 이 값을 봐야 한다.
    * 없는 키는 켜진 것으로 본다.
    */
+  /**
+   * 알림 메일(미접속 알림 · 운영 공지) 수신. 메일 아래 "수신 거부" 링크가 false 로 바꾼다.
+   * 인증 코드 · 비밀번호 메일은 이 값과 상관없이 간다. 없으면 받는 것으로 본다.
+   */
+  @Prop({ default: true })
+  emailNotifications: boolean;
+
   @Prop({ type: Object, default: {} })
   pushPrefs: {
     master?: boolean;

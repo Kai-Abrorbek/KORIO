@@ -1,5 +1,11 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { IsObject, IsString, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsObject,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { AdminGuard, type AdminRequestContext } from '../guards/admin.guard';
 import { RequirePermission } from '../decorators/require-permission.decorator';
 import { AdminOperationsService } from './admin-operations.service';
@@ -9,6 +15,8 @@ class SendAnnouncementDto {
   @IsObject() title: Record<string, string>;
   @IsObject() body: Record<string, string>;
   @IsString() @MaxLength(500) reason: string;
+  /** 푸시가 닿지 않는 사람(토큰 없음)에게 메일로도 */
+  @IsOptional() @IsBoolean() email?: boolean;
 }
 
 @Controller('admin/operations')

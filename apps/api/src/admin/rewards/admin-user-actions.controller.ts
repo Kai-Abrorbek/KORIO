@@ -20,6 +20,8 @@ import {
   MinLength,
   ArrayMaxSize,
   ArrayMinSize,
+  IsBoolean,
+  IsOptional,
 } from 'class-validator';
 import { AdminGuard, type AdminRequestContext } from '../guards/admin.guard';
 import { RequirePermission } from '../decorators/require-permission.decorator';
@@ -42,6 +44,8 @@ class SendPersonalPushDto {
   @IsString() @MinLength(1) @MaxLength(80) title: string;
   @IsString() @MinLength(1) @MaxLength(500) body: string;
   @IsString() @MinLength(5) @MaxLength(500) reason: string;
+  /** 푸시가 닿지 않으면 메일로도 (메일이 있고 수신 거부 안 한 사람만) */
+  @IsOptional() @IsBoolean() email?: boolean;
 }
 
 class SendSelectedPushDto extends SendPersonalPushDto {

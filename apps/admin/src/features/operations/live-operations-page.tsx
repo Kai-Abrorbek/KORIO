@@ -16,7 +16,7 @@ type Status = {
   recentAnnouncements: { key: string; title: string; at: string; adminEmail: string; sent: number; targets: number }[];
   controls: { maintenance: string; featureFlags: string; campaigns: string; versionPolicy: string };
 };
-type SendResult = { sent: number; targets?: number };
+type SendResult = { sent: number; targets?: number; mailQueued?: number };
 const LANGS: { key: Lang; label: string }[] = [{ key: "ko", label: "한국어" }, { key: "uz", label: "우즈베크어" }, { key: "en", label: "영어" }, { key: "ru", label: "러시아어" }];
 const empty = (): Copy => ({ ko: "", uz: "", en: "", ru: "" });
 const stamp = (value: string) => new Date(value).toLocaleString("ko-KR");
@@ -30,6 +30,8 @@ export function LiveOperationsPage() {
   const [pending, setPending] = useState(false);
   const [key, setKey] = useState("");
   const [message, setMessage] = useState("");
+  /** 푸시가 닿지 않는 사람(토큰 없음)에게 메일로도 */
+  const [email, setEmail] = useState(true);
   const [sendError, setSendError] = useState("");
   const query = useQuery<Status>("/admin/operations/status");
 
@@ -49,8 +51,8 @@ export function LiveOperationsPage() {
     const sendKey = key || `admin_${crypto.randomUUID().replaceAll("-", "")}`;
     setKey(sendKey);
     try {
-      const result = await api.post<SendResult>("/admin/operations/announcements/send", { key: sendKey, title, body, reason });
-      setMessage(`공지 발송 요청 완료 · ${result.sent.toLocaleString("ko-KR")}명 발송 시도 / ${Number(result.targets ?? 0).toLocaleString("ko-KR")}명 대상. 기기 최종 수신을 뜻하지 않습니다.`);
+      const result = await api.post<SendResult>("/admin/operations/announcements/send", { key: sendKey, title, body, reason, email });
+      setMessage(`공지 발송 요청 완료 · ${result.sent.toLocaleString("ko-KR")}명 발송 시도 / ${Number(result.targets ?? 0).toLocaleString("ko-KR")}명 대상${result.mailQueued ? ` · 메일 ${result.mailQueued.toLocaleString("ko-KR")}명 발송 중 (초당 2통, 몇 분 걸려요)` : ""}. 기기 최종 수신을 뜻하지 않습니다.`);
       setTitle(empty()); setBody(empty()); setReason(""); setKey(""); setConfirm(false); query.reload();
     } catch (error) {
       setSendError(error instanceof ApiError ? error.code : "NETWORK_ERROR");
@@ -68,7 +70,7 @@ export function LiveOperationsPage() {
       </>}
       {tab === "announcements" && <>
         {message && <div className="admin-card admin-card-body"><span className="admin-pill good">{message}</span></div>}
-        <div className="admin-grid"><section className="admin-card"><div className="admin-card-head"><h3>전체 공지 푸시</h3><span className="admin-pill warn">발송 후 회수 불가</span></div><div className="admin-card-body"><p className="page-sub">등록된 푸시 토큰을 가진 사용자에게 언어별로 발송합니다. 앱 안의 지속적인 공지 게시물이 아니며, 기기 설정·토큰 상태에 따라 실제 수신은 다를 수 있습니다.</p>{LANGS.map(({ key: lang, label }) => <div key={lang} style={{ marginTop: 14 }}><strong>{label}</strong><label className="admin-field">제목<input maxLength={100} value={title[lang]} onChange={event => setTitle(current => ({ ...current, [lang]: event.target.value }))}/></label><label className="admin-field">내용<textarea maxLength={500} value={body[lang]} onChange={event => setBody(current => ({ ...current, [lang]: event.target.value }))}/></label></div>)}<label className="admin-field">발송 사유<textarea maxLength={500} value={reason} onChange={event => setReason(event.target.value)} placeholder="감사 로그에 남길 발송 사유"/></label><button className="btn btn-primary" disabled={!valid || pending} onClick={() => { setSendError(""); setConfirm(true); }}>발송 내용 확인</button>{sendError && <p className="admin-pill bad" role="alert">발송 확인 필요: {sendError}. 재시도하면 같은 발송 키를 사용합니다.</p>}</div></section><section className="admin-card"><div className="admin-card-head"><h3>이벤트 · 프로모션</h3><span className="admin-pill warn">게시 기능 없음</span></div><div className="admin-card-body"><p className="page-sub">캠페인 시작·종료와 혜택을 앱에 적용하는 서버 계약이 없습니다. 초안을 저장하거나 활성으로 표시해도 사용자 앱에는 반영되지 않으므로 이 화면에서는 게시하지 않습니다.</p><p className="bm-data-note">{query.data.push.definition}</p></div></section></div>
+        <div className="admin-grid"><section className="admin-card"><div className="admin-card-head"><h3>전체 공지 푸시</h3><span className="admin-pill warn">발송 후 회수 불가</span></div><div className="admin-card-body"><p className="page-sub">등록된 푸시 토큰을 가진 사용자에게 언어별로 발송합니다. 앱 안의 지속적인 공지 게시물이 아니며, 기기 설정·토큰 상태에 따라 실제 수신은 다를 수 있습니다.</p>{LANGS.map(({ key: lang, label }) => <div key={lang} style={{ marginTop: 14 }}><strong>{label}</strong><label className="admin-field">제목<input maxLength={100} value={title[lang]} onChange={event => setTitle(current => ({ ...current, [lang]: event.target.value }))}/></label><label className="admin-field">내용<textarea maxLength={500} value={body[lang]} onChange={event => setBody(current => ({ ...current, [lang]: event.target.value }))}/></label></div>)}<label className="admin-field">발송 사유<textarea maxLength={500} value={reason} onChange={event => setReason(event.target.value)} placeholder="감사 로그에 남길 발송 사유"/></label><label className="page-sub" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 10 }}><input type="checkbox" checked={email} onChange={event => setEmail(event.target.checked)} style={{ width: "auto" }}/>이메일로도 보내기 — 푸시가 닿지 않는 사람(토큰 없음)에게 사용자 언어로 메일을 보냅니다. 메일이 없거나 수신 거부한 사람은 제외.</label><button className="btn btn-primary" disabled={!valid || pending} onClick={() => { setSendError(""); setConfirm(true); }}>발송 내용 확인</button>{sendError && <p className="admin-pill bad" role="alert">발송 확인 필요: {sendError}. 재시도하면 같은 발송 키를 사용합니다.</p>}</div></section><section className="admin-card"><div className="admin-card-head"><h3>이벤트 · 프로모션</h3><span className="admin-pill warn">게시 기능 없음</span></div><div className="admin-card-body"><p className="page-sub">캠페인 시작·종료와 혜택을 앱에 적용하는 서버 계약이 없습니다. 초안을 저장하거나 활성으로 표시해도 사용자 앱에는 반영되지 않으므로 이 화면에서는 게시하지 않습니다.</p><p className="bm-data-note">{query.data.push.definition}</p></div></section></div>
         <section className="admin-card"><div className="admin-card-head"><h3>최근 공지 발송</h3><span className="admin-pill blue">감사 기록 · 최근 10건</span></div><div className="admin-table-wrap"><table className="admin-table"><thead><tr><th>시각</th><th>제목</th><th>발송자</th><th className="right">발송 시도 / 대상</th></tr></thead><tbody>{query.data.recentAnnouncements.length ? query.data.recentAnnouncements.map(item => <tr key={item.key}><td>{stamp(item.at)}</td><td><strong>{item.title}</strong></td><td>{item.adminEmail}</td><td className="right">{item.sent.toLocaleString("ko-KR")} / {item.targets.toLocaleString("ko-KR")}</td></tr>) : <tr><td colSpan={4} className="admin-empty">기록된 공지 발송이 없습니다.</td></tr>}</tbody></table></div><div className="admin-card-body"><Link href="/admin">전체 감사 로그 보기 →</Link></div></section>
       </>}
     </>}

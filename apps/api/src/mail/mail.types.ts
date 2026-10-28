@@ -15,6 +15,8 @@ export interface MailMessage {
   html: string;
   /** HTML 을 못 읽는 클라이언트용. 이게 없으면 스팸 점수가 올라간다 */
   text: string;
+  /** List-Unsubscribe 처럼 알림 메일에만 붙는 헤더 */
+  headers?: Record<string, string>;
 }
 
 /**
