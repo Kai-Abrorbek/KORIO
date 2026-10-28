@@ -78,26 +78,28 @@ describe('voice tutor lesson instructions', () => {
     );
   });
 
-  it('tells the roasting characters how often to roast, joke and swear', () => {
-    // Hedged wording ("a few times a lesson", "let some turns go swear-free")
-    // came out as a tutor that never swore, joked or reacted.
+  it('lets the roasting characters judge each moment instead of running a quota', () => {
+    // Quotas and word lists came back verbatim: the same six swears in
+    // rotation, a swear in every turn, always in the same place.
     for (const style of [CHAOTIC_SAVAGE_STYLE, CHAOTIC_SAVAGE_STYLE_EN]) {
-      expect(style).toContain('Swear in about two of every three turns');
-      expect(style).toContain('never the same swear word two turns in a row');
       expect(style).toContain(
-        'Never open two turns in a row with the same tag',
+        'Nothing below is a quota, a word list or a template',
       );
-      expect(style).not.toContain('swear-free');
-      expect(style).not.toContain('No obligatory roast/correct/retry');
+      expect(style).toContain('The swearing is the punchline of a moment');
+      expect(style).toContain('Five calm answers made the sixth land');
+      for (const quota of [
+        'Swear in about',
+        'every other turn',
+        'in most turns',
+      ])
+        expect(style).not.toContain(quota);
+    }
+    for (const id of ['savage', 'close_friend'] as const) {
+      const voice = personalityInstructions(id);
+      expect(voice).not.toMatch(/every other turn|every third turn|most turns/);
     }
     expect(personalityInstructions('savage')).toContain(
-      'in about every other turn',
-    );
-    expect(personalityInstructions('savage')).not.toContain(
-      'a few times a lesson',
-    );
-    expect(personalityInstructions('close_friend')).toContain(
-      'roughly every third turn',
+      'it is a reaction, not a habit',
     );
   });
 

@@ -45,33 +45,46 @@ import type {
   TutorSettings,
 } from '../voice-tutor/voice-tutor.types';
 
-/** 정답·오답·모름·핑계·장난이 섞인 초급 학습자 */
-const LEARNER_LINES = {
+/**
+ * 초급 학습자. 평범한 답 사이에 레퍼런스 영상의 도발을 두 번 섞었다
+ * (provoke: 틀린 언어로 답하기, "나 없이 공부해" 하고 자러 가기).
+ * 영상 튜터는 평범한 답엔 평범하게, 도발에만 크게 터진다 — 그걸 본다.
+ */
+interface LearnerLine {
+  text: string;
+  provoke?: boolean;
+}
+
+const LEARNER_LINES: Record<'ko' | 'en', LearnerLine[]> = {
   ko: [
-    '조금요',
-    '감사합니다',
-    '배구리',
-    '저는 학생이에요',
-    '나 너무 피곤해 ㅋㅋ 그냥 자고 싶어',
-    '모르겠어요',
-    '저는 어제 학교에 가요',
-    '너 진짜 웃기다',
+    { text: '조금요' },
+    { text: '감사합니다' },
+    { text: 'Oishii!', provoke: true },
+    // 대개 여기서 선생님이 고쳐 준 말을 다시 말한다
+    { text: '맛있어요' },
+    { text: '저는 학생이에요' },
+    { text: '나 없이 공부해. 나 잘래 ㅋㅋ', provoke: true },
+    { text: '모르겠어요' },
+    { text: '저는 어제 학교에 가요' },
+    { text: '너 진짜 웃기다' },
   ],
   en: [
-    'A little bit.',
-    'Thank you.',
-    'Yes, I speak.',
-    'I go to school yesterday.',
-    "I'm so tired lol, I just want to sleep",
-    "I don't know.",
-    'I am a student.',
-    'You are funny teacher.',
+    { text: 'A little bit.' },
+    { text: 'Thank you.' },
+    { text: 'Delicioso!', provoke: true },
+    { text: "It's delicious." },
+    { text: 'I am a student.' },
+    { text: "Study without me, I'm going to sleep lol", provoke: true },
+    { text: "I don't know." },
+    { text: 'I go to school yesterday.' },
+    { text: 'You are funny teacher.' },
   ],
 };
 
 /** 수업 언어(우즈벡어·러시아어) 욕도 센다 — 첫 GPT-6.1 점검의 "jin ursin" 5번을 0% 로 놓쳤다 */
 const SWEARS =
   /씨발|시발|존나|개새|새끼|미친|젠장|fuck|shit|damn|\bhell\b|bastard|bullshit|dumbass|idiot|jin ursin|la[’‘'`]?nat|ahmoq|tentak|jinni|iflos|блин|бля|ч[её]рт|сука|хрен|охрен|пипец|дурак/i;
+const SWEARS_ALL = new RegExp(SWEARS.source, 'gi');
 const AUDIO_TAG = /\[[a-z][a-z' -]{0,40}\]/i;
 /** 글로 쓴 웃음. 5.6 점검에서 9턴 중 8턴이 "…, 욕 ㅋㅋㅋ." 로 끝났다 */
 const WRITTEN_LAUGH = /ㅋㅋ|ㅎㅎ|\bhaha|\blol\b|хаха/i;
@@ -79,16 +92,19 @@ const WRITTEN_LAUGH = /ㅋㅋ|ㅎㅎ|\bhaha|\blol\b|хаха/i;
 const PASSES_BALL =
   /[?？]|say it|say:|give me|말해|해 봐|해봐|따라|ayt|takrorla|de-chi|повтори|скажи|попробуй/i;
 
-/** 성격별로 이 정도는 나와야 "리액션 0" 이 아니다 */
+/**
+ * 비율 할당량은 없다 — 할당량을 프롬프트에 넣으면 모델이 공식처럼 따라 했다.
+ * 레퍼런스 영상에서 보이는 것만 본다: 도발엔 크게, 평범한 답엔 평범하게, 강약이 있다.
+ * bigOnProvoke = 도발 턴의 최소 리액션 강도, calmSwearMax = 평범한 턴에서 욕한 비율 상한
+ */
 const TARGETS: Record<
   TutorPersonality,
-  { swear: [number, number]; tag: number; intensity: number }
+  { bigOnProvoke: number; calmSwearMax: number }
 > = {
-  friendly: { swear: [0, 0], tag: 0.3, intensity: 0.4 },
-  close_friend: { swear: [0.15, 0.6], tag: 0.4, intensity: 0.5 },
-  savage: { swear: [0.3, 0.75], tag: 0.5, intensity: 0.6 },
-  // 매 턴 욕은 버릇이 된다 (첫 점검에서 9턴 중 9턴이 "[laughs] … 씨발")
-  chaotic_savage: { swear: [0.45, 0.85], tag: 0.6, intensity: 0.7 },
+  friendly: { bigOnProvoke: 0.6, calmSwearMax: 0 },
+  close_friend: { bigOnProvoke: 0.7, calmSwearMax: 0.5 },
+  savage: { bigOnProvoke: 0.75, calmSwearMax: 0.6 },
+  chaotic_savage: { bigOnProvoke: 0.8, calmSwearMax: 0.6 },
 };
 
 function loadEnv() {
@@ -179,7 +195,11 @@ async function main() {
     `\n모델 ${voiceTutorModels().lesson} (reasoning ${voiceTutorReasoningEffort()}) · 성격 ${personality} · 수업 언어 ${teach} · 배우는 언어 ${learn} · 주제 ${plan.topic ?? '-'}\n`,
   );
 
-  const replies: { reply: TutorReaction; firstWordMs?: number }[] = [];
+  const replies: {
+    reply: TutorReaction;
+    firstWordMs?: number;
+    provoke?: boolean;
+  }[] = [];
   const recent: Pick<TutorMessage, 'role' | 'text'>[] = [];
   const taught: string[] = [];
   const show = (reply: TutorReaction, ms: string) =>
@@ -201,7 +221,9 @@ async function main() {
   taught.push(...(opening.taught ?? []));
   recent.push({ role: 'teacher', text: opening.speechText });
 
-  for (const [index, line] of LEARNER_LINES[learn].entries()) {
+  for (const [index, { text: line, provoke }] of LEARNER_LINES[
+    learn
+  ].entries()) {
     recent.push({ role: 'user', text: line });
     started = Date.now();
     let firstWordMs: number | undefined;
@@ -217,29 +239,36 @@ async function main() {
       undefined,
       lessonProgress(index + 1, taught),
     );
-    console.log(`[${index + 1}] 학습자: ${line}`);
+    console.log(`[${index + 1}] 학습자: ${line}${provoke ? '   ← 도발' : ''}`);
     show(
       reply,
       `첫 마디 ${firstWordMs ?? '-'}ms / 전체 ${Date.now() - started}ms`,
     );
-    replies.push({ reply, firstWordMs });
+    replies.push({ reply, firstWordMs, provoke });
     taught.push(...(reply.taught ?? []));
     recent.push({ role: 'teacher', text: reply.speechText });
   }
 
   const total = replies.length;
-  const words = replies.map(
+  const calm = replies.filter(({ provoke }) => !provoke);
+  const provoked = replies.filter(({ provoke }) => provoke);
+  const calmWords = calm.map(
     ({ reply }) => stripAudioTags(reply.speechText).split(/\s+/).length,
   );
-  const swore = replies.filter(({ reply }) => SWEARS.test(reply.speechText));
+  const swore = (list: typeof replies) =>
+    list.filter(({ reply }) => SWEARS.test(reply.speechText));
+  const swearsUsed = replies.flatMap(({ reply }) =>
+    [...reply.speechText.matchAll(SWEARS_ALL)].map(([word]) =>
+      word.toLowerCase(),
+    ),
+  );
   const tagged = replies.filter(({ reply }) =>
     AUDIO_TAG.test(reply.speechText),
   );
   const passed = replies.filter(({ reply }) =>
     PASSES_BALL.test(reply.displayText.slice(-80)),
   );
-  const intensity =
-    replies.reduce((sum, { reply }) => sum + reply.intensity, 0) / total;
+  const intensities = replies.map(({ reply }) => reply.intensity);
   const firstWords = replies.flatMap(({ firstWordMs }) =>
     firstWordMs === undefined ? [] : [firstWordMs],
   );
@@ -263,10 +292,17 @@ async function main() {
     ),
   );
   const target = TARGETS[personality];
-  const swearRate = swore.length / total;
+  const bigOnProvoke = provoked.filter(
+    ({ reply }) => reply.intensity >= target.bigOnProvoke,
+  );
+  const calmSwearRate = calm.length ? swore(calm).length / calm.length : 0;
+  const spread = Math.max(...intensities) - Math.min(...intensities);
+  const average = (values: number[]) =>
+    values.reduce((a, b) => a + b, 0) / Math.max(values.length, 1);
   const check = (ok: boolean) => (ok ? 'OK ' : 'LOW');
 
   console.log('── 요약 ──');
+  console.log('[수업]');
   console.log(
     `${check(passed.length / total >= 0.8)} 공 넘김(질문·말해 봐로 끝남): ${percent(passed.length, total)}  (목표 80% 이상)`,
   );
@@ -277,29 +313,36 @@ async function main() {
     `${check(sameAsk === 0)} 같은 문장 3턴 연속 요구: ${sameAsk}번  (목표 0)`,
   );
   console.log(
+    `${check(average(calmWords) <= 30)} 평범한 턴 평균 길이: ${average(calmWords).toFixed(1)}단어  (목표 30 이하 — 폭발 턴은 길어도 된다)`,
+  );
+  console.log('[레퍼런스 영상처럼 반응하나]');
+  console.log(
+    `${check(bigOnProvoke.length === provoked.length)} 도발에 크게 반응: ${bigOnProvoke.length}/${provoked.length}  (도발 턴 강도 ${target.bigOnProvoke} 이상)`,
+  );
+  console.log(
+    `${check(calmSwearRate <= target.calmSwearMax)} 평범한 답에도 욕: ${percent(swore(calm).length, calm.length)}  (목표 ${Math.round(target.calmSwearMax * 100)}% 이하 — 매 턴 욕이면 공식이다)`,
+  );
+  console.log(
+    `${check(spread >= 0.3)} 리액션 강약 차이: ${Math.min(...intensities).toFixed(2)}–${Math.max(...intensities).toFixed(2)}  (목표 차이 0.3 이상 — 늘 같은 세기면 단조롭다)`,
+  );
+  console.log('[공식처럼 반복하나]');
+  console.log(
     `${check(sameOpen <= (total - 1) * 0.3)} 앞 턴과 같은 첫마디: ${sameOpen}/${total - 1}  (목표 30% 이하)`,
   );
   console.log(
     `${check(sameSwear <= 1)} 앞 턴과 같은 욕: ${sameSwear}/${total - 1}  (목표 1 이하)`,
   );
   console.log(
-    `${check(writtenLaughs.length / total <= 0.4)} 글로 쓴 웃음(ㅋㅋㅋ·haha): ${percent(writtenLaughs.length, total)}  (목표 40% 이하 — 매 턴이면 버릇)`,
+    `${check(writtenLaughs.length / total <= 0.4)} 글로 쓴 웃음(ㅋㅋㅋ·haha): ${percent(writtenLaughs.length, total)}  (목표 40% 이하)`,
   );
+  console.log('[참고]');
   console.log(
-    `${check(words.reduce((a, b) => a + b, 0) / total <= 30)} 평균 길이: ${(words.reduce((a, b) => a + b, 0) / total).toFixed(1)}단어  (목표 30 이하)`,
+    `    욕한 턴 ${percent(swore(replies).length, total)} · 쓴 욕: ${swearsUsed.length ? [...new Set(swearsUsed)].join(', ') : '-'}`,
   );
-  console.log(
-    `${check(swearRate >= target.swear[0] && swearRate <= target.swear[1])} 욕: ${percent(swore.length, total)}  (목표 ${Math.round(target.swear[0] * 100)}–${Math.round(target.swear[1] * 100)}%)`,
-  );
-  console.log(
-    `${check(tagged.length / total >= target.tag)} 연기 태그([laughs] 등): ${percent(tagged.length, total)}  (목표 ${Math.round(target.tag * 100)}% 이상)`,
-  );
-  console.log(
-    `${check(intensity >= target.intensity)} 평균 리액션 강도: ${intensity.toFixed(2)}  (목표 ${target.intensity} 이상)`,
-  );
+  console.log(`    연기 태그 들어간 턴: ${percent(tagged.length, total)}`);
   if (firstWords.length)
     console.log(
-      `    첫 마디 평균: ${Math.round(firstWords.reduce((a, b) => a + b, 0) / firstWords.length)}ms (API→모델 구간만, STT·TTS 제외)`,
+      `    첫 마디 평균: ${Math.round(average(firstWords))}ms (API→모델 구간만, STT·TTS 제외)`,
     );
   console.log(
     '\n드립이 웃긴지는 숫자로 못 잰다 — 위 대사를 직접 읽어 볼 것.\n',
