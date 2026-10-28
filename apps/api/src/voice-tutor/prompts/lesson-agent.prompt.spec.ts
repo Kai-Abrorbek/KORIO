@@ -85,8 +85,9 @@ describe('voice tutor lesson instructions', () => {
       expect(style).toContain(
         'Nothing below is a quota, a word list or a template',
       );
-      expect(style).toContain('The swearing is the punchline of a moment');
-      expect(style).toContain('Five calm answers made the sixth land');
+      expect(style).toContain('a scale, not a menu');
+      expect(style).toContain('never reuse them');
+      expect(style).toContain('five calm answers made the sixth land');
       for (const quota of [
         'Swear in about',
         'every other turn',
