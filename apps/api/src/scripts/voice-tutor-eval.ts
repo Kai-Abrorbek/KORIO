@@ -69,8 +69,9 @@ const LEARNER_LINES = {
   ],
 };
 
+/** 수업 언어(우즈벡어·러시아어) 욕도 센다 — 첫 GPT-6.1 점검의 "jin ursin" 5번을 0% 로 놓쳤다 */
 const SWEARS =
-  /씨발|시발|존나|개새|새끼|미친|젠장|fuck|shit|damn|\bhell\b|bastard|bullshit|dumbass|idiot|блин|ч[её]рт|сука|хрен|дурак/i;
+  /씨발|시발|존나|개새|새끼|미친|젠장|fuck|shit|damn|\bhell\b|bastard|bullshit|dumbass|idiot|jin ursin|la[’‘'`]?nat|ahmoq|tentak|jinni|iflos|блин|бля|ч[её]рт|сука|хрен|охрен|пипец|дурак/i;
 const AUDIO_TAG = /\[[a-z][a-z' -]{0,40}\]/i;
 /** 끝부분에 질문이나 "말해 봐" 류가 있으면 공을 넘긴 것으로 본다 */
 const PASSES_BALL =
