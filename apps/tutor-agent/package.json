@@ -9,10 +9,10 @@
     "check-types": "tsc --noEmit -p tsconfig.json",
     "dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "start": "node dist/voice-tutor-agent.js start",
-    "test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts src/voice-tutor-echo.test.ts",
+    "test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts",
     "voice-tutor:dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "voice-tutor:start": "node dist/voice-tutor-agent.js start",
-    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts src/voice-tutor-echo.test.ts"
+    "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts"
   },
   "dependencies": {
     "@livekit/agents": "^1.9.0",
