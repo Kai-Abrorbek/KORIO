@@ -33,6 +33,16 @@ import {
 /** 이만큼 안 보인 토큰은 죽은 걸로 본다. 앱을 열면 매번 갱신된다 */
 const STALE_TOKEN_DAYS = 120;
 
+/**
+ * 푸시에 싣는 글자 수. Expo 는 메시지 하나를 4KB 까지만 받는다 (넘으면 MessageTooBig 으로
+ * 거부). 관리자 알림은 메일용으로 길게 쓸 수 있어서, 푸시에는 앞부분만 잘라 보낸다 —
+ * 어차피 휴대폰 알림은 몇 줄만 보인다. 키릴 문자는 2바이트라 넉넉히 잡았다.
+ */
+const PUSH_TITLE_MAX = 120;
+const PUSH_BODY_MAX = 600;
+const clip = (text: string, max: number) =>
+  text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
+
 /** 테스트 발송에서 알림을 눌렀을 때 갈 곳 */
 const LINK_OF: Partial<Record<PushType, string>> = {
   [PushType.FOLLOW]: '/friends',
@@ -274,8 +284,8 @@ export class PushService {
 
     const messages: ExpoPushRequest[] = tokens.map((to) => ({
       to,
-      title: copy.title,
-      body: copy.body,
+      title: clip(copy.title, PUSH_TITLE_MAX),
+      body: clip(copy.body, PUSH_BODY_MAX),
       channelId: meta.channelId ?? 'default',
       data: {
         type: meta.type,

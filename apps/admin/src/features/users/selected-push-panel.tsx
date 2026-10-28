@@ -43,8 +43,8 @@ export function SelectedPushPanel({ recipients, onClear, onResult }: { recipient
   return <section className="admin-card" style={{ padding: 20, display: "grid", gap: 10 }}>
     <div><h3>선택 사용자 알림 발송</h3><p className="page-sub">목록에서 체크한 사용자 {recipients.size}명에게 같은 알림을 보냅니다. 페이지를 넘겨도 선택은 유지됩니다 (최대 100명). 앱 알림 허용과 유효한 기기 토큰이 필요합니다.</p></div>
     {recipients.size > 0 && <div className="page-sub" aria-label="선택한 사용자">선택: {[...recipients.values()].slice(0, 5).join(", ")}{recipients.size > 5 ? ` 외 ${recipients.size - 5}명` : ""}</div>}
-    <input aria-label="알림 제목" placeholder="알림 제목" maxLength={80} value={title} onChange={event => changed(setTitle, event.target.value)} />
-    <textarea aria-label="알림 내용" placeholder="알림 내용" maxLength={500} value={body} onChange={event => changed(setBody, event.target.value)} style={{ minHeight: 90 }} />
+    <input aria-label="알림 제목" placeholder="알림 제목" maxLength={200} value={title} onChange={event => changed(setTitle, event.target.value)} />
+    <textarea aria-label="알림 내용" placeholder="알림 내용 (메일에는 전부, 푸시에는 앞부분만 보여요)" maxLength={5000} value={body} onChange={event => changed(setBody, event.target.value)} style={{ minHeight: 90 }} />
     <input aria-label="발송 사유" placeholder="발송 사유 (5자 이상, 감사 기록에 남음)" maxLength={500} value={reason} onChange={event => changed(setReason, event.target.value)} />
     <label className="page-sub" style={{ display: "flex", alignItems: "center", gap: 8 }}><input type="checkbox" checked={email} onChange={event => { setEmail(event.target.checked); setRequestId(null); }} style={{ width: "auto" }} />이메일로도 보내기 — 푸시가 닿지 않는 사람(알림 꺼짐·토큰 없음)에게 같은 내용을 메일로 보냅니다. 메일이 없거나 수신 거부한 사람은 제외.</label>
     <div className="admin-toolbar"><button type="button" className="btn btn-primary" disabled={busy || !recipients.size || recipients.size > 100 || !title.trim() || !body.trim() || reason.trim().length < 5} onClick={send}>{busy ? "발송 중…" : `${recipients.size}명에게 발송`}</button><button type="button" disabled={busy || !recipients.size} onClick={onClear}>선택 해제</button></div>

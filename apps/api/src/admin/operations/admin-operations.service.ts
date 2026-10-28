@@ -110,7 +110,8 @@ export class AdminOperationsService {
     for (const lang of LANGS) {
       const title = input.title?.[lang]?.trim();
       const body = input.body?.[lang]?.trim();
-      if (!title || title.length > 100 || !body || body.length > 500) {
+      // 메일에는 전부 간다. 푸시는 PushService 가 앞부분만 잘라 보낸다 (Expo 4KB 한도)
+      if (!title || title.length > 200 || !body || body.length > 5000) {
         throw new BadRequestException(
           `INVALID_ANNOUNCEMENT_${lang.toUpperCase()}`,
         );

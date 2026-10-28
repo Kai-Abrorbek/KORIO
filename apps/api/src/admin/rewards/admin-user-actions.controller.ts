@@ -41,8 +41,9 @@ class GrantRewardDto {
 
 class SendPersonalPushDto {
   @IsUUID() requestId: string;
-  @IsString() @MinLength(1) @MaxLength(80) title: string;
-  @IsString() @MinLength(1) @MaxLength(500) body: string;
+  // 메일에는 전부 간다. 푸시는 PushService 가 앞부분만 잘라 보낸다 (Expo 4KB 한도)
+  @IsString() @MinLength(1) @MaxLength(200) title: string;
+  @IsString() @MinLength(1) @MaxLength(5000) body: string;
   @IsString() @MinLength(5) @MaxLength(500) reason: string;
   /** 푸시가 닿지 않으면 메일로도 (메일이 있고 수신 거부 안 한 사람만) */
   @IsOptional() @IsBoolean() email?: boolean;
