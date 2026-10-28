@@ -8,3 +8,5 @@ public/fonts/
 public/sfx/
 public/stills/
 public/ai/
+.venv/
+ai/models/
