@@ -89,6 +89,9 @@ describe('voice tutor lesson instructions', () => {
       expect(style).toContain('never reuse them');
       expect(style).toContain('never to rotate through');
       expect(style).toContain('A soft teaching-language curse is not a peak');
+      expect(style).toContain(
+        'When you do hit a peak, it has at least one real swear',
+      );
       expect(style).toContain('five calm answers made the sixth land');
       for (const quota of [
         'Swear in about',

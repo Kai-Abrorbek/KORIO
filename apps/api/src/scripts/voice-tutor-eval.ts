@@ -100,12 +100,16 @@ const PASSES_BALL =
  */
 const TARGETS: Record<
   TutorPersonality,
-  { bigOnProvoke: number; calmSwearMax: number }
+  { bigOnProvoke: number; calmSwearMax: number; swearOnProvoke: boolean }
 > = {
-  friendly: { bigOnProvoke: 0.6, calmSwearMax: 0 },
-  close_friend: { bigOnProvoke: 0.7, calmSwearMax: 0.5 },
-  savage: { bigOnProvoke: 0.75, calmSwearMax: 0.6 },
-  chaotic_savage: { bigOnProvoke: 0.8, calmSwearMax: 0.6 },
+  friendly: { bigOnProvoke: 0.6, calmSwearMax: 0, swearOnProvoke: false },
+  close_friend: { bigOnProvoke: 0.7, calmSwearMax: 0.5, swearOnProvoke: false },
+  savage: { bigOnProvoke: 0.75, calmSwearMax: 0.6, swearOnProvoke: false },
+  chaotic_savage: {
+    bigOnProvoke: 0.8,
+    calmSwearMax: 0.6,
+    swearOnProvoke: true,
+  },
 };
 
 function loadEnv() {
@@ -320,6 +324,10 @@ async function main() {
   console.log(
     `${check(bigOnProvoke.length === provoked.length)} 도발에 크게 반응: ${bigOnProvoke.length}/${provoked.length}  (도발 턴 강도 ${target.bigOnProvoke} 이상)`,
   );
+  if (target.swearOnProvoke)
+    console.log(
+      `${check(swore(provoked).length === provoked.length)} 도발에 진짜 욕: ${swore(provoked).length}/${provoked.length}  (영상처럼 터질 땐 욕이 나와야 한다)`,
+    );
   console.log(
     `${check(calmSwearRate <= target.calmSwearMax)} 평범한 답에도 욕: ${percent(swore(calm).length, calm.length)}  (목표 ${Math.round(target.calmSwearMax * 100)}% 이하 — 매 턴 욕이면 공식이다)`,
   );
