@@ -1,4 +1,5 @@
 import { Composition } from "remotion";
+import { FOUNDER_TOTAL, FounderIntro } from "./edit/FounderIntro";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
 
 /**
@@ -8,6 +9,7 @@ import { IgAvatar, IgHighlight } from "./social/ProfileArt";
 export function Root() {
   return (
     <>
+      <Composition component={FounderIntro} durationInFrames={FOUNDER_TOTAL} fps={30} height={1920} id="FounderIntro" width={1080} />
       <Composition component={IgAvatar} durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgHighlight}
