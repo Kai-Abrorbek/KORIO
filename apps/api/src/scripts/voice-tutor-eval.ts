@@ -82,9 +82,10 @@ const TARGETS: Record<
   { swear: [number, number]; tag: number; intensity: number }
 > = {
   friendly: { swear: [0, 0], tag: 0.3, intensity: 0.4 },
-  close_friend: { swear: [0.15, 0.7], tag: 0.4, intensity: 0.5 },
-  savage: { swear: [0.35, 1], tag: 0.5, intensity: 0.6 },
-  chaotic_savage: { swear: [0.5, 1], tag: 0.6, intensity: 0.7 },
+  close_friend: { swear: [0.15, 0.6], tag: 0.4, intensity: 0.5 },
+  savage: { swear: [0.3, 0.75], tag: 0.5, intensity: 0.6 },
+  // 매 턴 욕은 버릇이 된다 (첫 점검에서 9턴 중 9턴이 "[laughs] … 씨발")
+  chaotic_savage: { swear: [0.45, 0.85], tag: 0.6, intensity: 0.7 },
 };
 
 function loadEnv() {
@@ -126,6 +127,27 @@ const emptyMemory = (): StudentMemorySnapshot => ({
   notes: '',
   lessonsCompleted: 0,
 });
+
+/** 바로 앞 턴과 같은 걸 몇 번 했는지 — 같은 첫마디, 같은 욕 */
+function repeatsInARow<T>(items: T[], key: (item: T) => string | undefined) {
+  let count = 0;
+  for (let i = 1; i < items.length; i++) {
+    const now = key(items[i]);
+    if (now && now === key(items[i - 1])) count++;
+  }
+  return count;
+}
+
+/** 같은 문장을 세 턴 연속 시킨 횟수. 끝 6글자가 같으면 (앞의 "ayt"·"Takrorla" 같은 지시어는 바뀌어도) 같은 요구로 본다 */
+function sameAskThreeTimes(endings: string[]) {
+  let runs = 0;
+  let run = 1;
+  for (let i = 1; i < endings.length; i++) {
+    run = endings[i] && endings[i] === endings[i - 1] ? run + 1 : 1;
+    if (run === 3) runs++;
+  }
+  return runs;
+}
 
 const percent = (part: number, whole: number) =>
   whole ? `${Math.round((part / whole) * 100)}%` : '-';
@@ -174,7 +196,7 @@ async function main() {
   show(opening, `${Date.now() - started}ms`);
   replies.push({ reply: opening });
   taught.push(...(opening.taught ?? []));
-  recent.push({ role: 'teacher', text: opening.displayText });
+  recent.push({ role: 'teacher', text: opening.speechText });
 
   for (const [index, line] of LEARNER_LINES[learn].entries()) {
     recent.push({ role: 'user', text: line });
@@ -199,7 +221,7 @@ async function main() {
     );
     replies.push({ reply, firstWordMs });
     taught.push(...(reply.taught ?? []));
-    recent.push({ role: 'teacher', text: reply.displayText });
+    recent.push({ role: 'teacher', text: reply.speechText });
   }
 
   const total = replies.length;
@@ -218,6 +240,20 @@ async function main() {
   const firstWords = replies.flatMap(({ firstWordMs }) =>
     firstWordMs === undefined ? [] : [firstWordMs],
   );
+  const questions = replies.filter(({ reply }) =>
+    /[?？]/.test(reply.displayText.slice(-15)),
+  );
+  const sameOpen = repeatsInARow(replies, ({ reply }) =>
+    reply.speechText.trim().split(/\s+/)[0]?.toLowerCase(),
+  );
+  const sameSwear = repeatsInARow(replies, ({ reply }) =>
+    reply.speechText.match(SWEARS)?.[0].toLowerCase(),
+  );
+  const sameAsk = sameAskThreeTimes(
+    replies.map(({ reply }) =>
+      reply.displayText.replace(/[\s.,!?'"“”‘’:]+/g, '').slice(-6),
+    ),
+  );
   const target = TARGETS[personality];
   const swearRate = swore.length / total;
   const check = (ok: boolean) => (ok ? 'OK ' : 'LOW');
@@ -225,6 +261,18 @@ async function main() {
   console.log('── 요약 ──');
   console.log(
     `${check(passed.length / total >= 0.8)} 공 넘김(질문·말해 봐로 끝남): ${percent(passed.length, total)}  (목표 80% 이상)`,
+  );
+  console.log(
+    `${check(questions.length / total >= 0.4)} 진짜 질문(?로 끝남): ${percent(questions.length, total)}  (목표 40% 이상 — 나머지는 "따라 해")`,
+  );
+  console.log(
+    `${check(sameAsk === 0)} 같은 문장 3턴 연속 요구: ${sameAsk}번  (목표 0)`,
+  );
+  console.log(
+    `${check(sameOpen <= (total - 1) * 0.3)} 앞 턴과 같은 첫마디: ${sameOpen}/${total - 1}  (목표 30% 이하)`,
+  );
+  console.log(
+    `${check(sameSwear <= 1)} 앞 턴과 같은 욕: ${sameSwear}/${total - 1}  (목표 1 이하)`,
   );
   console.log(
     `${check(words.reduce((a, b) => a + b, 0) / total <= 30)} 평균 길이: ${(words.reduce((a, b) => a + b, 0) / total).toFixed(1)}단어  (목표 30 이하)`,

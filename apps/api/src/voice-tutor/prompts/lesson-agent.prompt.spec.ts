@@ -32,7 +32,8 @@ describe('voice tutor lesson instructions', () => {
         'Never two questions',
         'THE LOOP',
         'Never make them repeat what they already said correctly',
-        'never loop on one line',
+        'A line gets ONE retry',
+        'Never treat good Korean as dodging',
         'WHAT TO TEACH',
         'student.agenda.next',
         'QUESTIONS THAT MAKE THEM TALK',
@@ -81,8 +82,11 @@ describe('voice tutor lesson instructions', () => {
     // Hedged wording ("a few times a lesson", "let some turns go swear-free")
     // came out as a tutor that never swore, joked or reacted.
     for (const style of [CHAOTIC_SAVAGE_STYLE, CHAOTIC_SAVAGE_STYLE_EN]) {
-      expect(style).toContain('Swear in most turns');
-      expect(style).toContain('in nearly every turn');
+      expect(style).toContain('Swear in about two of every three turns');
+      expect(style).toContain('never the same swear word two turns in a row');
+      expect(style).toContain(
+        'Never open two turns in a row with the same tag',
+      );
       expect(style).not.toContain('swear-free');
       expect(style).not.toContain('No obligatory roast/correct/retry');
     }

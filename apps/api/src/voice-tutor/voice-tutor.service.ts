@@ -492,7 +492,13 @@ export class VoiceTutorService {
         const recent = [
           ...history
             .slice(-(VOICE_TUTOR_RECENT_MESSAGES - 1))
-            .map(({ role, text }) => ({ role, text })),
+            // The teacher's own turns with their audio tags: with subtitles
+            // only, the model never saw that it opened every turn with
+            // [laughs] and kept doing it.
+            .map(({ role, text, speechText }) => ({
+              role,
+              text: role === 'teacher' && speechText ? speechText : text,
+            })),
           { role: 'user' as const, text: userMessage.text },
         ];
         reply =
