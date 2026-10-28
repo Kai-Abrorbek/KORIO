@@ -73,6 +73,8 @@ const LEARNER_LINES = {
 const SWEARS =
   /씨발|시발|존나|개새|새끼|미친|젠장|fuck|shit|damn|\bhell\b|bastard|bullshit|dumbass|idiot|jin ursin|la[’‘'`]?nat|ahmoq|tentak|jinni|iflos|блин|бля|ч[её]рт|сука|хрен|охрен|пипец|дурак/i;
 const AUDIO_TAG = /\[[a-z][a-z' -]{0,40}\]/i;
+/** 글로 쓴 웃음. 5.6 점검에서 9턴 중 8턴이 "…, 욕 ㅋㅋㅋ." 로 끝났다 */
+const WRITTEN_LAUGH = /ㅋㅋ|ㅎㅎ|\bhaha|\blol\b|хаха/i;
 /** 끝부분에 질문이나 "말해 봐" 류가 있으면 공을 넘긴 것으로 본다 */
 const PASSES_BALL =
   /[?？]|say it|say:|give me|말해|해 봐|해봐|따라|ayt|takrorla|de-chi|повтори|скажи|попробуй/i;
@@ -252,6 +254,9 @@ async function main() {
   const sameSwear = repeatsInARow(replies, ({ reply }) =>
     reply.speechText.match(SWEARS)?.[0].toLowerCase(),
   );
+  const writtenLaughs = replies.filter(({ reply }) =>
+    WRITTEN_LAUGH.test(reply.speechText),
+  );
   const sameAsk = sameAskThreeTimes(
     replies.map(({ reply }) =>
       reply.displayText.replace(/[\s.,!?'"“”‘’:]+/g, '').slice(-6),
@@ -276,6 +281,9 @@ async function main() {
   );
   console.log(
     `${check(sameSwear <= 1)} 앞 턴과 같은 욕: ${sameSwear}/${total - 1}  (목표 1 이하)`,
+  );
+  console.log(
+    `${check(writtenLaughs.length / total <= 0.4)} 글로 쓴 웃음(ㅋㅋㅋ·haha): ${percent(writtenLaughs.length, total)}  (목표 40% 이하 — 매 턴이면 버릇)`,
   );
   console.log(
     `${check(words.reduce((a, b) => a + b, 0) / total <= 30)} 평균 길이: ${(words.reduce((a, b) => a + b, 0) / total).toFixed(1)}단어  (목표 30 이하)`,
