@@ -32,6 +32,8 @@ import {
   VOICE_TUTOR_PROGRESS_INTERVAL,
   VOICE_TUTOR_RECENT_MESSAGES,
   tutorTargetLanguage,
+  voiceTutorModels,
+  voiceTutorReasoningEffort,
   voiceTutorVoices,
   type TutorTargetLanguage,
 } from './voice-tutor.config';
@@ -58,7 +60,13 @@ import type {
   TutorSettings,
 } from './voice-tutor.types';
 
-const MAX_SESSION_TURNS = 60;
+/**
+ * Cost guard against a runaway loop, not a lesson length: the quota and the
+ * worker's hard stop already end the lesson on time. At 60, a MAX learner's
+ * short ping-pong turns hit the cap after ~20 minutes of a 60-minute lesson,
+ * and the worker could only answer "connection glitched, say it again".
+ */
+const MAX_SESSION_TURNS = 300;
 const MAX_SESSION_AGE_MS = 60 * 60 * 1000;
 const STALE_PROCESSING_MS = 2 * 60 * 1000;
 
@@ -550,7 +558,7 @@ export class VoiceTutorService {
       }
       if (live)
         this.logger.log(
-          `Voice Tutor turn ${sessionId}: db ${prepMs}ms, first word ${firstWordMs ?? '-'}ms, total ${Date.now() - startedAt}ms`,
+          `Voice Tutor turn ${sessionId}: ${voiceTutorModels().lesson}/${voiceTutorReasoningEffort()} ${session.settings.personality}, db ${prepMs}ms, first word ${firstWordMs ?? '-'}ms, total ${Date.now() - startedAt}ms`,
         );
       const teacherMessage = await this.saveTeacherMessage(
         userId,
@@ -728,7 +736,7 @@ export class VoiceTutorService {
     const session = await this.ownedSession(userId, sessionId);
     if (session.progressAnalyzedTurns >= turnCount) return;
     // A failed earlier batch must not cause its turns to be silently skipped.
-    // The session is capped at 60 turns; only bounded slices are sent to AI.
+    // Sessions are capped (MAX_SESSION_TURNS); only bounded slices go to AI.
     const rows = await this.messages
       .find({ sessionId: session._id })
       .sort({ createdAt: 1, _id: 1 })

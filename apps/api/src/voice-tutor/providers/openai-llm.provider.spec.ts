@@ -2,6 +2,7 @@ import { OpenAiTutorLlmProvider } from './openai-llm.provider';
 
 describe('OpenAiTutorLlmProvider', () => {
   const previousKey = process.env.OPENAI_API_KEY;
+  const previousEffort = process.env.VOICE_TUTOR_REASONING_EFFORT;
   const originalFetch = global.fetch;
 
   beforeEach(() => {
@@ -18,6 +19,9 @@ describe('OpenAiTutorLlmProvider', () => {
   afterEach(() => {
     if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
     else process.env.OPENAI_API_KEY = previousKey;
+    if (previousEffort === undefined)
+      delete process.env.VOICE_TUTOR_REASONING_EFFORT;
+    else process.env.VOICE_TUTOR_REASONING_EFFORT = previousEffort;
     global.fetch = originalFetch;
     jest.restoreAllMocks();
   });
@@ -97,10 +101,61 @@ describe('OpenAiTutorLlmProvider', () => {
       ok: false,
       status: 429,
       text: () =>
-        Promise.resolve('{"error":{"type":"requests","code":"rate_limit_exceeded"}}'),
+        Promise.resolve(
+          '{"error":{"type":"requests","code":"rate_limit_exceeded"}}',
+        ),
     });
     await expect(
       new OpenAiTutorLlmProvider().completeJson('gpt-4o-mini', 'x', '{}', 10),
     ).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+  });
+
+  const sentBody = () =>
+    JSON.parse(
+      (global.fetch as jest.MockedFunction<typeof fetch>).mock.calls[0][1]
+        ?.body as string,
+    ) as Record<string, unknown>;
+
+  it('treats the GPT-6 family as a reasoning model, so an upgrade keeps reasoning off', async () => {
+    delete process.env.VOICE_TUTOR_REASONING_EFFORT;
+    await new OpenAiTutorLlmProvider().completeJson(
+      'gpt-6.1-terra',
+      'Tutor instructions',
+      '{}',
+      450,
+    );
+    expect(sentBody()).toMatchObject({
+      reasoning_effort: 'none',
+      max_completion_tokens: 450,
+      messages: [
+        expect.objectContaining({ role: 'developer' }),
+        expect.objectContaining({ role: 'user' }),
+      ],
+    });
+  });
+
+  it('gives a reasoning turn token headroom instead of an empty reply', async () => {
+    process.env.VOICE_TUTOR_REASONING_EFFORT = 'low';
+    await new OpenAiTutorLlmProvider().completeJson(
+      'gpt-5.6-terra',
+      'Tutor instructions',
+      '{}',
+      450,
+    );
+    expect(sentBody()).toMatchObject({
+      reasoning_effort: 'low',
+      max_completion_tokens: 1950,
+    });
+  });
+
+  it('ignores an unknown reasoning effort', async () => {
+    process.env.VOICE_TUTOR_REASONING_EFFORT = 'extreme';
+    await new OpenAiTutorLlmProvider().completeJson(
+      'gpt-6-luna',
+      'Tutor instructions',
+      '{}',
+      450,
+    );
+    expect(sentBody()).toMatchObject({ reasoning_effort: 'none' });
   });
 });

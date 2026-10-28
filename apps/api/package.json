@@ -15,6 +15,7 @@
     "admin:grant": "ts-node -r tsconfig-paths/register src/scripts/grant-admin.ts",
     "admin:password": "ts-node -r tsconfig-paths/register src/scripts/set-admin-password.ts",
     "migrate:emails": "ts-node -r tsconfig-paths/register src/scripts/normalize-emails.ts",
+    "tutor:eval": "ts-node -r tsconfig-paths/register src/scripts/voice-tutor-eval.ts",
     "seed": "ts-node -r tsconfig-paths/register src/seed/seed.ts",
     "seed:words": "ts-node -r tsconfig-paths/register src/seed/seed-words.ts",
     "seed:validate-words": "ts-node -r tsconfig-paths/register src/seed/validate-word-seed.ts",

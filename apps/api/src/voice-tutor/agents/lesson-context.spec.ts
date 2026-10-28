@@ -1,7 +1,7 @@
 import { buildLessonInput } from './lesson-context';
 
 describe('voice tutor lesson context', () => {
-  it('bounds conversation history to the last sixteen messages', () => {
+  it('bounds conversation history to the last twenty-four messages', () => {
     const input = JSON.parse(
       buildLessonInput(
         {
@@ -28,7 +28,7 @@ describe('voice tutor lesson context', () => {
           repeatedMistakes: [],
           recurringMistakes: [],
         },
-        Array.from({ length: 20 }, (_, index) => ({
+        Array.from({ length: 30 }, (_, index) => ({
           role: index % 2 ? ('teacher' as const) : ('user' as const),
           text: String(index),
         })),
@@ -38,9 +38,9 @@ describe('voice tutor lesson context', () => {
       student: { explanationLanguage: string };
       recentTeacherOpenings: string[];
     };
-    expect(input.recent).toHaveLength(16);
-    expect(input.recent[0].text).toBe('4');
+    expect(input.recent).toHaveLength(24);
+    expect(input.recent[0].text).toBe('6');
     expect(input.student.explanationLanguage).toBe('ru');
-    expect(input.recentTeacherOpenings).toEqual(['13', '15', '17', '19']);
+    expect(input.recentTeacherOpenings).toEqual(['23', '25', '27', '29']);
   });
 });

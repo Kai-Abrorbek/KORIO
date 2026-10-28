@@ -41,7 +41,8 @@ export function tutorTargetLanguage(value: unknown): TutorTargetLanguage {
 export const VOICE_TUTOR_STYLES = ['polite', 'casual'] as const;
 export const VOICE_TUTOR_MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 export const VOICE_TUTOR_PROGRESS_INTERVAL = 6;
-export const VOICE_TUTOR_RECENT_MESSAGES = 16;
+/** ~12 exchanges: short ping-pong turns made 16 messages barely two minutes. */
+export const VOICE_TUTOR_RECENT_MESSAGES = 24;
 
 export function tutorLanguageEnabled(language: ExplanationLanguage): boolean {
   return (
@@ -126,10 +127,38 @@ function ttsModel(): string {
     : VOICE_TUTOR_DEFAULT_TTS_MODEL;
 }
 
+/**
+ * GPT-5.6 and the GPT-6 family reason before answering unless told not to. The
+ * reasoning counts against the small live-turn token budget, so the tutor runs
+ * them with reasoning off by default. VOICE_TUTOR_REASONING_EFFORT=low trades
+ * some latency for sharper comebacks; the provider adds token headroom for it.
+ */
+export const VOICE_TUTOR_REASONING_EFFORTS = ['none', 'low', 'medium'] as const;
+export type VoiceTutorReasoningEffort =
+  (typeof VOICE_TUTOR_REASONING_EFFORTS)[number];
+
+export function isReasoningTutorModel(model: string): boolean {
+  return /^gpt-(5\.6|6)(?:[.-]|$)/.test(model);
+}
+
+export function voiceTutorReasoningEffort(): VoiceTutorReasoningEffort {
+  const requested = process.env.VOICE_TUTOR_REASONING_EFFORT?.trim();
+  return (VOICE_TUTOR_REASONING_EFFORTS as readonly string[]).includes(
+    requested ?? '',
+  )
+    ? (requested as VoiceTutorReasoningEffort)
+    : 'none';
+}
+
+/**
+ * Fallbacks when the env leaves a model unset. gpt-4o-mini used to be the
+ * default and could not hold the savage characters; GPT-5.6 Terra/Luna are the
+ * models the deployment examples already run.
+ */
 export const voiceTutorModels = () => ({
-  lesson: process.env.VOICE_TUTOR_LESSON_MODEL?.trim() || 'gpt-4o-mini',
-  progress: process.env.VOICE_TUTOR_PROGRESS_MODEL?.trim() || 'gpt-4o-mini',
-  planning: process.env.VOICE_TUTOR_PLANNING_MODEL?.trim() || 'gpt-4o-mini',
+  lesson: process.env.VOICE_TUTOR_LESSON_MODEL?.trim() || 'gpt-5.6-terra',
+  progress: process.env.VOICE_TUTOR_PROGRESS_MODEL?.trim() || 'gpt-5.6-luna',
+  planning: process.env.VOICE_TUTOR_PLANNING_MODEL?.trim() || 'gpt-5.6-terra',
   stt: process.env.VOICE_TUTOR_STT_MODEL?.trim() || 'gpt-4o-mini-transcribe',
   tts: ttsModel(),
 });

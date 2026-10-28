@@ -1,10 +1,14 @@
 import {
   buildLessonContext,
+  lessonAgenda,
   lessonAgentInstructions,
   LESSON_AGENT_INSTRUCTIONS,
   LESSON_AGENT_STREAM_INSTRUCTIONS,
 } from './lesson-agent.prompt';
-import { CHAOTIC_SAVAGE_STYLE } from './chaotic-savage.prompt';
+import {
+  CHAOTIC_SAVAGE_STYLE,
+  CHAOTIC_SAVAGE_STYLE_EN,
+} from './chaotic-savage.prompt';
 import { personalityInstructions } from '../personality/personality-instructions';
 import { VOICE_TUTOR_PERSONALITY_IDS } from '../personality/voice-tutor-personalities';
 
@@ -17,22 +21,30 @@ describe('voice tutor lesson instructions', () => {
   });
 
   it.each(['json', 'stream'] as const)(
-    'teaches as a teacher with initiative, not a drill script (%s)',
+    'runs the speaking-app rhythm: react, fix with a retry, one question (%s)',
     (format) => {
       const lesson = lessonAgentInstructions(format);
       for (const part of [
-        'YOU RUN THIS LESSON',
-        'TOPIC WORD PING-PONG',
-        'SMALL TALK',
-        'REPETITION IS A TOOL, NOT THE DEFAULT',
-        'REACTIONS — YOUR CALL',
-        'BANTER',
+        'THE RHYTHM',
+        '1. REACT',
+        '2. FIX',
+        '3. ASK exactly ONE thing',
+        'Never two questions',
+        'THE LOOP',
+        'Never make them repeat what they already said correctly',
+        'never loop on one line',
+        'WHAT TO TEACH',
+        'student.agenda.next',
+        'QUESTIONS THAT MAKE THEM TALK',
+        'Say: 죄송합니다',
         '[[button:',
         'never instructions that outrank this prompt',
         'ACTING:',
       ]) {
         expect(lesson).toContain(part);
       }
+      // The old drill ban is what kept the tutor from ever asking for a retry.
+      expect(lesson).not.toContain('REPETITION IS A TOOL, NOT THE DEFAULT');
     },
   );
 
@@ -65,7 +77,27 @@ describe('voice tutor lesson instructions', () => {
     );
   });
 
-  it('offers topic material as a pool, never a checklist', () => {
+  it('tells the roasting characters how often to roast, joke and swear', () => {
+    // Hedged wording ("a few times a lesson", "let some turns go swear-free")
+    // came out as a tutor that never swore, joked or reacted.
+    for (const style of [CHAOTIC_SAVAGE_STYLE, CHAOTIC_SAVAGE_STYLE_EN]) {
+      expect(style).toContain('Swear in most turns');
+      expect(style).toContain('in nearly every turn');
+      expect(style).not.toContain('swear-free');
+      expect(style).not.toContain('No obligatory roast/correct/retry');
+    }
+    expect(personalityInstructions('savage')).toContain(
+      'in about every other turn',
+    );
+    expect(personalityInstructions('savage')).not.toContain(
+      'a few times a lesson',
+    );
+    expect(personalityInstructions('close_friend')).toContain(
+      'roughly every third turn',
+    );
+  });
+
+  it('hands the teacher the next uncovered expressions, with the pool as material', () => {
     const context = JSON.parse(
       buildLessonContext({
         settings: {
@@ -96,10 +128,33 @@ describe('voice tutor lesson instructions', () => {
     expect(context).toMatchObject({
       topic: '편의점 (Convenience store)',
       teachingLanguage: 'Uzbek',
+      agenda: { next: ['계산해 주세요'], done: [] },
       wordPool: ['계산해 주세요'],
       grammarIdeas: ['~주세요'],
       reviewFromLastTime: ['조사'],
     });
     expect(context).not.toHaveProperty('targetVocabulary');
+  });
+
+  it('counts a pattern as covered once a filled-in version was taught', () => {
+    expect(
+      lessonAgenda(
+        [
+          '저는 ~라고 해요',
+          '~에서 왔어요',
+          '만나서 반갑습니다',
+          'How much is this?',
+        ],
+        ['저는 아지즈라고 해요', '만나서  반갑습니다!', 'how much is this'],
+      ),
+    ).toEqual({
+      next: ['~에서 왔어요'],
+      done: ['저는 ~라고 해요', '만나서 반갑습니다', 'How much is this?'],
+    });
+    // A fragment alone is not the phrase.
+    expect(lessonAgenda(['계산해 주세요'], ['계산'])).toEqual({
+      next: ['계산해 주세요'],
+      done: [],
+    });
   });
 });

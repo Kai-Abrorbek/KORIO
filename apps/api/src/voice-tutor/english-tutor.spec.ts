@@ -46,13 +46,16 @@ describe('English voice tutor', () => {
     );
     for (const format of ['json', 'stream'] as const) {
       const english = lessonAgentInstructions(format, 'en');
-      expect(english).toContain("You are the learner's English teacher");
+      expect(english).toContain("You are the learner's English tutor");
       expect(english).toContain('English is what you teach');
-      expect(english).toContain('TOPIC WORD PING-PONG');
+      expect(english).toContain('THE RHYTHM');
+      // The Praktika reference exchange, taught as English
+      expect(english).toContain('Say: "Yes, I can."');
       expect(english).toContain('englishLevel');
       expect(english).not.toContain('Keep Korean in Hangul');
       expect(english).not.toContain('편의점');
     }
+    expect(LESSON_AGENT_INSTRUCTIONS).not.toContain('Yes, I can');
     expect(planningAgentInstructions('en')).toContain(
       'ONLY a English lesson planner',
     );
