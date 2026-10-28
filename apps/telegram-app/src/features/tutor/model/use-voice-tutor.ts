@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { apiBaseUrl } from "../../../shared/config/env";
 import {
   VoiceTutorApi,
   fetchVoiceTutorAudio,
@@ -150,7 +151,7 @@ export function useVoiceTutor(
     setError(null);
     try {
       const [available, saved] = await Promise.all([
-        VoiceTutorApi.options(request),
+        VoiceTutorApi.options(request, target),
         VoiceTutorApi.settings(request, target),
       ]);
       if (!mounted.current) return;
@@ -184,7 +185,11 @@ export function useVoiceTutor(
       let uri: string;
       try {
         const url = new URL(voice.previewUrl);
-        if (url.protocol !== "https:" || url.username || url.password) throw new Error();
+        // 미리듣기는 우리 API 가 만든다 — 로컬 개발 API 는 http 라 그 경우만 허용
+        const ownApi =
+          url.toString().startsWith(`${apiBaseUrl()}/`) ||
+          ["localhost", "127.0.0.1"].includes(url.hostname);
+        if ((url.protocol !== "https:" && !ownApi) || url.username || url.password) throw new Error();
         uri = url.toString();
       } catch {
         setError("INVALID_AUDIO_URL");

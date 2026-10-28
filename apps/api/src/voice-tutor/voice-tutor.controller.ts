@@ -33,6 +33,7 @@ import {
   tutorTargetLanguage,
 } from './voice-tutor.config';
 import { VoiceTutorAudioService } from './voice-tutor-audio.service';
+import { VoiceTutorVoicePreviewService } from './voices/voice-tutor-voice-preview.service';
 import { VoiceTutorService } from './voice-tutor.service';
 import {
   VOICE_TUTOR_TOPICS_BY_LANGUAGE,
@@ -53,9 +54,10 @@ export class VoiceTutorController {
     private readonly audio: VoiceTutorAudioService,
   ) {}
 
+  /** targetLanguage only picks the language of each voice's preview clip. */
   @Get('options')
-  options() {
-    return this.tutor.options();
+  options(@Query('targetLanguage') targetLanguage?: string) {
+    return this.tutor.options(tutorTargetLanguage(targetLanguage));
   }
 
   /** 오늘·이번 달 남은 시간. 설정 화면이 시작 전에 보여 준다 */
@@ -180,6 +182,28 @@ export class VoiceTutorController {
     @Param('id') id: string,
   ) {
     const data = await this.audio.read(request.user._id.toString(), id);
+    return new StreamableFile(data, {
+      type: 'audio/mpeg',
+      length: data.length,
+    });
+  }
+}
+
+/**
+ * Public on purpose: a media element plays this URL directly, and installed
+ * apps can only send their saved previewUrl. Each voice × course is synthesized
+ * once and cached, so hitting it repeatedly costs nothing.
+ */
+@Controller('voice-tutor/voices')
+@UseGuards(RateLimitGuard)
+export class VoiceTutorVoicePreviewController {
+  constructor(private readonly previews: VoiceTutorVoicePreviewService) {}
+
+  @Get(':id/preview')
+  @RateLimit({ windowMs: 60_000, max: 30 })
+  @Header('Cache-Control', 'public, max-age=86400')
+  async preview(@Param('id') id: string, @Query('target') target?: string) {
+    const data = await this.previews.preview(id, tutorTargetLanguage(target));
     return new StreamableFile(data, {
       type: 'audio/mpeg',
       length: data.length,

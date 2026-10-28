@@ -6,6 +6,7 @@ import {
   useAudioPlayer,
   useAudioPlayerStatus,
 } from "expo-audio";
+import { BASE_URL } from "@/services/api";
 import { activatePlaybackAudio } from "@/utils/audio-session";
 import {
   connectLiveKitTutor,
@@ -112,7 +113,7 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
     setError(null);
     try {
       const [available, saved] = await Promise.all([
-        VoiceTutorApi.options(),
+        VoiceTutorApi.options(target),
         VoiceTutorApi.settings(target),
       ]);
       if (!mounted.current) return;
@@ -226,7 +227,9 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
     let uri: string;
     try {
       const url = new URL(voice.previewUrl);
-      if (url.protocol !== "https:" || url.username || url.password) throw new Error();
+      // 미리듣기는 우리 API 가 만든다 — 개발용 API 는 http 라 그 주소만 허용
+      const ownApi = url.toString().startsWith(`${BASE_URL.replace(/\/+$/, "")}/`);
+      if ((url.protocol !== "https:" && !ownApi) || url.username || url.password) throw new Error();
       uri = url.toString();
     } catch {
       setError("INVALID_AUDIO_URL");

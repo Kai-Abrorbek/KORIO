@@ -114,6 +114,11 @@ export function TutorSetup(p: TutorSetupProps) {
   const levels = p.options.koreanLevels ?? ["beginner", "intermediate", "advanced"];
 
   const voice = voices.find((item) => item.id === p.settings.voiceId) ?? null;
+  // 독설 성격인데 밋밋한 목소리를 골랐으면, 웃긴 목소리가 있다는 걸 알려 준다
+  const suggestFunVoice =
+    (p.settings.personality === "savage" || p.settings.personality === "chaotic_savage") &&
+    voices.some((item) => item.fun) &&
+    !voice?.fun;
   const topic = topics?.find((item) => item.id === topicId) ?? null;
   const exhausted = Boolean(p.quota && p.quota.allowedSec <= 0);
   const canStart = Boolean(voice) && !p.busy && !exhausted;
@@ -246,6 +251,20 @@ export function TutorSetup(p: TutorSetupProps) {
                         {selected ? <MobileIcon name="checkmark-circle" size={15} /> : null}
                       </span>
                       {item.description ? <small data-no-translate="">{item.description}</small> : null}
+                      {item.fun || item.tags?.length ? (
+                        <span className={styles.teacherTags}>
+                          {item.fun ? (
+                            <span className={styles.teacherFun} data-i18n="voiceTutor.setup.funVoice">
+                              Kulgili
+                            </span>
+                          ) : null}
+                          {(item.tags ?? []).slice(0, item.fun ? 1 : 2).map((tag) => (
+                            <span className={styles.teacherTag} data-no-translate="" key={tag}>
+                              {tag}
+                            </span>
+                          ))}
+                        </span>
+                      ) : null}
                     </button>
                     {/* 샘플이 없으면 버튼을 아예 안 그린다. 눌러도 아무 일 없는 버튼이 제일 나쁘다 */}
                     {item.previewUrl ? (
@@ -266,6 +285,11 @@ export function TutorSetup(p: TutorSetupProps) {
               })}
             </div>
           )}
+          {suggestFunVoice ? (
+            <p className={styles.sectionHint} data-i18n="voiceTutor.setup.funVoiceHint">
+              Keskin ustozga kulgili ovoz juda mos keladi.
+            </p>
+          ) : null}
         </section>
 
         {/* ── 3. 말투 ── 성격과 독립이다 */}

@@ -3075,6 +3075,8 @@ export default {
       subtitle: "Dars uslubini tanlang.",
       languageTitle: "Qaysi tilda o'rganasiz?",
       teacherTitle: "Ustoz",
+      funVoice: "Kulgili",
+      funVoiceHint: "Keskin ustozga kulgili ovoz juda mos keladi.",
       addressTitle: "Ustoz sizga qanday murojaat qilsin?",
       politeExample: "좋아요, 다시 한번 해볼까요?",
       casualExample: "좋아, 다시 한번 해보자!",

@@ -2996,6 +2996,8 @@ export default {
       subtitle: "Choose how you'd like today's lesson.",
       languageTitle: "Which language should the lesson be in?",
       teacherTitle: "Teacher",
+      funVoice: "Funny",
+      funVoiceHint: "A funny voice suits the savage tutor best.",
       addressTitle: "How should the teacher talk to you?",
       politeExample: "좋아요, 다시 한번 해볼까요?",
       casualExample: "좋아, 다시 한번 해보자!",

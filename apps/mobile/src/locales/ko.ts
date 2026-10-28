@@ -3007,6 +3007,8 @@ export default {
       subtitle: "수업 방식을 골라주세요.",
       languageTitle: "어떤 언어로 배울까요?",
       teacherTitle: "선생님",
+      funVoice: "웃긴 목소리",
+      funVoiceHint: "독설 선생님에겐 웃긴 목소리가 잘 어울려요.",
       addressTitle: "선생님이 나에게 어떻게 말할까요?",
       politeExample: "좋아요, 다시 한번 해볼까요?",
       casualExample: "좋아, 다시 한번 해보자!",

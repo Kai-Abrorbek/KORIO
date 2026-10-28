@@ -24,6 +24,7 @@ import {
   VOICE_TUTOR_LANGUAGES,
   VOICE_TUTOR_STYLES,
   tutorLanguageEnabled,
+  voicePreviewUrl,
   voiceTutorVoices,
   type TutorTargetLanguage,
 } from '../voice-tutor.config';
@@ -78,7 +79,7 @@ export class VoiceTutorProfileService {
     private readonly progress: Model<VoiceTutorProgressDocument>,
   ) {}
 
-  options() {
+  options(targetLanguage: TutorTargetLanguage = 'ko') {
     const voices = voiceTutorVoices();
     return {
       voices: voices.map((voice) => ({
@@ -86,13 +87,17 @@ export class VoiceTutorProfileService {
         name: voice.name,
         gender: voice.gender,
         description: voice.description,
-        previewUrl: voice.previewUrl,
+        previewUrl: voicePreviewUrl(voice, targetLanguage),
         supportedLanguages: voice.supportedLanguages,
+        tags: voice.tags ?? [],
+        fun: voice.fun ?? false,
         enabled: voice.enabled,
       })),
       explanationLanguages: VOICE_TUTOR_LANGUAGES.map((id) => ({
         id,
-        name: { en: 'English', ru: 'Русский', uz: 'O‘zbekcha', ko: '한국어' }[id],
+        name: { en: 'English', ru: 'Русский', uz: 'O‘zbekcha', ko: '한국어' }[
+          id
+        ],
         enabled: tutorLanguageEnabled(id),
       })),
       speechStyles: [...VOICE_TUTOR_STYLES],

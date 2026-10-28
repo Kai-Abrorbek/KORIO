@@ -7,6 +7,10 @@ export interface VoiceTutorVoice {
   gender?: string;
   previewUrl?: string | null;
   supportedLanguages?: string[];
+  /** ElevenLabs 라벨에서 온 짧은 특징 ("playful", "young") */
+  tags?: string[];
+  /** 웃기고 리액션이 큰 목소리 — 독설 성격과 잘 맞는다 */
+  fun?: boolean;
   enabled?: boolean;
 }
 

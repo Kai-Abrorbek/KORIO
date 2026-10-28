@@ -3070,6 +3070,8 @@ export default {
       subtitle: "Выберите формат занятия.",
       languageTitle: "На каком языке вести урок?",
       teacherTitle: "Преподаватель",
+      funVoice: "Весёлый",
+      funVoiceHint: "Острому учителю лучше всего подходит весёлый голос.",
       addressTitle: "Как преподаватель будет обращаться к вам?",
       politeExample: "좋아요, 다시 한번 해볼까요?",
       casualExample: "좋아, 다시 한번 해보자!",

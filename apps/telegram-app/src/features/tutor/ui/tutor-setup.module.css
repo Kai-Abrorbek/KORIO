@@ -297,6 +297,37 @@
   transform: scale(0.92);
 }
 
+/* 목소리 특징 — ElevenLabs 라벨. 웃긴 목소리는 색 배지 */
+.teacherTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 20px;
+}
+
+.teacherTag,
+.teacherFun {
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 18px;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.teacherTag {
+  background: color-mix(in srgb, var(--muted) 14%, transparent);
+  color: var(--muted);
+}
+
+.teacherFun {
+  background: color-mix(in srgb, var(--teacher) 18%, transparent);
+  color: var(--teacher);
+}
+
 /* ── 말투 ── */
 .addressRow {
   display: flex;

@@ -8,6 +8,10 @@ export interface VoiceTutorVoice {
   gender?: string;
   previewUrl?: string | null;
   supportedLanguages?: string[];
+  /** ElevenLabs 라벨에서 온 짧은 특징 ("playful", "young") */
+  tags?: string[];
+  /** 웃기고 리액션이 큰 목소리 — 독설 성격과 잘 맞는다 */
+  fun?: boolean;
   enabled?: boolean;
 }
 
@@ -164,7 +168,9 @@ export const VoiceTutorApi = {
     api.get<{ topics: VoiceTutorTopicCard[] }>(
       `/voice-tutor/topics?lang=${encodeURIComponent(lang)}&targetLanguage=${target}`,
     ),
-  options: () => api.get<VoiceTutorOptions>("/voice-tutor/options"),
+  // targetLanguage 는 목소리 미리듣기를 배우는 언어로 만들게 할 뿐이다
+  options: (target: VoiceTutorTarget = "ko") =>
+    api.get<VoiceTutorOptions>(`/voice-tutor/options?targetLanguage=${target}`),
   // 목소리·성격·말투는 튜터 공통, 수업 언어·수준은 배우는 언어마다 따로 저장된다
   settings: (target: VoiceTutorTarget = "ko") =>
     api.get<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`),

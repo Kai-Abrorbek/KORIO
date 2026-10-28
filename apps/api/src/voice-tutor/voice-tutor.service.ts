@@ -103,8 +103,8 @@ export class VoiceTutorService {
     return this.quota.getQuota(userId);
   }
 
-  options() {
-    return this.profile.options();
+  options(targetLanguage: TutorTargetLanguage = 'ko') {
+    return this.profile.options(targetLanguage);
   }
   settings(userId: string, targetLanguage?: TutorTargetLanguage) {
     return this.profile.getSettings(userId, targetLanguage);

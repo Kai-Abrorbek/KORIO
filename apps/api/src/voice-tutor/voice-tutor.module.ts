@@ -39,7 +39,10 @@ import { VoiceTutorAudioService } from './voice-tutor-audio.service';
 import {
   VoiceTutorAgentController,
   VoiceTutorController,
+  VoiceTutorVoicePreviewController,
 } from './voice-tutor.controller';
+import { VoiceTutorVoiceCatalogService } from './voices/voice-tutor-voice-catalog.service';
+import { VoiceTutorVoicePreviewService } from './voices/voice-tutor-voice-preview.service';
 import { VoiceTutorService } from './voice-tutor.service';
 import { VoiceTutorQuotaService } from './voice-tutor-quota.service';
 import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service';
@@ -57,7 +60,11 @@ import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service'
       { name: VoiceTutorAudio.name, schema: VoiceTutorAudioSchema },
     ]),
   ],
-  controllers: [VoiceTutorController, VoiceTutorAgentController],
+  controllers: [
+    VoiceTutorController,
+    VoiceTutorAgentController,
+    VoiceTutorVoicePreviewController,
+  ],
   providers: [
     VoiceTutorService,
     VoiceTutorQuotaService,
@@ -65,6 +72,8 @@ import { VoiceTutorLiveKitService } from './livekit/voice-tutor-livekit.service'
     VoiceTutorAgentsService,
     VoiceTutorAudioService,
     VoiceTutorLiveKitService,
+    VoiceTutorVoiceCatalogService,
+    VoiceTutorVoicePreviewService,
     OpenAiSttProvider,
     OpenAiTutorLlmProvider,
     ElevenLabsTutorTtsProvider,

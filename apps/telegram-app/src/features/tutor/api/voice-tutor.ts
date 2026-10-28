@@ -32,8 +32,9 @@ export const VoiceTutorApi = {
     request<{ topics: VoiceTutorTopicCard[] }>(
       `/voice-tutor/topics?lang=${encodeURIComponent(getContentLang())}&targetLanguage=${target}`,
     ),
-  options: (request: AuthenticatedRequest) =>
-    request<VoiceTutorOptions>("/voice-tutor/options"),
+  // targetLanguage 는 목소리 미리듣기를 배우는 언어로 만들게 할 뿐이다
+  options: (request: AuthenticatedRequest, target: VoiceTutorTarget = "ko") =>
+    request<VoiceTutorOptions>(`/voice-tutor/options?targetLanguage=${target}`),
   // 목소리·성격·말투는 튜터 공통, 수업 언어·수준은 배우는 언어마다 따로 저장된다
   settings: (request: AuthenticatedRequest, target: VoiceTutorTarget = "ko") =>
     request<VoiceTutorSettings>(`/voice-tutor/settings?targetLanguage=${target}`),

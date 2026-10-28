@@ -214,6 +214,9 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
                     description={v.description}
                     color={VOICE_COLORS[i % VOICE_COLORS.length]}
                     hasPreview={!!v.previewUrl}
+                    fun={!!v.fun}
+                    tags={v.tags ?? []}
+                    funLabel={t("voiceTutor.setup.funVoice")}
                     selected={v.id === p.settings.voiceId}
                     previewing={p.previewVoiceId === v.id}
                     onSelect={() => p.onChange("voiceId", v.id)}
@@ -224,6 +227,13 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
               ))}
             </ScrollView>
           )}
+          {/* 독설 성격인데 밋밋한 목소리를 골랐으면, 웃긴 목소리가 있다는 걸 알려 준다 */}
+          {(p.settings.personality === "savage" ||
+            p.settings.personality === "chaotic_savage") &&
+            voices.some((v) => v.fun) &&
+            !voice?.fun && (
+              <Text style={s.sectionHint}>{t("voiceTutor.setup.funVoiceHint")}</Text>
+            )}
         </Section>
 
         {/* ── 3. 말투 ── 성격과 독립이다 */}
@@ -490,6 +500,9 @@ function TeacherChip({
   description,
   color,
   hasPreview,
+  fun,
+  tags,
+  funLabel,
   selected,
   previewing,
   onSelect,
@@ -500,6 +513,9 @@ function TeacherChip({
   description?: string;
   color: string;
   hasPreview: boolean;
+  fun: boolean;
+  tags: string[];
+  funLabel: string;
   selected: boolean;
   previewing: boolean;
   onSelect: () => void;
@@ -537,6 +553,24 @@ function TeacherChip({
       <Text style={s.teacherDesc} numberOfLines={2}>
         {description ?? ""}
       </Text>
+      {/* 목소리 특징 — ElevenLabs 라벨. 웃긴 목소리는 색 배지 */}
+      {(fun || tags.length > 0) && (
+        <View style={s.teacherTags}>
+          {fun && (
+            <Text
+              style={[s.teacherTag, { backgroundColor: color + "2E", color }]}
+              numberOfLines={1}
+            >
+              {funLabel}
+            </Text>
+          )}
+          {tags.slice(0, fun ? 1 : 2).map((tag) => (
+            <Text key={tag} style={s.teacherTag} numberOfLines={1}>
+              {tag}
+            </Text>
+          ))}
+        </View>
+      )}
       {/* 미리듣기 파일이 없으면 버튼을 아예 안 그린다 */}
       {hasPreview && (
         <Pressable
@@ -701,6 +735,23 @@ const styles = (theme: ThemeColors) =>
       fontWeight: "500",
       color: theme.textSecondary,
       minHeight: 30,
+    },
+    teacherTags: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 4,
+      marginTop: 5,
+    },
+    teacherTag: {
+      fontSize: 10.5,
+      lineHeight: 18,
+      fontWeight: "700",
+      paddingHorizontal: 7,
+      borderRadius: 9,
+      overflow: "hidden",
+      maxWidth: "100%",
+      color: theme.textSecondary,
+      backgroundColor: theme.textSecondary + "24",
     },
     teacherPlay: {
       position: "absolute",
