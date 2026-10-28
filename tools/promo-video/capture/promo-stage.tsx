@@ -31,6 +31,7 @@ import { CourseCategoriesScreen } from "../../src/features/learning/ui/course-ca
 import { StatsScreen } from "../../src/features/stats/ui/stats-screen";
 import { QuestsScreen } from "../../src/features/retention/ui/quests-screen";
 import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pronunciation-quiz-screen";
+import { RoadmapScreen } from "../../src/features/roadmap/ui/roadmap-screen";
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
@@ -163,7 +164,15 @@ function Scene({ name }: { name: string }): ReactNode {
       return <StickersScreen />;
     case "home":
     case "hangulTour":
+    case "vocabTour":
       return <HomeScreen />;
+    case "vocabMap":
+      // ?category=vocabulary
+      return <RoadmapScreen />;
+    case "vocabMatch":
+    case "vocabBuilder":
+      // ?lessonId=promo&category=vocabulary
+      return <LessonScreen />;
     case "categories":
       return <CourseCategoriesScreen />;
     case "stats":

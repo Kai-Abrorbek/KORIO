@@ -143,6 +143,15 @@ export function mocksFor(scene) {
       return [...common, ...homeMocks(), hangulProgress(12)];
     case "hangulGames":
       return [...common, hangulProgress(12)];
+    // 어휘(Lug'at) 사용법: 홈 → 학습 카드 → 로드맵 / 로드맵에서 노드 · 상자 · 건너뛰기 / 문제 유형
+    case "vocabTour":
+      return [...common, ...homeMocks(), ...vocabMocks()];
+    case "vocabMap":
+      return [...common, ...vocabMocks()];
+    case "vocabMatch":
+      return [...common, ...lessonMocks([WORD_MATCHING])];
+    case "vocabBuilder":
+      return [...common, ...lessonMocks([SENTENCE_BUILDER])];
     case "avatar":
       return [
         ...common,
@@ -259,6 +268,95 @@ const SPEAKING = {
   answerTranslation: "Bu juda mazali",
   xpReward: 10,
 };
+
+const WORD_MATCHING = {
+  id: "promo-q3",
+  type: "word_matching",
+  level: "beginner",
+  question: "Koreyscha so'z va ma'nosini moslang",
+  answer: "",
+  pairs: [
+    { korean: "안녕하세요", native: "Salom" },
+    { korean: "학생", native: "Talaba" },
+    { korean: "선생님", native: "O'qituvchi" },
+    { korean: "의사", native: "Shifokor" },
+  ],
+  xpReward: 15,
+};
+
+const SENTENCE_BUILDER = {
+  id: "promo-q4",
+  type: "sentence_builder",
+  level: "beginner",
+  question: "Eshitgan gapingizni yig'ing",
+  audioText: "저는 학생이에요",
+  answer: "저는 학생이에요",
+  answerTranslation: "Men talabaman",
+  options: ["학생이에요", "의사예요", "저는", "선생님"],
+  xpReward: 15,
+};
+
+/**
+ * 어휘 로드맵 — 1단원 끝(전설 노드 하나 · 받을 상자), 2단원 진행 중(Dars 2/5), 3·4단원 잠김(3단원 첫 노드는 건너뛰기 시험)
+ * 상자 · 점수 배지는 화면(prepareRoadmapUnits)이 끼운다.
+ */
+function vocabRoadmap() {
+  const unit = (n, title, status, nodes) => ({ id: `u${n}`, unitNumber: n, sectionNumber: 1, title, status, color: "", scoreValue: n, nodes });
+  const node = (id, type, title, status, done, total, extra = {}) => ({ id, type, title, status, completedLessons: done, totalLessons: total, lessonId: "promo", xpReward: 10, ...extra });
+  return {
+    currentSection: 1,
+    score: 1,
+    pendingChests: 1,
+    nextSection: { sectionNumber: 2, title: "Kundalik hayot", description: "Kun tartibi, vaqt va joylar", firstUnitNumber: 9 },
+    units: [
+      unit(1, "Salomlashish", "completed", [
+        node("n11", "star", "Salom!", "completed", 4, 4, { legendCompleted: true }),
+        node("n12", "headphone", "Tanishuv", "completed", 4, 4),
+        node("n13", "speech", "Millatlar", "completed", 4, 4),
+        node("n14", "star", "Kasblar", "completed", 4, 4),
+        node("n15", "headphone", "Ha va yo'q", "completed", 4, 4),
+        node("n16", "star", "Takrorlash", "completed", 4, 4),
+      ]),
+      unit(2, "Oila", "current", [
+        node("n21", "star", "Oila a'zolari", "completed", 5, 5),
+        node("n22", "speech", "Bu kim?", "completed", 5, 5),
+        node("n23", "headphone", "Mening oilam", "current", 2, 5),
+        node("n24", "star", "Yosh", "locked", 0, 5),
+        node("n25", "speech", "Uy", "locked", 0, 5),
+        node("n26", "star", "Takrorlash", "locked", 0, 5),
+      ]),
+      unit(3, "Taomlar", "locked", [
+        node("n31", "star", "Ovqatlar", "locked", 0, 5),
+        node("n32", "headphone", "Restoranda", "locked", 0, 5),
+        node("n33", "speech", "Mazali!", "locked", 0, 5),
+        node("n34", "star", "Takrorlash", "locked", 0, 5),
+      ]),
+      unit(4, "Kun tartibi", "locked", [
+        node("n41", "star", "Ertalab", "locked", 0, 5),
+        node("n42", "headphone", "Vaqt", "locked", 0, 5),
+        node("n43", "star", "Takrorlash", "locked", 0, 5),
+      ]),
+    ],
+  };
+}
+
+function vocabMocks() {
+  return [
+    { pattern: "^/users/me/learn-mode", method: "PATCH", body: { learnMode: "vocabulary", topikLevel: "1", learnCourse: "ko" } },
+    { pattern: "^/lessons/roadmap", body: vocabRoadmap() },
+    {
+      pattern: "^/lessons/score",
+      body: {
+        completedUnits: 1, nextScore: 2, progress: 0.4, score: 1,
+        milestones: [
+          { section: 1, score: 1, units: 8, firstUnit: 1, progress: 0.4, status: "current", title: "Asoslar" },
+          { section: 2, score: 9, units: 8, firstUnit: 9, progress: 0, status: "locked", title: "Kundalik hayot" },
+        ],
+      },
+    },
+    { pattern: "^/lessons/chests/claim", method: "POST", body: { claimed: 1, gems: 30, totalGems: USER.gems + 30, grade: "gold" } },
+  ];
+}
 
 function lessonMocks(questions) {
   return [

@@ -94,15 +94,22 @@ async function advance(ms) {
   }, virtual);
 }
 
-/** 정해진 시각이 된 누르기를 한다. wait = 진짜 시간으로 기다리기 (가짜 마이크 녹음 등) */
+/**
+ * 정해진 시각이 된 동작을 한다. wait = 진짜 시간으로 기다리기 (가짜 마이크 녹음 등)
+ *   { click: "선택자" }   { tap: [x, y] } (앱 css px — 글자 없는 버튼)   { wheel: dy, x?, y? } (스크롤)
+ */
 const pending = [...actions].sort((a, b) => a.at - b.at);
 async function runActions() {
   while (pending.length && pending[0].at <= virtual) {
     const action = pending.shift();
     try {
-      await page.click(action.click, { timeout: 4000, force: true });
+      if (action.tap) await page.mouse.click(action.tap[0], action.tap[1]);
+      else if (action.wheel !== undefined) {
+        await page.mouse.move(action.x ?? VIEW.width / 2, action.y ?? VIEW.height / 2);
+        await page.mouse.wheel(0, action.wheel);
+      } else await page.click(action.click, { timeout: 4000, force: true });
     } catch (error) {
-      console.error("action failed:", action.click, String(error.message).split("\n")[0]);
+      console.error("action failed:", action.click ?? action.tap ?? action.wheel, String(error.message).split("\n")[0]);
     }
     if (action.wait) await page.waitForTimeout(action.wait);
   }
