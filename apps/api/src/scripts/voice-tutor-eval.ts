@@ -241,8 +241,10 @@ async function main() {
   const firstWords = replies.flatMap(({ firstWordMs }) =>
     firstWordMs === undefined ? [] : [firstWordMs],
   );
+  // "Qaysi ovqatni yoqtirasan? Koreyscha ayt!" 도 질문이다 — 끝 15글자만 보면
+  // 뒤에 붙은 "koreyscha ayt" 때문에 질문을 "따라 해" 로 셌다
   const questions = replies.filter(({ reply }) =>
-    /[?？]/.test(reply.displayText.slice(-15)),
+    /[?？]/.test(reply.displayText.slice(-60)),
   );
   const sameOpen = repeatsInARow(replies, ({ reply }) =>
     reply.speechText.trim().split(/\s+/)[0]?.toLowerCase(),
