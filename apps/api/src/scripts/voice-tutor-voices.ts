@@ -110,12 +110,34 @@ async function call(path: string, init: RequestInit = {}): Promise<Response> {
     signal: AbortSignal.timeout(30_000),
   });
   if (!response.ok) {
-    const body = (await response.text().catch(() => '')).slice(0, 200);
+    const body = await response.text().catch(() => '');
+    const permission = /missing the permission (\w+)/.exec(body)?.[1];
+    if (permission) throw new MissingPermission(permission);
     throw new Error(
-      `ElevenLabs ${path.split('?')[0]} → HTTP ${response.status} ${body}`,
+      `ElevenLabs ${path.split('?')[0]} → HTTP ${response.status} ${body.slice(0, 200)}`,
     );
   }
   return response;
+}
+
+/**
+ * 제한 키(TTS 만 켠 키)로 돌리면 모든 요청이 같은 이유로 막힌다 — 한 번만,
+ * 어디서 켜는지와 함께 알린다.
+ */
+class MissingPermission extends Error {
+  constructor(readonly permission: string) {
+    const label: Record<string, string> = {
+      voices_read: 'Voices → Read',
+      voices_write: 'Voices → Write',
+      text_to_speech: 'Text to Speech',
+    };
+    super(
+      `ElevenLabs 키에 ${permission} 권한이 없다.\n` +
+        `  ElevenLabs → Developers → API Keys 에서 이 키(또는 새 키)의 권한에 "${label[permission] ?? permission}" 을 켤 것.\n` +
+        '  search·list 는 Voices Read, add 는 Voices Write, try 는 Text to Speech 가 필요하다.\n' +
+        '  서버(api.env)의 키도 Voices Read 가 있어야 목소리 이름·웃긴 목소리 표시를 가져온다.',
+    );
+  }
 }
 
 const text = (value: unknown) =>
@@ -215,6 +237,7 @@ async function search(queries: string[]) {
           // 한국어 검색이 먼저다 — 같은 목소리가 다시 나와도 한국어 샘플을 지킨다
           if (!found.has(voice.voiceId)) found.set(voice.voiceId, voice);
       } catch (error) {
+        if (error instanceof MissingPermission) throw error;
         console.warn(
           `  "${query}"${korean ? ' (한국어)' : ''} 검색 실패: ${(error as Error).message}`,
         );

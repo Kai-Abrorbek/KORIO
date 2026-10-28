@@ -173,7 +173,15 @@ export class VoiceTutorVoiceCatalogService
 
   private async listLegacy(apiKey: string): Promise<ElevenLabsVoiceInfo[]> {
     const response = await this.request(apiKey, `${API}/v1/voices`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      // A key restricted to text-to-speech is the usual cause: say which switch.
+      throw new Error(
+        /missing the permission voices_read/.test(body)
+          ? 'the ElevenLabs key lacks the "Voices: Read" permission (ElevenLabs → Developers → API Keys); configured voices still speak, without names or traits'
+          : `HTTP ${response.status}`,
+      );
+    }
     return parseElevenLabsVoices(await response.json());
   }
 

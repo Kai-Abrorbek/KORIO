@@ -1,4 +1,8 @@
-import { NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Logger,
+  NotFoundException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import type { ElevenLabsTutorTtsProvider } from '../providers/elevenlabs-tts.provider';
 import {
   setElevenLabsVoiceCatalog,
@@ -215,5 +219,27 @@ describe('Voice Tutor voices', () => {
     await expect(previews.preview('nobody', 'ko')).rejects.toBeInstanceOf(
       NotFoundException,
     );
+  });
+
+  it('names the missing key permission instead of a bare 401', async () => {
+    process.env.ELEVENLABS_API_KEY = 'tts-only-key';
+    const warn = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 401,
+        text: () =>
+          Promise.resolve(
+            '{"detail":{"message":"The API key you used is missing the permission voices_read to execute this operation."}}',
+          ),
+      } as Response),
+    ) as typeof fetch;
+    await new VoiceTutorVoiceCatalogService().refresh();
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('"Voices: Read" permission'),
+    );
+    warn.mockRestore();
   });
 });
