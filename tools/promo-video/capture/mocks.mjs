@@ -150,6 +150,9 @@ export function mocksFor(scene) {
       return [...common, ...vocabMocks()];
     case "vocabMatch":
       return [...common, ...lessonMocks([WORD_MATCHING])];
+    // 단어 카드 (So'z kartalari) — ?section=1&unit=1
+    case "wordCards":
+      return [...common, ...wordCardMocks()];
     case "vocabBuilder":
       return [...common, ...lessonMocks([SENTENCE_BUILDER])];
     case "avatar":
@@ -338,6 +341,37 @@ function vocabRoadmap() {
       ]),
     ],
   };
+}
+
+/** 단어 카드 (So'z kartalari) — 1단원 단어 6개 */
+function wordCardMocks() {
+  const word = (i, headword, meaning, romanization, emoji, example, translation) => ({
+    id: `w${i}`, code: `promo-${i}`, courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR",
+    difficulty: 1, headword, meaning, partOfSpeech: "noun", senseKey: "", tags: [], usageNote: "",
+    media: { emoji, imageAlt: meaning, imageUrl: "" },
+    pronunciation: { hangul: headword, romanization, ttsText: headword },
+    examples: [{ korean: example, translation }],
+    placement: { isCore: true, order: i, section: 1, unit: 1 },
+    progress: { state: i < 2 ? "learning" : "new" },
+  });
+  const items = [
+    word(0, "학생", "talaba", "haksaeng", "🧑‍🎓", "저는 학생이에요.", "Men talabaman."),
+    word(1, "선생님", "o'qituvchi", "seonsaengnim", "👩‍🏫", "선생님, 안녕하세요!", "Ustoz, assalomu alaykum!"),
+    word(2, "의사", "shifokor", "uisa", "🧑‍⚕️", "제 친구는 의사예요.", "Do'stim shifokor."),
+    word(3, "친구", "do'st", "chingu", "🧑‍🤝‍🧑", "친구를 만나요.", "Do'stim bilan uchrashaman."),
+    word(4, "회사원", "ofis xodimi", "hoesawon", "🧑‍💼", "아버지는 회사원이에요.", "Otam ofis xodimi."),
+    word(5, "가수", "qo'shiqchi", "gasu", "🎤", "저는 가수를 좋아해요.", "Men qo'shiqchini yaxshi ko'raman."),
+  ];
+  return [
+    {
+      pattern: "^/words/sections/summary",
+      body: [{ section: 1, unitCount: 8, words: 120, new: 80, learning: 24, review: 10, mastered: 6, due: 5,
+        units: Array.from({ length: 8 }, (_, u) => ({ unit: u + 1, words: 15, new: u ? 15 : 9, learning: u ? 0 : 4, review: u ? 0 : 2, mastered: 0, due: u ? 0 : 2 })) }],
+    },
+    { pattern: "^/words\\?", body: { items, nextCursor: null, total: items.length } },
+    { pattern: "^/words/seen", method: "POST", body: { seen: 1 } },
+    { pattern: "^/words/[^/]+/reviews", method: "POST", body: {} },
+  ];
 }
 
 function vocabMocks() {
