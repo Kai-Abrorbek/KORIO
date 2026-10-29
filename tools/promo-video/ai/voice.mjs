@@ -8,6 +8,8 @@
  *       Azure 한국인 목소리 — 사장님처럼 토박이 발음이 필요할 때.
  *   node ai/voice.mjs sfx "<소리 설명 (영어)>" <초> <결과.mp3>
  *       ElevenLabs 효과음 (식당 소음 같은 배경음)
+ *   node ai/voice.mjs isolate <직접 찍은 소리.wav> <결과.mp3>
+ *       ElevenLabs 목소리 분리 — 방 울림 · 잡음을 걷어 낸다 (직접 찍은 영상의 목소리)
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -64,8 +66,14 @@ if (provider === "eleven") {
     { "xi-api-key": env.ELEVENLABS_API_KEY, "Content-Type": "application/json" },
     JSON.stringify({ text, duration_seconds: Number(seconds), prompt_influence: 0.5 }),
   );
+} else if (provider === "isolate") {
+  const [file, out] = args;
+  outFile = out;
+  const form = new FormData();
+  form.append("audio", new Blob([readFileSync(file)]), file.split(/[\\/]/).pop());
+  audio = await post("https://api.elevenlabs.io/v1/audio-isolation", { "xi-api-key": env.ELEVENLABS_API_KEY }, form);
 } else {
-  console.error('usage: voice.mjs eleven <voiceId> "<text>" <out.mp3> | azure <voice> "<text>" <out.mp3> [--rate -10%] | sfx "<description>" <seconds> <out.mp3>');
+  console.error('usage: voice.mjs eleven <voiceId> "<text>" <out.mp3> | azure <voice> "<text>" <out.mp3> [--rate -10%] | sfx "<description>" <seconds> <out.mp3> | isolate <in> <out.mp3>');
   process.exit(1);
 }
 mkdirSync(dirname(outFile), { recursive: true });
