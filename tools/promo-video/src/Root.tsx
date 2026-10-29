@@ -1,6 +1,7 @@
 import { Composition } from "remotion";
 import { FOUNDER_TOTAL, FounderIntro } from "./edit/FounderIntro";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
+import { TOPIK_TOTAL, TopikCover, TopikStory } from "./topik/TopikStory";
 
 /**
  * 영상은 게시가 끝나면 코드째 지운다 — 새 영상은 여기에 등록하고, 올린 뒤 등록도 함께 뺀다.
@@ -10,6 +11,8 @@ export function Root() {
   return (
     <>
       <Composition component={FounderIntro} durationInFrames={FOUNDER_TOTAL} fps={30} height={1920} id="FounderIntro" width={1080} />
+      <Composition component={TopikStory} durationInFrames={TOPIK_TOTAL} fps={30} height={1920} id="TopikStory" width={1080} />
+      <Composition component={TopikCover} durationInFrames={1} fps={30} height={1920} id="TopikCover" width={1080} />
       <Composition component={IgAvatar} durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgHighlight}

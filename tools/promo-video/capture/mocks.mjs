@@ -156,6 +156,17 @@ export function mocksFor(scene) {
     // 단어 카드 사용법: 홈 → 학습 카드 → So'z kartalari → 범위 · 카드 · 떠올리기
     case "wordsTour":
       return [...common, ...homeMocks(), ...wordCardMocks()];
+    // TOPIK 사용법 — 실제 기출(102회)을 capture/topik-data/render.ts 가 frames/topik-mocks.json 으로 만든다
+    //   topikTour: 홈 → 학습 카드 → TOPIK → TOPIK II → 영역 → 회차 / 나머지는 화면 하나씩 (stage 가 쿼리로 연다)
+    case "topikTour":
+      return [...common, ...homeMocks(), ...topikMocks(scene)];
+    case "topikGuided":
+    case "topikListen":
+    case "topikMock":
+    case "topikResult":
+    case "topikStats":
+    case "topikWriting":
+      return [...common, ...topikMocks(scene)];
     case "vocabBuilder":
       return [...common, ...lessonMocks([SENTENCE_BUILDER])];
     case "avatar":
@@ -625,5 +636,75 @@ function questsMocks(ready) {
         streakGoal: { options: [], streakChest: { everyDays: 7, gems: 30 }, active: null, result: null },
       },
     },
+  ];
+}
+
+/** TOPIK 장면 — 힌트 · 정답 공개는 누를 때마다 다음 응답 (init-script 의 counts · by) */
+function topikMocks(scene) {
+  const file = join(import.meta.dirname, "..", "frames", "topik-mocks.json");
+  if (!existsSync(file)) throw new Error("frames/topik-mocks.json 이 없다 — capture/topik-data/render.ts 를 먼저 돌린다");
+  const d = JSON.parse(readFileSync(file, "utf8"));
+  const listening = scene === "topikListen";
+  const writing = scene === "topikWriting";
+  const mode = scene === "topikMock" ? "mock_exam" : "guided";
+  // 쓰기는 문제 하나(53번, 원고지)만 연다 — 화면이 받은 첫 문제를 보여 준다
+  const only = (s, n) => ({
+    ...s,
+    range: { from: n, to: n },
+    groups: s.groups.filter((g) => g.startNumber <= n && g.endNumber >= n).map((g) => ({ ...g, questions: g.questions.filter((q) => q.number === n) })),
+  });
+  const session = writing ? only(d.writing, 53) : listening ? d.listening.session : d.readingMock;
+  const current = writing ? 53 : listening ? d.listening.number : scene === "topikMock" ? 12 : 5;
+  const attempt = {
+    id: "promo-attempt", examId: session.exam.id, examVersion: 1, mode, status: "in_progress",
+    currentQuestionNumber: current, elapsedSeconds: mode === "mock_exam" ? 754 : 0, answeredCount: 0,
+    answers: [], learningStates: [], startedAt: "2026-10-22T05:00:00.000Z", lastSavedAt: null,
+  };
+  const focus = listening ? d.listening : d.reading;
+  const reveals = focus.learning.map((l) => ({ revealedHintKeys: l.revealedHints.map((h) => h.key), hintViewCount: l.hintViewCount }));
+  const type = (questionType, attempted, correct, sec) => ({
+    questionType, attempted, correct, accuracy: Math.round((correct / attempted) * 100), averageDurationMs: sec * 1000,
+    hintViewCount: Math.round(attempted / 4), solutionViewCount: Math.round(attempted / 6), correctWithoutHintCount: Math.round(correct * 0.8),
+  });
+  const stats = {
+    mockExamCount: 6, practiceCount: 0, guidedCount: 14, totalQuestions: 520, correctQuestions: 382, accuracy: 73,
+    totalStudySeconds: 41 * 3600, correctWithoutHintCount: 301, bestScore: 84, lastScore: 84, averageScore: 71,
+    questionTypes: [
+      type("practical_text_topic", 48, 44, 38), type("grammar_fill_blank", 52, 45, 31), type("passage_content_match", 96, 71, 64),
+      type("sentence_ordering", 36, 22, 72), type("passage_fill_blank", 88, 58, 69), type("headline_interpretation", 30, 16, 55),
+      type("sentence_insertion", 24, 9, 81),
+    ],
+  };
+  const weak = [
+    { questionId: "w1", questionVersion: 1, examRound: 102, questionNumber: 39, questionType: "sentence_insertion", section: "reading", accuracy: 25, consecutiveWrong: 3 },
+    { questionId: "w2", questionVersion: 1, examRound: 96, questionNumber: 27, questionType: "headline_interpretation", section: "reading", accuracy: 40, consecutiveWrong: 2 },
+    { questionId: "w3", questionVersion: 1, examRound: 91, questionNumber: 14, questionType: "sentence_ordering", section: "reading", accuracy: 50, consecutiveWrong: 2 },
+  ];
+  const history = [
+    { attemptId: "promo-attempt", examCode: "topik-ii-reading-102-2025", section: "reading", examRound: 102, mode: "mock_exam", score: 84, accuracy: 84, submittedAt: "2026-10-22T16:40:00.000Z" },
+    { attemptId: "promo-2", examCode: "topik-ii-listening-96-2024", section: "listening", examRound: 96, mode: "mock_exam", score: 72, accuracy: 72, submittedAt: "2026-10-21T16:10:00.000Z" },
+    { attemptId: "promo-3", examCode: "topik-ii-reading-91-2023", section: "reading", examRound: 91, mode: "guided", score: 70, accuracy: 70, submittedAt: "2026-10-20T15:30:00.000Z" },
+  ];
+  return [
+    { pattern: "^/users/me/learn-mode", method: "PATCH", body: { learnMode: "topik", topikLevel: "2", learnCourse: "ko" } },
+    { pattern: "^/topik/exams/completed", body: [] },
+    { pattern: "^/topik/exams(\\?|$)", body: d.exams },
+    { pattern: "^/topik/exams/[^/]+/session", body: session },
+    { pattern: "^/topik/exams/[^/]+/attempts", method: "POST", body: attempt },
+    { pattern: "^/topik/attempts/[^/]+/answers", method: "PATCH", body: { saved: true } },
+    { pattern: `^/topik/attempts/[^/]+/questions/${focus.question}/learning-support`, bodies: focus.learning, by: "hints" },
+    { pattern: "^/topik/attempts/[^/]+/questions/[^/]+/learning-support", body: focus.learning[0] },
+    { pattern: "^/topik/attempts/[^/]+/questions/[^/]+/hints/[^/]+/reveal", method: "POST", counts: "hints", bodies: reveals, by: "hints" },
+    {
+      pattern: "^/topik/attempts/[^/]+/questions/([^/]+)/solution/reveal",
+      method: "POST",
+      body: writing ? d.writingSolutions[session.groups.flatMap((g) => g.questions).find((q) => q.number === 53).id] : focus.solution,
+    },
+    { pattern: "^/topik/attempts/[^/]+/result", body: d.result },
+    { pattern: "^/topik/attempts/[^/]+/submit", method: "POST", body: { celebration: null } },
+    { pattern: "^/topik/attempts/[^/]+(\\?|$)", body: attempt },
+    { pattern: "^/topik/stats/summary", body: stats },
+    { pattern: "^/topik/stats/weak-questions", body: weak },
+    { pattern: "^/topik/stats/history", body: history },
   ];
 }
