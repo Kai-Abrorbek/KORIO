@@ -107,11 +107,11 @@ async function seedExpressions() {
   }
   if (
     scope.targetLanguage === 'ko' &&
-    (EXPRESSION_PACK_SEEDS.length !== 16 ||
-      EXPRESSION_NODE_SEEDS.length !== 96 ||
-      EXPRESSION_SEEDS.length < 1440)
+    (EXPRESSION_PACK_SEEDS.length !== 22 ||
+      EXPRESSION_NODE_SEEDS.length !== 132 ||
+      EXPRESSION_SEEDS.length < 1980)
   ) {
-    throw new Error('Korean expressions need all 16 complete levelled topics');
+    throw new Error('Korean expressions need all 22 complete levelled topics');
   }
   for (const pack of EXPRESSION_PACK_SEEDS) {
     if (
