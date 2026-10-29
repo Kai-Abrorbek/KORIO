@@ -192,6 +192,7 @@ for (const grammar of grammarSeed) {
 const knownGrammar = new Set(grammarSeed.map((grammar) => grammar.code));
 const usedQuestions = new Set<string>();
 const countsByGrammar = new Map<string, { blank: number; build: number }>();
+const trackedGrammarCodes = new Set<string>();
 
 for (const node of nodes) {
   if (scope.targetLanguage !== DEFAULT_TARGET_LANGUAGE) {
@@ -204,6 +205,7 @@ for (const node of nodes) {
   }
   for (const lesson of node.lessons ?? []) {
     const grammarCode = lesson.grammarCode;
+    trackedGrammarCodes.add(grammarCode);
     let grammarFocusBlanks = 0;
     let contextFocusBlanks = 0;
     if (!knownGrammar.has(grammarCode)) {
@@ -322,6 +324,9 @@ for (const node of nodes) {
 
 if (scope.targetLanguage === 'en') {
   for (const grammar of grammarSeed) {
+    // 문법 설명 페이지를 먼저 만들고 문제 트랙을 다음 커밋에서 붙일 수 있다.
+    // 트랙에 등록된 문법은 기존처럼 반드시 빈칸 10 + 조립 10을 만족해야 한다.
+    if (!trackedGrammarCodes.has(grammar.code)) continue;
     const counts = countsByGrammar.get(grammar.code) ?? { blank: 0, build: 0 };
     if (counts.blank !== 10 || counts.build !== 10) {
       fail(
@@ -344,6 +349,16 @@ for (const [section, patterns] of [...bySection.entries()].sort(
   console.log(`   섹션 ${section}  ${patterns.join(' · ')}`);
 }
 console.log(`   트랙 문제 ${usedQuestions.size}개`);
+if (scope.targetLanguage === 'en') {
+  const explanationOnly = grammarSeed.filter(
+    (grammar) => !trackedGrammarCodes.has(grammar.code),
+  );
+  if (explanationOnly.length) {
+    console.log(
+      `   설명 전용 ${explanationOnly.length}개 (문제 트랙은 다음 단계에서 등록)`,
+    );
+  }
+}
 
 for (const warning of warnings) console.warn(`⚠️  ${warning}`);
 if (errors.length) {

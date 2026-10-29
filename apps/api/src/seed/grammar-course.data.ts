@@ -33,6 +33,8 @@ import {
   ENGLISH_GT_S6_NODES,
   ENGLISH_GT_S6_QUESTIONS,
 } from './data/english-grammar/section6';
+import { ENGLISH_GRAMMAR_SEED_S7 } from './data/english-grammar/section7';
+import { ENGLISH_GRAMMAR_SEED_S8 } from './data/english-grammar/section8';
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
@@ -50,6 +52,8 @@ const KOREAN_TRACK = {
 };
 
 const ENGLISH_TRACK = {
+  // Section 7~8은 문법 설명 페이지를 먼저 공개한다. 문제 트랙은 별도 검수 후
+  // 이 목록에 명시적으로 추가해서, 작성 중인 문제가 로드맵에 노출되지 않게 한다.
   nodes: [
     ...ENGLISH_GT_S1_NODES,
     ...ENGLISH_GT_S2_NODES,
@@ -89,6 +93,8 @@ export function getGrammarSeed(
       ...ENGLISH_GRAMMAR_SEED_S4,
       ...ENGLISH_GRAMMAR_SEED_S5,
       ...ENGLISH_GRAMMAR_SEED_S6,
+      ...ENGLISH_GRAMMAR_SEED_S7,
+      ...ENGLISH_GRAMMAR_SEED_S8,
     ] as unknown as GrammarSeedRecord[];
   }
   throw new Error(`No grammar seed registered for ${scope.courseId}`);
