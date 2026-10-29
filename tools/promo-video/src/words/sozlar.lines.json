@@ -1,0 +1,19 @@
+{
+ "id": "sozlar",
+ "lines": {
+  "s01": "Koreys tilidagi beshta soʻz. Siz nechtasini bilasiz?",
+  "a1": "Bu soʻzlarni Korioda yodlang: «Soʻz kartalari»ni oching.",
+  "a2": "Avval boʻlim va unitni tanlang. Har unitda oʻn beshta soʻz bor.",
+  "a3": "Har kartada soʻz, talaffuz, maʼno va misol gap bor.",
+  "a4": "Kartalarni suring. Hammasini koʻrgach, ilova sizni sinaydi.",
+  "a5": "Maʼnosiga qarab koreyschasini yozing — toʻgʻrimi, darhol bilasiz.",
+  "s03": "Izohda yozing: siz nechta soʻzni topdingiz?"
+ },
+ "app": {
+  "app-w1": "사랑해요",
+  "app-w2": "친구",
+  "app-w3": "맛있어요",
+  "app-w4": "괜찮아요",
+  "app-w5": "눈치"
+ }
+}

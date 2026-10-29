@@ -153,6 +153,9 @@ export function mocksFor(scene) {
     // 단어 카드 (So'z kartalari) — ?section=1&unit=1
     case "wordCards":
       return [...common, ...wordCardMocks()];
+    // 단어 카드 사용법: 홈 → 학습 카드 → So'z kartalari → 범위 · 카드 · 떠올리기
+    case "wordsTour":
+      return [...common, ...homeMocks(), ...wordCardMocks()];
     case "vocabBuilder":
       return [...common, ...lessonMocks([SENTENCE_BUILDER])];
     case "avatar":

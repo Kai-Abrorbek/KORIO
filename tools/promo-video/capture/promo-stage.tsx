@@ -166,6 +166,7 @@ function Scene({ name }: { name: string }): ReactNode {
     case "home":
     case "hangulTour":
     case "vocabTour":
+    case "wordsTour":
       return <HomeScreen />;
     case "vocabMap":
       // ?category=vocabulary
