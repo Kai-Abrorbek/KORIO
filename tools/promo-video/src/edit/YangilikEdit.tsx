@@ -7,7 +7,7 @@
  *       voice-mic.wav (ai/voice.mjs isolate 로 방 울림을 걷고 마이크 느낌으로 다듬은 목소리), raw.words.json (단어 시각)
  */
 import type { CSSProperties, ReactNode } from "react";
-import { AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Freeze, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 
 const FPS = 30;
 const W = 1080;
@@ -28,7 +28,9 @@ const at = (raw: number) => Math.round(raw * FPS) - TRIM;
 const DESK_Y = 1600;
 const WHIP = at(22.71) - 12;
 const CTA = at(22.71);
-export const YANGILIK_TOTAL = at(26.0) + 20;
+/** 말이 끝나고 손을 뻗어 녹화를 끄기 직전 — 여기서 화면을 멈추고 내려받기 안내만 조금 더 */
+const LAST = at(26.13);
+export const YANGILIK_TOTAL = LAST + 18;
 
 // ───────────────────────────── 배경: 보라 조명 스튜디오 (사진 없이 그림)
 function rng(seed: number) {
@@ -108,8 +110,10 @@ function Footage() {
   return (
     <AbsoluteFill style={{ transform: `scale(${scale})`, transformOrigin: "50% 62%", filter: blur > 0.3 ? `blur(${blur}px)` : undefined }}>
       <Room />
-      <OffthreadVideo muted src={staticFile("ai/edit2/c.mp4")} style={{ position: "absolute", inset: 0, width: W, height: 1920, clipPath: `inset(${DESK_Y}px 0 0 0)`, filter: "contrast(1.04) saturate(1.05)" }} trimBefore={TRIM} />
-      <OffthreadVideo muted src={staticFile("ai/edit2/c.webm")} style={{ position: "absolute", inset: 0, width: W, height: 1920, filter: "drop-shadow(0 0 26px rgba(255,120,230,0.35)) contrast(1.04) saturate(1.05)" }} transparent trimBefore={TRIM} />
+      <Freeze frame={Math.min(frame, LAST)}>
+        <OffthreadVideo muted src={staticFile("ai/edit2/c.mp4")} style={{ position: "absolute", inset: 0, width: W, height: 1920, clipPath: `inset(${DESK_Y}px 0 0 0)`, filter: "contrast(1.04) saturate(1.05)" }} trimBefore={TRIM} />
+        <OffthreadVideo muted src={staticFile("ai/edit2/c.webm")} style={{ position: "absolute", inset: 0, width: W, height: 1920, filter: "drop-shadow(0 0 26px rgba(255,120,230,0.35)) contrast(1.04) saturate(1.05)" }} transparent trimBefore={TRIM} />
+      </Freeze>
     </AbsoluteFill>
   );
 }
@@ -360,7 +364,7 @@ function Sound() {
   const fx = (n: string) => `ai/edit/sfx-${n}.mp3`;
   return (
     <>
-      <Audio src={staticFile("ai/edit2/voice-mic.wav")} trimBefore={TRIM} volume={1} />
+      <Audio src={staticFile("ai/edit2/voice-mic.wav")} trimBefore={TRIM} volume={(f) => interpolate(f, [LAST - 3, LAST + 3], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" })} />
       {[at(1.39), at(1.91)].map((f) => s(f, fx("pop"), 0.3))}
       {s(at(3.73), fx("whoosh"), 0.25)}
       {s(at(4.09), fx("boom"), 0.35)}
