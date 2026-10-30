@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
-import { AbsoluteFill, Audio, Easing, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Sequence, spring, staticFile, useCurrentFrame } from "remotion";
+import lines from "./voice-lines.json";
+import timing from "./voice-timing.json";
 
 const FPS = 30;
 const W = 1080;
@@ -21,25 +23,26 @@ const FONT = '"Malgun Gothic", "Noto Sans KR", sans-serif';
 const EN = '"Segoe UI Black", "Segoe UI", sans-serif';
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 const ramp = (f: number, at: number, len: number) => clamp((f - at) / len);
-const ease = Easing.bezier(0.22, 1, 0.36, 1);
 
-const chapters = [
-  { key: "hook", voice: "01-hook.mp3", voiceFrames: 114, label: "HOOK" },
-  { key: "lead", voice: "02-lead.mp3", voiceFrames: 144, label: "LEAD" },
-  { key: "body1", voice: "03-body1.mp3", voiceFrames: 206, label: "에" },
-  { key: "loop1", voice: "04-loop1.mp3", voiceFrames: 73, label: "?" },
-  { key: "body2", voice: "05-body2.mp3", voiceFrames: 189, label: "에서" },
-  { key: "loop2", voice: "06-loop2.mp3", voiceFrames: 106, label: "?" },
-  { key: "body3", voice: "07-body3.mp3", voiceFrames: 218, label: "정리" },
-  { key: "cta", voice: "08-cta.mp3", voiceFrames: 125, label: "SEND" },
-] as const;
-type ChapterKey = (typeof chapters)[number]["key"];
-const timeline = chapters.reduce<{ key: ChapterKey; voice: string; label: string; start: number; duration: number; voiceFrames: number }[]>((items, chapter) => {
-  const start = items.at(-1) ? items.at(-1)!.start + items.at(-1)!.duration : 0;
-  items.push({ ...chapter, start, duration: chapter.voiceFrames + 8 });
-  return items;
-}, []);
+type ChapterKey = "hook" | "lead" | "body1" | "loop1" | "body2" | "loop2" | "body3" | "cta";
+type Clip = { id: string; voice: string; subtitle: string; start: number; duration: number };
+type Chapter = { key: ChapterKey; start: number; duration: number; clips: Clip[] };
+const timeline: Chapter[] = [];
+for (const chapter of lines.chapters) {
+  const start = timeline.at(-1) ? timeline.at(-1)!.start + timeline.at(-1)!.duration : 0;
+  let cursor = 4;
+  const clips = chapter.clips.map((clip) => {
+    const duration = (timing as Record<string, number>)[clip.id];
+    if (!duration) throw new Error(`Missing timing for ${clip.id}`);
+    const item = { id: clip.id, voice: clip.voice, subtitle: clip.subtitle, start: start + cursor, duration };
+    cursor += duration + 6;
+    return item;
+  });
+  timeline.push({ key: chapter.key as ChapterKey, start, duration: cursor + 10, clips });
+}
 export const TOTAL_FRAMES = timeline.at(-1)!.start + timeline.at(-1)!.duration;
+const scene = (key: ChapterKey) => timeline.find((item) => item.key === key)!;
+const clipAt = (key: ChapterKey, id: string) => scene(key).clips.find((item) => item.id === id)!.start - scene(key).start;
 
 function M({ at = 0, y = 50, x = 0, scale = 0.94, children, style }: { at?: number; y?: number; x?: number; scale?: number; children: ReactNode; style?: CSSProperties }) {
   const f = useCurrentFrame();
@@ -81,15 +84,27 @@ function Chrome() {
   return (
     <>
       <div style={{ position: "absolute", left: 66, top: 75, fontFamily: EN, fontWeight: 900, fontSize: 42, letterSpacing: -2, color: C.ink }}>KORIO<span style={{ color: C.coral }}>.</span></div>
-      <div style={{ position: "absolute", right: 66, top: 91, fontFamily: EN, fontWeight: 800, fontSize: 23, letterSpacing: 2, color: C.muted }}>KOREAN / 01</div>
+      <div style={{ position: "absolute", right: 66, top: 91, fontFamily: EN, fontWeight: 800, fontSize: 23, letterSpacing: 2, color: C.muted }}>KOREYS TILI / 01</div>
       <div style={{ position: "absolute", left: 66, top: 160, display: "flex", gap: 8 }}>
         {timeline.map((chapter, i) => (
           <div key={chapter.key} style={{ width: 111, height: 9, borderRadius: 12, background: i <= index ? (i % 2 ? C.teal : C.coral) : C.line, transform: `scaleY(${i === index ? 1.5 : 1})`, transition: "none" }} />
         ))}
       </div>
-      <div style={{ position: "absolute", bottom: 102, left: 66, fontFamily: FONT, fontSize: 23, fontWeight: 800, color: C.muted }}>쉬운 한국어 · 장소 조사</div>
+      <div style={{ position: "absolute", bottom: 102, left: 66, fontFamily: EN, fontSize: 23, fontWeight: 800, color: C.muted }}>JOY QOʻSHIMCHALARI · 에 / 에서</div>
       <div style={{ position: "absolute", bottom: 95, right: 68, fontFamily: EN, fontSize: 29, fontWeight: 900, color: C.ink }}>{String(Math.max(1, index + 1)).padStart(2, "0")} / 08</div>
     </>
+  );
+}
+
+function Subtitles() {
+  const frame = useCurrentFrame();
+  const clip = timeline.flatMap((chapter) => chapter.clips).find((item) => frame >= item.start && frame < item.start + item.duration + 4);
+  if (!clip) return null;
+  return (
+    <div style={{ position: "absolute", left: 78, right: 78, bottom: 234, minHeight: 104, borderRadius: 24, padding: "19px 27px 22px", background: C.ink, color: C.white, boxShadow: `9px 10px 0 ${C.purple}`, display: "flex", alignItems: "center", gap: 20 }}>
+      <div style={{ flex: "none", fontFamily: EN, fontWeight: 900, fontSize: 22, color: clip.voice === "ko" ? C.yellow : C.mint }}>{clip.voice === "ko" ? "KO" : "UZ"}</div>
+      <div style={{ fontFamily: FONT, fontWeight: 800, fontSize: 38, lineHeight: 1.3, letterSpacing: -1 }}>{clip.subtitle}</div>
+    </div>
   );
 }
 
@@ -166,17 +181,17 @@ function StudyDesk({ frame }: { frame: number }) {
 
 function Hook() {
   const f = useCurrentFrame();
-  const slash = ramp(f, 44, 12);
   return (
     <>
-      <M at={0} style={{ position: "absolute", left: 72, top: 286 }}><Badge background={C.coral} color={C.white}>잠깐! 이 문장 맞아요?</Badge></M>
-      <M at={10} y={100} style={{ position: "absolute", left: 62, top: 460, width: 956 }}>
-        <div style={{ background: C.white, border: `6px solid ${C.ink}`, borderRadius: 38, padding: "70px 45px 78px", boxShadow: "18px 22px 0 #171C2B", transform: "rotate(-2deg)" }}>
-          <div style={{ fontFamily: FONT, fontWeight: 900, letterSpacing: -8, fontSize: 111, lineHeight: 1.28, color: C.ink }}>카페<span style={{ color: C.coral, position: "relative" }}>에<svg style={{ position: "absolute", left: -7, top: 8, width: 125, height: 120, overflow: "visible" }}><path d="M6 93L118 17" stroke={C.coral} strokeWidth="12" strokeLinecap="round" strokeDasharray="165" strokeDashoffset={165*(1-slash)} /></svg></span><br />공부해요?</div>
+      <M at={0} style={{ position: "absolute", left: 72, top: 290 }}><Badge background={C.yellow} style={{ fontFamily: EN, fontSize: 34 }}>BUGUNGI GRAMMATIKA</Badge></M>
+      <M at={8} y={85} style={{ position: "absolute", left: 70, top: 460, width: 940 }}>
+        <div style={{ background: C.white, border: `6px solid ${C.ink}`, borderRadius: 42, padding: "64px 54px 70px", boxShadow: "18px 22px 0 #171C2B", transform: "rotate(-2deg)" }}>
+          <div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 192, lineHeight: 1.05, color: C.ink }}><span style={{ color: C.teal }}>에</span><span style={{ color: C.line, fontSize: 98, margin: "0 34px" }}>/</span><span style={{ color: C.coral }}>에서</span></div>
+          <div style={{ fontFamily: EN, fontWeight: 900, fontSize: 44, color: C.ink, marginTop: 32 }}>QAYSI BIRINI ISHLATAMIZ?</div>
         </div>
       </M>
-      <M at={53} style={{ position: "absolute", left: 152, top: 1190, transform: "rotate(5deg)" }}><span style={{ fontFamily: FONT, color: C.coral, fontWeight: 900, fontSize: 72 }}>어색하죠?</span></M>
-      <div style={{ position: "absolute", right: 80, bottom: 335, width: 300, height: 300, borderRadius: "50%", border: `16px solid ${C.teal}`, transform: `rotate(${f*0.8}deg)`, opacity: .15 }} />
+      <M at={125} style={{ position: "absolute", left: 98, top: 1130 }}><div style={{ fontFamily: EN, fontWeight: 900, fontSize: 53, lineHeight: 1.25, color: C.ink }}>Bir xil joy.<br /><span style={{ color: C.purple }}>Ikki xil qoʻshimcha.</span></div></M>
+      <div style={{ position: "absolute", right: 110, top: 1230, width: 270, height: 270, borderRadius: "50%", border: `16px solid ${C.teal}`, transform: `rotate(${f*0.8}deg)`, opacity: .15 }} />
     </>
   );
 }
@@ -184,10 +199,10 @@ function Hook() {
 function Lead() {
   return (
     <>
-      <M at={0}><Header eyebrow="THE SIMPLE RULE" title={<>딱 두 질문이면<br /><span style={{ color: C.teal }}>끝나요.</span></>} sub="장소 뒤에 붙는 에 / 에서" /></M>
-      <M at={18} x={-130} style={{ position: "absolute", left: 115, top: 775 }}><div style={{ width: 363, height: 432, borderRadius: 36, background: C.mint, border: `6px solid ${C.ink}`, boxShadow: "14px 18px 0 #171C2B", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: "rotate(-4deg)" }}><span style={{ fontFamily: FONT, fontSize: 150, fontWeight: 900, color: C.teal }}>에</span><span style={{ fontFamily: FONT, fontSize: 39, fontWeight: 800, color: C.ink }}>어디에?</span></div></M>
-      <M at={30} x={130} style={{ position: "absolute", right: 115, top: 775 }}><div style={{ width: 363, height: 432, borderRadius: 36, background: C.peach, border: `6px solid ${C.ink}`, boxShadow: "14px 18px 0 #171C2B", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: "rotate(4deg)" }}><span style={{ fontFamily: FONT, fontSize: 139, fontWeight: 900, color: C.coral }}>에서</span><span style={{ fontFamily: FONT, fontSize: 39, fontWeight: 800, color: C.ink }}>어디에서?</span></div></M>
-      <M at={74} style={{ position: "absolute", left: 206, top: 1380 }}><Badge background={C.yellow} style={{ fontSize: 37, padding: "21px 36px" }}>문장으로 바로 볼게요 ↓</Badge></M>
+      <M at={0}><Header eyebrow="QOIDANI ESLAB QOLING" title={<>Feʼlga qarab<br /><span style={{ color: C.teal }}>tanlang.</span></>} sub="Joy nomidan keyingi qoʻshimcha" /></M>
+      <M at={22} x={-130} style={{ position: "absolute", left: 105, top: 790 }}><div style={{ width: 370, height: 464, borderRadius: 36, background: C.mint, border: `6px solid ${C.ink}`, boxShadow: "14px 18px 0 #171C2B", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: "rotate(-4deg)" }}><span style={{ fontFamily: FONT, fontSize: 150, fontWeight: 900, color: C.teal }}>에</span><span style={{ fontFamily: EN, fontSize: 31, fontWeight: 900, color: C.ink, textAlign: "center", marginTop: 18 }}>BORISH<br />BOR BOʻLISH</span></div></M>
+      <M at={82} x={130} style={{ position: "absolute", right: 105, top: 790 }}><div style={{ width: 370, height: 464, borderRadius: 36, background: C.peach, border: `6px solid ${C.ink}`, boxShadow: "14px 18px 0 #171C2B", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transform: "rotate(4deg)" }}><span style={{ fontFamily: FONT, fontSize: 132, fontWeight: 900, color: C.coral }}>에서</span><span style={{ fontFamily: EN, fontSize: 32, fontWeight: 900, color: C.ink, textAlign: "center", marginTop: 23 }}>ISH QILISH</span></div></M>
+      <M at={150} style={{ position: "absolute", left: 236, top: 1390 }}><Badge background={C.yellow} style={{ fontFamily: EN, fontSize: 32, padding: "20px 32px" }}>MISOLLARNI KOʻRAMIZ ↓</Badge></M>
     </>
   );
 }
@@ -196,24 +211,24 @@ function Body1() {
   const f = useCurrentFrame();
   return (
     <>
-      <M at={0}><Header eyebrow="01 / DESTINATION · LOCATION" accent={C.teal} title={<>가는 곳 · 있는 곳<span style={{ color: C.teal }}> 에</span></>} sub="어디에 가요? 어디에 있어요?" /></M>
-      <M at={12} style={{ position: "absolute", left: 118, top: 590 }}><Cafe progress={ramp(f, 22, 72)} /></M>
-      <M at={73} style={{ position: "absolute", left: 93, top: 1290 }}><div style={exampleCard}><Sentence prefix="카페" particle="에" suffix=" 가요" color={C.teal} /></div></M>
-      <M at={135} style={{ position: "absolute", left: 93, top: 1438 }}><div style={exampleCard}><Sentence prefix="카페" particle="에" suffix=" 있어요" color={C.teal} /></div></M>
+      <M at={0}><Header eyebrow="01 / 에" accent={C.teal} title={<>Manzil yoki<br /><span style={{ color: C.teal }}>qayerda ekansiz</span></>} sub="Boradigan joy · turgan joy" /></M>
+      <M at={12} style={{ position: "absolute", left: 118, top: 600 }}><Cafe progress={ramp(f, 20, 75)} /></M>
+      <M at={clipAt("body1", "ko-cafe-go")} style={{ position: "absolute", left: 93, top: 1280 }}><div style={exampleCard}><Sentence prefix="카페" particle="에" suffix=" 가요" color={C.teal} size={64} /><span style={translation}>Kafega boraman</span></div></M>
+      <M at={clipAt("body1", "ko-cafe-be")} style={{ position: "absolute", left: 93, top: 1425 }}><div style={exampleCard}><Sentence prefix="카페" particle="에" suffix=" 있어요" color={C.teal} size={64} /><span style={translation}>Kafedaman</span></div></M>
     </>
   );
 }
 
-const exampleCard: CSSProperties = { background: C.white, border: `4px solid ${C.ink}`, borderRadius: 25, padding: "18px 36px 26px", boxShadow: "9px 11px 0 #171C2B", minWidth: 780 };
+const exampleCard: CSSProperties = { background: C.white, border: `4px solid ${C.ink}`, borderRadius: 25, padding: "13px 32px 17px", boxShadow: "9px 11px 0 #171C2B", minWidth: 780, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 15 };
+const translation: CSSProperties = { fontFamily: EN, fontWeight: 800, fontSize: 29, color: C.muted, maxWidth: 240, textAlign: "right" };
 
 function Loop1() {
   const f = useCurrentFrame();
   return (
     <>
-      <M at={0} style={{ position: "absolute", left: 66, top: 342 }}><Badge background={C.yellow} style={{ fontSize: 32 }}>잠깐, 하나 더!</Badge></M>
-      <M at={7} style={{ position: "absolute", left: 75, top: 520, width: 930 }}><div style={{ fontFamily: FONT, fontWeight: 900, fontSize: 95, lineHeight: 1.28, letterSpacing: -6, color: C.ink }}>그럼 카페에서<br /><span style={{ color: C.coral }}>공부할 때는?</span></div></M>
-      <M at={14} style={{ position: "absolute", left: 120, top: 930, transform: `scale(${1 + ramp(f,20,60)*0.12})` }}><StudyDesk frame={f} /></M>
-      <div style={{ position: "absolute", left: 456, bottom: 266, fontFamily: EN, fontSize: 88, fontWeight: 900, color: C.coral, transform: `rotate(${Math.sin(f*.15)*8}deg)` }}>?</div>
+      <M at={0} style={{ position: "absolute", left: 72, top: 324 }}><Badge background={C.yellow} style={{ fontFamily: EN, fontSize: 31 }}>LEKIN...</Badge></M>
+      <M at={7} style={{ position: "absolute", left: 72, top: 500, width: 940 }}><div style={{ fontFamily: EN, fontWeight: 900, fontSize: 83, lineHeight: 1.26, letterSpacing: -3, color: C.ink }}>Kafeda <span style={{ color: C.coral }}>dars qilsam</span><br />qaysi qoʻshimcha?</div></M>
+      <M at={14} style={{ position: "absolute", left: 120, top: 850 }}><StudyDesk frame={f} /></M>
     </>
   );
 }
@@ -222,10 +237,10 @@ function Body2() {
   const f = useCurrentFrame();
   return (
     <>
-      <M at={0}><Header eyebrow="02 / ACTION" accent={C.coral} title={<>행동하는 곳<span style={{ color: C.coral }}> 에서</span></>} sub="어디에서 공부해요?" /></M>
-      <M at={10} style={{ position: "absolute", left: 110, top: 635 }}><StudyDesk frame={f} /></M>
-      <M at={74} style={{ position: "absolute", left: 93, top: 1370 }}><div style={exampleCard}><Sentence prefix="카페" particle="에서" suffix=" 공부해요" color={C.coral} size={60} /></div></M>
-      <M at={123} style={{ position: "absolute", left: 120, top: 1570 }}><Badge background={C.peach} color={C.coral}>공부하다 = 행동</Badge></M>
+      <M at={0}><Header eyebrow="02 / 에서" accent={C.coral} title={<>Shu joyda<br /><span style={{ color: C.coral }}>ish qilasiz</span></>} sub="Oʻqish, ishlash, ovqat yeyish..." /></M>
+      <M at={10} style={{ position: "absolute", left: 110, top: 630 }}><StudyDesk frame={f} /></M>
+      <M at={clipAt("body2", "ko-cafe-study")} style={{ position: "absolute", left: 93, top: 1370 }}><div style={exampleCard}><Sentence prefix="카페" particle="에서" suffix=" 공부해요" color={C.coral} size={56} /></div></M>
+      <M at={clipAt("body2", "uz-study-explain") + 60} style={{ position: "absolute", left: 220, top: 560 }}><Badge background={C.peach} color={C.coral} style={{ fontFamily: EN, fontSize: 30 }}>DARS QILISH = HARAKAT</Badge></M>
     </>
   );
 }
@@ -234,9 +249,9 @@ function Loop2() {
   const f = useCurrentFrame();
   return (
     <>
-      <M at={0}><Header eyebrow="ONE PLACE, TWO PARTICLES" title={<>같은 카페인데<br /><span style={{ color: C.purple }}>둘 다 될까요?</span></>} /></M>
+      <M at={0}><Header eyebrow="BIR XIL JOY" title={<>Bir joyda<br /><span style={{ color: C.purple }}>ikkalasi ham?</span></>} sub="Kafe bir xil. Feʼl-chi?" /></M>
       <M at={19} style={{ position: "absolute", left: 84, top: 735 }}><div style={{ width: 910, height: 640, borderRadius: 55, background: C.white, border: `6px solid ${C.ink}`, boxShadow: "17px 20px 0 #171C2B", display: "flex", alignItems: "center", justifyContent: "center", gap: 70 }}><span style={{ fontFamily: FONT, fontWeight: 900, fontSize: 230, color: C.teal, transform: `rotate(${-8 + Math.sin(f*.08)*5}deg)` }}>에</span><span style={{ fontFamily: EN, fontWeight: 900, fontSize: 100, color: C.line }}>+</span><span style={{ fontFamily: FONT, fontWeight: 900, fontSize: 205, color: C.coral, transform: `rotate(${8 - Math.sin(f*.08)*5}deg)` }}>에서</span></div></M>
-      <M at={55} style={{ position: "absolute", left: 300, top: 1490 }}><Badge background={C.yellow} style={{ fontSize: 38 }}>정답은 다음 장면에 →</Badge></M>
+      <M at={60} style={{ position: "absolute", left: 290, top: 1410 }}><Badge background={C.yellow} style={{ fontFamily: EN, fontSize: 31 }}>JAVOBI HOZIR →</Badge></M>
     </>
   );
 }
@@ -244,15 +259,14 @@ function Loop2() {
 function Body3() {
   return (
     <>
-      <M at={0}><Header eyebrow="THE TAKEAWAY" title={<>장소보다 <span style={{ color: C.purple }}>동사</span>를<br />보세요.</>} sub="같은 카페라도 동작이 달라지면 조사가 달라요" /></M>
-      <M at={19} x={-100} style={{ position: "absolute", left: 65, top: 730 }}><div style={{ ...compareCard, background: C.mint, transform: "rotate(-2deg)" }}><div style={compareLabel}>GO / BE</div><div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 800, color: C.ink, marginTop: 47 }}>가요 · 있어요</div><div style={{ marginTop: 48 }}><Sentence prefix="카페" particle="에" suffix=" 가요" color={C.teal} size={67} /></div></div></M>
-      <M at={100} x={100} style={{ position: "absolute", right: 65, top: 1052 }}><div style={{ ...compareCard, background: C.peach, transform: "rotate(2deg)" }}><div style={compareLabel}>DO / ACTION</div><div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 800, color: C.ink, marginTop: 47 }}>공부해요</div><div style={{ marginTop: 48 }}><Sentence prefix="카페" particle="에서" suffix=" 공부해요" color={C.coral} size={59} /></div></div></M>
-      <M at={154} style={{ position: "absolute", left: 145, bottom: 280 }}><Badge background={C.yellow} style={{ fontSize: 36 }}>같은 장소, 다른 동사 ✓</Badge></M>
+      <M at={0}><Header eyebrow="XULOSA" title={<>Joy bir xil.<br /><span style={{ color: C.purple }}>Feʼl boshqacha.</span></>} sub="Qaysi ishni aytayotganingizga qarang" /></M>
+      <M at={clipAt("body3", "ko-cafe-go") - 8} x={-100} style={{ position: "absolute", left: 65, top: 730 }}><div style={{ ...compareCard, background: C.mint, transform: "rotate(-2deg)" }}><div style={compareLabel}>BORAMAN → 에</div><div style={{ marginTop: 54 }}><Sentence prefix="카페" particle="에" suffix=" 가요" color={C.teal} size={67} /></div><div style={{ fontFamily: EN, fontWeight: 800, color: C.ink, fontSize: 35, marginTop: 18 }}>Kafega boraman</div></div></M>
+      <M at={clipAt("body3", "ko-cafe-study") - 8} x={100} style={{ position: "absolute", right: 65, top: 1070 }}><div style={{ ...compareCard, background: C.peach, transform: "rotate(2deg)" }}><div style={compareLabel}>DARS QILAMAN → 에서</div><div style={{ marginTop: 54 }}><Sentence prefix="카페" particle="에서" suffix=" 공부해요" color={C.coral} size={58} /></div><div style={{ fontFamily: EN, fontWeight: 800, color: C.ink, fontSize: 35, marginTop: 18 }}>Kafeda dars qilaman</div></div></M>
     </>
   );
 }
 
-const compareCard: CSSProperties = { width: 825, minHeight: 295, border: `5px solid ${C.ink}`, borderRadius: 34, padding: "35px 48px 48px", boxShadow: "12px 16px 0 #171C2B" };
+const compareCard: CSSProperties = { width: 825, minHeight: 286, border: `5px solid ${C.ink}`, borderRadius: 34, padding: "28px 45px 35px", boxShadow: "12px 16px 0 #171C2B" };
 const compareLabel: CSSProperties = { fontFamily: EN, fontWeight: 900, fontSize: 27, letterSpacing: 3, color: C.muted };
 
 function SendIcon({ progress }: { progress: number }) {
@@ -263,11 +277,10 @@ function CTA() {
   const f = useCurrentFrame();
   return (
     <>
-      <M at={0} style={{ position: "absolute", left: 74, top: 304 }}><Badge background={C.yellow}>오늘의 한 줄 정리</Badge></M>
-      <M at={15} style={{ position: "absolute", left: 78, top: 463 }}><div style={{ fontFamily: FONT, fontSize: 79, fontWeight: 900, lineHeight: 1.4, letterSpacing: -5, color: C.ink }}>가요 · 있어요 <span style={{ color: C.teal }}>→ 에</span><br />공부해요 <span style={{ color: C.coral }}>→ 에서</span></div></M>
-      <M at={25} style={{ position: "absolute", left: 83, top: 863 }}><div style={{ width: 910, background: C.ink, borderRadius: 44, padding: "72px 50px 74px", boxShadow: `18px 20px 0 ${C.purple}` }}><div style={{ fontFamily: FONT, fontSize: 67, fontWeight: 900, lineHeight: 1.35, letterSpacing: -4, color: C.white }}>에 / 에서 헷갈리는<br /><span style={{ color: C.yellow }}>한국어 공부 친구에게</span><br />보내주세요!</div></div></M>
-      <M at={70} style={{ position: "absolute", right: 74, bottom: 260 }}><SendIcon progress={ramp(f, 72, 27)} /></M>
-      <M at={84} style={{ position: "absolute", left: 82, bottom: 330 }}><div style={{ fontFamily: EN, fontWeight: 900, fontSize: 44, color: C.teal }}>KORIO · SAVE & SHARE</div></M>
+      <M at={0} style={{ position: "absolute", left: 74, top: 304 }}><Badge background={C.yellow} style={{ fontFamily: EN, fontSize: 34 }}>TEZKOR XULOSA</Badge></M>
+      <M at={8} style={{ position: "absolute", left: 78, top: 460 }}><div style={{ fontFamily: FONT, fontSize: 79, fontWeight: 900, lineHeight: 1.4, letterSpacing: -5, color: C.ink }}>가요 · 있어요 <span style={{ color: C.teal }}>→ 에</span><br />공부해요 <span style={{ color: C.coral }}>→ 에서</span></div></M>
+      <M at={18} style={{ position: "absolute", left: 83, top: 860 }}><div style={{ width: 910, background: C.ink, borderRadius: 44, padding: "72px 50px 74px", boxShadow: `18px 20px 0 ${C.purple}` }}><div style={{ fontFamily: EN, fontSize: 62, fontWeight: 900, lineHeight: 1.26, letterSpacing: -2, color: C.white }}>Adashtiradigan<br /><span style={{ color: C.yellow }}>doʻstingizga</span><br />yuboring!</div></div></M>
+      <M at={67} style={{ position: "absolute", right: 74, bottom: 270 }}><SendIcon progress={ramp(f, 69, 27)} /></M>
     </>
   );
 }
@@ -287,9 +300,10 @@ export function CafeGrammar() {
         );
       })}
       <Chrome />
-      {timeline.map((chapter) => <Sequence key={`${chapter.key}-voice`} from={chapter.start + 3} durationInFrames={chapter.voiceFrames}><Audio src={staticFile(`grammar/${chapter.voice}`)} volume={1} /></Sequence>)}
-      <Audio src={staticFile("grammar/music-bed.mp3")} volume={0.10} />
-      {[0, 122, 274, 488, 569, 766, 880, 1106].map((at, i) => <Sequence key={`tick-${i}`} from={at} durationInFrames={22}><Audio src={staticFile(i === 0 ? "grammar/sfx-pop.mp3" : "grammar/sfx-whoosh.mp3")} volume={i === 0 ? 0.35 : 0.16} /></Sequence>)}
+      <Subtitles />
+      {timeline.flatMap((chapter) => chapter.clips.map((clip, i) => <Sequence key={`${chapter.key}-${clip.id}-${i}`} from={clip.start} durationInFrames={clip.duration}><Audio src={staticFile(`grammar/${clip.id}.mp3`)} volume={1} /></Sequence>))}
+      <Audio src={staticFile("grammar/music-bed.mp3")} volume={0.08} />
+      {timeline.map((chapter, i) => <Sequence key={`tick-${i}`} from={chapter.start} durationInFrames={22}><Audio src={staticFile(i === 0 ? "grammar/sfx-pop.mp3" : "grammar/sfx-whoosh.mp3")} volume={i === 0 ? 0.3 : 0.12} /></Sequence>)}
     </AbsoluteFill>
   );
 }

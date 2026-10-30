@@ -1,0 +1,76 @@
+{
+  "voices": {
+    "uz": {
+      "id": "rwtcHtZgYU6HN2zLNBlf",
+      "name": "Sarhad Siz - Narrator",
+      "language": "uz",
+      "model": "eleven_v4_turbo",
+      "speed": 1.05
+    },
+    "ko": {
+      "id": "h5eZa8VFAq0EQ8E81dfL",
+      "name": "Yong Gyu - Calm Korean Male Narrator",
+      "language": "ko",
+      "model": "eleven_v4_turbo",
+      "speed": 1
+    }
+  },
+  "chapters": [
+    {
+      "key": "hook",
+      "clips": [
+        { "id": "uz-hook", "voice": "uz", "text": "Bugun koreys tilida joy nomidan keyin keladigan ikkita qoʻshimchani oʻrganamiz: e va eso. Ularni koʻpchilik adashtiradi.", "subtitle": "Bugun: joy qoʻshimchalari 에 va 에서" }
+      ]
+    },
+    {
+      "key": "lead",
+      "clips": [
+        { "id": "uz-lead", "voice": "uz", "text": "Qayerga borasiz yoki qayerda ekansiz? E ishlatiladi. Qayerda biror ish qilasiz? Eso ishlatiladi.", "subtitle": "Borish / boʻlish → 에   ·   ish qilish → 에서" }
+      ]
+    },
+    {
+      "key": "body1",
+      "clips": [
+        { "id": "ko-cafe-go", "voice": "ko", "text": "카페에 가요.", "subtitle": "카페에 가요 · Kafega boraman" },
+        { "id": "uz-go-explain", "voice": "uz", "text": "Kafega boraman. Bu yerda kafe boradigan manzil.", "subtitle": "Kafe — boradigan manzil" },
+        { "id": "ko-cafe-be", "voice": "ko", "text": "카페에 있어요.", "subtitle": "카페에 있어요 · Kafedaman" },
+        { "id": "uz-be-explain", "voice": "uz", "text": "Kafedaman. Bu safar qayerda ekanimni aytyapman.", "subtitle": "Qayerda ekanimni aytyapman" }
+      ]
+    },
+    {
+      "key": "loop1",
+      "clips": [
+        { "id": "uz-loop1", "voice": "uz", "text": "Endi kafeda dars qilsam-chi?", "subtitle": "Endi kafeda dars qilsam-chi?" }
+      ]
+    },
+    {
+      "key": "body2",
+      "clips": [
+        { "id": "ko-cafe-study", "voice": "ko", "text": "카페에서 공부해요.", "subtitle": "카페에서 공부해요 · Kafeda dars qilaman" },
+        { "id": "uz-study-explain", "voice": "uz", "text": "Kafeda dars qilaman. Dars qilish shu joyda bajariladigan harakat. Shuning uchun eso ishlatiladi.", "subtitle": "Dars qilish shu joydagi harakat → 에서" }
+      ]
+    },
+    {
+      "key": "loop2",
+      "clips": [
+        { "id": "uz-loop2", "voice": "uz", "text": "Bir xil kafe bilan ikkala qoʻshimchani ishlatish mumkinmi?", "subtitle": "Bir xil joyda ikkisi ham ishlatiladimi?" }
+      ]
+    },
+    {
+      "key": "body3",
+      "clips": [
+        { "id": "uz-compare-intro", "voice": "uz", "text": "Albatta. Joy bir xil, feʼl boshqacha.", "subtitle": "Joy bir xil. Feʼl boshqacha." },
+        { "id": "ko-cafe-go", "voice": "ko", "text": "카페에 가요.", "subtitle": "카페에 가요 · Kafega boraman" },
+        { "id": "uz-compare-go", "voice": "uz", "text": "Kafega boraman: e.", "subtitle": "Boraman → 에" },
+        { "id": "ko-cafe-study", "voice": "ko", "text": "카페에서 공부해요.", "subtitle": "카페에서 공부해요 · Kafeda dars qilaman" },
+        { "id": "uz-compare-study", "voice": "uz", "text": "Kafeda dars qilaman: eso. Feʼlga qarang.", "subtitle": "Dars qilaman → 에서" }
+      ]
+    },
+    {
+      "key": "cta",
+      "clips": [
+        { "id": "uz-cta", "voice": "uz", "text": "E bilan esoni adashtiradigan doʻstingizga shu videoni yuboring.", "subtitle": "Adashtiradigan doʻstingizga yuboring" }
+      ]
+    }
+  ]
+}
