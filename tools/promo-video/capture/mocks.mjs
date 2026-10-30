@@ -224,10 +224,49 @@ export function mocksFor(scene) {
       return [...common, ...questsMocks(true)];
     case "stats":
       return [...common, ...statsMocks()];
+    // 문법 학습 화면 — ?id=obj-eul-reul (시드 apps/api/src/seed/data/grammar/section1.ts 1-10 의 우즈벡어)
+    case "grammarStudy":
+      return [...common, { pattern: "^/grammar/obj-eul-reul(\\?|$)", body: GRAMMAR_OBJ }];
     default:
       return common;
   }
 }
+
+/** N을/를 — 서버가 lang=uz 로 내려 주는 모양 그대로 (grammar.service.ts format) */
+const GRAMMAR_OBJ = {
+  id: "obj-eul-reul",
+  pattern: "N을/를",
+  summary: "Harakat qaratilgan narsani bildiradi. \"Nimani\" qilishni ko'rsatuvchi qo'shimcha.",
+  tags: ["Boshlang'ich", "Qo'shimcha"],
+  explanation: "Oldingi bo'g'inda undosh bo'lsa \"을\", bo'lmasa \"를\". Qoida \"은/는\" bilan bir xil, lekin vazifasi boshqa: \"은/는\" mavzuni, \"을/를\" harakat obyektini bildiradi.",
+  conjugationRule: "받침 bor + 을  ·  받침 yo'q + 를",
+  conjugations: [
+    { base: "밥", result: "밥을" },
+    { base: "책", result: "책을" },
+    { base: "옷", result: "옷을" },
+    { base: "커피", result: "커피를" },
+    { base: "친구", result: "친구를" },
+  ],
+  examples: [
+    { text: "저는 밥을 먹어요.", ko: "저는 밥을 먹어요.", gloss: "Men ovqat yeyapman.", highlight: "밥을" },
+    { text: "커피를 마셔요.", ko: "커피를 마셔요.", gloss: "Qahva ichaman.", highlight: "커피를" },
+    { text: "친구를 만나요.", ko: "친구를 만나요.", gloss: "Do'st bilan uchrashaman.", highlight: "친구를" },
+  ],
+  dialogue: [
+    { speaker: "A", side: "left", text: "지금 뭐 해요?", ko: "지금 뭐 해요?", gloss: "Hozir nima qilyapsiz?", highlight: "뭐" },
+    { speaker: "B", side: "right", text: "신문을 읽어요.", ko: "신문을 읽어요.", gloss: "Gazeta o'qiyapman.", highlight: "신문을" },
+  ],
+  similar: {
+    pattern: "N은/는",
+    note: "받침 qoidasi bir xil, lekin o'rni va ma'nosi boshqa. \"저는 밥을 먹어요\" da \"저는\" — gapiruvchi, \"밥을\" — yeyiladigan narsa.",
+  },
+  cautions: [
+    "\"커피을\", \"밥를\" deb almashtirmaslik uchun faqat oxirgi bo'g'inga qarang.",
+    "\"잡지\" kabi so'zda oldingi bo'g'inda undosh bo'lsa ham, oxirgi \"지\" da yo'q — demak \"를\": \"잡지를\".",
+    "Nutqda qo'shimchani tushirib \"밥 먹어요\" deyish mumkin, lekin yozuvda qo'shiladi.",
+  ],
+  quiz: [],
+};
 
 /** TOPIK I 읽기 40~42번 모양 — 안내문을 읽고 맞지 않는 것 고르기 */
 const block = (text) => ({ type: "paragraph", segments: [{ type: "text", text, key: "", label: "" }] });

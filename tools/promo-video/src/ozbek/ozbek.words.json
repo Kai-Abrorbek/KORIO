@@ -1,0 +1,597 @@
+{
+ "voice": {
+  "v01": {
+   "len": 2.79,
+   "heard": "Bu gap o'zbekcha mi yoki koreyscha mi?",
+   "words": [
+    {
+     "w": "Bu",
+     "s": 0.08,
+     "e": 0.28
+    },
+    {
+     "w": "gap",
+     "s": 0.28,
+     "e": 0.55
+    },
+    {
+     "w": "oʻzbekchami",
+     "s": 0.55,
+     "e": 1.36
+    },
+    {
+     "w": "yoki",
+     "s": 1.36,
+     "e": 1.7
+    },
+    {
+     "w": "koreyschami?",
+     "s": 1.7,
+     "e": 2.58
+    }
+   ]
+  },
+  "v02": {
+   "len": 6.16,
+   "heard": "Hamma koreys tili qiyin deydi, lekin oʻzbek tilini biladigan odam uchun unchalik emas. Mana uchta sabab",
+   "words": [
+    {
+     "w": "Hamma",
+     "s": 0.1,
+     "e": 0.32
+    },
+    {
+     "w": "koreys",
+     "s": 0.36,
+     "e": 0.68
+    },
+    {
+     "w": "tili",
+     "s": 0.76,
+     "e": 0.92
+    },
+    {
+     "w": "qiyin",
+     "s": 1,
+     "e": 1.26
+    },
+    {
+     "w": "deydi.",
+     "s": 1.3,
+     "e": 1.58
+    },
+    {
+     "w": "Lekin",
+     "s": 1.84,
+     "e": 2.22
+    },
+    {
+     "w": "oʻzbek",
+     "s": 2.26,
+     "e": 2.6
+    },
+    {
+     "w": "tilini",
+     "s": 2.62,
+     "e": 2.86
+    },
+    {
+     "w": "biladigan",
+     "s": 2.88,
+     "e": 3.3
+    },
+    {
+     "w": "odam",
+     "s": 3.36,
+     "e": 3.54
+    },
+    {
+     "w": "uchun",
+     "s": 3.6,
+     "e": 3.9
+    },
+    {
+     "w": "unchalik",
+     "s": 4.12,
+     "e": 4.46
+    },
+    {
+     "w": "emas.",
+     "s": 4.54,
+     "e": 4.88
+    },
+    {
+     "w": "Mana",
+     "s": 5.16,
+     "e": 5.38
+    },
+    {
+     "w": "uchta",
+     "s": 5.42,
+     "e": 5.7
+    },
+    {
+     "w": "sabab.",
+     "s": 5.74,
+     "e": 6.04
+    }
+   ]
+  },
+  "v03": {
+   "len": 5.62,
+   "heard": "Birinchisi, so'z tartibi bir xil. Men maktabga boraman. Koreychada ham aynan shu tartib",
+   "words": [
+    {
+     "w": "Birinchisi:",
+     "s": 0.08,
+     "e": 0.6
+    },
+    {
+     "w": "soʻz",
+     "s": 0.96,
+     "e": 1.14
+    },
+    {
+     "w": "tartibi",
+     "s": 1.16,
+     "e": 1.52
+    },
+    {
+     "w": "bir",
+     "s": 1.6,
+     "e": 1.72
+    },
+    {
+     "w": "xil.",
+     "s": 1.78,
+     "e": 1.96
+    },
+    {
+     "w": "Men,",
+     "s": 2.24,
+     "e": 2.46
+    },
+    {
+     "w": "maktabga,",
+     "s": 2.66,
+     "e": 3.06
+    },
+    {
+     "w": "boraman.",
+     "s": 3.1,
+     "e": 3.5
+    },
+    {
+     "w": "Koreyschada",
+     "s": 3.7,
+     "e": 4.18
+    },
+    {
+     "w": "ham",
+     "s": 4.24,
+     "e": 4.36
+    },
+    {
+     "w": "aynan",
+     "s": 4.52,
+     "e": 4.8
+    },
+    {
+     "w": "shu",
+     "s": 4.88,
+     "e": 5.02
+    },
+    {
+     "w": "tartib.",
+     "s": 5.08,
+     "e": 5.46
+    }
+   ]
+  },
+  "v04": {
+   "len": 2.23,
+   "heard": "Ingliz tilida esa tartib boshqacha",
+   "words": [
+    {
+     "w": "Ingliz",
+     "s": 0.1,
+     "e": 0.4
+    },
+    {
+     "w": "tilida",
+     "s": 0.46,
+     "e": 0.94
+    },
+    {
+     "w": "esa",
+     "s": 1,
+     "e": 1.16
+    },
+    {
+     "w": "tartib",
+     "s": 1.22,
+     "e": 1.52
+    },
+    {
+     "w": "boshqacha.",
+     "s": 1.54,
+     "e": 2.02
+    }
+   ]
+  },
+  "v05": {
+   "len": 2.58,
+   "heard": "Lekin ikkinchisi bundan ham qiziq",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.42
+    },
+    {
+     "w": "ikkinchisi",
+     "s": 0.64,
+     "e": 1.24
+    },
+    {
+     "w": "bundan",
+     "s": 1.44,
+     "e": 1.8
+    },
+    {
+     "w": "ham",
+     "s": 1.84,
+     "e": 1.96
+    },
+    {
+     "w": "qiziq…",
+     "s": 2.02,
+     "e": 2.34
+    }
+   ]
+  },
+  "v06": {
+   "len": 8.2,
+   "heard": "Ikkinchisi qo'shimchalar. Biz so'z oxiriga qo'shimcha qo'shamiz. Kitobni, maktabga, uyda. Koreyslar ham xuddi shunday qiladi",
+   "words": [
+    {
+     "w": "Ikkinchisi:",
+     "s": 0.06,
+     "e": 0.66
+    },
+    {
+     "w": "qoʻshimchalar.",
+     "s": 0.92,
+     "e": 1.56
+    },
+    {
+     "w": "Biz",
+     "s": 1.84,
+     "e": 2.06
+    },
+    {
+     "w": "soʻz",
+     "s": 2.12,
+     "e": 2.32
+    },
+    {
+     "w": "oxiriga",
+     "s": 2.36,
+     "e": 2.72
+    },
+    {
+     "w": "qoʻshimcha",
+     "s": 2.74,
+     "e": 3.1
+    },
+    {
+     "w": "qoʻshamiz:",
+     "s": 3.14,
+     "e": 3.62
+    },
+    {
+     "w": "kitobni,",
+     "s": 3.84,
+     "e": 4.36
+    },
+    {
+     "w": "maktabga,",
+     "s": 4.7,
+     "e": 5.28
+    },
+    {
+     "w": "uyda.",
+     "s": 5.62,
+     "e": 5.98
+    },
+    {
+     "w": "Koreyslar",
+     "s": 6.26,
+     "e": 6.7
+    },
+    {
+     "w": "ham",
+     "s": 6.76,
+     "e": 6.92
+    },
+    {
+     "w": "xuddi",
+     "s": 7.1,
+     "e": 7.32
+    },
+    {
+     "w": "shunday",
+     "s": 7.38,
+     "e": 7.62
+    },
+    {
+     "w": "qiladi.",
+     "s": 7.66,
+     "e": 7.98
+    }
+   ]
+  },
+  "v07": {
+   "len": 2.91,
+   "heard": "Uchinchisi esa ingliz tilida umuman yo'q",
+   "words": [
+    {
+     "w": "Uchinchisi",
+     "s": 0.06,
+     "e": 0.58
+    },
+    {
+     "w": "esa",
+     "s": 0.68,
+     "e": 0.96
+    },
+    {
+     "w": "ingliz",
+     "s": 1.34,
+     "e": 1.64
+    },
+    {
+     "w": "tilida",
+     "s": 1.68,
+     "e": 2
+    },
+    {
+     "w": "umuman",
+     "s": 2.04,
+     "e": 2.46
+    },
+    {
+     "w": "yoʻq…",
+     "s": 2.52,
+     "e": 2.74
+    }
+   ]
+  },
+  "v08": {
+   "len": 5.49,
+   "heard": "Uchinchisi hurmat do'stga kel kattaga keling. Koreys tilida ham ikki xil",
+   "words": [
+    {
+     "w": "Uchinchisi:",
+     "s": 0.04,
+     "e": 0.68
+    },
+    {
+     "w": "hurmat.",
+     "s": 0.94,
+     "e": 1.36
+    },
+    {
+     "w": "Doʻstga",
+     "s": 1.62,
+     "e": 2.08
+    },
+    {
+     "w": "kel,",
+     "s": 2.3,
+     "e": 2.58
+    },
+    {
+     "w": "kattaga",
+     "s": 2.76,
+     "e": 3.24
+    },
+    {
+     "w": "keling.",
+     "s": 3.52,
+     "e": 3.86
+    },
+    {
+     "w": "Koreys",
+     "s": 4.06,
+     "e": 4.36
+    },
+    {
+     "w": "tilida",
+     "s": 4.4,
+     "e": 4.64
+    },
+    {
+     "w": "ham",
+     "s": 4.68,
+     "e": 4.86
+    },
+    {
+     "w": "ikki",
+     "s": 4.9,
+     "e": 5.1
+    },
+    {
+     "w": "xil.",
+     "s": 5.12,
+     "e": 5.36
+    }
+   ]
+  },
+  "v09": {
+   "len": 2.48,
+   "heard": "Ingliz tilida esa hamma ga bitta so'z",
+   "words": [
+    {
+     "w": "Ingliz",
+     "s": 0.08,
+     "e": 0.5
+    },
+    {
+     "w": "tilida",
+     "s": 0.5,
+     "e": 0.93
+    },
+    {
+     "w": "esa",
+     "s": 0.93,
+     "e": 1.17
+    },
+    {
+     "w": "hammaga",
+     "s": 1.17,
+     "e": 1.65
+    },
+    {
+     "w": "bitta",
+     "s": 1.65,
+     "e": 2.02
+    },
+    {
+     "w": "soʻz.",
+     "s": 2.02,
+     "e": 2.38
+    }
+   ]
+  },
+  "v10": {
+   "len": 5.83,
+   "heard": "Хош, корейс тили ўзбеклар учун инглиз тилидан осонми? Изоҳга ёзинг. Ҳа ёки йўқ",
+   "words": [
+    {
+     "w": "Xoʻsh,",
+     "s": 0.04,
+     "e": 0.36
+    },
+    {
+     "w": "koreys",
+     "s": 0.66,
+     "e": 0.96
+    },
+    {
+     "w": "tili",
+     "s": 1,
+     "e": 1.2
+    },
+    {
+     "w": "oʻzbeklar",
+     "s": 1.46,
+     "e": 1.82
+    },
+    {
+     "w": "uchun",
+     "s": 1.88,
+     "e": 2.22
+    },
+    {
+     "w": "ingliz",
+     "s": 2.28,
+     "e": 2.56
+    },
+    {
+     "w": "tilidan",
+     "s": 2.62,
+     "e": 2.92
+    },
+    {
+     "w": "osonmi?",
+     "s": 3.02,
+     "e": 3.4
+    },
+    {
+     "w": "Izohga",
+     "s": 3.66,
+     "e": 3.98
+    },
+    {
+     "w": "yozing:",
+     "s": 4.02,
+     "e": 4.36
+    },
+    {
+     "w": "ha",
+     "s": 4.6,
+     "e": 4.76
+    },
+    {
+     "w": "yoki",
+     "s": 5.04,
+     "e": 5.34
+    },
+    {
+     "w": "yoʻq.",
+     "s": 5.38,
+     "e": 5.66
+    }
+   ]
+  },
+  "v11": {
+   "len": 4.15,
+   "heard": "Va buni koreys tili juda qiyin deydigan do'stingizga yuboring",
+   "words": [
+    {
+     "w": "Va",
+     "s": 0.1,
+     "e": 0.18
+    },
+    {
+     "w": "buni:",
+     "s": 0.26,
+     "e": 0.54
+    },
+    {
+     "w": "koreys",
+     "s": 0.78,
+     "e": 1.12
+    },
+    {
+     "w": "tili",
+     "s": 1.18,
+     "e": 1.38
+    },
+    {
+     "w": "juda",
+     "s": 1.74,
+     "e": 1.96
+    },
+    {
+     "w": "qiyin,",
+     "s": 2.04,
+     "e": 2.42
+    },
+    {
+     "w": "deydigan",
+     "s": 2.7,
+     "e": 3.04
+    },
+    {
+     "w": "doʻstingizga",
+     "s": 3.1,
+     "e": 3.58
+    },
+    {
+     "w": "yuboring.",
+     "s": 3.62,
+     "e": 4.04
+    }
+   ]
+  }
+ },
+ "app": {
+  "k01": 1.24,
+  "k02": 1.25,
+  "k03": 3.42,
+  "k04": 0.38,
+  "k05": 0.59
+ }
+}

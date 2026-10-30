@@ -1,0 +1,23 @@
+{
+  "id": "ozbek",
+  "lines": {
+    "v01": "Bu gap oʻzbekchami yoki koreyschami?",
+    "v02": "Hamma koreys tili qiyin deydi. Lekin oʻzbek tilini biladigan odam uchun — unchalik emas. Mana uchta sabab.",
+    "v03": "Birinchisi: soʻz tartibi bir xil. Men, maktabga, boraman. Koreyschada ham aynan shu tartib.",
+    "v04": "Ingliz tilida esa tartib boshqacha.",
+    "v05": "Lekin ikkinchisi bundan ham qiziq…",
+    "v06": "Ikkinchisi: qoʻshimchalar. Biz soʻz oxiriga qoʻshimcha qoʻshamiz: kitobni, maktabga, uyda. Koreyslar ham xuddi shunday qiladi.",
+    "v07": "Uchinchisi esa — ingliz tilida umuman yoʻq…",
+    "v08": "Uchinchisi: hurmat. Doʻstga — kel, kattaga — keling. Koreys tilida ham ikki xil.",
+    "v09": "Ingliz tilida esa hammaga bitta soʻz.",
+    "v10": "Xoʻsh, koreys tili oʻzbeklar uchun ingliz tilidan osonmi? Izohga yozing: ha yoki yoʻq.",
+    "v11": "Va buni: koreys tili — juda qiyin, deydigan doʻstingizga yuboring."
+  },
+  "app": {
+    "k01": "저는 책을 읽어요.",
+    "k02": "저는 학교에 가요.",
+    "k03": "책을. 학교에. 집에서.",
+    "k04": "와.",
+    "k05": "오세요."
+  }
+}

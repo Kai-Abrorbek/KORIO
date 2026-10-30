@@ -33,6 +33,7 @@ import { QuestsScreen } from "../../src/features/retention/ui/quests-screen";
 import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pronunciation-quiz-screen";
 import { RoadmapScreen } from "../../src/features/roadmap/ui/roadmap-screen";
 import { WordStudyScreen } from "../../src/features/words/ui/word-study-screen";
+import { GrammarStudyScreen } from "../../src/features/grammar/ui/grammar-study-screen";
 import { TopikExamScreen } from "../../src/features/topik/ui/topik-exam-screen";
 import { TopikResultScreen } from "../../src/features/topik/ui/topik-result-screen";
 import { TopikStatsScreen } from "../../src/features/topik/ui/topik-stats-screen";
@@ -193,6 +194,9 @@ function Scene({ name }: { name: string }): ReactNode {
     case "wordCards":
       // ?section=1&unit=1
       return <WordStudyScreen />;
+    case "grammarStudy":
+      // ?id=obj-eul-reul
+      return <GrammarStudyScreen />;
     case "vocabMatch":
     case "vocabBuilder":
       // ?lessonId=promo&category=vocabulary
