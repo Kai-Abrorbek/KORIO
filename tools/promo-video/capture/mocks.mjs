@@ -227,10 +227,68 @@ export function mocksFor(scene) {
     // 문법 학습 화면 — ?id=obj-eul-reul (시드 apps/api/src/seed/data/grammar/section1.ts 1-10 의 우즈벡어)
     case "grammarStudy":
       return [...common, { pattern: "^/grammar/obj-eul-reul(\\?|$)", body: GRAMMAR_OBJ }];
+    // 표현 학습 화면 — ?node=time-and-situation (시드 expressions/topics/greetings-and-goodbyes.ts 의 "식사하셨어요?")
+    case "expressionLearn":
+      return [
+        ...common,
+        { pattern: "^/expressions/nodes/time-and-situation/learning(\\?|$)", body: EXPRESSION_NODE },
+        { pattern: "^/expressions/[^/]+/views(\\?|$)", method: "POST", body: { success: true } },
+      ];
     default:
       return common;
   }
 }
+
+/** 인사 주제 · "시간대와 상황에 맞게 인사하기" 노드 — 첫 카드가 "식사하셨어요?" (lang=uz) */
+const GREETINGS_PACK = {
+  id: "pack-greetings",
+  code: "greetings-and-goodbyes",
+  targetLanguage: "ko",
+  title: "Salomlashish va xayrlashish",
+  description: "Birinchi uchrashuvdan hol-ahvol so'rash va tabiiy xayrlashuvgacha kerakli iboralarni o'rganing.",
+  media: { emoji: "", imageUrl: "", imageAlt: "" },
+  order: 1,
+};
+const expressionItem = (code, korean, romanization, meaning, context, speaker, usageNote) => ({
+  id: `expr-${code}`,
+  code,
+  targetLanguage: "ko",
+  korean,
+  meaning,
+  context,
+  speaker,
+  usageNote,
+  speechLevel: "polite",
+  pronunciation: { romanization, ttsText: korean, audioUrl: "" },
+  media: { emoji: "", imageUrl: "", imageAlt: "" },
+  difficulty: 2,
+  pack: GREETINGS_PACK,
+  progress: { state: "new", viewedCount: 0, isSaved: false, firstViewedAt: null, lastViewedAt: null, learnedAt: null },
+});
+const EXPRESSION_NODE = {
+  topic: GREETINGS_PACK,
+  node: {
+    id: "node-time-and-situation",
+    code: "time-and-situation",
+    title: "Vaqt va vaziyatga mos salomlashish",
+    description: "Ertalab, ishga borish-kelish, ovqat va ob-havo kabi kundalik vaziyatlarda salomlashing.",
+    icon: "sunny-outline",
+    proficiency: "beginner",
+    order: 2,
+    requiredExposures: 2,
+  },
+  items: [
+    expressionItem(
+      "have-you-eaten",
+      "식사하셨어요?",
+      "siksahasyeosseoyo",
+      "Ovqatlandingizmi?",
+      "Ovqat vaqti atrofida tanish odamni ko‘rganda hol-ahvol sifatida so‘raladi.",
+      "Tanish, hamkasb yoki qo‘shni",
+      "Bu har doim birga ovqatlanish taklifi emas, koreyscha hol so‘rash bo‘lishi mumkin.",
+    ),
+  ],
+};
 
 /** N을/를 — 서버가 lang=uz 로 내려 주는 모양 그대로 (grammar.service.ts format) */
 const GRAMMAR_OBJ = {

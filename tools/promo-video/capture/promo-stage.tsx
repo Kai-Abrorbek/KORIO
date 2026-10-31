@@ -34,6 +34,7 @@ import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pro
 import { RoadmapScreen } from "../../src/features/roadmap/ui/roadmap-screen";
 import { WordStudyScreen } from "../../src/features/words/ui/word-study-screen";
 import { GrammarStudyScreen } from "../../src/features/grammar/ui/grammar-study-screen";
+import { ExpressionLearningScreen } from "../../src/features/expressions/ui/expression-learning-screen";
 import { TopikExamScreen } from "../../src/features/topik/ui/topik-exam-screen";
 import { TopikResultScreen } from "../../src/features/topik/ui/topik-result-screen";
 import { TopikStatsScreen } from "../../src/features/topik/ui/topik-stats-screen";
@@ -197,6 +198,9 @@ function Scene({ name }: { name: string }): ReactNode {
     case "grammarStudy":
       // ?id=obj-eul-reul
       return <GrammarStudyScreen />;
+    case "expressionLearn":
+      // ?node=time-and-situation
+      return <ExpressionLearningScreen />;
     case "vocabMatch":
     case "vocabBuilder":
       // ?lessonId=promo&category=vocabulary

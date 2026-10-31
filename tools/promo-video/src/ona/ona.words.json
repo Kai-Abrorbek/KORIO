@@ -1,0 +1,526 @@
+{
+ "voice": {
+  "v01": {
+   "len": 2.91,
+   "heard": "Onangiz sizga har kuni shu savolni beradimi?",
+   "words": [
+    {
+     "w": "Onangiz",
+     "s": 0.08,
+     "e": 0.56
+    },
+    {
+     "w": "sizga",
+     "s": 0.82,
+     "e": 1.26
+    },
+    {
+     "w": "har",
+     "s": 1.34,
+     "e": 1.46
+    },
+    {
+     "w": "kuni",
+     "s": 1.52,
+     "e": 1.74
+    },
+    {
+     "w": "shu",
+     "s": 1.82,
+     "e": 1.96
+    },
+    {
+     "w": "savolni",
+     "s": 1.98,
+     "e": 2.32
+    },
+    {
+     "w": "beradimi?",
+     "s": 2.36,
+     "e": 2.76
+    }
+   ]
+  },
+  "v02": {
+   "len": 6.27,
+   "heard": "Koreyadagi onalar ham xuddi oʻzbek onalaridek gapiradi. Isboti uchta gap. Uchinchisi eng ogʻrigʻi",
+   "words": [
+    {
+     "w": "Koreyadagi",
+     "s": 0.04,
+     "e": 0.54
+    },
+    {
+     "w": "onalar",
+     "s": 0.58,
+     "e": 0.86
+    },
+    {
+     "w": "ham",
+     "s": 0.94,
+     "e": 1.12
+    },
+    {
+     "w": "xuddi",
+     "s": 1.3,
+     "e": 1.6
+    },
+    {
+     "w": "oʻzbek",
+     "s": 1.66,
+     "e": 2
+    },
+    {
+     "w": "onalaridek",
+     "s": 2.06,
+     "e": 2.54
+    },
+    {
+     "w": "gapiradi.",
+     "s": 2.58,
+     "e": 2.98
+    },
+    {
+     "w": "Isboti",
+     "s": 3.24,
+     "e": 3.68
+    },
+    {
+     "w": "uchta",
+     "s": 3.94,
+     "e": 4.22
+    },
+    {
+     "w": "gap.",
+     "s": 4.26,
+     "e": 4.46
+    },
+    {
+     "w": "Uchinchisi",
+     "s": 4.72,
+     "e": 5.2
+    },
+    {
+     "w": "eng",
+     "s": 5.46,
+     "e": 5.64
+    },
+    {
+     "w": "ogʻrigʻi.",
+     "s": 5.7,
+     "e": 6.06
+    }
+   ]
+  },
+  "v03": {
+   "len": 4.2,
+   "heard": "Birinchisi, ovqat. Koreyslar bu savolni hatto salom o'rnida beradi",
+   "words": [
+    {
+     "w": "Birinchisi:",
+     "s": 0.08,
+     "e": 0.58
+    },
+    {
+     "w": "ovqat.",
+     "s": 0.9,
+     "e": 1.28
+    },
+    {
+     "w": "Koreyslar",
+     "s": 1.4,
+     "e": 1.78
+    },
+    {
+     "w": "bu",
+     "s": 1.84,
+     "e": 1.9
+    },
+    {
+     "w": "savolni",
+     "s": 1.96,
+     "e": 2.38
+    },
+    {
+     "w": "hatto",
+     "s": 2.54,
+     "e": 2.84
+    },
+    {
+     "w": "salom",
+     "s": 3.02,
+     "e": 3.34
+    },
+    {
+     "w": "oʻrnida",
+     "s": 3.38,
+     "e": 3.68
+    },
+    {
+     "w": "beradi.",
+     "s": 3.7,
+     "e": 4.04
+    }
+   ]
+  },
+  "v04": {
+   "len": 2.97,
+   "heard": "Lekin ikkinchisini eshitsangiz kulib yuborasiz",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.36
+    },
+    {
+     "w": "ikkinchisini",
+     "s": 0.5,
+     "e": 1.06
+    },
+    {
+     "w": "eshitsangiz,",
+     "s": 1.1,
+     "e": 1.74
+    },
+    {
+     "w": "kulib",
+     "s": 2.02,
+     "e": 2.22
+    },
+    {
+     "w": "yuborasiz…",
+     "s": 2.26,
+     "e": 2.8
+    }
+   ]
+  },
+  "v05": {
+   "len": 2.1,
+   "heard": "Ikkinchisi, qo'shnining bolasi",
+   "words": [
+    {
+     "w": "Ikkinchisi:",
+     "s": 0.06,
+     "e": 0.64
+    },
+    {
+     "w": "qoʻshnining",
+     "s": 0.92,
+     "e": 1.36
+    },
+    {
+     "w": "bolasi.",
+     "s": 1.44,
+     "e": 1.86
+    }
+   ]
+  },
+  "v06": {
+   "len": 3.25,
+   "heard": "Koreyslarda bu ideal bola uchun maxsus so'z ham bor",
+   "words": [
+    {
+     "w": "Koreyslarda",
+     "s": 0.06,
+     "e": 0.7
+    },
+    {
+     "w": "bu",
+     "s": 0.86,
+     "e": 1.02
+    },
+    {
+     "w": "ideal",
+     "s": 1.08,
+     "e": 1.38
+    },
+    {
+     "w": "bola",
+     "s": 1.44,
+     "e": 1.6
+    },
+    {
+     "w": "uchun",
+     "s": 1.64,
+     "e": 1.9
+    },
+    {
+     "w": "maxsus",
+     "s": 2.06,
+     "e": 2.44
+    },
+    {
+     "w": "soʻz",
+     "s": 2.48,
+     "e": 2.68
+    },
+    {
+     "w": "ham",
+     "s": 2.72,
+     "e": 2.86
+    },
+    {
+     "w": "bor.",
+     "s": 2.92,
+     "e": 3.12
+    }
+   ]
+  },
+  "v07": {
+   "len": 2.41,
+   "heard": "Ya'ni onamning dugonasining o'g'li",
+   "words": [
+    {
+     "w": "Yaʼni,",
+     "s": 0.08,
+     "e": 0.46
+    },
+    {
+     "w": "onamning",
+     "s": 0.76,
+     "e": 1.14
+    },
+    {
+     "w": "dugonasining",
+     "s": 1.22,
+     "e": 1.8
+    },
+    {
+     "w": "oʻgʻli.",
+     "s": 1.92,
+     "e": 2.24
+    }
+   ]
+  },
+  "v08": {
+   "len": 2.56,
+   "heard": "Uchinchisi esa har bir to'yda so'raladi",
+   "words": [
+    {
+     "w": "Uchinchisi",
+     "s": 0.06,
+     "e": 0.56
+    },
+    {
+     "w": "esa",
+     "s": 0.58,
+     "e": 0.88
+    },
+    {
+     "w": "har",
+     "s": 1.2,
+     "e": 1.36
+    },
+    {
+     "w": "bir",
+     "s": 1.44,
+     "e": 1.52
+    },
+    {
+     "w": "toʻyda",
+     "s": 1.6,
+     "e": 1.84
+    },
+    {
+     "w": "soʻraladi…",
+     "s": 1.9,
+     "e": 2.34
+    }
+   ]
+  },
+  "v09": {
+   "len": 1.49,
+   "heard": "Uchinchisi toy",
+   "words": [
+    {
+     "w": "Uchinchisi:",
+     "s": 0.06,
+     "e": 0.7
+    },
+    {
+     "w": "toʻy.",
+     "s": 0.96,
+     "e": 1.24
+    }
+   ]
+  },
+  "v10": {
+   "len": 3.76,
+   "heard": "Koreyada buni har bayramda so'rashadi. Sollel va Chusokda",
+   "words": [
+    {
+     "w": "Koreyada",
+     "s": 0.06,
+     "e": 0.4
+    },
+    {
+     "w": "buni",
+     "s": 0.46,
+     "e": 0.7
+    },
+    {
+     "w": "har",
+     "s": 0.76,
+     "e": 0.9
+    },
+    {
+     "w": "bayramda",
+     "s": 0.96,
+     "e": 1.3
+    },
+    {
+     "w": "soʻrashadi",
+     "s": 1.36,
+     "e": 1.84
+    },
+    {
+     "w": "Sollal",
+     "s": 2.16,
+     "e": 2.6
+    },
+    {
+     "w": "va",
+     "s": 2.74,
+     "e": 2.88
+    },
+    {
+     "w": "Chusokda.",
+     "s": 3.02,
+     "e": 3.54
+    }
+   ]
+  },
+  "v11": {
+   "len": 5.08,
+   "heard": "Хош, кимнинг онаси кучлироқ? Ўзбек онами ёки корейс онами? Изоҳ кеозин",
+   "words": [
+    {
+     "w": "Xoʻsh,",
+     "s": 0.06,
+     "e": 0.32
+    },
+    {
+     "w": "kimning",
+     "s": 0.64,
+     "e": 0.9
+    },
+    {
+     "w": "onasi",
+     "s": 0.94,
+     "e": 1.18
+    },
+    {
+     "w": "kuchliroq:",
+     "s": 1.22,
+     "e": 1.7
+    },
+    {
+     "w": "oʻzbek",
+     "s": 1.96,
+     "e": 2.28
+    },
+    {
+     "w": "onami",
+     "s": 2.34,
+     "e": 2.74
+    },
+    {
+     "w": "yoki",
+     "s": 2.82,
+     "e": 3.28
+    },
+    {
+     "w": "koreys",
+     "s": 3.32,
+     "e": 3.66
+    },
+    {
+     "w": "onami?",
+     "s": 3.72,
+     "e": 4
+    },
+    {
+     "w": "Izohga",
+     "s": 4.26,
+     "e": 4.48
+    },
+    {
+     "w": "yozing.",
+     "s": 4.52,
+     "e": 4.88
+    }
+   ]
+  },
+  "v12": {
+   "len": 4.03,
+   "heard": "Va buni onasi xali ham: \"To'y qachon?\" deb so'raydigan do'stingizga yuboring",
+   "words": [
+    {
+     "w": "Va",
+     "s": 0.12,
+     "e": 0.22
+    },
+    {
+     "w": "buni",
+     "s": 0.28,
+     "e": 0.44
+    },
+    {
+     "w": "onasi",
+     "s": 0.52,
+     "e": 0.78
+    },
+    {
+     "w": "hali",
+     "s": 0.82,
+     "e": 1.02
+    },
+    {
+     "w": "ham",
+     "s": 1.08,
+     "e": 1.26
+    },
+    {
+     "w": "toʻy",
+     "s": 1.48,
+     "e": 1.66
+    },
+    {
+     "w": "qachon",
+     "s": 1.72,
+     "e": 2.16
+    },
+    {
+     "w": "deb",
+     "s": 2.3,
+     "e": 2.42
+    },
+    {
+     "w": "soʻraydigan",
+     "s": 2.48,
+     "e": 2.88
+    },
+    {
+     "w": "doʻstingizga",
+     "s": 2.94,
+     "e": 3.44
+    },
+    {
+     "w": "yuboring.",
+     "s": 3.48,
+     "e": 3.86
+    }
+   ]
+  }
+ },
+ "clips": {
+  "m01": 1.1,
+  "m02": 1.47,
+  "m03": 0.78,
+  "k01": 1.02,
+  "k03": 2.18,
+  "k05": 1.21,
+  "k02": 1.09,
+  "k04": 0.69
+ }
+}
