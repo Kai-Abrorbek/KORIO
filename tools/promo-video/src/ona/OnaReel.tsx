@@ -16,12 +16,12 @@ import lines from "./ona.lines.json";
 import timing from "./ona.words.json";
 
 const FPS = 30;
-const INK = "#1B1830";
-const YELLOW = "#FFD43B";
-const UZ = "#12A8C4";
-const UZ_DARK = "#0A7A90";
-const KO = "#E2384D";
-const KO_DARK = "#A61F31";
+export const INK = "#1B1830";
+export const YELLOW = "#FFD43B";
+export const UZ = "#12A8C4";
+export const UZ_DARK = "#0A7A90";
+export const KO = "#E2384D";
+export const KO_DARK = "#A61F31";
 const GLASS = "rgba(255,255,255,0.92)";
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -96,7 +96,7 @@ const SCENES = {
 
 // ── 부품 ──
 /** 엄마 알림 — 위에서 툭 떨어지고 부르르 떤다 */
-function Note({ at, from, text, lang, sub, size = 54, kick = [], solid = false }: { at: number; from: string; text: string; lang: "uz" | "ko"; sub?: string; size?: number; kick?: number[]; solid?: boolean }) {
+export function Note({ at, from, text, lang, sub, size = 54, kick = [], solid = false }: { at: number; from: string; text: string; lang: "uz" | "ko"; sub?: string; size?: number; kick?: number[]; solid?: boolean }) {
   const frame = useCurrentFrame();
   if (frame < at) return <div style={{ opacity: 0, height: 0 }} />;
   const s = pop(frame, at, 280, 13);
@@ -130,7 +130,7 @@ function Pop({ at, children, from = 1.6, rot = 0, style }: { at: number; childre
   return <div style={{ transform: `scale(${interpolate(s, [0, 1], [from, 1])}) rotate(${rot * s}deg)`, opacity: clamp01(s * 3), ...style }}>{children}</div>;
 }
 
-function Chip({ children, bg = YELLOW, fg = INK, size = 56, style }: { children: ReactNode; bg?: string; fg?: string; size?: number; style?: CSSProperties }) {
+export function Chip({ children, bg = YELLOW, fg = INK, size = 56, style }: { children: ReactNode; bg?: string; fg?: string; size?: number; style?: CSSProperties }) {
   return (
     <div style={{ display: "inline-flex", alignItems: "center", gap: 12, background: bg, color: fg, borderRadius: size * 0.32, padding: `${size * 0.16}px ${size * 0.34}px`, fontFamily: HEAVY, fontWeight: 900, fontSize: size, lineHeight: 1.1, whiteSpace: "nowrap", ...style }}>
       {children}
