@@ -136,6 +136,17 @@ describe('English grammar section 6 seed', () => {
         expect(
           questions.filter((question) => question.type === 'grammar_build'),
         ).toHaveLength(10);
+        const multiBlanks = questions.filter(
+          (question) =>
+            question.type === 'grammar_blank' && question.sentenceTemplate,
+        );
+        expect(multiBlanks).toHaveLength(3);
+        expect(
+          multiBlanks.filter((question) => question.blankAnswers?.length === 2),
+        ).toHaveLength(2);
+        expect(
+          multiBlanks.filter((question) => question.blankAnswers?.length === 3),
+        ).toHaveLength(1);
 
         questions.forEach((question, index) => {
           expect(question.type).toBe(
@@ -159,9 +170,19 @@ describe('English grammar section 6 seed', () => {
           }
 
           if (question.type === 'grammar_blank') {
-            expect(
-              `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`,
-            ).toBe(question.answerTranslation.en);
+            if (question.sentenceTemplate) {
+              let answerIndex = 0;
+              const rebuilt = question.sentenceTemplate.replace(
+                /_{3,}/g,
+                () => question.blankAnswers?.[answerIndex++] ?? '',
+              );
+              expect(question.answer).toBe(rebuilt);
+              expect(rebuilt).toBe(question.answerTranslation.en);
+            } else {
+              expect(
+                `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`,
+              ).toBe(question.answerTranslation.en);
+            }
           } else {
             expect(question.buildRows.map((row) => row.correct).join(' ')).toBe(
               question.answer,

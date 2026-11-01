@@ -208,6 +208,7 @@ for (const node of nodes) {
     trackedGrammarCodes.add(grammarCode);
     let grammarFocusBlanks = 0;
     let contextFocusBlanks = 0;
+    let multiBlanks = 0;
     if (!knownGrammar.has(grammarCode)) {
       fail(
         grammarCode ?? 'lesson',
@@ -265,7 +266,41 @@ for (const node of nodes) {
             '빈칸 초점 태그는 문법 또는 문맥 중 하나여야 한다',
           );
         }
-        const rebuilt = `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`;
+        const template = String(question.sentenceTemplate ?? '');
+        const blankCount = (template.match(/_{3,}/g) ?? []).length;
+        const blankAnswers = question.blankAnswers ?? [];
+        let rebuilt: string;
+        if (template) {
+          multiBlanks += 1;
+          if (blankCount < 2 || blankCount > 3) {
+            fail(questionCode, `다중 빈칸이 ${blankCount}개다 (2~3개 필요)`);
+          }
+          if (blankAnswers.length !== blankCount) {
+            fail(
+              questionCode,
+              `빈칸 ${blankCount}개인데 blankAnswers는 ${blankAnswers.length}개다`,
+            );
+          }
+          if (blankAnswers.some((answer: string) => !answer.trim())) {
+            fail(questionCode, 'blankAnswers에 빈 정답이 있다');
+          }
+          let answerIndex = 0;
+          rebuilt = template.replace(
+            /_{3,}/g,
+            () => blankAnswers[answerIndex++] ?? '',
+          );
+          if (question.answer !== rebuilt) {
+            fail(
+              questionCode,
+              `다중 빈칸 answer가 완성 문장 '${rebuilt}'와 다르다`,
+            );
+          }
+        } else {
+          if (blankAnswers.length > 0) {
+            fail(questionCode, '단일 빈칸에 blankAnswers가 들어 있다');
+          }
+          rebuilt = `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`;
+        }
         if (
           question.answerTranslation?.en &&
           rebuilt !== question.answerTranslation.en
@@ -318,6 +353,15 @@ for (const node of nodes) {
         grammarCode,
         `빈칸 초점이 문법 ${grammarFocusBlanks}개·문맥 ${contextFocusBlanks}개다 (5개씩 필요)`,
       );
+    }
+    if (scope.targetLanguage === 'en') {
+      const expectedMultiBlanks = node.section >= 4 ? 3 : 0;
+      if (multiBlanks !== expectedMultiBlanks) {
+        fail(
+          grammarCode,
+          `다중 빈칸이 ${multiBlanks}개다 (${expectedMultiBlanks}개 필요)`,
+        );
+      }
     }
   }
 }

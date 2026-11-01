@@ -109,6 +109,10 @@ export interface EnglishGrammarBlankQuestion extends EnglishGrammarQuestionBase 
   type: 'grammar_blank';
   sentencePrefix: string;
   sentenceSuffix: string;
+  /** Section 4+의 다중 빈칸 문항. 빈칸은 `___`로 표시한다. */
+  sentenceTemplate?: string;
+  /** sentenceTemplate의 빈칸 순서대로 입력할 정답이다. */
+  blankAnswers?: string[];
 }
 
 export interface EnglishGrammarBuildQuestion extends EnglishGrammarQuestionBase {
