@@ -1,0 +1,874 @@
+{
+ "lines": {
+  "n01": {
+   "len": 3.08,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Dadam Koreyada toʻrt yil oʻn oy ishladi.",
+   "heard": "Dadam Koreyada to'rt yil o'n oy ishladi",
+   "words": [
+    {
+     "w": "Dadam",
+     "s": 0.1,
+     "e": 0.4
+    },
+    {
+     "w": "Koreyada",
+     "s": 0.46,
+     "e": 1.02
+    },
+    {
+     "w": "toʻrt",
+     "s": 1.22,
+     "e": 1.52
+    },
+    {
+     "w": "yil",
+     "s": 1.58,
+     "e": 1.76
+    },
+    {
+     "w": "oʻn",
+     "s": 1.96,
+     "e": 2.12
+    },
+    {
+     "w": "oy",
+     "s": 2.22,
+     "e": 2.38
+    },
+    {
+     "w": "ishladi.",
+     "s": 2.44,
+     "e": 2.92
+    }
+   ]
+  },
+  "n02": {
+   "len": 3.33,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Lekin u bilgan koreyscha soʻzlar — atigi uchta edi.",
+   "heard": "Lekin u bilgan koreysha so'zlar atigi uchta edi",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.34
+    },
+    {
+     "w": "u",
+     "s": 0.38,
+     "e": 0.44
+    },
+    {
+     "w": "bilgan",
+     "s": 0.48,
+     "e": 0.84
+    },
+    {
+     "w": "koreyscha",
+     "s": 0.86,
+     "e": 1.26
+    },
+    {
+     "w": "soʻzlar",
+     "s": 1.34,
+     "e": 1.76
+    },
+    {
+     "w": "atigi",
+     "s": 2.04,
+     "e": 2.5
+    },
+    {
+     "w": "uchta",
+     "s": 2.54,
+     "e": 2.86
+    },
+    {
+     "w": "edi.",
+     "s": 2.96,
+     "e": 3.2
+    }
+   ]
+  },
+  "d01": {
+   "len": 0.49,
+   "voice": "dad",
+   "lang": "ko",
+   "text": "네."
+  },
+  "d02": {
+   "len": 0.9,
+   "voice": "dad",
+   "lang": "ko",
+   "text": "감사합니다."
+  },
+  "d03": {
+   "len": 0.92,
+   "voice": "dad",
+   "lang": "ko",
+   "text": "죄송합니다."
+  },
+  "n03": {
+   "len": 3.59,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Nega dadam besh yilda uch soʻzdan nariga oʻtmadi?",
+   "heard": "Nega dadam besh yilda uch so'zdan nariga o'tmadi?",
+   "words": [
+    {
+     "w": "Nega",
+     "s": 0.1,
+     "e": 0.32
+    },
+    {
+     "w": "dadam",
+     "s": 0.36,
+     "e": 0.74
+    },
+    {
+     "w": "besh",
+     "s": 1.1,
+     "e": 1.36
+    },
+    {
+     "w": "yilda",
+     "s": 1.4,
+     "e": 1.68
+    },
+    {
+     "w": "uch",
+     "s": 1.92,
+     "e": 2.08
+    },
+    {
+     "w": "soʻzdan",
+     "s": 2.14,
+     "e": 2.56
+    },
+    {
+     "w": "nariga",
+     "s": 2.62,
+     "e": 2.96
+    },
+    {
+     "w": "oʻtmadi?",
+     "s": 3.02,
+     "e": 3.44
+    }
+   ]
+  },
+  "n04": {
+   "len": 5.32,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Kuniga oʻn ikki soat ish. Kechasi — yotoqxona, telefon va charchoq.",
+   "heard": "Kuniga o'n ikki soat ish, kechasi yotoqxona, telefon va charchoq",
+   "words": [
+    {
+     "w": "Kuniga",
+     "s": 0.02,
+     "e": 0.6
+    },
+    {
+     "w": "oʻn",
+     "s": 0.64,
+     "e": 0.76
+    },
+    {
+     "w": "ikki",
+     "s": 0.8,
+     "e": 0.98
+    },
+    {
+     "w": "soat",
+     "s": 1.02,
+     "e": 1.3
+    },
+    {
+     "w": "ish.",
+     "s": 1.36,
+     "e": 1.58
+    },
+    {
+     "w": "Kechasi",
+     "s": 2,
+     "e": 2.48
+    },
+    {
+     "w": "yotoqxona,",
+     "s": 2.9,
+     "e": 3.46
+    },
+    {
+     "w": "telefon",
+     "s": 3.72,
+     "e": 4.24
+    },
+    {
+     "w": "va",
+     "s": 4.36,
+     "e": 4.62
+    },
+    {
+     "w": "charchoq.",
+     "s": 4.66,
+     "e": 5.2
+    }
+   ]
+  },
+  "f01": {
+   "len": 1.86,
+   "voice": "boss",
+   "lang": "ko",
+   "text": "이거 아니야! 다시 해!"
+  },
+  "d04": {
+   "len": 1.78,
+   "voice": "dad",
+   "lang": "ko",
+   "text": "네… 죄송합니다."
+  },
+  "n05": {
+   "len": 4.37,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Usta nima desa ham, dadam faqat ne derdi. Tushunmasa ham.",
+   "heard": "Usta nima desa ham dadam faqat na derdi, tushunmasa ham",
+   "words": [
+    {
+     "w": "Usta",
+     "s": 0.06,
+     "e": 0.3
+    },
+    {
+     "w": "nima",
+     "s": 0.4,
+     "e": 0.6
+    },
+    {
+     "w": "desa",
+     "s": 0.66,
+     "e": 0.92
+    },
+    {
+     "w": "ham,",
+     "s": 0.98,
+     "e": 1.28
+    },
+    {
+     "w": "dadam",
+     "s": 1.68,
+     "e": 1.96
+    },
+    {
+     "w": "faqat",
+     "s": 2,
+     "e": 2.34
+    },
+    {
+     "w": "ne",
+     "s": 2.44,
+     "e": 2.58
+    },
+    {
+     "w": "derdi.",
+     "s": 2.64,
+     "e": 3.04
+    },
+    {
+     "w": "Tushunmasa",
+     "s": 3.44,
+     "e": 4.02
+    },
+    {
+     "w": "ham.",
+     "s": 4.08,
+     "e": 4.28
+    }
+   ]
+  },
+  "n06": {
+   "len": 5.86,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Zavod oshxonasida bir opa bor edi. Har kuni dadamning patnisiga koʻproq guruch solardi.",
+   "heard": "Zavod oshxonasida bir opa bor edi. Har kuni dadamning patnisiga ko'proq guruch solardi",
+   "words": [
+    {
+     "w": "Zavod",
+     "s": 0.12,
+     "e": 0.42
+    },
+    {
+     "w": "oshxonasida",
+     "s": 0.46,
+     "e": 1.18
+    },
+    {
+     "w": "bir",
+     "s": 1.36,
+     "e": 1.54
+    },
+    {
+     "w": "opa",
+     "s": 1.58,
+     "e": 1.76
+    },
+    {
+     "w": "bor",
+     "s": 1.84,
+     "e": 2
+    },
+    {
+     "w": "edi.",
+     "s": 2.06,
+     "e": 2.28
+    },
+    {
+     "w": "Har",
+     "s": 2.8,
+     "e": 2.96
+    },
+    {
+     "w": "kuni",
+     "s": 3.04,
+     "e": 3.38
+    },
+    {
+     "w": "dadamning",
+     "s": 3.42,
+     "e": 3.86
+    },
+    {
+     "w": "patnisiga",
+     "s": 3.88,
+     "e": 4.44
+    },
+    {
+     "w": "koʻproq",
+     "s": 4.48,
+     "e": 4.9
+    },
+    {
+     "w": "guruch",
+     "s": 4.98,
+     "e": 5.22
+    },
+    {
+     "w": "solardi.",
+     "s": 5.26,
+     "e": 5.74
+    }
+   ]
+  },
+  "n07": {
+   "len": 3.4,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Bir yil davomida ular bir ogʻiz ham gaplasha olmadi.",
+   "heard": "Bir yil davomida ular bir og'iz ham gaplasha olmadi",
+   "words": [
+    {
+     "w": "Bir",
+     "s": 0.1,
+     "e": 0.24
+    },
+    {
+     "w": "yil",
+     "s": 0.32,
+     "e": 0.44
+    },
+    {
+     "w": "davomida",
+     "s": 0.5,
+     "e": 1.02
+    },
+    {
+     "w": "ular",
+     "s": 1.28,
+     "e": 1.54
+    },
+    {
+     "w": "bir",
+     "s": 1.74,
+     "e": 1.86
+    },
+    {
+     "w": "ogʻiz",
+     "s": 1.94,
+     "e": 2.16
+    },
+    {
+     "w": "ham",
+     "s": 2.2,
+     "e": 2.34
+    },
+    {
+     "w": "gaplasha",
+     "s": 2.38,
+     "e": 2.78
+    },
+    {
+     "w": "olmadi.",
+     "s": 2.84,
+     "e": 3.24
+    }
+   ]
+  },
+  "n08": {
+   "len": 5.47,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Dadam ketadigan kuni u darvozagacha yugurib chiqdi. Va qoʻliga bir xat tutqazdi.",
+   "heard": "Dadam ketadigan kuni u darvozagacha yugurib chiqdi va qo'liga bir xat tutqazdi",
+   "words": [
+    {
+     "w": "Dadam",
+     "s": 0.1,
+     "e": 0.36
+    },
+    {
+     "w": "ketadigan",
+     "s": 0.42,
+     "e": 0.9
+    },
+    {
+     "w": "kuni",
+     "s": 0.96,
+     "e": 1.36
+    },
+    {
+     "w": "u",
+     "s": 1.42,
+     "e": 1.5
+    },
+    {
+     "w": "darvozagacha",
+     "s": 1.64,
+     "e": 2.28
+    },
+    {
+     "w": "yugurib",
+     "s": 2.32,
+     "e": 2.64
+    },
+    {
+     "w": "chiqdi.",
+     "s": 2.66,
+     "e": 2.98
+    },
+    {
+     "w": "Va",
+     "s": 3.56,
+     "e": 3.62
+    },
+    {
+     "w": "qoʻliga",
+     "s": 3.7,
+     "e": 4.12
+    },
+    {
+     "w": "bir",
+     "s": 4.26,
+     "e": 4.38
+    },
+    {
+     "w": "xat",
+     "s": 4.5,
+     "e": 4.74
+    },
+    {
+     "w": "tutqazdi.",
+     "s": 4.76,
+     "e": 5.3
+    }
+   ]
+  },
+  "n09": {
+   "len": 2.25,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Dadam faqat bitta soʻz dedi.",
+   "heard": "Dadam faqat bitta so'z dedi",
+   "words": [
+    {
+     "w": "Dadam",
+     "s": 0.1,
+     "e": 0.44
+    },
+    {
+     "w": "faqat",
+     "s": 0.7,
+     "e": 1
+    },
+    {
+     "w": "bitta",
+     "s": 1.14,
+     "e": 1.42
+    },
+    {
+     "w": "soʻz",
+     "s": 1.52,
+     "e": 1.76
+    },
+    {
+     "w": "dedi.",
+     "s": 1.8,
+     "e": 2.08
+    }
+   ]
+  },
+  "d05": {
+   "len": 1.07,
+   "voice": "dad",
+   "lang": "ko",
+   "text": "감사합니다…"
+  },
+  "n10": {
+   "len": 2.39,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Va u xatni uch yil oʻqiy olmadi.",
+   "heard": "Va u Shadni uch yil o'qiy olmadi",
+   "words": [
+    {
+     "w": "Va",
+     "s": 0.12,
+     "e": 0.24
+    },
+    {
+     "w": "u",
+     "s": 0.28,
+     "e": 0.34
+    },
+    {
+     "w": "xatni",
+     "s": 0.4,
+     "e": 0.84
+    },
+    {
+     "w": "uch",
+     "s": 1.06,
+     "e": 1.22
+    },
+    {
+     "w": "yil",
+     "s": 1.28,
+     "e": 1.4
+    },
+    {
+     "w": "oʻqiy",
+     "s": 1.5,
+     "e": 1.72
+    },
+    {
+     "w": "olmadi.",
+     "s": 1.8,
+     "e": 2.22
+    }
+   ]
+  },
+  "n11": {
+   "len": 2.73,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Uni oʻqib bergan odam — men boʻldim.",
+   "heard": "Yuni o'qib bergan odam men bo'ldim",
+   "words": [
+    {
+     "w": "Uni",
+     "s": 0.1,
+     "e": 0.34
+    },
+    {
+     "w": "oʻqib",
+     "s": 0.44,
+     "e": 0.7
+    },
+    {
+     "w": "bergan",
+     "s": 0.72,
+     "e": 1.14
+    },
+    {
+     "w": "odam",
+     "s": 1.2,
+     "e": 1.56
+    },
+    {
+     "w": "men",
+     "s": 1.98,
+     "e": 2.16
+    },
+    {
+     "w": "boʻldim.",
+     "s": 2.22,
+     "e": 2.6
+    }
+   ]
+  },
+  "n12": {
+   "len": 5.76,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Men koreys tilini Korio ilovasida, avtobusda, har kuni oʻn daqiqadan oʻrgandim.",
+   "heard": "Men koreys tilini Koryo ilovasida avtobusda har kuni o'n daqiqadan o'rgandim",
+   "words": [
+    {
+     "w": "Men",
+     "s": 0.1,
+     "e": 0.26
+    },
+    {
+     "w": "koreys",
+     "s": 0.36,
+     "e": 0.74
+    },
+    {
+     "w": "tilini",
+     "s": 0.8,
+     "e": 1.3
+    },
+    {
+     "w": "Korio",
+     "s": 1.36,
+     "e": 1.72
+    },
+    {
+     "w": "ilovasida,",
+     "s": 1.8,
+     "e": 2.38
+    },
+    {
+     "w": "avtobusda,",
+     "s": 2.88,
+     "e": 3.66
+    },
+    {
+     "w": "har",
+     "s": 3.74,
+     "e": 3.92
+    },
+    {
+     "w": "kuni",
+     "s": 4,
+     "e": 4.2
+    },
+    {
+     "w": "oʻn",
+     "s": 4.38,
+     "e": 4.52
+    },
+    {
+     "w": "daqiqadan",
+     "s": 4.56,
+     "e": 5.08
+    },
+    {
+     "w": "oʻrgandim.",
+     "s": 5.12,
+     "e": 5.64
+    }
+   ]
+  },
+  "n13": {
+   "len": 4.49,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Bir kuni kechqurun xatni ochdim. Unda bor-yoʻgʻi ikki gap bor edi.",
+   "heard": "Bir kuni kechqurun xatni ochdim. Unda bor-yo'g'i ikki gap bor edi",
+   "words": [
+    {
+     "w": "Bir",
+     "s": 0.08,
+     "e": 0.22
+    },
+    {
+     "w": "kuni",
+     "s": 0.26,
+     "e": 0.46
+    },
+    {
+     "w": "kechqurun",
+     "s": 0.5,
+     "e": 0.94
+    },
+    {
+     "w": "xatni",
+     "s": 1.04,
+     "e": 1.3
+    },
+    {
+     "w": "ochdim.",
+     "s": 1.34,
+     "e": 1.78
+    },
+    {
+     "w": "Unda",
+     "s": 2.26,
+     "e": 2.56
+    },
+    {
+     "w": "bor-yoʻgʻi",
+     "s": 2.76,
+     "e": 3.26
+    },
+    {
+     "w": "ikki",
+     "s": 3.44,
+     "e": 3.64
+    },
+    {
+     "w": "gap",
+     "s": 3.7,
+     "e": 3.9
+    },
+    {
+     "w": "bor",
+     "s": 3.94,
+     "e": 4.08
+    },
+    {
+     "w": "edi.",
+     "s": 4.14,
+     "e": 4.34
+    }
+   ]
+  },
+  "r01": {
+   "len": 2.52,
+   "voice": "girl",
+   "lang": "ko",
+   "text": "아들 같았어요. 건강하세요."
+  },
+  "n14": {
+   "len": 2.37,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Oʻgʻlimdek edingiz. Sogʻ boʻling.",
+   "heard": "O'g'limdek edingiz. Sog' bo'ling",
+   "words": [
+    {
+     "w": "Oʻgʻlimdek",
+     "s": 0.08,
+     "e": 0.56
+    },
+    {
+     "w": "edingiz.",
+     "s": 0.62,
+     "e": 1.14
+    },
+    {
+     "w": "Sogʻ",
+     "s": 1.68,
+     "e": 1.86
+    },
+    {
+     "w": "boʻling.",
+     "s": 1.94,
+     "e": 2.24
+    }
+   ]
+  },
+  "n15": {
+   "len": 1.73,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Dadam yigʻlab yubordi.",
+   "heard": "Dadam yig'lab yubordi",
+   "words": [
+    {
+     "w": "Dadam",
+     "s": 0.1,
+     "e": 0.48
+    },
+    {
+     "w": "yigʻlab",
+     "s": 0.68,
+     "e": 1.06
+    },
+    {
+     "w": "yubordi.",
+     "s": 1.08,
+     "e": 1.56
+    }
+   ]
+  },
+  "n16": {
+   "len": 3.11,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Baʼzi soʻzlar yillab kutadi. Kutib qolmang.",
+   "heard": "Ba’zi so‘zlar yillab kutadi. Kutib qolmang",
+   "words": [
+    {
+     "w": "Baʼzi",
+     "s": 0.1,
+     "e": 0.4
+    },
+    {
+     "w": "soʻzlar",
+     "s": 0.48,
+     "e": 0.9
+    },
+    {
+     "w": "yillab",
+     "s": 1.04,
+     "e": 1.4
+    },
+    {
+     "w": "kutadi.",
+     "s": 1.44,
+     "e": 1.84
+    },
+    {
+     "w": "Kutib",
+     "s": 2.3,
+     "e": 2.54
+    },
+    {
+     "w": "qolmang.",
+     "s": 2.58,
+     "e": 3
+    }
+   ]
+  },
+  "n17": {
+   "len": 2.99,
+   "voice": "girl",
+   "lang": "uz",
+   "text": "Buni Koreyada ishlayotgan yaqiningizga yuboring.",
+   "heard": "Buni Koreyada ishlayotgan yaqiningizga yuboring",
+   "words": [
+    {
+     "w": "Buni",
+     "s": 0.1,
+     "e": 0.32
+    },
+    {
+     "w": "Koreyada",
+     "s": 0.4,
+     "e": 0.84
+    },
+    {
+     "w": "ishlayotgan",
+     "s": 0.88,
+     "e": 1.56
+    },
+    {
+     "w": "yaqiningizga",
+     "s": 1.74,
+     "e": 2.38
+    },
+    {
+     "w": "yuboring.",
+     "s": 2.42,
+     "e": 2.86
+    }
+   ]
+  }
+ }
+}
