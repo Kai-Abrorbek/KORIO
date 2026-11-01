@@ -1,0 +1,72 @@
+{
+  "voices": {
+    "uz": {
+      "id": "rwtcHtZgYU6HN2zLNBlf",
+      "name": "Sarhad Siz - Narrator",
+      "language": "uz",
+      "model": "eleven_v4_turbo",
+      "speed": 1.08
+    },
+    "ko": {
+      "id": "h5eZa8VFAq0EQ8E81dfL",
+      "name": "Yong Gyu - Calm Korean Male Narrator",
+      "language": "ko",
+      "model": "eleven_v4_turbo",
+      "speed": 1
+    }
+  },
+  "chapters": [
+    {
+      "key": "hook",
+      "clips": [
+        { "id": "uz-hook", "voice": "uz", "text": "Bugun koreys tilidagi an va mot farqini oʻrganamiz.", "subtitle": "Bugun: 안 va 못" }
+      ]
+    },
+    {
+      "key": "lead",
+      "clips": [
+        { "id": "uz-rule", "voice": "uz", "text": "Ikkalasi ham feʼldan oldin keladi: an — qilmayman, mot — qila olmayman.", "subtitle": "안 = qilmayman · 못 = qila olmayman" }
+      ]
+    },
+    {
+      "key": "body1",
+      "clips": [
+        { "id": "ko-an-ex", "voice": "ko", "text": "오늘 운동 안 해요.", "subtitle": "오늘 운동 안 해요 · Bugun mashq qilmayman" },
+        { "id": "uz-an-ex", "voice": "uz", "text": "Bu gapda bugun mashq qilmasligim aytilgan, xolos. Qila olishim haqida hech narsa deyilmaydi. Shuning uchun an.", "subtitle": "Bugun qilmayman → 안" }
+      ]
+    },
+    {
+      "key": "loop1",
+      "clips": [
+        { "id": "uz-loop1", "voice": "uz", "text": "Agar oyogʻim ogʻrisa-chi?", "subtitle": "Oyogʻim ogʻrisa-chi?" }
+      ]
+    },
+    {
+      "key": "body2",
+      "clips": [
+        { "id": "ko-mot-ex", "voice": "ko", "text": "다리가 아파서 운동 못 해요.", "subtitle": "다리가 아파서 운동 못 해요" },
+        { "id": "uz-mot-ex", "voice": "uz", "text": "Oyogʻim ogʻriyotgani uchun mashq qila olmayman. Shuning uchun mot ishlatiladi.", "subtitle": "Oyogʻim ogʻriydi → qila olmayman → 못" }
+      ]
+    },
+    {
+      "key": "loop2",
+      "clips": [
+        { "id": "uz-loop2", "voice": "uz", "text": "Endi ikkisini bitta feʼl bilan solishtiring.", "subtitle": "Bitta feʼl. Ikki xil maʼno." }
+      ]
+    },
+    {
+      "key": "body3",
+      "clips": [
+        { "id": "ko-an-go", "voice": "ko", "text": "오늘 안 가요.", "subtitle": "오늘 안 가요 · Bugun bormayman" },
+        { "id": "ko-mot-go", "voice": "ko", "text": "오늘 못 가요.", "subtitle": "오늘 못 가요 · Bugun bora olmayman" },
+        { "id": "uz-compare", "voice": "uz", "text": "Birinchisida bugun bormasligim, ikkinchisida esa bora olmasligim aytiladi. Feʼl bir xil, maʼno boshqacha.", "subtitle": "안 가요 ≠ 못 가요" }
+      ]
+    },
+    {
+      "key": "cta",
+      "clips": [
+        { "id": "uz-cta", "voice": "uz", "text": "Qilmayman va qila olmayman farqini adashtiradigan doʻstingizga shu videoni yuboring.", "subtitle": "Farqini adashtiradigan doʻstingizga yuboring" }
+      ]
+    }
+  ]
+}
