@@ -43,6 +43,7 @@ import {
   ENGLISH_GT_S8_NODES,
   ENGLISH_GT_S8_QUESTIONS,
 } from './data/english-grammar/section8';
+import { ENGLISH_GRAMMAR_SEED_S9 } from './data/english-grammar/section9';
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
@@ -105,6 +106,7 @@ export function getGrammarSeed(
       ...ENGLISH_GRAMMAR_SEED_S6,
       ...ENGLISH_GRAMMAR_SEED_S7,
       ...ENGLISH_GRAMMAR_SEED_S8,
+      ...ENGLISH_GRAMMAR_SEED_S9,
     ] as unknown as GrammarSeedRecord[];
   }
   throw new Error(`No grammar seed registered for ${scope.courseId}`);
