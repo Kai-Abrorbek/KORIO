@@ -33,11 +33,15 @@ import {
   ENGLISH_GT_S7_NODES,
   ENGLISH_GT_S7_QUESTIONS,
 } from './data/english-grammar/section7';
-import { ENGLISH_GRAMMAR_SEED_S8 } from './data/english-grammar/section8';
+import {
+  ENGLISH_GRAMMAR_SEED_S8,
+  ENGLISH_GT_S8_NODES,
+  ENGLISH_GT_S8_QUESTIONS,
+} from './data/english-grammar/section8';
 
 const LANGUAGES = ['ko', 'uz', 'en', 'ru'] as const;
 
-describe('English grammar sections 7-8 explanation seed', () => {
+describe('English grammar sections 7-8 seed', () => {
   const pages = [...ENGLISH_GRAMMAR_SEED_S7, ...ENGLISH_GRAMMAR_SEED_S8];
 
   it('finishes source units 92-114 in the planned app units', () => {
@@ -97,100 +101,123 @@ describe('English grammar sections 7-8 explanation seed', () => {
     );
   });
 
-  it('provides a complete, mixed Section 7 grammar practice track', () => {
-    expect(ENGLISH_GT_S7_NODES).toHaveLength(3);
-    expect(Object.keys(ENGLISH_GT_S7_QUESTIONS)).toHaveLength(300);
+  it('provides complete, mixed Section 7-8 grammar practice tracks', () => {
+    const practiceSections = [
+      {
+        section: 7,
+        nodes: ENGLISH_GT_S7_NODES,
+        questions: ENGLISH_GT_S7_QUESTIONS,
+        questionCount: 300,
+      },
+      {
+        section: 8,
+        nodes: ENGLISH_GT_S8_NODES,
+        questions: ENGLISH_GT_S8_QUESTIONS,
+        questionCount: 160,
+      },
+    ] as const;
 
-    for (const node of ENGLISH_GT_S7_NODES) {
-      expect(node.section).toBe(7);
-      for (const lesson of node.lessons) {
-        const questions = lesson.questions.map(
-          (code) => ENGLISH_GT_S7_QUESTIONS[code],
-        );
-        const blanks = questions.filter(
-          (question) => question.type === 'grammar_blank',
-        );
-        const builds = questions.filter(
-          (question) => question.type === 'grammar_build',
-        );
-        const multiBlanks = blanks.filter(
-          (question) => question.sentenceTemplate,
-        );
+    for (const practice of practiceSections) {
+      expect(practice.nodes).toHaveLength(3);
+      expect(Object.keys(practice.questions)).toHaveLength(
+        practice.questionCount,
+      );
 
-        expect(blanks).toHaveLength(10);
-        expect(builds).toHaveLength(10);
-        expect(multiBlanks).toHaveLength(3);
-        expect(
-          multiBlanks.filter((question) => question.blankAnswers?.length === 2),
-        ).toHaveLength(2);
-        expect(
-          multiBlanks.filter((question) => question.blankAnswers?.length === 3),
-        ).toHaveLength(1);
-        expect(
-          blanks.filter((question) =>
-            question.tags.includes('blank-focus-grammar'),
-          ),
-        ).toHaveLength(5);
-        expect(
-          blanks.filter((question) =>
-            question.tags.includes('blank-focus-context'),
-          ),
-        ).toHaveLength(5);
-
-        questions.forEach((question, index) => {
-          expect(question.type).toBe(
-            index % 2 === 0 ? 'grammar_blank' : 'grammar_build',
+      for (const node of practice.nodes) {
+        expect(node.section).toBe(practice.section);
+        for (const lesson of node.lessons) {
+          const questions = lesson.questions.map(
+            (code) => practice.questions[code],
           );
-          expect(question.level).toBe('6');
-          expect(new Set(question.acceptedAnswers).size).toBe(
-            question.acceptedAnswers.length,
+          const blanks = questions.filter(
+            (question) => question.type === 'grammar_blank',
           );
-          expect(question.acceptedAnswers).not.toContain(question.answer);
+          const builds = questions.filter(
+            (question) => question.type === 'grammar_build',
+          );
+          const multiBlanks = blanks.filter(
+            (question) => question.sentenceTemplate,
+          );
 
-          for (const field of [
-            question.instruction,
-            question.answerTranslation,
-            question.hint,
-            question.explanation,
-          ]) {
-            for (const language of LANGUAGES) {
-              expect(field[language].trim()).not.toBe('');
+          expect(blanks).toHaveLength(10);
+          expect(builds).toHaveLength(10);
+          expect(multiBlanks).toHaveLength(3);
+          expect(
+            multiBlanks.filter(
+              (question) => question.blankAnswers?.length === 2,
+            ),
+          ).toHaveLength(2);
+          expect(
+            multiBlanks.filter(
+              (question) => question.blankAnswers?.length === 3,
+            ),
+          ).toHaveLength(1);
+          expect(
+            blanks.filter((question) =>
+              question.tags.includes('blank-focus-grammar'),
+            ),
+          ).toHaveLength(5);
+          expect(
+            blanks.filter((question) =>
+              question.tags.includes('blank-focus-context'),
+            ),
+          ).toHaveLength(5);
+
+          questions.forEach((question, index) => {
+            expect(question.type).toBe(
+              index % 2 === 0 ? 'grammar_blank' : 'grammar_build',
+            );
+            expect(question.level).toBe('6');
+            expect(new Set(question.acceptedAnswers).size).toBe(
+              question.acceptedAnswers.length,
+            );
+            expect(question.acceptedAnswers).not.toContain(question.answer);
+
+            for (const field of [
+              question.instruction,
+              question.answerTranslation,
+              question.hint,
+              question.explanation,
+            ]) {
+              for (const language of LANGUAGES) {
+                expect(field[language].trim()).not.toBe('');
+              }
             }
-          }
 
-          if (question.type === 'grammar_blank') {
-            if (question.sentenceTemplate) {
-              let answerIndex = 0;
-              const rebuilt = question.sentenceTemplate.replace(
-                /_{3,}/g,
-                () => question.blankAnswers?.[answerIndex++] ?? '',
-              );
-              expect(question.answer).toBe(rebuilt);
-              expect(rebuilt).toBe(question.answerTranslation.en);
+            if (question.type === 'grammar_blank') {
+              if (question.sentenceTemplate) {
+                let answerIndex = 0;
+                const rebuilt = question.sentenceTemplate.replace(
+                  /_{3,}/g,
+                  () => question.blankAnswers?.[answerIndex++] ?? '',
+                );
+                expect(question.answer).toBe(rebuilt);
+                expect(rebuilt).toBe(question.answerTranslation.en);
+              } else {
+                expect(
+                  `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`,
+                ).toBe(question.answerTranslation.en);
+              }
             } else {
               expect(
-                `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`,
-              ).toBe(question.answerTranslation.en);
+                question.buildRows.map((row) => row.correct).join(' '),
+              ).toBe(question.answer);
+              for (const row of question.buildRows) {
+                expect(row.options).toHaveLength(3);
+                expect(new Set(row.options).size).toBe(3);
+                expect(row.options).toContain(row.correct);
+                expect(
+                  row.options.every((option) => /^\S+$/u.test(option)),
+                ).toBe(true);
+              }
             }
-          } else {
-            expect(question.buildRows.map((row) => row.correct).join(' ')).toBe(
-              question.answer,
-            );
-            for (const row of question.buildRows) {
-              expect(row.options).toHaveLength(3);
-              expect(new Set(row.options).size).toBe(3);
-              expect(row.options).toContain(row.correct);
-              expect(row.options.every((option) => /^\S+$/u.test(option))).toBe(
-                true,
-              );
-            }
-          }
-        });
+          });
+        }
       }
     }
   });
 
-  it('registers Section 7 practice while keeping Section 8 explanation-only', () => {
+  it('registers all 114 explanation pages and their practice tracks', () => {
     const grammarSeed = [
       ...ENGLISH_GRAMMAR_SEED_S1,
       ...ENGLISH_GRAMMAR_SEED_S2,
@@ -209,6 +236,7 @@ describe('English grammar sections 7-8 explanation seed', () => {
       ...ENGLISH_GT_S5_NODES,
       ...ENGLISH_GT_S6_NODES,
       ...ENGLISH_GT_S7_NODES,
+      ...ENGLISH_GT_S8_NODES,
     ];
     const trackQuestions = {
       ...ENGLISH_GT_S1_QUESTIONS,
@@ -218,11 +246,12 @@ describe('English grammar sections 7-8 explanation seed', () => {
       ...ENGLISH_GT_S5_QUESTIONS,
       ...ENGLISH_GT_S6_QUESTIONS,
       ...ENGLISH_GT_S7_QUESTIONS,
+      ...ENGLISH_GT_S8_QUESTIONS,
     };
 
     expect(grammarSeed).toHaveLength(114);
-    expect(trackNodes).toHaveLength(21);
-    expect(Object.keys(trackQuestions)).toHaveLength(2120);
-    expect(Math.max(...trackNodes.map((node) => node.section))).toBe(7);
+    expect(trackNodes).toHaveLength(24);
+    expect(Object.keys(trackQuestions)).toHaveLength(2280);
+    expect(Math.max(...trackNodes.map((node) => node.section))).toBe(8);
   });
 });
