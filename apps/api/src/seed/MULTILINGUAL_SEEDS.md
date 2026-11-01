@@ -78,8 +78,8 @@ pnpm --filter api seed:grammar-track -- --courseId=en-general
 40개 주제의 표현 로드맵과 같은 시드를 쓰는 말하기 연습을 지원합니다. 한국어와 영어
 말하기는 주제마다 초급·중급·고급을 골라 해당 급의 표현 30개 이상을 연습하며, 급별
 진도를 따로 저장합니다. 영어 문법 설명은 `Essential Grammar in Use` Unit 1–114를
-앱 Section 1–8의 24개 유닛으로 묶었습니다. 문법 문제 트랙은 현재 Unit 1–91,
-Section 1–6까지 등록되어 있으며 Section 7–8 문제는 별도 검수 후 연결합니다.
+앱 Section 1–8의 24개 유닛으로 묶었습니다. 문법 문제 트랙은 현재 Unit 1–106,
+Section 1–7까지 등록되어 있으며 Section 8 문제는 별도 검수 후 연결합니다.
 TOPIK 등 준비되지 않은 모드는 연결하지 않습니다.
 
 표현 시드는 별도 코스 선택을 지원합니다. 기존 `seed:validate-expressions`와
