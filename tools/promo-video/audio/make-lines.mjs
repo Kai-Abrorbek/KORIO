@@ -66,10 +66,13 @@ for (const line of lines) {
     console.log(`✓ raw-${line.key}.mp3`);
   }
   const file = join(OUT, `${line.key}.mp3`);
-  // 앞뒤 무음만 자르고(문장 사이 쉼은 감정을 위해 남긴다), 목소리마다 정한 빠르기로
+  // 앞뒤 무음만 자르고(문장 사이 쉼은 감정을 위해 남긴다), 목소리마다 정한 빠르기로.
+  // pitch(예: 0.944 = 반음 낮게)를 주면 빠르기는 그대로 두고 음높이만 바꾼다
+  const pitch = voice.pitch ?? 1;
+  const shift = pitch === 1 ? "" : `asetrate=44100*${pitch},aresample=44100,`;
   execFileSync("ffmpeg", [
     "-y", "-loglevel", "error", "-i", raw,
-    "-af", `silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.04,areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.1,areverse,atempo=${voice.tempo ?? 1}`,
+    "-af", `silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.04,areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.1,areverse,${shift}atempo=${((voice.tempo ?? 1) / pitch).toFixed(4)}`,
     "-b:a", "160k", file,
   ]);
   const len = duration(file);

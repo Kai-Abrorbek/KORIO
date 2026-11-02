@@ -2,9 +2,10 @@
   "id": "tolayman",
   "voices": {
     "nar": {
-      "id": "EXAVITQu4vr4xnSDxMaL",
-      "speed": 1.04,
-      "tempo": 1.14
+      "id": "rwtcHtZgYU6HN2zLNBlf",
+      "speed": 1.02,
+      "tempo": 1.06,
+      "pitch": 0.944
     },
     "sanjar": {
       "id": "TX3LPaxmHKxFdv7VOQHJ",
@@ -12,14 +13,14 @@
       "tempo": 1.04
     },
     "dilshod": {
-      "id": "JBFqnCBsd6RMkjVDRZzb",
-      "speed": 1.08,
-      "tempo": 1.06
+      "id": "EkK5I93UQWFDigLMpZcX",
+      "speed": 1.06,
+      "tempo": 1.04
     },
     "ulugbek": {
-      "id": "TX3LPaxmHKxFdv7VOQHJ",
-      "speed": 1.12,
-      "tempo": 1.1
+      "id": "VCgLBmBjldJmfphyB8sZ",
+      "speed": 1.08,
+      "tempo": 1.06
     }
   },
   "lines": [
@@ -177,7 +178,7 @@
       "key": "n17",
       "voice": "nar",
       "lang": "uz",
-      "text": "Endi u hatto koreyschada ham toʻlaydi."
+      "text": "Endi u hatto koreys tilida ham toʻlaydi."
     },
     {
       "key": "n18",
