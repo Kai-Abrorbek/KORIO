@@ -153,6 +153,9 @@ export function mocksFor(scene) {
     // 단어 카드 (So'z kartalari) — ?section=1&unit=1
     case "wordCards":
       return [...common, ...wordCardMocks()];
+    // 가족 단어 카드 (아들 · 딸 · 아버지 …) — ?section=1&unit=1
+    case "wordFamily":
+      return [...common, ...wordCardMocks(FAMILY_WORDS)];
     // 단어 카드 사용법: 홈 → 학습 카드 → So'z kartalari → 범위 · 카드 · 떠올리기
     case "wordsTour":
       return [...common, ...homeMocks(), ...wordCardMocks()];
@@ -455,7 +458,16 @@ function vocabRoadmap() {
 }
 
 /** 단어 카드 (So'z kartalari) — 1단원 단어 6개 */
-function wordCardMocks() {
+/** 가족 단어 — 시드 vocabulary/section2/unit1 의 우즈벡어 뜻 그대로 (아들이 첫 카드) */
+const FAMILY_WORDS = [
+  ["아들", "o‘g‘il farzand", "adeul", "", "아들이 두 명 있어요.", "Ikki o‘g‘lim bor."],
+  ["딸", "qiz farzand", "ttal", "", "딸이 한 명 있어요.", "Bitta qizim bor."],
+  ["아버지", "ota", "abeoji", "", "아버지는 운전을 잘하세요.", "Otam mashinani yaxshi haydaydi."],
+  ["어머니", "ona", "eomeoni", "", "어머니는 요리를 잘하세요.", "Onam yaxshi ovqat pishiradi."],
+  ["가족", "oila", "gajok", "", "주말에 가족을 만나요.", "Dam olish kunlari oilam bilan uchrashaman."],
+];
+
+function wordCardMocks(list) {
   const word = (i, headword, meaning, romanization, emoji, example, translation) => ({
     id: `w${i}`, code: `promo-${i}`, courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR",
     difficulty: 1, headword, meaning, partOfSpeech: "noun", senseKey: "", tags: [], usageNote: "",
@@ -465,7 +477,7 @@ function wordCardMocks() {
     placement: { isCore: true, order: i, section: 1, unit: 1 },
     progress: { state: i < 2 ? "learning" : "new" },
   });
-  const items = [
+  const items = list ? list.map((w, i) => word(i, ...w)) : [
     word(0, "학생", "talaba", "haksaeng", "🧑‍🎓", "저는 학생이에요.", "Men talabaman."),
     word(1, "선생님", "o'qituvchi", "seonsaengnim", "👩‍🏫", "선생님, 안녕하세요!", "Ustoz, assalomu alaykum!"),
     word(2, "의사", "shifokor", "uisa", "🧑‍⚕️", "제 친구는 의사예요.", "Do'stim shifokor."),

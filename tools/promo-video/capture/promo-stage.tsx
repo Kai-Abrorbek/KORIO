@@ -193,6 +193,7 @@ function Scene({ name }: { name: string }): ReactNode {
       // ?category=vocabulary
       return <RoadmapScreen />;
     case "wordCards":
+    case "wordFamily":
       // ?section=1&unit=1
       return <WordStudyScreen />;
     case "grammarStudy":
