@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { Redirect, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -20,7 +19,6 @@ import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
 import {
   Gesture,
   GestureDetector,
-  GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -46,7 +44,6 @@ import { useAuthStore } from "@/store/auth.store";
 import type {
   StudyWord,
   WordSectionSummary,
-  WordUnitSummary,
 } from "@/types/word-study";
 import * as Haptics from "@/utils/haptics";
 import { useSeenWords } from "@/hooks/useSeenWords";
@@ -754,394 +751,17 @@ function RecallOfferModal({
   );
 }
 
-function ScopePicker({
-  visible,
-  summaries,
-  initialSection,
-  initialUnit,
-  initialAutoPlay,
-  theme,
-  bottomInset,
-  onClose,
-  onApply,
-}: {
-  visible: boolean;
-  summaries: WordSectionSummary[];
-  initialSection: number;
-  initialUnit: number;
-  initialAutoPlay: boolean;
-  theme: ThemeColors;
-  bottomInset: number;
-  onClose: () => void;
-  onApply: (section: number, unit: number, autoPlay: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const { height: screenHeight } = useWindowDimensions();
-  const available = summaries.filter((summary) => summary.words > 0);
-  const [section, setSection] = useState(initialSection);
-  const [unit, setUnit] = useState(initialUnit);
-  const [autoPlay, setAutoPlay] = useState(initialAutoPlay);
-  const translateY = useSharedValue(0);
-
-  useEffect(() => {
-    if (!visible) return;
-    setSection(initialSection);
-    setUnit(initialUnit);
-    setAutoPlay(initialAutoPlay);
-    translateY.value = 0;
-  }, [initialAutoPlay, initialSection, initialUnit, translateY, visible]);
-
-  const selectedSummary =
-    available.find((summary) => summary.section === section) ?? available[0];
-
-  const selectSection = (nextSection: number) => {
-    const nextSummary = available.find(
-      (summary) => summary.section === nextSection,
-    );
-    if (!nextSummary) return;
-    setSection(nextSection);
-    setUnit(nextSummary.units[0]?.unit ?? 1);
-    void Haptics.selectionAsync();
-  };
-
-  const selectPlaybackMode = (enabled: boolean) => {
-    if (enabled === autoPlay) return;
-    setAutoPlay(enabled);
-    void Haptics.selectionAsync();
-  };
-
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
-
-  const dismissGesture = Gesture.Pan()
-    .activeOffsetY(8)
-    .failOffsetX([-24, 24])
-    .onUpdate((event) => {
-      translateY.value = Math.max(0, event.translationY);
-    })
-    .onEnd((event) => {
-      const shouldClose = event.translationY > 100 || event.velocityY > 900;
-
-      if (shouldClose) {
-        translateY.value = withTiming(
-          screenHeight,
-          { duration: 200, easing: Easing.in(Easing.cubic) },
-          (finished) => {
-            if (finished) runOnJS(onClose)();
-          },
-        );
-        return;
-      }
-
-      translateY.value = withTiming(0, {
-        duration: 180,
-        easing: Easing.out(Easing.cubic),
-      });
-    });
-
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
-      <GestureHandlerRootView style={styles.modalRoot}>
-        <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <Animated.View
-          style={[
-            styles.scopeSheet,
-            {
-              backgroundColor: theme.surface,
-              paddingBottom: Math.max(20, bottomInset + 12),
-            },
-            sheetStyle,
-          ]}
-        >
-          <GestureDetector gesture={dismissGesture}>
-            <View style={styles.sheetDragArea}>
-              <View
-                style={[styles.sheetHandle, { backgroundColor: theme.border }]}
-              />
-              <View style={styles.sheetHeadingRow}>
-                <View>
-                  <Text style={[styles.sheetEyebrow, { color: theme.primary }]}>
-                    {t("wordStudy.chooseRangeEyebrow")}
-                  </Text>
-                  <Text style={[styles.sheetTitle, { color: theme.text }]}>
-                    {t("wordStudy.chooseRange")}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  onPress={onClose}
-                  style={[styles.sheetClose, { backgroundColor: theme.border }]}
-                >
-                  <Ionicons
-                    name="close"
-                    size={20}
-                    color={theme.textSecondary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </GestureDetector>
-
-          <ScrollView
-            style={styles.pickerScroll}
-            contentContainerStyle={styles.pickerScrollContent}
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled
-          >
-            <Text style={[styles.pickerLabel, { color: theme.textSecondary }]}>
-              {t("wordStudy.section")}
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.sectionChips}
-            >
-              {available.map((summary) => {
-                const selected = summary.section === selectedSummary?.section;
-                return (
-                  <TouchableOpacity
-                    key={summary.section}
-                    onPress={() => selectSection(summary.section)}
-                    style={[
-                      styles.sectionChip,
-                      {
-                        backgroundColor: selected ? theme.primary : theme.bg,
-                        borderColor: selected ? theme.primary : theme.border,
-                      },
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.sectionChipText,
-                        { color: selected ? "#FFFFFF" : theme.text },
-                      ]}
-                    >
-                      {t("wordStudy.sectionNumber", { n: summary.section })}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.sectionChipCount,
-                        { color: selected ? "#FFFFFFCC" : theme.textSecondary },
-                      ]}
-                    >
-                      {t("wordStudy.wordsCount", { count: summary.words })}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            <Text style={[styles.pickerLabel, { color: theme.textSecondary }]}>
-              {t("wordStudy.unit")}
-            </Text>
-            <View style={styles.unitGrid}>
-              {(selectedSummary?.units ?? []).map((item: WordUnitSummary) => {
-                const selected = item.unit === unit;
-                return (
-                  <TouchableOpacity
-                    key={item.unit}
-                    onPress={() => {
-                      setUnit(item.unit);
-                      void Haptics.selectionAsync();
-                    }}
-                    style={[
-                      styles.unitChip,
-                      {
-                        backgroundColor: selected
-                          ? theme.primary + "16"
-                          : theme.bg,
-                        borderColor: selected ? theme.primary : theme.border,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={[
-                        styles.unitNumber,
-                        {
-                          backgroundColor: selected
-                            ? theme.primary
-                            : theme.border,
-                        },
-                      ]}
-                    >
-                      <Text
-                        style={[
-                          styles.unitNumberText,
-                          { color: selected ? "#FFFFFF" : theme.textSecondary },
-                        ]}
-                      >
-                        {item.unit}
-                      </Text>
-                    </View>
-                    <View style={styles.unitTextGroup}>
-                      <Text style={[styles.unitTitle, { color: theme.text }]}>
-                        {t("wordStudy.unitNumber", { n: item.unit })}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.unitCount,
-                          { color: theme.textSecondary },
-                        ]}
-                      >
-                        {t("wordStudy.wordsCount", { count: item.words })}
-                      </Text>
-                    </View>
-                    {selected ? (
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={22}
-                        color={theme.primary}
-                      />
-                    ) : null}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <Text
-              style={[
-                styles.pickerLabel,
-                styles.playbackLabel,
-                { color: theme.textSecondary },
-              ]}
-            >
-              {t("wordStudy.playback")}
-            </Text>
-            <View style={styles.playbackOptions}>
-              <TouchableOpacity
-                accessibilityRole="radio"
-                accessibilityState={{ checked: autoPlay }}
-                onPress={() => selectPlaybackMode(true)}
-                activeOpacity={0.82}
-                style={[
-                  styles.playbackOption,
-                  {
-                    backgroundColor: autoPlay ? theme.primary + "14" : theme.bg,
-                    borderColor: autoPlay ? theme.primary : theme.border,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.playbackIcon,
-                    {
-                      backgroundColor: autoPlay ? theme.primary : theme.border,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name="volume-high-outline"
-                    size={20}
-                    color={autoPlay ? "#FFFFFF" : theme.textSecondary}
-                  />
-                </View>
-                <View style={styles.playbackTextGroup}>
-                  <Text style={[styles.playbackTitle, { color: theme.text }]}>
-                    {t("wordStudy.playbackAuto")}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.playbackDescription,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {t("wordStudy.playbackAutoSub")}
-                  </Text>
-                </View>
-                {autoPlay ? (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={21}
-                    color={theme.primary}
-                  />
-                ) : null}
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                accessibilityRole="radio"
-                accessibilityState={{ checked: !autoPlay }}
-                onPress={() => selectPlaybackMode(false)}
-                activeOpacity={0.82}
-                style={[
-                  styles.playbackOption,
-                  {
-                    backgroundColor: !autoPlay
-                      ? theme.primary + "14"
-                      : theme.bg,
-                    borderColor: !autoPlay ? theme.primary : theme.border,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.playbackIcon,
-                    {
-                      backgroundColor: !autoPlay ? theme.primary : theme.border,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name="finger-print-outline"
-                    size={20}
-                    color={!autoPlay ? "#FFFFFF" : theme.textSecondary}
-                  />
-                </View>
-                <View style={styles.playbackTextGroup}>
-                  <Text style={[styles.playbackTitle, { color: theme.text }]}>
-                    {t("wordStudy.playbackManual")}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.playbackDescription,
-                      { color: theme.textSecondary },
-                    ]}
-                  >
-                    {t("wordStudy.playbackManualSub")}
-                  </Text>
-                </View>
-                {!autoPlay ? (
-                  <Ionicons
-                    name="checkmark-circle"
-                    size={21}
-                    color={theme.primary}
-                  />
-                ) : null}
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-
-          <TouchableOpacity
-            disabled={!selectedSummary || !unit}
-            onPress={() => {
-              if (selectedSummary && unit) {
-                onApply(selectedSummary.section, unit, autoPlay);
-              }
-            }}
-            activeOpacity={0.88}
-            style={[
-              styles.applyButton,
-              { backgroundColor: theme.primary },
-              (!selectedSummary || !unit) && styles.disabled,
-            ]}
-          >
-            <Text style={styles.applyButtonText}>
-              {t("wordStudy.studyThisRange")}
-            </Text>
-            <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </Animated.View>
-      </GestureHandlerRootView>
-    </Modal>
-  );
+export default function WordStudyRoute() {
+  const params = useLocalSearchParams<{ section?: string; unit?: string }>();
+  const section = Number(params.section);
+  const unit = Number(params.unit);
+  if (!Number.isInteger(section) || section < 1 || !Number.isInteger(unit) || unit < 1) {
+    return <Redirect href="/word-library" />;
+  }
+  return <WordStudyScreen />;
 }
 
-export default function WordStudyScreen() {
+function WordStudyScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     section?: string;
@@ -1151,6 +771,7 @@ export default function WordStudyScreen() {
     /** 학습 로드 모드: 단어 노드의 몇 번째 레슨인지 (1-based) */
     lesson?: string;
     lessonCount?: string;
+    resume?: string;
   }>();
   // loadWords 의 의존성 배열이 즉시 평가되므로 그보다 위에서 선언해야 한다
   const studyLesson = Math.max(1, Number(params.lesson) || 1);
@@ -1166,11 +787,12 @@ export default function WordStudyScreen() {
   // 카드를 넘겨 본 단어는 "학습 중"으로 올라간다. 학습 로드 모드의 단어 노드가
   // 이걸로 완료 여부를 판단한다.
   const { markSeen, flush: flushSeen } = useSeenWords();
+  useFocusEffect(useCallback(() => () => {
+    stop();
+    flushSeen();
+  }, [flushSeen, stop]));
   const wordStudyAutoPlay = useSettingsStore(
     (state) => state.wordStudyAutoPlay,
-  );
-  const setWordStudyAutoPlay = useSettingsStore(
-    (state) => state.setWordStudyAutoPlay,
   );
   const wordStudyLast = useSettingsStore((state) => state.wordStudyLast);
   const setWordStudyLast = useSettingsStore((state) => state.setWordStudyLast);
@@ -1180,14 +802,13 @@ export default function WordStudyScreen() {
   const screenStyles = useMemo(() => createScreenStyles(theme), [theme]);
 
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
-  const [section, setSection] = useState(3);
-  const [unit, setUnit] = useState(1);
+  const [section, setSection] = useState(Number(params.section));
+  const [unit, setUnit] = useState(Number(params.unit));
   const [words, setWords] = useState<StudyWord[]>([]);
   const [cardIndex, setCardIndex] = useState(0);
   const [scopeLoading, setScopeLoading] = useState(true);
   const [wordsLoading, setWordsLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [pickerVisible, setPickerVisible] = useState(false);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("browse");
   const [recallOfferVisible, setRecallOfferVisible] = useState(false);
   const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
@@ -1232,40 +853,26 @@ export default function WordStudyScreen() {
       const available = result.filter((summary) => summary.words > 0);
       setSummaries(result);
 
-      // 1순위: 라우트 파라미터(로드맵에서 특정 유닛으로 들어온 경우)
-      // 2순위: 마지막으로 보던 위치 — 멈춘 곳부터 이어간다
-      // 둘 다 없으면 아직 시작한 적 없는 유저 → 범위 선택 모달부터 띄운다
       const saved = wordStudyLast;
-      const requestedSection = Number(params.section) || saved?.section;
-      const requestedUnit = Number(params.unit) || saved?.unit;
-
-      const matchedSummary = available.find(
-        (item) => item.section === requestedSection,
-      );
+      const requestedSection = Number(params.section);
+      const requestedUnit = Number(params.unit);
+      const matchedSummary = available.find((item) => item.section === requestedSection);
       const matchedUnit = matchedSummary?.units.find(
-        (item) => item.unit === requestedUnit,
-      )?.unit;
-
-      if (matchedSummary && matchedUnit) {
-        setSection(matchedSummary.section);
-        setUnit(matchedUnit);
-        // 저장된 위치로 돌아온 경우에만 카드 번호까지 복원한다
-        if (
-          !Number(params.section) &&
-          saved &&
-          saved.section === matchedSummary.section &&
-          saved.unit === matchedUnit
-        ) {
-          resumeIndexRef.current = saved.cardIndex;
-        }
-      } else {
-        // 이어갈 데이터가 없다 → 어디서부터 할지 직접 고르게 한다
-        const fallback = available[0];
-        if (fallback?.units[0]) {
-          setSection(fallback.section);
-          setUnit(fallback.units[0].unit);
-        }
-        if (!Number(params.section)) setPickerVisible(true);
+        (item) => item.unit === requestedUnit && item.words > 0,
+      );
+      if (!matchedSummary || !matchedUnit) {
+        setSummaries([]);
+        router.replace("/word-library");
+        return;
+      }
+      setSection(matchedSummary.section);
+      setUnit(matchedUnit.unit);
+      // Only Continue restores a free-study card position; a new range starts at zero.
+      if (
+        params.resume === "1" && params.from !== "studyPath" && saved &&
+        saved.section === matchedSummary.section && saved.unit === matchedUnit.unit
+      ) {
+        resumeIndexRef.current = saved.cardIndex;
       }
     } catch {
       setLoadFailed(true);
@@ -1274,7 +881,7 @@ export default function WordStudyScreen() {
     }
     // wordStudyLast 는 첫 계산에만 쓰고 이후 변화로 다시 돌지 않게 의존성에서 뺀다
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.section, params.unit, learnCourse]);
+  }, [params.section, params.unit, params.resume, params.from, learnCourse, router]);
 
   useEffect(() => {
     resumeConsumedRef.current = false;
@@ -1809,33 +1416,21 @@ export default function WordStudyScreen() {
     else router.replace("/");
   };
 
-  const openScopePicker = () => {
+  const openWordLibrary = () => {
     stop();
-    setPickerVisible(true);
-  };
-
-  const applyScope = (
-    nextSection: number,
-    nextUnit: number,
-    nextAutoPlay: boolean,
-  ) => {
-    setPickerVisible(false);
-    setWordStudyAutoPlay(nextAutoPlay);
-    if (nextSection === section && nextUnit === unit) return;
-    // 직접 고른 범위는 처음부터 본다
-    resumeIndexRef.current = null;
-    resumeConsumedRef.current = true;
-    setSection(nextSection);
-    setUnit(nextUnit);
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    flushSeen();
+    router.dismissTo({
+      pathname: "/word-library",
+      params: { section: String(section), unit: String(unit) },
+    });
   };
 
   // 보던 지점을 저장한다. 다음 진입 때 여기서 이어간다.
   useEffect(() => {
-    if (wordsLoading || words.length === 0) return;
+    if (wordsLoading || words.length === 0 || params.from === "studyPath") return;
     if ((words[0]?.targetLanguage ?? "ko") !== useSettingsStore.getState().learnCourse) return;
     setWordStudyLast({ section, unit, cardIndex });
-  }, [cardIndex, section, unit, words, wordsLoading, setWordStudyLast]);
+  }, [cardIndex, section, unit, words, wordsLoading, params.from, setWordStudyLast]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
 
@@ -1923,7 +1518,7 @@ export default function WordStudyScreen() {
         {!keyboardVisible ? (
           <Animated.View entering={FadeInDown.duration(320)}>
             <TouchableOpacity
-              onPress={openScopePicker}
+              onPress={openWordLibrary}
               disabled={scopeLoading || summaries.every((item) => !item.words)}
               activeOpacity={0.86}
               style={[
@@ -2188,17 +1783,6 @@ export default function WordStudyScreen() {
         )}
       </View>
 
-      <ScopePicker
-        visible={pickerVisible}
-        summaries={summaries}
-        initialSection={section}
-        initialUnit={unit}
-        initialAutoPlay={wordStudyAutoPlay}
-        theme={theme}
-        bottomInset={insets.bottom}
-        onClose={() => setPickerVisible(false)}
-        onApply={applyScope}
-      />
       <RecallOfferModal
         visible={recallOfferVisible}
         wordCount={words.length}
@@ -2739,10 +2323,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   recallOfferSkipText: { fontSize: 13, fontWeight: "800" },
-  modalRoot: {
-    flex: 1,
-    justifyContent: "flex-end",
-  },
   modalBackdrop: {
     position: "absolute",
     top: 0,
@@ -2751,114 +2331,7 @@ const styles = StyleSheet.create({
     left: 0,
     backgroundColor: "#11121A99",
   },
-  scopeSheet: {
-    width: "100%",
-    borderTopLeftRadius: 32,
-    borderTopRightRadius: 32,
-    paddingTop: 10,
-    paddingHorizontal: 20,
-    maxHeight: "90%",
-  },
-  sheetDragArea: { marginHorizontal: -2 },
-  sheetHandle: {
-    width: 42,
-    height: 5,
-    borderRadius: 99,
-    alignSelf: "center",
-    marginBottom: 19,
-  },
-  sheetHeadingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-  sheetEyebrow: {
-    fontSize: 10,
-    fontWeight: "900",
-    letterSpacing: 1.4,
-    marginBottom: 3,
-  },
-  sheetTitle: { fontSize: 24, lineHeight: 31, fontWeight: "900" },
-  sheetClose: {
-    width: 38,
-    height: 38,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pickerScroll: { flexShrink: 1 },
-  pickerScrollContent: { paddingBottom: 4 },
-  pickerLabel: { fontSize: 12, fontWeight: "900", marginBottom: 10 },
-  sectionChips: { gap: 10, paddingBottom: 20 },
-  sectionChip: {
-    minWidth: 126,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  sectionChipText: { fontSize: 15, fontWeight: "900" },
-  sectionChipCount: { fontSize: 11, fontWeight: "700", marginTop: 3 },
-  unitGrid: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
-  unitChip: {
-    flexBasis: "48%",
-    flexGrow: 1,
-    minHeight: 62,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  unitNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  unitNumberText: { fontSize: 14, fontWeight: "900" },
-  unitTextGroup: { flex: 1, paddingHorizontal: 12 },
-  unitTitle: { fontSize: 15, fontWeight: "900" },
-  unitCount: { fontSize: 11, fontWeight: "700", marginTop: 2 },
-  playbackLabel: { marginTop: 20 },
-  playbackOptions: { gap: 9 },
-  playbackOption: {
-    minHeight: 72,
-    borderRadius: 18,
-    borderWidth: 1.5,
-    paddingHorizontal: 13,
-    paddingVertical: 11,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 11,
-  },
-  playbackIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  playbackTextGroup: { flex: 1 },
-  playbackTitle: { fontSize: 14, lineHeight: 19, fontWeight: "900" },
-  playbackDescription: {
-    fontSize: 11,
-    lineHeight: 16,
-    fontWeight: "600",
-    marginTop: 2,
-  },
-  applyButton: {
-    height: 56,
-    borderRadius: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 12,
-  },
-  applyButtonText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
+
 });
 
 const createScreenStyles = (theme: ThemeColors) => {

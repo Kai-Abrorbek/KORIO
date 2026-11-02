@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
 } from "react";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -29,24 +28,16 @@ import {
   lessonSlice,
   type StudyWord,
   type WordSectionSummary,
-  type WordUnitSummary,
 } from "../model/word";
 import { useWordCardSwipe, WORD_CARD_SWIPE_THRESHOLD } from "./use-word-card-swipe";
+import { readWordPreferences, saveWordPreferences } from "../model/word-preferences";
+import { uzt } from "../../../shared/i18n/uz-text";
 import styles from "./word-study.module.css";
-
-const SCOPE_STORAGE_KEY = "korio.telegram.word-scope";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 type RecallStatus = "idle" | "wrong" | "correct";
 type StudyPhase = "browse" | "recall" | "complete";
 type CardMotion = "idle" | "out" | "in";
-
-interface WordPreferences {
-  autoPlay: boolean;
-  cardIndex: number;
-  section: number;
-  unit: number;
-}
 
 interface CardPalette {
   accent: string;
@@ -84,31 +75,6 @@ function paletteStyle(palette: CardPalette): CSSProperties {
 
 function speechText(word: StudyWord): string {
   return word.pronunciation.ttsText || word.pronunciation.hangul || word.headword;
-}
-
-function readPreferences(course: LearnCourse): WordPreferences | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const parsed = JSON.parse(
-      window.localStorage.getItem(`${SCOPE_STORAGE_KEY}:${DEFAULT_LEARNING_COURSES[course].courseId}`) ??
-      (course === "ko" ? window.localStorage.getItem(SCOPE_STORAGE_KEY) : null) ?? "null",
-    ) as Partial<WordPreferences> | null;
-    if (!parsed || !Number.isFinite(parsed.section) || !Number.isFinite(parsed.unit)) {
-      return null;
-    }
-    return {
-      autoPlay: typeof parsed.autoPlay === "boolean" ? parsed.autoPlay : true,
-      cardIndex: Number.isFinite(parsed.cardIndex) ? Number(parsed.cardIndex) : 0,
-      section: Number(parsed.section),
-      unit: Number(parsed.unit),
-    };
-  } catch {
-    return null;
-  }
-}
-
-function savePreferences(course: LearnCourse, preferences: WordPreferences) {
-  window.localStorage.setItem(`${SCOPE_STORAGE_KEY}:${DEFAULT_LEARNING_COURSES[course].courseId}`, JSON.stringify(preferences));
 }
 
 function pickRecallWordId(
@@ -469,219 +435,6 @@ function RecallOffer({
   );
 }
 
-function ScopeSheet({
-  initialAutoPlay,
-  initialSection,
-  initialUnit,
-  onApply,
-  onClose,
-  summaries,
-}: {
-  initialAutoPlay: boolean;
-  initialSection: number;
-  initialUnit: number;
-  onApply: (section: number, unit: number, autoPlay: boolean) => void;
-  onClose: () => void;
-  summaries: WordSectionSummary[];
-}) {
-  const available = summaries.filter((summary) => summary.words > 0);
-  const [section, setSection] = useState(initialSection);
-  const [unit, setUnit] = useState(initialUnit);
-  const [autoPlay, setAutoPlay] = useState(initialAutoPlay);
-  const [sheetY, setSheetY] = useState(0);
-  const [sheetTransitioning, setSheetTransitioning] = useState(false);
-  const dragRef = useRef<{
-    pointerId: number;
-    startAt: number;
-    startY: number;
-  } | null>(null);
-  const selectedSummary =
-    available.find((summary) => summary.section === section) ?? available[0];
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
-
-  const selectSection = (nextSection: number) => {
-    const nextSummary = available.find(
-      (summary) => summary.section === nextSection,
-    );
-    if (!nextSummary) return;
-    setSection(nextSection);
-    setUnit(nextSummary.units[0]?.unit ?? 1);
-    hapticSelection();
-  };
-
-  const selectPlayback = (enabled: boolean) => {
-    if (enabled === autoPlay) return;
-    setAutoPlay(enabled);
-    hapticSelection();
-  };
-
-  const finishSheetDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    dragRef.current = null;
-    if (!drag) return;
-    const elapsed = Math.max(1, performance.now() - drag.startAt);
-    const velocity = ((event.clientY - drag.startY) / elapsed) * 1000;
-    if (sheetY > 100 || velocity > 900) {
-      setSheetTransitioning(true);
-      setSheetY(window.innerHeight);
-      window.setTimeout(onClose, 200);
-      return;
-    }
-    setSheetTransitioning(true);
-    setSheetY(0);
-    window.setTimeout(() => setSheetTransitioning(false), 180);
-  };
-
-  return (
-    <div className={styles.sheetBackdrop} onClick={onClose} role="presentation">
-      <section
-        aria-label="O'rganish doirasini tanlang"
-        aria-modal="true"
-        className={[
-          styles.scopeSheet,
-          sheetTransitioning ? styles.sheetTransitioning : "",
-        ].filter(Boolean).join(" ")}
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        style={{ transform: "translateY(" + String(sheetY) + "px)" }}
-      >
-        <div
-          className={styles.sheetDragArea}
-          onPointerDown={(event) => {
-            if ((event.target as HTMLElement).closest("button")) return;
-            dragRef.current = {
-              pointerId: event.pointerId,
-              startAt: performance.now(),
-              startY: event.clientY,
-            };
-            event.currentTarget.setPointerCapture(event.pointerId);
-            setSheetTransitioning(false);
-          }}
-          onPointerMove={(event) => {
-            const drag = dragRef.current;
-            if (!drag || drag.pointerId !== event.pointerId) return;
-            setSheetY(Math.max(0, event.clientY - drag.startY));
-          }}
-          onPointerUp={finishSheetDrag}
-        >
-          <div className={styles.sheetGrip} />
-          <header>
-            <span>
-              <small>KARTALARNI TANLANG</small>
-              <strong>O&apos;rganish doirasini tanlang</strong>
-            </span>
-            <button aria-label="Yopish" onClick={onClose} type="button">
-              <MobileIcon name="close" size={20} />
-            </button>
-          </header>
-        </div>
-
-        <div className={styles.pickerScroll}>
-          <h3>Bo&apos;lim</h3>
-          <div className={styles.scopeSectionRow}>
-            {available.map((summary) => {
-              const selected = summary.section === selectedSummary?.section;
-              return (
-                <button
-                  className={selected ? styles.scopeSelected : ""}
-                  key={summary.section}
-                  onClick={() => selectSection(summary.section)}
-                  type="button"
-                >
-                  <strong>{`${summary.section}-bo'lim`}</strong>
-                  <span>{`${summary.words} ta so'z`}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <h3>Unit</h3>
-          <div className={styles.unitGrid}>
-            {(selectedSummary?.units ?? []).map((item: WordUnitSummary) => {
-              const selected = item.unit === unit;
-              return (
-                <button
-                  className={selected ? styles.unitSelected : ""}
-                  key={item.unit}
-                  onClick={() => {
-                    setUnit(item.unit);
-                    hapticSelection();
-                  }}
-                  type="button"
-                >
-                  <span className={styles.unitNumber}>{item.unit}</span>
-                  <span className={styles.unitCopy}>
-                    <strong>{`${item.unit}-unit`}</strong>
-                    <small>{`${item.words} ta so'z`}</small>
-                  </span>
-                  {selected ? <MobileIcon name="checkmark-circle" size={22} /> : null}
-                </button>
-              );
-            })}
-          </div>
-
-          <h3 className={styles.playbackLabel}>Talaffuzni eshitish</h3>
-          <div className={styles.playbackOptions}>
-            <button
-              aria-checked={autoPlay}
-              className={autoPlay ? styles.playbackSelected : ""}
-              onClick={() => selectPlayback(true)}
-              role="radio"
-              type="button"
-            >
-              <span className={styles.playbackIcon}>
-                <MobileIcon name="volume-high-outline" size={20} />
-              </span>
-              <span className={styles.playbackCopy}>
-                <strong>Avtomatik ijro</strong>
-                <small>Har yangi karta ochilganda so&apos;z o&apos;qiladi.</small>
-              </span>
-              {autoPlay ? <MobileIcon name="checkmark-circle" size={21} /> : null}
-            </button>
-            <button
-              aria-checked={!autoPlay}
-              className={!autoPlay ? styles.playbackSelected : ""}
-              onClick={() => selectPlayback(false)}
-              role="radio"
-              type="button"
-            >
-              <span className={styles.playbackIcon}>
-                <MobileIcon name="finger-print-outline" size={20} />
-              </span>
-              <span className={styles.playbackCopy}>
-                <strong>Bosib tinglash</strong>
-                <small>Faqat karnay tugmasini bosganda o&apos;qiladi.</small>
-              </span>
-              {!autoPlay ? <MobileIcon name="checkmark-circle" size={21} /> : null}
-            </button>
-          </div>
-        </div>
-
-        <button
-          className={styles.applyScope}
-          disabled={!selectedSummary || !unit}
-          onClick={() => {
-            if (selectedSummary && unit) {
-              onApply(selectedSummary.section, unit, autoPlay);
-            }
-          }}
-          type="button"
-        >
-          Shu doirani o&apos;rganish
-          <MobileIcon name="arrow-forward" size={20} />
-        </button>
-      </section>
-    </div>
-  );
-}
-
 export function WordStudyScreen() {
   const router = useRouter();
   const params = useSearchParams();
@@ -696,6 +449,7 @@ export function WordStudyScreen() {
   const lesson = Math.max(1, Number(params.get("lesson")) || 1);
   const lessonCount = Math.max(1, Number(params.get("lessonCount")) || 1);
   const fromStudyPath = params.get("from") === "studyPath";
+  const shouldResume = params.get("resume") === "1";
 
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
   const [section, setSection] = useState(3);
@@ -705,7 +459,6 @@ export function WordStudyScreen() {
   const [scopeLoading, setScopeLoading] = useState(true);
   const [wordsLoading, setWordsLoading] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
-  const [scopeOpen, setScopeOpen] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("browse");
   const [offerOpen, setOfferOpen] = useState(false);
@@ -733,7 +486,7 @@ export function WordStudyScreen() {
     try {
       const result = await getWordSections(request);
       const available = result.filter((summary) => summary.words > 0);
-      const saved = readPreferences(course);
+      const saved = readWordPreferences(course, user?.id);
       setSummaries(result);
       if (saved) setAutoPlay(saved.autoPlay);
 
@@ -748,7 +501,7 @@ export function WordStudyScreen() {
         setSection(matchedSummary.section);
         setUnit(matchedUnit);
         if (
-          !requestedSection &&
+          shouldResume && !fromStudyPath &&
           saved &&
           saved.section === matchedSummary.section &&
           saved.unit === matchedUnit
@@ -761,20 +514,24 @@ export function WordStudyScreen() {
           setSection(fallback.section);
           setUnit(fallback.units[0].unit);
         }
-        if (!requestedSection) setScopeOpen(true);
+        if (available.length > 0) router.replace("/word-library");
       }
     } catch {
       setLoadFailed(true);
     } finally {
       setScopeLoading(false);
     }
-  }, [request, requestedSection, requestedUnit, course]);
+  }, [request, requestedSection, requestedUnit, course, user?.id, shouldResume, fromStudyPath, router]);
 
   useEffect(() => {
+    if (!requestedSection || !requestedUnit) {
+      router.replace("/word-library");
+      return;
+    }
     resumeConsumedRef.current = false;
     resumeIndexRef.current = null;
     void loadSummaries();
-  }, [loadSummaries]);
+  }, [loadSummaries, requestedSection, requestedUnit, router]);
 
   const loadWords = useCallback(async () => {
     if (scopeLoading || summaries.length === 0 || !section || !unit) return;
@@ -1127,7 +884,7 @@ export function WordStudyScreen() {
 
   const cardDeckRef = useWordCardSwipe({
     disabled:
-      cardMotion !== "idle" || scopeOpen || offerOpen || scopeLoading || wordsLoading,
+      cardMotion !== "idle" || offerOpen || scopeLoading || wordsLoading,
     canGoNext,
     canGoPrevious,
     onOffset: setDragX,
@@ -1146,41 +903,25 @@ export function WordStudyScreen() {
 
   const goBack = () => {
     stop();
+    flushSeen();
     if (window.history.length > 1) router.back();
     else router.replace("/");
   };
 
   const openScopePicker = () => {
     stop();
-    setScopeOpen(true);
-  };
-
-  const applyScope = (
-    nextSection: number,
-    nextUnit: number,
-    nextAutoPlay: boolean,
-  ) => {
-    setScopeOpen(false);
-    setAutoPlay(nextAutoPlay);
-    savePreferences(course, {
-      autoPlay: nextAutoPlay,
-      cardIndex,
-      section: nextSection,
-      unit: nextUnit,
-    });
-    if (nextSection === section && nextUnit === unit) return;
-    resumeIndexRef.current = null;
-    resumeConsumedRef.current = true;
-    setSection(nextSection);
-    setUnit(nextUnit);
-    hapticImpact();
+    flushSeen();
+    if (!fromStudyPath) {
+      saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
+    }
+    router.push(`/word-library?section=${section}&unit=${unit}`);
   };
 
   useEffect(() => {
     if (wordsLoading || words.length === 0) return;
     if ((words[0]?.targetLanguage ?? "ko") !== course) return;
-    savePreferences(course, { autoPlay, cardIndex, section, unit });
-  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course]);
+    if (!fromStudyPath) saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
+  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course, user?.id, fromStudyPath]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
   const cardWidth =
@@ -1252,9 +993,9 @@ export function WordStudyScreen() {
               <small>Hozirgi o&apos;quv doirasi</small>
               <strong>{`${section}-bo'lim · ${unit}-unit`}</strong>
             </span>
-            <em>
-              O&apos;zgartirish
-              <MobileIcon name="chevron-down" size={15} />
+            <em data-i18n="wordLibrary.change">
+              {uzt("wordLibrary.change")}
+              <MobileIcon name="chevron-forward" size={15} />
             </em>
           </button>
         ) : null}
@@ -1436,16 +1177,6 @@ export function WordStudyScreen() {
         )}
       </div>
 
-      {scopeOpen && summaries.length > 0 ? (
-        <ScopeSheet
-          initialAutoPlay={autoPlay}
-          initialSection={section}
-          initialUnit={unit}
-          onApply={applyScope}
-          onClose={() => setScopeOpen(false)}
-          summaries={summaries}
-        />
-      ) : null}
       {offerOpen ? (
         <RecallOffer
           count={words.length}

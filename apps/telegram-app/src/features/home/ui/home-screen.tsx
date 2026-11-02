@@ -79,7 +79,7 @@ const QUICK_ACCESS: QuickAccessItem[] = [
     color: "#ff6b6b",
     icon: "heartOutline",
     label: "So'z daftarim",
-    route: "/word-study",
+    route: "/word-library",
   },
 ];
 

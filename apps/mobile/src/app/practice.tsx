@@ -100,7 +100,7 @@ export default function PracticeScreen() {
       color: "#1CB0F6",
       ready: true,
       badge: counts.words,
-      onPress: () => router.push("/word-study"),
+      onPress: () => router.push("/word-library"),
     },
     {
       key: "speaking",

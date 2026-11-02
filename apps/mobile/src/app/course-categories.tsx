@@ -252,7 +252,7 @@ function makeGo(
     // 아래 항목은 로드맵도 메인 페이지도 아닌 단발 바로가기다.
     // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
     const SHORTCUTS: Record<string, string> = {
-      wordCard: "/word-study",
+      wordCard: "/word-library",
       // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
       // 회화 = 새 AI 음성 튜터 (옛 Gemini Live 튜터는 앱에서 뺐다)
       conversation: "/voice-tutor",

@@ -115,7 +115,7 @@ export function PracticeScreen() {
 
   const skills: SkillItem[] = [
     { key: "mistakes", label: "Xatolar", hint: "Faqat xato qilganlaringizni qayta", icon: "sync", color: "#FF9600", action: "mistakes", badge: counts.mistakes },
-    { key: "words", label: "So'zlar", hint: "O‘rgangan so‘zlar kartochkada", icon: "cards", color: "#1CB0F6", route: "/word-study", badge: counts.words },
+    { key: "words", label: "So'zlar", hint: "O‘rgangan so‘zlar kartochkada", icon: "cards", color: "#1CB0F6", route: "/word-library", badge: counts.words },
     { key: "speaking", label: "Gapirish", hint: "Mavzu tanlab, ovoz chiqarib", icon: "microphone", color: "#2FBFA0", route: "/speaking" },
     { key: "listening", label: "Tinglash", hint: "O‘qib va tinglab o‘rganish", icon: "headphones", color: "#FF6B6B", route: "/reading-listening-levels" },
     { key: "pronunciation", label: "Talaffuz", hint: pronunciationLanguage === "en" ? ENGLISH_PRON_COPY[language].languageLabel : "Batchim va jamo tovushlarini sayqallash", icon: "waveform", color: "#CE82FF", route: pronunciationRoute },

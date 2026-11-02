@@ -302,7 +302,7 @@ export function learningDestination(
     topik: `/topik-sections?level=${topikLevel}`,
     vocabulary: "/roadmap",
     alphabet: "/alphabet",
-    wordCard: "/word-study",
+    wordCard: "/word-library",
   };
   return destinations[category] ?? null;
 }
