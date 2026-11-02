@@ -35,6 +35,7 @@ import { RoadmapScreen } from "../../src/features/roadmap/ui/roadmap-screen";
 import { WordStudyScreen } from "../../src/features/words/ui/word-study-screen";
 import { GrammarStudyScreen } from "../../src/features/grammar/ui/grammar-study-screen";
 import { ExpressionLearningScreen } from "../../src/features/expressions/ui/expression-learning-screen";
+import { PremiumScreen } from "../../src/features/premium/ui/premium-screen";
 import { TopikExamScreen } from "../../src/features/topik/ui/topik-exam-screen";
 import { TopikResultScreen } from "../../src/features/topik/ui/topik-result-screen";
 import { TopikStatsScreen } from "../../src/features/topik/ui/topik-stats-screen";
@@ -202,6 +203,10 @@ function Scene({ name }: { name: string }): ReactNode {
     case "expressionLearn":
       // ?node=time-and-situation
       return <ExpressionLearningScreen />;
+    case "premium":
+    case "premiumMax":
+      // 처음엔 MAX 가 보인다 — SUPER 는 등급 버튼을 눌러서
+      return <PremiumScreen />;
     case "vocabMatch":
     case "vocabBuilder":
       // ?lessonId=promo&category=vocabulary

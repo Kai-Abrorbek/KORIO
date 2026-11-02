@@ -156,6 +156,10 @@ export function mocksFor(scene) {
     // 가족 단어 카드 (아들 · 딸 · 아버지 …) — ?section=1&unit=1
     case "wordFamily":
       return [...common, ...wordCardMocks(FAMILY_WORDS)];
+    // 요금제 화면 — 실제 가격(apps/api payments/card/card-payment.const.ts · telegram-stars.const.ts), 카드 입금(so'm) 표시
+    case "premium":
+    case "premiumMax":
+      return [...common, ...premiumMocks()];
     // 단어 카드 사용법: 홈 → 학습 카드 → So'z kartalari → 범위 · 카드 · 떠올리기
     case "wordsTour":
       return [...common, ...homeMocks(), ...wordCardMocks()];
@@ -458,6 +462,39 @@ function vocabRoadmap() {
 }
 
 /** 단어 카드 (So'z kartalari) — 1단원 단어 6개 */
+/** 요금제 — 서버와 같은 값 (카드 so'm · Stars). 구독 없음 상태라 요금제가 바로 보인다 */
+function premiumMocks() {
+  const plans = [
+    ["super", 1, 250, 59_000], ["super", 3, 675, 155_000], ["super", 6, 1225, 279_000], ["super", 12, 1950, 449_000],
+    ["max", 1, 550, 129_000], ["max", 3, 1450, 329_000], ["max", 6, 2750, 629_000], ["max", 12, 4950, 1_139_000],
+  ];
+  const planName = { 1: "monthly", 3: "three_months", 6: "six_months", 12: "yearly" };
+  const base = (tier, key) => plans.find((p) => p[0] === tier && p[1] === 1)[key];
+  const stars = plans.map(([tier, months, starsPrice]) => ({
+    id: `${tier}_${months}m`, tier, plan: planName[months], months, days: months * 30, stars: starsPrice,
+    perMonthStars: Math.round(starsPrice / months),
+    savePercent: months > 1 ? Math.round((1 - starsPrice / (base(tier, 2) * months)) * 100) : 0,
+    best: months === 12,
+  }));
+  const card = plans.map(([tier, months, , uzs]) => ({
+    id: `${tier}_${months}m`, tier, plan: planName[months], months, days: months * 30, priceUzs: uzs,
+    perMonthUzs: Math.round(uzs / months),
+    savePercent: months > 1 ? Math.max(0, Math.round((1 - uzs / (base(tier, 3) * months)) * 100)) : 0,
+    best: months === 12,
+  }));
+  return [
+    {
+      pattern: "^/payments/subscriptions/me",
+      body: { autoRenew: false, canUpgradeTo: ["super", "max"], expiresAt: null, isPremium: false, isSuper: false, isTrial: false, plan: null, platform: null, productId: null, provider: null, status: null, tier: "super", trialDaysLeft: null },
+    },
+    { pattern: "^/payments/telegram/products", body: { enabled: true, currency: "XTR", products: stars } },
+    {
+      pattern: "^/payments/card/config",
+      body: { enabled: true, cards: [{ brand: "humo", number: "9860000000000000", holder: "KORIO", last4: "0000" }], products: card, transferMinutes: 30, activeOrder: null },
+    },
+  ];
+}
+
 /** 가족 단어 — 시드 vocabulary/section2/unit1 의 우즈벡어 뜻 그대로 (아들이 첫 카드) */
 const FAMILY_WORDS = [
   ["아들", "o‘g‘il farzand", "adeul", "", "아들이 두 명 있어요.", "Ikki o‘g‘lim bor."],

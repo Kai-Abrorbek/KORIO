@@ -1,0 +1,1214 @@
+{
+ "lines": {
+  "c01": {
+   "len": 1.11,
+   "voice": "dilshod",
+   "lang": "uz",
+   "text": "Men toʻlayman!",
+   "heard": "Mento Layman",
+   "words": [
+    {
+     "w": "Men",
+     "s": 0.12,
+     "e": 0.48
+    },
+    {
+     "w": "toʻlayman!",
+     "s": 0.56,
+     "e": 0.96
+    }
+   ]
+  },
+  "c02": {
+   "len": 1.72,
+   "voice": "ulugbek",
+   "lang": "uz",
+   "text": "Yoʻq-yoʻq, men toʻlayman!",
+   "heard": "Yo'q-yo'q, men to'layman",
+   "words": [
+    {
+     "w": "Yoʻq-yoʻq,",
+     "s": 0.08,
+     "e": 0.48
+    },
+    {
+     "w": "men",
+     "s": 0.9,
+     "e": 1.06
+    },
+    {
+     "w": "toʻlayman!",
+     "s": 1.12,
+     "e": 1.62
+    }
+   ]
+  },
+  "c03": {
+   "len": 2.06,
+   "voice": "sanjar",
+   "lang": "uz",
+   "text": "Qoʻyinglar, men toʻlayman!",
+   "heard": "Ko'yinglar men To'layman",
+   "words": [
+    {
+     "w": "Qoʻyinglar,",
+     "s": 0.04,
+     "e": 0.6
+    },
+    {
+     "w": "men",
+     "s": 1.04,
+     "e": 1.24
+    },
+    {
+     "w": "toʻlayman!",
+     "s": 1.34,
+     "e": 1.98
+    }
+   ]
+  },
+  "n01": {
+   "len": 2.5,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Ikki yuz oʻn ming soʻm — oʻylamasdan.",
+   "heard": "Ikki yuz o'n ming so'm oylamasdan",
+   "words": [
+    {
+     "w": "Ikki",
+     "s": 0.06,
+     "e": 0.32
+    },
+    {
+     "w": "yuz",
+     "s": 0.36,
+     "e": 0.54
+    },
+    {
+     "w": "oʻn",
+     "s": 0.72,
+     "e": 0.86
+    },
+    {
+     "w": "ming",
+     "s": 0.88,
+     "e": 1.02
+    },
+    {
+     "w": "soʻm",
+     "s": 1.1,
+     "e": 1.32
+    },
+    {
+     "w": "oʻylamasdan.",
+     "s": 1.74,
+     "e": 2.4
+    }
+   ]
+  },
+  "n02": {
+   "len": 1.72,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Lekin oʻziga kelganda…",
+   "heard": "Lekin o'ziga kelganda",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.42
+    },
+    {
+     "w": "oʻziga",
+     "s": 0.62,
+     "e": 0.88
+    },
+    {
+     "w": "kelganda…",
+     "s": 0.94,
+     "e": 1.5
+    }
+   ]
+  },
+  "c04": {
+   "len": 2.46,
+   "voice": "sanjar",
+   "lang": "uz",
+   "text": "Ellik toʻqqiz ming? Qimmat-ku!",
+   "heard": "Elek toqqiz ming qimmat-ku",
+   "words": [
+    {
+     "w": "Ellik",
+     "s": 0.06,
+     "e": 0.36
+    },
+    {
+     "w": "toʻqqiz",
+     "s": 0.42,
+     "e": 0.86
+    },
+    {
+     "w": "ming?",
+     "s": 0.92,
+     "e": 1.08
+    },
+    {
+     "w": "Qimmat-ku!",
+     "s": 1.56,
+     "e": 2.18
+    }
+   ]
+  },
+  "n03": {
+   "len": 5.43,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bu Sanjar. Bugun doʻstlariga tushlik oldi, kechqurun toʻyga ikki yuz ming soldi.",
+   "heard": "Bu Sanjar. Bugun do'stlariga tushlik oldi, kechqurun to'yga ikki yuz ming soldi",
+   "words": [
+    {
+     "w": "Bu",
+     "s": 0.08,
+     "e": 0.2
+    },
+    {
+     "w": "Sanjar.",
+     "s": 0.32,
+     "e": 0.84
+    },
+    {
+     "w": "Bugun",
+     "s": 1.36,
+     "e": 1.6
+    },
+    {
+     "w": "doʻstlariga",
+     "s": 1.64,
+     "e": 2.08
+    },
+    {
+     "w": "tushlik",
+     "s": 2.14,
+     "e": 2.42
+    },
+    {
+     "w": "oldi,",
+     "s": 2.54,
+     "e": 2.82
+    },
+    {
+     "w": "kechqurun",
+     "s": 3.18,
+     "e": 3.58
+    },
+    {
+     "w": "toʻyga",
+     "s": 3.64,
+     "e": 4
+    },
+    {
+     "w": "ikki",
+     "s": 4.22,
+     "e": 4.52
+    },
+    {
+     "w": "yuz",
+     "s": 4.56,
+     "e": 4.7
+    },
+    {
+     "w": "ming",
+     "s": 4.74,
+     "e": 4.86
+    },
+    {
+     "w": "soldi.",
+     "s": 4.94,
+     "e": 5.3
+    }
+   ]
+  },
+  "n04": {
+   "len": 3.22,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bir kunda — toʻrt yuz oʻn ming. Boshqalar uchun.",
+   "heard": "Bir kunda to'rt yuz o'n ming boshqalar uchun",
+   "words": [
+    {
+     "w": "Bir",
+     "s": 0.08,
+     "e": 0.24
+    },
+    {
+     "w": "kunda",
+     "s": 0.3,
+     "e": 0.64
+    },
+    {
+     "w": "toʻrt",
+     "s": 1.02,
+     "e": 1.22
+    },
+    {
+     "w": "yuz",
+     "s": 1.26,
+     "e": 1.42
+    },
+    {
+     "w": "oʻn",
+     "s": 1.54,
+     "e": 1.7
+    },
+    {
+     "w": "ming.",
+     "s": 1.74,
+     "e": 1.92
+    },
+    {
+     "w": "Boshqalar",
+     "s": 2.34,
+     "e": 2.76
+    },
+    {
+     "w": "uchun.",
+     "s": 2.8,
+     "e": 3.1
+    }
+   ]
+  },
+  "n05": {
+   "len": 5.6,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Nega biz boshqalar uchun hech narsani ayamaymiz-u, oʻzimizga ellik toʻqqiz ming qimmat boʻlib qoladi?",
+   "heard": "Nega biz boshqalar uchun hech narsani ayamaymizu, o‘zimizga ellik to‘qqiz ming qimmat bo‘lib qoladi?",
+   "words": [
+    {
+     "w": "Nega",
+     "s": 0.1,
+     "e": 0.3
+    },
+    {
+     "w": "biz",
+     "s": 0.34,
+     "e": 0.52
+    },
+    {
+     "w": "boshqalar",
+     "s": 0.54,
+     "e": 0.94
+    },
+    {
+     "w": "uchun",
+     "s": 0.98,
+     "e": 1.24
+    },
+    {
+     "w": "hech",
+     "s": 1.32,
+     "e": 1.52
+    },
+    {
+     "w": "narsani",
+     "s": 1.56,
+     "e": 1.92
+    },
+    {
+     "w": "ayamaymiz-u,",
+     "s": 1.98,
+     "e": 2.6
+    },
+    {
+     "w": "oʻzimizga",
+     "s": 3.04,
+     "e": 3.58
+    },
+    {
+     "w": "ellik",
+     "s": 3.66,
+     "e": 3.88
+    },
+    {
+     "w": "toʻqqiz",
+     "s": 3.94,
+     "e": 4.3
+    },
+    {
+     "w": "ming",
+     "s": 4.34,
+     "e": 4.5
+    },
+    {
+     "w": "qimmat",
+     "s": 4.54,
+     "e": 4.86
+    },
+    {
+     "w": "boʻlib",
+     "s": 4.88,
+     "e": 5.08
+    },
+    {
+     "w": "qoladi?",
+     "s": 5.12,
+     "e": 5.5
+    }
+   ]
+  },
+  "n06": {
+   "len": 5.33,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Iqtisodchi Richard Teyler buni mental hisob deydi. Nobel mukofotini shu uchun olgan.",
+   "heard": "Iqtisodchi Richard Taylor buni mental hisob deydi. Nobel mukofotini shu uchun olgan",
+   "words": [
+    {
+     "w": "Iqtisodchi",
+     "s": 0.06,
+     "e": 0.58
+    },
+    {
+     "w": "Richard",
+     "s": 0.68,
+     "e": 0.92
+    },
+    {
+     "w": "Teyler",
+     "s": 1.02,
+     "e": 1.4
+    },
+    {
+     "w": "buni",
+     "s": 1.56,
+     "e": 1.8
+    },
+    {
+     "w": "mental",
+     "s": 1.96,
+     "e": 2.28
+    },
+    {
+     "w": "hisob",
+     "s": 2.34,
+     "e": 2.62
+    },
+    {
+     "w": "deydi.",
+     "s": 2.66,
+     "e": 2.94
+    },
+    {
+     "w": "Nobel",
+     "s": 3.42,
+     "e": 3.68
+    },
+    {
+     "w": "mukofotini",
+     "s": 3.72,
+     "e": 4.3
+    },
+    {
+     "w": "shu",
+     "s": 4.48,
+     "e": 4.6
+    },
+    {
+     "w": "uchun",
+     "s": 4.64,
+     "e": 4.84
+    },
+    {
+     "w": "olgan.",
+     "s": 4.9,
+     "e": 5.22
+    }
+   ]
+  },
+  "n07": {
+   "len": 6.16,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Miyamizda pul qutilari bor. Hurmat qutisi — toʻla. Oʻzim uchun qutisi — boʻm-boʻsh.",
+   "heard": "Miyamizda pul qutilari bor: hurmat qutisi to'la, o'zim uchun qutisi bo'm-bo'sh",
+   "words": [
+    {
+     "w": "Miyamizda",
+     "s": 0.08,
+     "e": 0.68
+    },
+    {
+     "w": "pul",
+     "s": 0.72,
+     "e": 0.9
+    },
+    {
+     "w": "qutilari",
+     "s": 0.94,
+     "e": 1.34
+    },
+    {
+     "w": "bor.",
+     "s": 1.38,
+     "e": 1.6
+    },
+    {
+     "w": "Hurmat",
+     "s": 2.06,
+     "e": 2.42
+    },
+    {
+     "w": "qutisi",
+     "s": 2.46,
+     "e": 2.82
+    },
+    {
+     "w": "toʻla.",
+     "s": 3.22,
+     "e": 3.52
+    },
+    {
+     "w": "Oʻzim",
+     "s": 4.04,
+     "e": 4.26
+    },
+    {
+     "w": "uchun",
+     "s": 4.32,
+     "e": 4.52
+    },
+    {
+     "w": "qutisi",
+     "s": 4.56,
+     "e": 4.94
+    },
+    {
+     "w": "boʻm-boʻsh.",
+     "s": 5.46,
+     "e": 6.02
+    }
+   ]
+  },
+  "c05": {
+   "len": 1.84,
+   "voice": "dilshod",
+   "lang": "uz",
+   "text": "Qani, hisoblab koʻramiz!",
+   "heard": "Кани, ҳисоблаб кўрамиз",
+   "words": [
+    {
+     "w": "Qani,",
+     "s": 0.04,
+     "e": 0.36
+    },
+    {
+     "w": "hisoblab",
+     "s": 0.8,
+     "e": 1.26
+    },
+    {
+     "w": "koʻramiz!",
+     "s": 1.28,
+     "e": 1.72
+    }
+   ]
+  },
+  "n08": {
+   "len": 3.16,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Choyxonada bitta tushlik — taxminan yetmish ming.",
+   "heard": "Choyxonada bitta tushlik taxminan yetmish ming",
+   "words": [
+    {
+     "w": "Choyxonada",
+     "s": 0.04,
+     "e": 0.54
+    },
+    {
+     "w": "bitta",
+     "s": 0.62,
+     "e": 0.88
+    },
+    {
+     "w": "tushlik",
+     "s": 0.94,
+     "e": 1.28
+    },
+    {
+     "w": "taxminan",
+     "s": 1.7,
+     "e": 2.26
+    },
+    {
+     "w": "yetmish",
+     "s": 2.48,
+     "e": 2.84
+    },
+    {
+     "w": "ming.",
+     "s": 2.88,
+     "e": 3.08
+    }
+   ]
+  },
+  "n09": {
+   "len": 4.53,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Korio Super — bir oy ellik toʻqqiz ming. Bitta tushlikdan arzon.",
+   "heard": "Qoryo Super. Bir oy ellik to'qqiz ming. Bitta tushlikdan arzon",
+   "words": [
+    {
+     "w": "Korio",
+     "s": 0.06,
+     "e": 0.36
+    },
+    {
+     "w": "Super",
+     "s": 0.46,
+     "e": 0.84
+    },
+    {
+     "w": "bir",
+     "s": 1.32,
+     "e": 1.46
+    },
+    {
+     "w": "oy",
+     "s": 1.6,
+     "e": 1.86
+    },
+    {
+     "w": "ellik",
+     "s": 1.92,
+     "e": 2.16
+    },
+    {
+     "w": "toʻqqiz",
+     "s": 2.18,
+     "e": 2.54
+    },
+    {
+     "w": "ming.",
+     "s": 2.58,
+     "e": 2.76
+    },
+    {
+     "w": "Bitta",
+     "s": 3.18,
+     "e": 3.44
+    },
+    {
+     "w": "tushlikdan",
+     "s": 3.48,
+     "e": 3.96
+    },
+    {
+     "w": "arzon.",
+     "s": 4.04,
+     "e": 4.42
+    }
+   ]
+  },
+  "n10": {
+   "len": 4.86,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Yillik olsangiz — kuniga ming ikki yuz oʻttiz soʻm. Avtobus chiptasining yarmi.",
+   "heard": "Yilik olsangiz, kuniga ming ikki yuz o'ttiz so'm, avtobus chiptasining yarmi",
+   "words": [
+    {
+     "w": "Yillik",
+     "s": 0.08,
+     "e": 0.3
+    },
+    {
+     "w": "olsangiz",
+     "s": 0.34,
+     "e": 0.9
+    },
+    {
+     "w": "kuniga",
+     "s": 1.26,
+     "e": 1.6
+    },
+    {
+     "w": "ming",
+     "s": 1.74,
+     "e": 1.94
+    },
+    {
+     "w": "ikki",
+     "s": 1.98,
+     "e": 2.14
+    },
+    {
+     "w": "yuz",
+     "s": 2.18,
+     "e": 2.32
+    },
+    {
+     "w": "oʻttiz",
+     "s": 2.42,
+     "e": 2.72
+    },
+    {
+     "w": "soʻm.",
+     "s": 2.78,
+     "e": 3
+    },
+    {
+     "w": "Avtobus",
+     "s": 3.34,
+     "e": 3.76
+    },
+    {
+     "w": "chiptasining",
+     "s": 3.78,
+     "e": 4.28
+    },
+    {
+     "w": "yarmi.",
+     "s": 4.38,
+     "e": 4.74
+    }
+   ]
+  },
+  "n11": {
+   "len": 4,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Sanjarning bir kunlik saxovati esa — deyarli bir yillik Korio.",
+   "heard": "Sanjarning bir kunlik saxovati esa deyarli bir yillik ko'ryap",
+   "words": [
+    {
+     "w": "Sanjarning",
+     "s": 0.08,
+     "e": 0.56
+    },
+    {
+     "w": "bir",
+     "s": 0.64,
+     "e": 0.74
+    },
+    {
+     "w": "kunlik",
+     "s": 0.82,
+     "e": 1.06
+    },
+    {
+     "w": "saxovati",
+     "s": 1.14,
+     "e": 1.62
+    },
+    {
+     "w": "esa",
+     "s": 1.66,
+     "e": 1.92
+    },
+    {
+     "w": "deyarli",
+     "s": 2.22,
+     "e": 2.66
+    },
+    {
+     "w": "bir",
+     "s": 2.86,
+     "e": 2.98
+    },
+    {
+     "w": "yillik",
+     "s": 3.04,
+     "e": 3.4
+    },
+    {
+     "w": "Korio.",
+     "s": 3.46,
+     "e": 3.88
+    }
+   ]
+  },
+  "c06": {
+   "len": 2.26,
+   "voice": "sanjar",
+   "lang": "uz",
+   "text": "Xoʻsh, bu pulga nima olaman?",
+   "heard": "Хош, бу пулга нима оламан?",
+   "words": [
+    {
+     "w": "Xoʻsh,",
+     "s": 0.04,
+     "e": 0.34
+    },
+    {
+     "w": "bu",
+     "s": 0.84,
+     "e": 0.92
+    },
+    {
+     "w": "pulga",
+     "s": 1,
+     "e": 1.48
+    },
+    {
+     "w": "nima",
+     "s": 1.54,
+     "e": 1.74
+    },
+    {
+     "w": "olaman?",
+     "s": 1.78,
+     "e": 2.14
+    }
+   ]
+  },
+  "n12": {
+   "len": 5.73,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Hangul, ikki mingdan ortiq soʻz, ikki yuzdan ortiq grammatika — oʻzbekcha tushuntirish bilan.",
+   "heard": "Hangul ikki mingdan ortiq so'z, ikki yuzdan ortiq grammatika o'zbekcha tushuntirish bilan",
+   "words": [
+    {
+     "w": "Hangul,",
+     "s": 0.06,
+     "e": 0.46
+    },
+    {
+     "w": "ikki",
+     "s": 0.9,
+     "e": 1.1
+    },
+    {
+     "w": "mingdan",
+     "s": 1.14,
+     "e": 1.46
+    },
+    {
+     "w": "ortiq",
+     "s": 1.52,
+     "e": 1.78
+    },
+    {
+     "w": "soʻz,",
+     "s": 1.88,
+     "e": 2.16
+    },
+    {
+     "w": "ikki",
+     "s": 2.52,
+     "e": 2.72
+    },
+    {
+     "w": "yuzdan",
+     "s": 2.76,
+     "e": 3.12
+    },
+    {
+     "w": "ortiq",
+     "s": 3.18,
+     "e": 3.44
+    },
+    {
+     "w": "grammatika",
+     "s": 3.52,
+     "e": 4.1
+    },
+    {
+     "w": "oʻzbekcha",
+     "s": 4.48,
+     "e": 4.86
+    },
+    {
+     "w": "tushuntirish",
+     "s": 4.92,
+     "e": 5.32
+    },
+    {
+     "w": "bilan.",
+     "s": 5.36,
+     "e": 5.62
+    }
+   ]
+  },
+  "n13": {
+   "len": 3.99,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Toʻqqiz yuz jonli ibora, yigirma uchta haqiqiy Topik varianti.",
+   "heard": "To'qqiz yuz jonli ibora, yigirma uchta haqiqiy topik varianti",
+   "words": [
+    {
+     "w": "Toʻqqiz",
+     "s": 0.02,
+     "e": 0.36
+    },
+    {
+     "w": "yuz",
+     "s": 0.4,
+     "e": 0.58
+    },
+    {
+     "w": "jonli",
+     "s": 0.62,
+     "e": 0.9
+    },
+    {
+     "w": "ibora,",
+     "s": 0.98,
+     "e": 1.38
+    },
+    {
+     "w": "yigirma",
+     "s": 1.7,
+     "e": 2.02
+    },
+    {
+     "w": "uchta",
+     "s": 2.06,
+     "e": 2.4
+    },
+    {
+     "w": "haqiqiy",
+     "s": 2.44,
+     "e": 2.98
+    },
+    {
+     "w": "Topik",
+     "s": 3.02,
+     "e": 3.32
+    },
+    {
+     "w": "varianti.",
+     "s": 3.36,
+     "e": 3.86
+    }
+   ]
+  },
+  "n14": {
+   "len": 7.8,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Maks esa — har kuni sunʼiy intellekt ustoz bilan bir soatgacha suhbat. Oylik avtobus kartasidan ikki barobar arzon.",
+   "heard": "Max esa har kuni sun'iy intellekt ustoz bilan bir soat kecha suhbat, oylik avtobus kartasidan ikki barobar arzon",
+   "words": [
+    {
+     "w": "Maks",
+     "s": 0.08,
+     "e": 0.41
+    },
+    {
+     "w": "esa",
+     "s": 0.41,
+     "e": 0.68
+    },
+    {
+     "w": "har",
+     "s": 0.68,
+     "e": 0.95
+    },
+    {
+     "w": "kuni",
+     "s": 0.95,
+     "e": 1.28
+    },
+    {
+     "w": "sunʼiy",
+     "s": 1.28,
+     "e": 1.75
+    },
+    {
+     "w": "intellekt",
+     "s": 1.75,
+     "e": 2.41
+    },
+    {
+     "w": "ustoz",
+     "s": 2.41,
+     "e": 2.81
+    },
+    {
+     "w": "bilan",
+     "s": 2.81,
+     "e": 3.21
+    },
+    {
+     "w": "bir",
+     "s": 3.21,
+     "e": 3.48
+    },
+    {
+     "w": "soatgacha",
+     "s": 3.48,
+     "e": 4.15
+    },
+    {
+     "w": "suhbat.",
+     "s": 4.15,
+     "e": 4.68
+    },
+    {
+     "w": "Oylik",
+     "s": 4.68,
+     "e": 5.08
+    },
+    {
+     "w": "avtobus",
+     "s": 5.08,
+     "e": 5.61
+    },
+    {
+     "w": "kartasidan",
+     "s": 5.61,
+     "e": 6.35
+    },
+    {
+     "w": "ikki",
+     "s": 6.35,
+     "e": 6.68
+    },
+    {
+     "w": "barobar",
+     "s": 6.68,
+     "e": 7.21
+    },
+    {
+     "w": "arzon.",
+     "s": 7.21,
+     "e": 7.68
+    }
+   ]
+  },
+  "n15": {
+   "len": 3.66,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Oʻsha kuni Sanjar oʻzim uchun qutisiga birinchi marta pul soldi.",
+   "heard": "O'sha kuni Sanjar o'zim uchun qutisiga birinchi marta pul soldi",
+   "words": [
+    {
+     "w": "Oʻsha",
+     "s": 0.06,
+     "e": 0.26
+    },
+    {
+     "w": "kuni",
+     "s": 0.32,
+     "e": 0.74
+    },
+    {
+     "w": "Sanjar",
+     "s": 0.78,
+     "e": 1.1
+    },
+    {
+     "w": "oʻzim",
+     "s": 1.22,
+     "e": 1.42
+    },
+    {
+     "w": "uchun",
+     "s": 1.46,
+     "e": 1.68
+    },
+    {
+     "w": "qutisiga",
+     "s": 1.72,
+     "e": 2.32
+    },
+    {
+     "w": "birinchi",
+     "s": 2.34,
+     "e": 2.64
+    },
+    {
+     "w": "marta",
+     "s": 2.7,
+     "e": 2.96
+    },
+    {
+     "w": "pul",
+     "s": 2.98,
+     "e": 3.1
+    },
+    {
+     "w": "soldi.",
+     "s": 3.18,
+     "e": 3.52
+    }
+   ]
+  },
+  "n16": {
+   "len": 2.41,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bir necha oydan keyin, oʻsha choyxona…",
+   "heard": "Bir necha oydan keyin o'sha choyxona",
+   "words": [
+    {
+     "w": "Bir",
+     "s": 0.08,
+     "e": 0.18
+    },
+    {
+     "w": "necha",
+     "s": 0.24,
+     "e": 0.5
+    },
+    {
+     "w": "oydan",
+     "s": 0.54,
+     "e": 0.8
+    },
+    {
+     "w": "keyin,",
+     "s": 0.86,
+     "e": 1.22
+    },
+    {
+     "w": "oʻsha",
+     "s": 1.5,
+     "e": 1.72
+    },
+    {
+     "w": "choyxona…",
+     "s": 1.74,
+     "e": 2.24
+    }
+   ]
+  },
+  "c07": {
+   "len": 1.19,
+   "voice": "dilshod",
+   "lang": "uz",
+   "text": "Men toʻlayman!",
+   "heard": "Mentolemon",
+   "words": [
+    {
+     "w": "Men",
+     "s": 0.12,
+     "e": 0.37
+    },
+    {
+     "w": "toʻlayman!",
+     "s": 0.37,
+     "e": 1.04
+    }
+   ]
+  },
+  "c08": {
+   "len": 0.98,
+   "voice": "sanjar",
+   "lang": "ko",
+   "text": "제가 살게요!"
+  },
+  "c09": {
+   "len": 0.75,
+   "voice": "ulugbek",
+   "lang": "uz",
+   "text": "Nima dedi?",
+   "heard": "Nimadedi",
+   "words": [
+    {
+     "w": "Nima",
+     "s": 0.08,
+     "e": 0.33
+    },
+    {
+     "w": "dedi?",
+     "s": 0.33,
+     "e": 0.62
+    }
+   ]
+  },
+  "n17": {
+   "len": 2.54,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Endi u hatto koreyschada ham toʻlaydi.",
+   "heard": "Endi u hatto koreychada ham to'laydi",
+   "words": [
+    {
+     "w": "Endi",
+     "s": 0.06,
+     "e": 0.3
+    },
+    {
+     "w": "u",
+     "s": 0.4,
+     "e": 0.5
+    },
+    {
+     "w": "hatto",
+     "s": 0.62,
+     "e": 1
+    },
+    {
+     "w": "koreyschada",
+     "s": 1.1,
+     "e": 1.66
+    },
+    {
+     "w": "ham",
+     "s": 1.72,
+     "e": 1.9
+    },
+    {
+     "w": "toʻlaydi.",
+     "s": 1.96,
+     "e": 2.4
+    }
+   ]
+  },
+  "n18": {
+   "len": 3.74,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Buni hammaga toʻlab, oʻziga qimmat deydigan doʻstingizga yuboring.",
+   "heard": "Buni hammaga to‘lab o‘ziga qimmat deydigan do‘stingizga yuboring",
+   "words": [
+    {
+     "w": "Buni",
+     "s": 0.08,
+     "e": 0.34
+    },
+    {
+     "w": "hammaga",
+     "s": 0.4,
+     "e": 0.78
+    },
+    {
+     "w": "toʻlab,",
+     "s": 0.84,
+     "e": 1.24
+    },
+    {
+     "w": "oʻziga",
+     "s": 1.46,
+     "e": 1.82
+    },
+    {
+     "w": "qimmat",
+     "s": 1.86,
+     "e": 2.24
+    },
+    {
+     "w": "deydigan",
+     "s": 2.28,
+     "e": 2.64
+    },
+    {
+     "w": "doʻstingizga",
+     "s": 2.68,
+     "e": 3.22
+    },
+    {
+     "w": "yuboring.",
+     "s": 3.26,
+     "e": 3.66
+    }
+   ]
+  }
+ }
+}

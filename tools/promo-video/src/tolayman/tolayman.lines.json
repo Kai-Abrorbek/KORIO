@@ -1,0 +1,189 @@
+{
+  "id": "tolayman",
+  "voices": {
+    "nar": {
+      "id": "EXAVITQu4vr4xnSDxMaL",
+      "speed": 1.04,
+      "tempo": 1.14
+    },
+    "sanjar": {
+      "id": "TX3LPaxmHKxFdv7VOQHJ",
+      "speed": 1.05,
+      "tempo": 1.04
+    },
+    "dilshod": {
+      "id": "JBFqnCBsd6RMkjVDRZzb",
+      "speed": 1.08,
+      "tempo": 1.06
+    },
+    "ulugbek": {
+      "id": "TX3LPaxmHKxFdv7VOQHJ",
+      "speed": 1.12,
+      "tempo": 1.1
+    }
+  },
+  "lines": [
+    {
+      "key": "c01",
+      "voice": "dilshod",
+      "lang": "uz",
+      "text": "Men toʻlayman!"
+    },
+    {
+      "key": "c02",
+      "voice": "ulugbek",
+      "lang": "uz",
+      "text": "Yoʻq-yoʻq, men toʻlayman!"
+    },
+    {
+      "key": "c03",
+      "voice": "sanjar",
+      "lang": "uz",
+      "text": "Qoʻyinglar, men toʻlayman!"
+    },
+    {
+      "key": "n01",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Ikki yuz oʻn ming soʻm — oʻylamasdan."
+    },
+    {
+      "key": "n02",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Lekin oʻziga kelganda…"
+    },
+    {
+      "key": "c04",
+      "voice": "sanjar",
+      "lang": "uz",
+      "text": "Ellik toʻqqiz ming? Qimmat-ku!"
+    },
+    {
+      "key": "n03",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bu Sanjar. Bugun doʻstlariga tushlik oldi, kechqurun toʻyga ikki yuz ming soldi."
+    },
+    {
+      "key": "n04",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bir kunda — toʻrt yuz oʻn ming. Boshqalar uchun."
+    },
+    {
+      "key": "n05",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Nega biz boshqalar uchun hech narsani ayamaymiz-u, oʻzimizga ellik toʻqqiz ming qimmat boʻlib qoladi?"
+    },
+    {
+      "key": "n06",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Iqtisodchi Richard Teyler buni mental hisob deydi. Nobel mukofotini shu uchun olgan."
+    },
+    {
+      "key": "n07",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Miyamizda pul qutilari bor. Hurmat qutisi — toʻla. Oʻzim uchun qutisi — boʻm-boʻsh."
+    },
+    {
+      "key": "c05",
+      "voice": "dilshod",
+      "lang": "uz",
+      "text": "Qani, hisoblab koʻramiz!"
+    },
+    {
+      "key": "n08",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Choyxonada bitta tushlik — taxminan yetmish ming."
+    },
+    {
+      "key": "n09",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Korio Super — bir oy ellik toʻqqiz ming. Bitta tushlikdan arzon."
+    },
+    {
+      "key": "n10",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Yillik olsangiz — kuniga ming ikki yuz oʻttiz soʻm. Avtobus chiptasining yarmi."
+    },
+    {
+      "key": "n11",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Sanjarning bir kunlik saxovati esa — deyarli bir yillik Korio."
+    },
+    {
+      "key": "c06",
+      "voice": "sanjar",
+      "lang": "uz",
+      "text": "Xoʻsh, bu pulga nima olaman?"
+    },
+    {
+      "key": "n12",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Hangul, ikki mingdan ortiq soʻz, ikki yuzdan ortiq grammatika — oʻzbekcha tushuntirish bilan."
+    },
+    {
+      "key": "n13",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Toʻqqiz yuz jonli ibora, yigirma uchta haqiqiy Topik varianti."
+    },
+    {
+      "key": "n14",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Maks esa — har kuni sunʼiy intellekt ustoz bilan bir soatgacha suhbat. Oylik avtobus kartasidan ikki barobar arzon."
+    },
+    {
+      "key": "n15",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Oʻsha kuni Sanjar oʻzim uchun qutisiga birinchi marta pul soldi."
+    },
+    {
+      "key": "n16",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bir necha oydan keyin, oʻsha choyxona…"
+    },
+    {
+      "key": "c07",
+      "voice": "dilshod",
+      "lang": "uz",
+      "text": "Men toʻlayman!"
+    },
+    {
+      "key": "c08",
+      "voice": "sanjar",
+      "lang": "ko",
+      "text": "제가 살게요!"
+    },
+    {
+      "key": "c09",
+      "voice": "ulugbek",
+      "lang": "uz",
+      "text": "Nima dedi?"
+    },
+    {
+      "key": "n17",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Endi u hatto koreyschada ham toʻlaydi."
+    },
+    {
+      "key": "n18",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Buni hammaga toʻlab, oʻziga qimmat deydigan doʻstingizga yuboring."
+    }
+  ]
+}
