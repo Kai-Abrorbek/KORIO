@@ -30,6 +30,7 @@ import {
   getDefaultWordCollectionGroup,
   getMyWordCollections,
   getWordCollectionCoverMark,
+  getWordCollectionSections,
   WORD_COLLECTION_KINDS,
   WORD_COLLECTION_LEVELS,
   WORD_COLLECTION_KIND_KEYS,
@@ -39,17 +40,12 @@ import {
   type WordCollectionKind,
   type WordCollectionLevel,
 } from "../../../../shared/word-library";
+import { getWordLibraryPalette } from "../../../../shared/word-library-theme";
 
 function palette(theme: ThemeColors) {
-  const dark = theme.bg === themes.dark.bg;
   return {
     ...theme,
-    action: dark ? "#A69DFF" : "#5B4DD4",
-    onAction: dark ? "#211B4A" : "#FFFFFF",
-    depth: dark ? "#776EE2" : "#4335B3",
-    wash: dark ? "#2B273E" : "#F2F0FB",
-    soft: dark ? "#22222B" : "#F7F6F9",
-    success: dark ? "#A9D4A6" : "#39723A",
+    ...getWordLibraryPalette(theme.bg === themes.dark.bg),
   };
 }
 
@@ -61,21 +57,8 @@ function BookCover({
   size?: "small" | "large";
 }) {
   const dark = useTheme().bg === themes.dark.bg;
-  const cover = (
-    dark
-      ? {
-          paper: { bg: "#37333B", text: "#E8E1EC" },
-          ink: { bg: "#2D2A3E", text: "#F2EEF7" },
-          violet: { bg: "#3C3455", text: "#E1D8FF" },
-          mist: { bg: "#302E3A", text: "#E2DDEA" },
-        }
-      : {
-          paper: { bg: "#EEE9DF", text: "#332F34" },
-          ink: { bg: "#2D2A3E", text: "#F2EEF7" },
-          violet: { bg: "#D9D3F3", text: "#35295E" },
-          mist: { bg: "#EEECF3", text: "#494352" },
-        }
-  )[book.cover];
+  const colors = getWordLibraryPalette(dark);
+  const cover = colors.covers[book.cover];
   const mark = getWordCollectionCoverMark(book);
   return (
     <View
@@ -88,6 +71,11 @@ function BookCover({
       ]}
     >
       <View style={[styles.spine, { backgroundColor: cover.text }]} />
+      {book.saved && (
+        <View
+          style={[styles.coverBookmark, { backgroundColor: colors.pink }]}
+        />
+      )}
       <Text
         style={[
           styles.publisher,
@@ -158,8 +146,8 @@ export default function WordLibraryScreen() {
   }>();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const theme = useTheme();
-  const colors = palette(theme);
+  const colors = palette(useTheme());
+  const theme = colors;
   const course = useSettingsStore((s) => s.learnCourse);
   const uiLanguage = useSettingsStore((s) => s.language);
   const contentLanguage = useContentLang();
@@ -191,6 +179,7 @@ export default function WordLibraryScreen() {
   const [languageOpen, setLanguageOpen] = useState(false);
   const [levelOpen, setLevelOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [sectionPickerOpen, setSectionPickerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -229,6 +218,7 @@ export default function WordLibraryScreen() {
     setSaving(false);
     setLanguageOpen(false);
     setLevelOpen(false);
+    setSectionPickerOpen(false);
   }, [scopeKey]);
 
   useEffect(() => {
@@ -246,6 +236,7 @@ export default function WordLibraryScreen() {
     );
     setExpanded(false);
     setSaveFailed(false);
+    setSectionPickerOpen(false);
     setQuery("");
     setKind("all");
     setLevel("all");
@@ -345,6 +336,7 @@ export default function WordLibraryScreen() {
     setGroupId(null);
     setDetailData(null);
     setExpanded(false);
+    setSectionPickerOpen(false);
     setRefresh((n) => n + 1);
     router.setParams({
       collectionId: undefined,
@@ -378,6 +370,7 @@ export default function WordLibraryScreen() {
     setSelectedId(book.id);
     setGroupId(null);
     setExpanded(false);
+    setSectionPickerOpen(false);
     void Haptics.selectionAsync();
   };
 
@@ -456,10 +449,8 @@ export default function WordLibraryScreen() {
       style={({ pressed }) => [
         styles.primary,
         {
-          backgroundColor: colors.action,
-          borderBottomColor: colors.depth,
-          transform: [{ translateY: pressed ? 3 : 0 }],
-          borderBottomWidth: pressed ? 1 : 4,
+          backgroundColor: pressed ? colors.depth : colors.action,
+          transform: [{ scale: pressed ? 0.98 : 1 }],
           opacity: disabled ? 0.5 : 1,
         },
       ]}
@@ -582,7 +573,9 @@ export default function WordLibraryScreen() {
                     {t(WORD_COLLECTION_KIND_KEYS[recent.kind])}
                   </Text>
                 </View>
-                <View style={styles.current}>
+                <View
+                  style={[styles.current, { backgroundColor: theme.surface }]}
+                >
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={recent.title}
@@ -635,13 +628,13 @@ export default function WordLibraryScreen() {
                 onPress={() => setTab("discover")}
                 style={styles.textButton}
               >
-                <Text style={[styles.textAction, { color: colors.action }]}>
+                <Text style={[styles.textAction, { color: colors.primary }]}>
                   {t("wordLibrary.discover")}
                 </Text>
                 <Ionicons
                   name="arrow-forward"
                   size={16}
-                  color={colors.action}
+                  color={colors.primary}
                 />
               </Pressable>
             </View>
@@ -701,7 +694,7 @@ export default function WordLibraryScreen() {
                     styles.kindText,
                     {
                       color:
-                        kind === value ? colors.action : theme.textSecondary,
+                        kind === value ? colors.primary : theme.textSecondary,
                     },
                   ]}
                 >
@@ -766,7 +759,9 @@ export default function WordLibraryScreen() {
                       styles.kindText,
                       {
                         color:
-                          level === value ? colors.action : theme.textSecondary,
+                          level === value
+                            ? colors.primary
+                            : theme.textSecondary,
                       },
                     ]}
                   >
@@ -804,9 +799,16 @@ export default function WordLibraryScreen() {
         t("wordLibrary.errorSub"),
         () => setDetailRefresh((n) => n + 1),
       );
-    const groups = detail.groups
-      .filter((g) => g.words > 0)
-      .sort((a, b) => a.order - b.order);
+    const sections = getWordCollectionSections(detail);
+    const selectedSection =
+      sections.find((section) =>
+        section.groups.some((group) => group.id === currentGroup?.id),
+      ) ?? sections[0];
+    const groups =
+      selectedSection?.groups ??
+      detail.groups
+        .filter((g) => g.words > 0)
+        .sort((a, b) => a.order - b.order);
     const shown = expanded
       ? groups
       : groups.filter((g, i) => i < 3 || g.id === currentGroup?.id);
@@ -834,7 +836,9 @@ export default function WordLibraryScreen() {
             </Text>
             <Text style={[styles.meta, { color: theme.textSecondary }]}>
               {t("wordLibrary.wordsCount", { count: detail.words })} ·{" "}
-              {t("wordLibrary.groupCount", { count: detail.groupCount })}
+              {sections.length
+                ? t("wordLibrary.sectionCount", { count: sections.length })
+                : t("wordLibrary.groupCount", { count: detail.groupCount })}
             </Text>
           </View>
         </View>
@@ -850,19 +854,24 @@ export default function WordLibraryScreen() {
           disabled={saving}
           style={[
             styles.saveButton,
-            { backgroundColor: detail.saved ? colors.wash : colors.soft },
+            { backgroundColor: detail.saved ? colors.pinkWash : colors.soft },
           ]}
         >
           {saving ? (
-            <ActivityIndicator color={colors.action} size="small" />
+            <ActivityIndicator color={colors.primary} size="small" />
           ) : (
             <Ionicons
               name={detail.saved ? "bookmark" : "bookmark-outline"}
               size={17}
-              color={colors.action}
+              color={detail.saved ? colors.onPink : colors.primary}
             />
           )}
-          <Text style={[styles.textAction, { color: colors.action }]}>
+          <Text
+            style={[
+              styles.textAction,
+              { color: detail.saved ? colors.onPink : colors.primary },
+            ]}
+          >
             {t(
               detail.saved
                 ? "wordLibrary.removeCollection"
@@ -892,12 +901,120 @@ export default function WordLibraryScreen() {
             {t("wordLibrary.sharedProgress")}
           </Text>
         </View>
+        {selectedSection && (
+          <View style={styles.sectionSelector}>
+            <View style={styles.sectionHeading}>
+              <Text style={[styles.heading, { color: theme.text }]}>
+                {t("wordLibrary.sectionPicker")}
+              </Text>
+              <Text style={[styles.meta, { color: theme.textSecondary }]}>
+                {t("wordLibrary.sectionCount", { count: sections.length })}
+              </Text>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t("wordLibrary.changeSection")}
+              accessibilityState={{ expanded: sectionPickerOpen }}
+              onPress={() => setSectionPickerOpen((open) => !open)}
+              style={[
+                styles.sectionSelected,
+                { backgroundColor: theme.surface, borderColor: theme.border },
+              ]}
+            >
+              <View
+                style={[
+                  styles.sectionNumber,
+                  { backgroundColor: colors.yellowWash },
+                ]}
+              >
+                <Text
+                  style={[styles.sectionNumberText, { color: colors.onYellow }]}
+                >
+                  {selectedSection.section}
+                </Text>
+              </View>
+              <View style={styles.groupCopy}>
+                <Text style={[styles.heading, { color: theme.text }]}>
+                  {t("wordLibrary.sectionTitle", {
+                    n: selectedSection.section,
+                  })}
+                </Text>
+                <Text style={[styles.meta, { color: theme.textSecondary }]}>
+                  {t("wordLibrary.unitsCount", {
+                    count: selectedSection.groups.length,
+                  })}
+                </Text>
+              </View>
+              <Ionicons
+                name={sectionPickerOpen ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={colors.primary}
+              />
+            </Pressable>
+            {sectionPickerOpen && (
+              <View style={styles.sectionGrid}>
+                {sections.map((section) => {
+                  const active = section.section === selectedSection.section;
+                  return (
+                    <Pressable
+                      key={section.section}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                      onPress={() => {
+                        const next = getDefaultWordCollectionGroup({
+                          ...detail,
+                          groups: section.groups,
+                        });
+                        if (next) setGroupId(next.id);
+                        setExpanded(false);
+                        setSectionPickerOpen(false);
+                        void Haptics.selectionAsync();
+                      }}
+                      style={[
+                        styles.sectionOption,
+                        {
+                          backgroundColor: active ? colors.wash : theme.surface,
+                          borderColor: active ? colors.primary : theme.border,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.groupTitle,
+                          { color: active ? colors.primary : theme.text },
+                        ]}
+                      >
+                        {t("wordLibrary.sectionTitle", { n: section.section })}
+                      </Text>
+                      <Text
+                        style={[styles.meta, { color: theme.textSecondary }]}
+                      >
+                        {t("wordLibrary.unitsCount", {
+                          count: section.groups.length,
+                        })}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        )}
         <View style={styles.sectionHeading}>
           <Text style={[styles.heading, { color: theme.text }]}>
-            {t("wordLibrary.studyRange")}
+            {t(
+              selectedSection
+                ? "wordLibrary.unitsInSection"
+                : "wordLibrary.studyRange",
+            )}
           </Text>
           <Text style={[styles.meta, { color: theme.textSecondary }]}>
-            {t("wordLibrary.groupCount", { count: groups.length })}
+            {t(
+              selectedSection
+                ? "wordLibrary.unitsCount"
+                : "wordLibrary.groupCount",
+              { count: groups.length },
+            )}
           </Text>
         </View>
         {!groups.length ? (
@@ -935,14 +1052,18 @@ export default function WordLibraryScreen() {
                       <Text
                         style={[styles.meta, { color: theme.textSecondary }]}
                       >
-                        {String(group.order + 1).padStart(2, "0")}
+                        {String(
+                          selectedSection ? group.unit : group.order + 1,
+                        ).padStart(2, "0")}
                       </Text>
                     )}
                   </View>
                   <View style={styles.groupCopy}>
                     <Text style={[styles.groupTitle, { color: theme.text }]}>
-                      {group.title ||
-                        t("wordLibrary.groupTitle", { n: group.order + 1 })}
+                      {selectedSection
+                        ? t("wordLibrary.unitNumber", { n: group.unit })
+                        : group.title ||
+                          t("wordLibrary.groupTitle", { n: group.order + 1 })}
                     </Text>
                     <Text style={[styles.meta, { color: theme.textSecondary }]}>
                       {t("wordLibrary.unitProgress", {
@@ -961,7 +1082,7 @@ export default function WordLibraryScreen() {
                         color: completed
                           ? colors.success
                           : active
-                            ? colors.action
+                            ? colors.primary
                             : theme.textSecondary,
                       },
                     ]}
@@ -969,7 +1090,7 @@ export default function WordLibraryScreen() {
                     {t(
                       completed
                         ? "wordLibrary.completed"
-                        : active
+                        : group.learning + group.review + group.mastered > 0
                           ? "wordLibrary.learning"
                           : "wordLibrary.new",
                     )}
@@ -984,7 +1105,7 @@ export default function WordLibraryScreen() {
                 onPress={() => setExpanded((v) => !v)}
                 style={styles.textButton}
               >
-                <Text style={[styles.textAction, { color: colors.action }]}>
+                <Text style={[styles.textAction, { color: colors.primary }]}>
                   {t(
                     expanded
                       ? "wordLibrary.collapseGroups"
@@ -995,7 +1116,7 @@ export default function WordLibraryScreen() {
                 <Ionicons
                   name={expanded ? "chevron-up" : "chevron-down"}
                   size={16}
-                  color={colors.action}
+                  color={colors.primary}
                 />
               </Pressable>
             )}
@@ -1091,7 +1212,7 @@ export default function WordLibraryScreen() {
           accessibilityRole="button"
           accessibilityLabel={t("wordLibrary.back")}
           onPress={back}
-          style={styles.iconButton}
+          style={[styles.iconButton, { backgroundColor: theme.surface }]}
         >
           <Ionicons name="arrow-back" size={22} color={theme.text} />
         </Pressable>
@@ -1144,7 +1265,7 @@ export default function WordLibraryScreen() {
                   styles.kindText,
                   {
                     color:
-                      value === course ? colors.action : theme.textSecondary,
+                      value === course ? colors.primary : theme.textSecondary,
                   },
                 ]}
               >
@@ -1186,6 +1307,7 @@ const styles = StyleSheet.create({
   iconButton: {
     minWidth: 44,
     minHeight: 44,
+    borderRadius: 999,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -1238,9 +1360,11 @@ const styles = StyleSheet.create({
   meta: { fontSize: 12, fontWeight: "600", lineHeight: 18, flexShrink: 1 },
   current: {
     flexDirection: "row",
-    gap: 20,
+    gap: 16,
     alignItems: "center",
     marginBottom: 30,
+    padding: 16,
+    borderRadius: 24,
   },
   currentCopy: { flex: 1, minWidth: 0 },
   currentTitle: {
@@ -1252,7 +1376,7 @@ const styles = StyleSheet.create({
   currentAction: { marginTop: 14 },
   primary: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 12,
     flexDirection: "row",
@@ -1281,8 +1405,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   coverLarge: {
-    width: 99,
-    height: 146,
+    width: 88,
+    height: 136,
     paddingTop: 14,
     paddingHorizontal: 16,
     paddingBottom: 12,
@@ -1295,6 +1419,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 1,
     opacity: 0.14,
+  },
+  coverBookmark: {
+    position: "absolute",
+    top: 0,
+    right: 7,
+    width: 9,
+    height: 17,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
   },
   publisher: { fontSize: 6, fontWeight: "900", letterSpacing: 0.4 },
   publisherLarge: { fontSize: 9, letterSpacing: 1 },
@@ -1416,6 +1549,40 @@ const styles = StyleSheet.create({
   },
   message: { fontSize: 12, lineHeight: 19, marginTop: 10 },
   detailProgress: { marginTop: 25, marginBottom: 28 },
+  sectionSelector: { marginBottom: 28 },
+  sectionSelected: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    minHeight: 80,
+    padding: 14,
+    borderWidth: 1,
+    borderRadius: 22,
+  },
+  sectionNumber: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionNumberText: { fontSize: 20, fontWeight: "800" },
+  sectionGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+    marginTop: 12,
+  },
+  sectionOption: {
+    width: "48%",
+    flexGrow: 1,
+    minHeight: 72,
+    justifyContent: "center",
+    gap: 5,
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
   progressNumber: { fontSize: 15, fontWeight: "900" },
   sharedNote: { fontSize: 12, lineHeight: 18, marginTop: 9 },
   group: {

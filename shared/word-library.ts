@@ -67,6 +67,42 @@ export interface WordCollectionDetail extends WordCollectionSummary {
   groups: WordCollectionGroup[];
 }
 
+/** Client-side navigation only. Do not add up group word counts: words overlap. */
+export interface WordLibrarySection {
+  section: number;
+  groups: WordCollectionGroup[];
+}
+
+export function getWordCollectionSections(
+  collection: WordCollectionDetail,
+): WordLibrarySection[] {
+  if (collection.kind !== "course" || !collection.id.startsWith("course-"))
+    return [];
+  const sections = new Map<number, WordCollectionGroup[]>();
+  for (const group of collection.groups) {
+    if (
+      !group.words ||
+      !Number.isInteger(group.section) ||
+      !Number.isInteger(group.unit) ||
+      (group.section ?? 0) < 1 ||
+      (group.unit ?? 0) < 1
+    )
+      continue;
+    const section = group.section!;
+    const items = sections.get(section) ?? [];
+    items.push(group);
+    sections.set(section, items);
+  }
+  return [...sections.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([section, groups]) => ({
+      section,
+      groups: groups.sort(
+        (a, b) => (a.unit ?? 0) - (b.unit ?? 0) || a.order - b.order,
+      ),
+    }));
+}
+
 export const WORD_COLLECTION_KIND_KEYS: Record<WordCollectionKind, string> = {
   course: "wordLibrary.kindCourse",
   textbook: "wordLibrary.kindTextbook",

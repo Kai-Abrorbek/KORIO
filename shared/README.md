@@ -124,6 +124,16 @@ reading positions live in new account-scoped collection records. Removing a
 bookmark preserves its reading position and shared mastery. Browsing previews
 does not mark words as studied or complete guided-path lessons.
 
+The original course picker groups its existing `section`/`unit` metadata on the
+client: choose a section, then see only that section's units. Resuming a word
+selects its section automatically. Group IDs and saved positions stay unchanged;
+unit counts are displayed without incorrectly summing overlapping word counts.
+
+`word-library-theme.ts` keeps the reference-led wordbook palette consistent in
+both clients: warm white surfaces, blue actions, yellow section markers, and pink
+saved bookmarks, with explicit dark variants. These colors apply only to the
+wordbook surface, not to the rest of the application.
+
 Deploy the additive word-collection API before either client. New textbook,
 exam, level, and topic collections require real word memberships and translations
 published through the admin API; the design mock's sample content is not seeded.

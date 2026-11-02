@@ -5,8 +5,13 @@ import {
   getDefaultWordCollectionGroup,
   getMyWordCollections,
   getResumeWordIndex,
+  getWordCollectionSections,
 } from "./word-library.ts";
 import { wordLibrary } from "./word-library.i18n.ts";
+import {
+  getWordLibraryPalette,
+  getWordLibraryCssVariables,
+} from "./word-library-theme.ts";
 
 const counts = {
   words: 3,
@@ -127,5 +132,100 @@ test("all four UI languages have complete translations and matching interpolatio
         `${locale}.${key}`,
       );
     }
+  }
+});
+
+test("course sections retain canonical unit IDs and resume inside the correct section", () => {
+  const groups = [
+    group("s3-u2", 8, { section: 3, unit: 2 }),
+    group("s1-u1", 0, { section: 1, unit: 1 }),
+    group("s3-u1", 7, { section: 3, unit: 1 }),
+    group("empty", 9, { section: 4, unit: 1, words: 0 }),
+  ];
+  const detail = {
+    ...book,
+    id: "course-ko-general",
+    kind: "course",
+    groups,
+    lastPosition: { groupId: "s3-u2", cardIndex: 1, lastWordId: "word-b" },
+  };
+  const original = structuredClone(detail);
+  const sections = getWordCollectionSections(detail);
+  assert.deepEqual(
+    sections.map((section) => section.section),
+    [1, 3],
+  );
+  const resume = getDefaultWordCollectionGroup(detail);
+  const current = sections.find((section) =>
+    section.groups.some((item) => item.id === resume.id),
+  );
+  assert.equal(current.section, 3);
+  assert.deepEqual(
+    current.groups.map((item) => item.id),
+    ["s3-u1", "s3-u2"],
+  );
+  assert.equal(
+    getDefaultWordCollectionGroup({ ...detail, groups: sections[0].groups }).id,
+    "s1-u1",
+  );
+  assert.deepEqual(detail, original);
+});
+
+test("curated collections keep their own groups and course sections do not invent aggregate word counts", () => {
+  const groups = [
+    group("one", 0, { section: 1, unit: 1 }),
+    group("two", 1, { section: 2, unit: 1 }),
+  ];
+  assert.deepEqual(getWordCollectionSections({ ...book, groups }), []);
+  const sections = getWordCollectionSections({
+    ...book,
+    id: "course-en-general",
+    kind: "course",
+    targetLanguage: "en",
+    groups,
+  });
+  assert.deepEqual(
+    sections.map((section) => Object.keys(section).sort()),
+    [
+      ["groups", "section"],
+      ["groups", "section"],
+    ],
+  );
+});
+
+test("reference colors retain readable action, text, selection, saved and cover roles in both themes", () => {
+  function luminance(hex) {
+    const [r, g, b] = hex
+      .slice(1)
+      .match(/../g)
+      .map((value) => parseInt(value, 16) / 255)
+      .map((value) =>
+        value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4,
+      );
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  }
+  function contrast(a, b) {
+    const values = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (values[0] + 0.05) / (values[1] + 0.05);
+  }
+  for (const dark of [false, true]) {
+    const p = getWordLibraryPalette(dark);
+    for (const [foreground, background] of [
+      [p.text, p.bg],
+      [p.textSecondary, p.bg],
+      [p.textSecondary, p.surface],
+      [p.onAction, p.action],
+      [p.primary, p.wash],
+      [p.onYellow, p.yellowWash],
+      [p.onPink, p.pinkWash],
+      ...Object.values(p.covers).map((cover) => [cover.text, cover.bg]),
+    ]) {
+      assert.ok(
+        contrast(foreground, background) >= 4.5,
+        `${dark ? "dark" : "light"}: ${foreground} on ${background}`,
+      );
+    }
+    assert.equal(getWordLibraryCssVariables(dark)["--wl-bg"], p.bg);
+    assert.equal(getWordLibraryCssVariables(dark)["--wl-action"], p.action);
   }
 });

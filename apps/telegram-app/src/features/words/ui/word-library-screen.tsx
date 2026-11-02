@@ -1,13 +1,21 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 import {
   filterWordCollections,
   getDefaultWordCollectionGroup,
   getMyWordCollections,
   getWordCollectionCoverMark,
+  getWordCollectionSections,
   WORD_COLLECTION_KINDS,
   WORD_COLLECTION_LEVELS,
   type WordCollectionDetail,
@@ -16,6 +24,8 @@ import {
   type WordCollectionLevel,
   type WordCollectionSummary,
 } from "../../../../../../shared/word-library";
+import { getWordLibraryCssVariables } from "../../../../../../shared/word-library-theme";
+import { useAppTheme } from "../../../shared/theme/theme-context";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { saveLearnMode } from "../../learning/api/learning-preferences";
 import {
@@ -70,10 +80,9 @@ function BookCover({
       aria-hidden="true"
       className={[
         styles.cover,
-        book.cover === "violet" || book.cover === "mist"
-          ? styles.coverAlternate
-          : "",
+        book.cover === "violet" ? styles.coverAlternate : "",
         book.cover === "ink" ? styles.coverInk : "",
+        book.cover === "mist" ? styles.coverMist : "",
         small ? styles.smallCover : "",
       ]
         .filter(Boolean)
@@ -82,6 +91,7 @@ function BookCover({
       <span className={styles.publisher} data-no-translate>
         KORIO
       </span>
+      {book.saved && <span className={styles.coverBookmark} />}
       <span>
         <span className={styles.coverMark} data-no-translate>
           {getWordCollectionCoverMark(book)}
@@ -167,6 +177,7 @@ function groupTitle(group: WordCollectionGroup) {
 }
 
 export function WordLibraryScreen() {
+  const { resolvedTheme } = useAppTheme();
   const router = useRouter();
   const params = useSearchParams();
   const { request, updateUser, user } = useTelegramAuth();
@@ -198,6 +209,7 @@ export function WordLibraryScreen() {
   const [detailFailed, setDetailFailed] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [sectionPickerOpen, setSectionPickerOpen] = useState(false);
   const [autoPlay, setAutoPlay] = useState(true);
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<WordCollectionKind | "all">("all");
@@ -227,6 +239,15 @@ export function WordLibraryScreen() {
       : null;
   const selectedGroup =
     book?.groups.find((group) => group.id === selectedGroupId) ?? null;
+  const sections = useMemo(
+    () => (book ? getWordCollectionSections(book) : []),
+    [book],
+  );
+  const selectedSection =
+    sections.find((section) =>
+      section.groups.some((group) => group.id === selectedGroup?.id),
+    ) ?? sections[0];
+  const visibleGroups = selectedSection?.groups ?? book?.groups ?? [];
   const previewKey = `${scope}:${book?.id ?? ""}:${selectedGroup?.id ?? ""}:${contentLanguage}`;
   const previewWords = preview?.key === previewKey ? preview.words : [];
 
@@ -265,6 +286,7 @@ export function WordLibraryScreen() {
     setDetailFailed(false);
     setSaveFailed(false);
     setExpanded(false);
+    setSectionPickerOpen(false);
     void getWordCollection(request, course, language, collectionId)
       .then((result) => {
         if (!active) return;
@@ -470,7 +492,13 @@ export function WordLibraryScreen() {
   );
 
   return (
-    <main className={styles.page} ref={pageRef}>
+    <main
+      className={styles.page}
+      ref={pageRef}
+      style={
+        getWordLibraryCssVariables(resolvedTheme === "dark") as CSSProperties
+      }
+    >
       {collectionId ? (
         <>
           <header className={styles.detailHeader}>
@@ -525,8 +553,16 @@ export function WordLibraryScreen() {
                       {copy("wordsCount", { count: book.words })}
                     </span>
                     {" · "}
-                    <span data-i18n="wordLibrary.groupCount">
-                      {copy("groupCount", { count: book.groupCount })}
+                    <span
+                      data-i18n={
+                        sections.length
+                          ? "wordLibrary.sectionCount"
+                          : "wordLibrary.groupCount"
+                      }
+                    >
+                      {copy(sections.length ? "sectionCount" : "groupCount", {
+                        count: sections.length || book.groupCount,
+                      })}
                     </span>
                   </p>
                 </div>
@@ -562,10 +598,96 @@ export function WordLibraryScreen() {
                   {copy("sharedProgress")}
                 </p>
               </section>
+              {selectedSection && (
+                <section className={styles.sectionSelector}>
+                  <div className={styles.sectionHeading}>
+                    <h2 data-i18n="wordLibrary.sectionPicker">
+                      {copy("sectionPicker")}
+                    </h2>
+                    <small data-i18n="wordLibrary.sectionCount">
+                      {copy("sectionCount", { count: sections.length })}
+                    </small>
+                  </div>
+                  <button
+                    className={styles.selectedSection}
+                    type="button"
+                    aria-expanded={sectionPickerOpen}
+                    aria-label={copy("changeSection")}
+                    onClick={() => setSectionPickerOpen((open) => !open)}
+                  >
+                    <span className={styles.sectionNumber} data-no-translate>
+                      {selectedSection.section}
+                    </span>
+                    <span className={styles.unitCopy}>
+                      <strong data-i18n="wordLibrary.sectionTitle">
+                        {copy("sectionTitle", { n: selectedSection.section })}
+                      </strong>
+                      <small data-i18n="wordLibrary.unitsCount">
+                        {copy("unitsCount", {
+                          count: selectedSection.groups.length,
+                        })}
+                      </small>
+                    </span>
+                    <MobileIcon
+                      name={sectionPickerOpen ? "chevron-up" : "chevron-down"}
+                      size={20}
+                    />
+                  </button>
+                  {sectionPickerOpen && (
+                    <div className={styles.sectionGrid}>
+                      {sections.map((section) => (
+                        <button
+                          className={styles.sectionOption}
+                          key={section.section}
+                          type="button"
+                          aria-pressed={
+                            section.section === selectedSection.section
+                          }
+                          onClick={() => {
+                            const next = getDefaultWordCollectionGroup({
+                              ...book,
+                              groups: section.groups,
+                            });
+                            if (next) setSelectedGroupId(next.id);
+                            setExpanded(false);
+                            setSectionPickerOpen(false);
+                            window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
+                          }}
+                        >
+                          <strong data-i18n="wordLibrary.sectionTitle">
+                            {copy("sectionTitle", { n: section.section })}
+                          </strong>
+                          <small data-i18n="wordLibrary.unitsCount">
+                            {copy("unitsCount", {
+                              count: section.groups.length,
+                            })}
+                          </small>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
               <div className={styles.sectionHeading}>
-                <h2 data-i18n="wordLibrary.studyRange">{copy("studyRange")}</h2>
-                <small data-i18n="wordLibrary.groupCount">
-                  {copy("groupCount", { count: book.groups.length })}
+                <h2
+                  data-i18n={
+                    selectedSection
+                      ? "wordLibrary.unitsInSection"
+                      : "wordLibrary.studyRange"
+                  }
+                >
+                  {copy(selectedSection ? "unitsInSection" : "studyRange")}
+                </h2>
+                <small
+                  data-i18n={
+                    selectedSection
+                      ? "wordLibrary.unitsCount"
+                      : "wordLibrary.groupCount"
+                  }
+                >
+                  {copy(selectedSection ? "unitsCount" : "groupCount", {
+                    count: visibleGroups.length,
+                  })}
                 </small>
               </div>
               {book.groups.length === 0 ? (
@@ -578,7 +700,7 @@ export function WordLibraryScreen() {
               ) : (
                 <>
                   <div>
-                    {book.groups
+                    {visibleGroups
                       .filter(
                         (group, index) =>
                           expanded || index < 3 || group.id === selectedGroupId,
@@ -596,16 +718,28 @@ export function WordLibraryScreen() {
                             group.mastered === group.words ? (
                               <MobileIcon name="checkmark" size={18} />
                             ) : (
-                              String(group.order + 1).padStart(2, "0")
+                              String(
+                                selectedSection ? group.unit : group.order + 1,
+                              ).padStart(2, "0")
                             )}
                           </span>
                           <span className={styles.unitCopy}>
                             <strong
                               data-no-translate={
-                                Boolean(group.title) || undefined
+                                (!selectedSection && Boolean(group.title)) ||
+                                undefined
+                              }
+                              data-i18n={
+                                selectedSection
+                                  ? "wordLibrary.unitNumber"
+                                  : undefined
                               }
                             >
-                              {groupTitle(group)}
+                              {selectedSection
+                                ? copy("unitNumber", {
+                                    n: group.unit ?? group.order + 1,
+                                  })
+                                : groupTitle(group)}
                             </strong>
                             <small>
                               <span data-i18n="wordLibrary.unitProgress">
@@ -642,7 +776,7 @@ export function WordLibraryScreen() {
                         </button>
                       ))}
                   </div>
-                  {book.groups.length > 3 ? (
+                  {visibleGroups.length > 3 ? (
                     <button
                       aria-expanded={expanded}
                       className={styles.textButton}
@@ -653,7 +787,7 @@ export function WordLibraryScreen() {
                         data-i18n={`wordLibrary.${expanded ? "collapseGroups" : "allGroups"}`}
                       >
                         {copy(expanded ? "collapseGroups" : "allGroups", {
-                          count: book.groups.length,
+                          count: visibleGroups.length,
                         })}
                       </span>
                       <MobileIcon
