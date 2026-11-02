@@ -1,6 +1,8 @@
 import topik from "./topik/en";
+import { wordLibrary } from "../../../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.en,
   topik,
   learningStreak: {
     title: "Overall learning streak",

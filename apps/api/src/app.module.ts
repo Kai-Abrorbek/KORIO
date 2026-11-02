@@ -23,6 +23,7 @@ import { SpeechModule } from './speech/speech.module';
 import { ChallengeModule } from './challenge/challenge.module';
 import { TtsModule } from './tts/tts.module';
 import { WordsModule } from './words/words.module';
+import { WordCollectionsModule } from './word-collections/word-collections.module';
 import { ExpressionsModule } from './expressions/expressions.module';
 import { StudyPathModule } from './study-path/study-path.module';
 import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
@@ -76,6 +77,7 @@ import { LearningCoursesModule } from './learning-courses/learning-courses.modul
     ChallengeModule,
     NotificationsModule,
     WordsModule,
+    WordCollectionsModule,
     ExpressionsModule,
     StudyPathModule,
     ReadingLessonsModule,

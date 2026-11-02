@@ -1,7 +1,9 @@
 import topik from "./topik/en";
 import alphabet from "./alphabet";
+import { wordLibrary } from "../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.en,
   alphabet: alphabet.en,
   topik,
   rewardInbox: {

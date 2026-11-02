@@ -21,7 +21,6 @@ import {
   GestureDetector,
 } from "react-native-gesture-handler";
 import Animated, {
-  Easing,
   Extrapolation,
   FadeIn,
   FadeInDown,
@@ -38,6 +37,9 @@ import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { WordService } from "@/services/word.service";
+import { WordCollectionsService } from "@/services/word-collections.service";
+import { getResumeWordIndex, type WordCollectionDetail, type WordCollectionPosition } from "../../../../shared/word-library";
+import type { LearnCourse } from "@/constants/learnCourses";
 import { useSettingsStore, useContentLang } from "@/store/settings.store";
 import { useAvatarStudyStore } from "@/store/avatar-study.store";
 import { useAuthStore } from "@/store/auth.store";
@@ -752,10 +754,10 @@ function RecallOfferModal({
 }
 
 export default function WordStudyRoute() {
-  const params = useLocalSearchParams<{ section?: string; unit?: string }>();
+  const params = useLocalSearchParams<{ section?: string; unit?: string; collectionId?: string; groupId?: string }>();
   const section = Number(params.section);
   const unit = Number(params.unit);
-  if (!Number.isInteger(section) || section < 1 || !Number.isInteger(unit) || unit < 1) {
+  if (!(params.collectionId && params.groupId) && (!Number.isInteger(section) || section < 1 || !Number.isInteger(unit) || unit < 1)) {
     return <Redirect href="/word-library" />;
   }
   return <WordStudyScreen />;
@@ -772,6 +774,8 @@ function WordStudyScreen() {
     lesson?: string;
     lessonCount?: string;
     resume?: string;
+    collectionId?: string;
+    groupId?: string;
   }>();
   // loadWords 의 의존성 배열이 즉시 평가되므로 그보다 위에서 선언해야 한다
   const studyLesson = Math.max(1, Number(params.lesson) || 1);
@@ -780,6 +784,10 @@ function WordStudyScreen() {
   const contentLang = useContentLang();
   const learnCourse = useSettingsStore((state) => state.learnCourse);
   const speechLocale = DEFAULT_LEARNING_COURSES[learnCourse].speechLocale;
+  const uiLanguage = useSettingsStore((state) => state.language);
+  const userId = useAuthStore((state) => state.user?.id);
+  const collectionScope = Boolean(params.collectionId && params.groupId);
+  const activeWordScope = `${userId || ""}:${learnCourse}:${collectionScope ? `${params.collectionId}:${params.groupId}` : `${params.section}:${params.unit}`}:${contentLang}`;
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -794,11 +802,38 @@ function WordStudyScreen() {
   const wordStudyAutoPlay = useSettingsStore(
     (state) => state.wordStudyAutoPlay,
   );
-  const wordStudyLast = useSettingsStore((state) => state.wordStudyLast);
+  const storedWordStudyLast = useSettingsStore((state) => state.wordStudyLast);
+  const wordStudyLast = userId && storedWordStudyLast?.ownerId === userId ? storedWordStudyLast : null;
   const setWordStudyLast = useSettingsStore((state) => state.setWordStudyLast);
   // 첫 진입에 한 번만 이어보기를 적용한다. 이후 범위를 직접 바꾸면 0번부터.
   const resumeIndexRef = useRef<number | null>(null);
   const resumeConsumedRef = useRef(false);
+  const resumeWordIdRef = useRef<string | null>(null);
+  const scopeRequestRef = useRef(0);
+  const wordRequestRef = useRef(0);
+  const cancelScopeRequest = useCallback(() => { scopeRequestRef.current++; }, []);
+  const cancelWordRequest = useCallback(() => { wordRequestRef.current++; }, []);
+  const [collection, setCollection] = useState<WordCollectionDetail | null>(null);
+  const [positionFailed, setPositionFailed] = useState(false);
+  const [loadedWordScope, setLoadedWordScope] = useState("");
+  const positionWriteRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingPositionRef = useRef<{ id: string; position: WordCollectionPosition; course: LearnCourse; userId: string | undefined } | null>(null);
+  const flushCollectionPosition = useCallback((): Promise<void> => {
+    const pending = pendingPositionRef.current;
+    if (!pending) return positionWriteRef.current;
+    pendingPositionRef.current = null;
+    // Serialize writes so a slow older request cannot replace the latest reading position.
+    positionWriteRef.current = positionWriteRef.current.then(async () => {
+      try {
+        await WordCollectionsService.savePosition(pending.id, pending.position, pending.course, pending.userId);
+        setPositionFailed(false);
+      } catch {
+        if (useAuthStore.getState().user?.id === pending.userId && useSettingsStore.getState().learnCourse === pending.course) setPositionFailed(true);
+      }
+    });
+    return positionWriteRef.current;
+  }, []);
+  useFocusEffect(useCallback(() => () => { void flushCollectionPosition(); }, [flushCollectionPosition]));
   const screenStyles = useMemo(() => createScreenStyles(theme), [theme]);
 
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
@@ -846,52 +881,72 @@ function WordStudyScreen() {
   }, []);
 
   const loadSummaries = useCallback(async () => {
+    const request = ++scopeRequestRef.current;
     setScopeLoading(true);
     setLoadFailed(false);
+    setCollection(null);
+    setSummaries([]);
+    stop();
     try {
+      if (collectionScope && params.collectionId && params.groupId) {
+        const result = await WordCollectionsService.get(params.collectionId);
+        if (scopeRequestRef.current !== request) return;
+        const group = result.groups.find((item) => item.id === params.groupId && item.words > 0);
+        if (!group) {
+          router.replace({ pathname: "/word-library", params: { collectionId: result.id } });
+          return;
+        }
+        setCollection(result);
+        setSection(group.section || 0);
+        setUnit(group.unit || 0);
+        if (params.resume === "1") {
+          const saved = result.lastPosition?.groupId === group.id ? result.lastPosition : null;
+          if (saved) {
+            resumeIndexRef.current = saved.cardIndex;
+            resumeWordIdRef.current = saved.lastWordId;
+          } else if (result.id.startsWith("course-") && wordStudyLast && group.section === wordStudyLast.section && group.unit === wordStudyLast.unit) {
+            resumeIndexRef.current = wordStudyLast.cardIndex;
+          }
+        }
+        return;
+      }
       const result = await WordService.getSectionSummaries();
+      if (scopeRequestRef.current !== request) return;
       const available = result.filter((summary) => summary.words > 0);
-      setSummaries(result);
-
-      const saved = wordStudyLast;
-      const requestedSection = Number(params.section);
-      const requestedUnit = Number(params.unit);
-      const matchedSummary = available.find((item) => item.section === requestedSection);
-      const matchedUnit = matchedSummary?.units.find(
-        (item) => item.unit === requestedUnit && item.words > 0,
-      );
+      const matchedSummary = available.find((item) => item.section === Number(params.section));
+      const matchedUnit = matchedSummary?.units.find((item) => item.unit === Number(params.unit) && item.words > 0);
       if (!matchedSummary || !matchedUnit) {
-        setSummaries([]);
         router.replace("/word-library");
         return;
       }
+      setSummaries(result);
       setSection(matchedSummary.section);
       setUnit(matchedUnit.unit);
-      // Only Continue restores a free-study card position; a new range starts at zero.
-      if (
-        params.resume === "1" && params.from !== "studyPath" && saved &&
-        saved.section === matchedSummary.section && saved.unit === matchedUnit.unit
-      ) {
-        resumeIndexRef.current = saved.cardIndex;
+      if (params.resume === "1" && params.from !== "studyPath" && wordStudyLast && wordStudyLast.section === matchedSummary.section && wordStudyLast.unit === matchedUnit.unit) {
+        resumeIndexRef.current = wordStudyLast.cardIndex;
       }
     } catch {
-      setLoadFailed(true);
+      if (scopeRequestRef.current === request) setLoadFailed(true);
     } finally {
-      setScopeLoading(false);
+      if (scopeRequestRef.current === request) setScopeLoading(false);
     }
-    // wordStudyLast 는 첫 계산에만 쓰고 이후 변화로 다시 돌지 않게 의존성에서 뺀다
+    // Saved positions are applied once per route, not on every card-position update.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.section, params.unit, params.resume, params.from, learnCourse, router]);
+  }, [params.section, params.unit, params.resume, params.from, params.collectionId, params.groupId, collectionScope, learnCourse, userId, uiLanguage, router, stop]);
 
   useEffect(() => {
     resumeConsumedRef.current = false;
     resumeIndexRef.current = null;
+    resumeWordIdRef.current = null;
     void loadSummaries();
-  }, [loadSummaries]);
+    return cancelScopeRequest;
+  }, [loadSummaries, cancelScopeRequest]);
 
   const activeLanguage = contentLang;
   const loadWords = useCallback(async () => {
-    if (scopeLoading || summaries.length === 0 || !section || !unit) return;
+    if (scopeLoading || (collectionScope ? !collection : summaries.length === 0 || !section || !unit)) return;
+    const request = ++wordRequestRef.current;
+    setLoadedWordScope("");
     // 서비스가 설명 언어로 요청하므로 언어가 바뀌면 이 콜백을 새로 만든다.
     void activeLanguage;
     void learnCourse;
@@ -917,11 +972,14 @@ function WordStudyScreen() {
     translateX.value = 0;
 
     try {
-      const all = await WordService.getUnitWords(section, unit);
+      const all = collectionScope && params.collectionId && params.groupId
+        ? await WordCollectionsService.getWords(params.collectionId, params.groupId)
+        : await WordService.getUnitWords(section, unit);
+      if (request !== wordRequestRef.current) return;
       // 학습 로드 모드는 유닛 단어를 여러 레슨으로 나눠서 전부 훑는다.
       // 서버(lessonSlice)와 같은 규칙으로 잘라야 조각이 어긋나지 않는다.
       const result =
-        studyLessonCount > 1
+        !collectionScope && studyLessonCount > 1
           ? (() => {
               const { start, end } = lessonSlice(
                 all.length,
@@ -932,25 +990,25 @@ function WordStudyScreen() {
             })()
           : all;
       setWords(result);
+      setLoadedWordScope(activeWordScope);
 
       // 이어보기: 저장된 카드 번호로 복원 (단어가 줄었으면 마지막 카드로)
       const resumeAt = resumeIndexRef.current;
       resumeIndexRef.current = null;
       if (!resumeConsumedRef.current && resumeAt != null && result.length > 0) {
         resumeConsumedRef.current = true;
-        const restoredIndex = Math.min(
-          Math.max(0, resumeAt),
-          result.length - 1,
-        );
+        const restoredIndex = getResumeWordIndex(result, { cardIndex: resumeAt, lastWordId: resumeWordIdRef.current });
+        resumeWordIdRef.current = null;
         setCardIndex(restoredIndex);
       }
     } catch {
-      setLoadFailed(true);
+      if (request === wordRequestRef.current) setLoadFailed(true);
     } finally {
-      setWordsLoading(false);
+      if (request === wordRequestRef.current) setWordsLoading(false);
     }
   }, [
     activeLanguage,
+    activeWordScope,
     learnCourse,
     flushSeen,
     studyLesson,
@@ -959,18 +1017,24 @@ function WordStudyScreen() {
     section,
     stop,
     summaries.length,
+    collectionScope,
+    collection,
+    params.collectionId,
+    params.groupId,
     translateX,
     unit,
   ]);
 
   useEffect(() => {
     void loadWords();
-  }, [loadWords]);
+    return cancelWordRequest;
+  }, [loadWords, cancelWordRequest]);
 
-  const currentWord = words[cardIndex];
-  const previousWord = cardIndex > 0 ? words[cardIndex - 1] : undefined;
+  const loadedWords = loadedWordScope === activeWordScope ? words : [];
+  const currentWord = loadedWords[cardIndex];
+  const previousWord = cardIndex > 0 ? loadedWords[cardIndex - 1] : undefined;
   const nextWord =
-    cardIndex < words.length - 1 ? words[cardIndex + 1] : undefined;
+    cardIndex < loadedWords.length - 1 ? loadedWords[cardIndex + 1] : undefined;
   const hasPendingRecalls = pendingRecallWordIds.length > 0;
   const canGoPrevious = recallWord
     ? Boolean(currentWord)
@@ -1018,6 +1082,7 @@ function WordStudyScreen() {
    * 미리 받아 두면 넘기는 즉시 소리가 난다.
    */
   useEffect(() => {
+    if (loadedWordScope !== activeWordScope) return;
     const upcoming = words
       .slice(cardIndex, cardIndex + 4)
       .map(
@@ -1026,7 +1091,7 @@ function WordStudyScreen() {
       )
       .filter(Boolean);
     if (upcoming.length) prewarm(upcoming, words[cardIndex]?.speechLocale ?? speechLocale);
-  }, [cardIndex, words, prewarm, speechLocale]);
+  }, [cardIndex, words, prewarm, speechLocale, loadedWordScope, activeWordScope]);
 
   useEffect(() => {
     if (
@@ -1050,7 +1115,7 @@ function WordStudyScreen() {
     wordStudyAutoPlay,
   ]);
 
-  const fromStudyPath = params.from === "studyPath";
+  const fromStudyPath = !collectionScope && params.from === "studyPath";
 
   /**
    * 그날 단어를 끝까지 봤다는 사실을 남긴다. 단어 상태(new→learning)만으로
@@ -1185,7 +1250,7 @@ function WordStudyScreen() {
     showRecall(candidateId);
   }, [currentWord?.id, showRecall, words]);
 
-  const skipRecallPractice = useCallback(() => {
+  const skipRecallPractice = useCallback(async () => {
     setRecallOfferVisible(false);
     stop();
 
@@ -1195,9 +1260,10 @@ function WordStudyScreen() {
     }
 
     flushSeen();
+    await flushCollectionPosition();
     if (router.canGoBack()) router.back();
     else router.replace("/");
-  }, [finishStudyPathUnit, flushSeen, fromStudyPath, router, stop]);
+  }, [finishStudyPathUnit, flushCollectionPosition, flushSeen, fromStudyPath, router, stop]);
 
   useEffect(() => {
     if (
@@ -1410,27 +1476,42 @@ function WordStudyScreen() {
     ],
   }));
 
-  const goBack = () => {
+  const goBack = async () => {
     stop();
+    flushSeen();
+    await flushCollectionPosition();
     if (router.canGoBack()) router.back();
     else router.replace("/");
   };
 
-  const openWordLibrary = () => {
+  const openWordLibrary = async () => {
     stop();
     flushSeen();
+    await flushCollectionPosition();
     router.dismissTo({
       pathname: "/word-library",
-      params: { section: String(section), unit: String(unit) },
+      params: params.collectionId && params.groupId
+        ? { collectionId: params.collectionId, groupId: params.groupId }
+        : { section: String(section), unit: String(unit) },
     });
   };
 
   // 보던 지점을 저장한다. 다음 진입 때 여기서 이어간다.
   useEffect(() => {
-    if (wordsLoading || words.length === 0 || params.from === "studyPath") return;
+    if (loadedWordScope !== activeWordScope || wordsLoading || words.length === 0 || scopeLoading || params.from === "studyPath" || !section || !unit || (collectionScope && !collection?.id.startsWith("course-"))) return;
     if ((words[0]?.targetLanguage ?? "ko") !== useSettingsStore.getState().learnCourse) return;
-    setWordStudyLast({ section, unit, cardIndex });
-  }, [cardIndex, section, unit, words, wordsLoading, params.from, setWordStudyLast]);
+    setWordStudyLast({ section, unit, cardIndex, ownerId: userId });
+  }, [cardIndex, section, unit, words, wordsLoading, scopeLoading, params.from, collectionScope, collection, loadedWordScope, activeWordScope, userId, setWordStudyLast]);
+
+  useEffect(() => {
+    if (loadedWordScope !== activeWordScope || !collectionScope || !collection || !params.groupId || wordsLoading || scopeLoading || !words[cardIndex]) return;
+    pendingPositionRef.current = {
+      id: collection.id, course: learnCourse, userId,
+      position: { groupId: params.groupId, cardIndex, lastWordId: words[cardIndex]!.id },
+    };
+    const timeout = setTimeout(() => { void flushCollectionPosition(); }, 400);
+    return () => clearTimeout(timeout);
+  }, [collectionScope, collection, params.groupId, wordsLoading, scopeLoading, words, cardIndex, learnCourse, userId, loadedWordScope, activeWordScope, flushCollectionPosition]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
 
@@ -1491,6 +1572,7 @@ function WordStudyScreen() {
         </View>
       </View>
 
+      {positionFailed && <Text accessibilityRole="alert" style={[styles.positionWarning, { color: theme.textSecondary }]}>{t("wordLibrary.positionFailed")}</Text>}
       <View style={styles.progressWrap}>
         <View style={[styles.progressTrack, { backgroundColor: theme.border }]}>
           <Animated.View
@@ -1518,8 +1600,8 @@ function WordStudyScreen() {
         {!keyboardVisible ? (
           <Animated.View entering={FadeInDown.duration(320)}>
             <TouchableOpacity
-              onPress={openWordLibrary}
-              disabled={scopeLoading || summaries.every((item) => !item.words)}
+              onPress={() => { void openWordLibrary(); }}
+              disabled={scopeLoading}
               activeOpacity={0.86}
               style={[
                 styles.scopeButton,
@@ -1538,7 +1620,9 @@ function WordStudyScreen() {
                   {t("wordStudy.currentRange")}
                 </Text>
                 <Text style={[styles.scopeValue, { color: theme.text }]}>
-                  {t("wordStudy.range", { section, unit })}
+                  {collection
+                    ? `${collection.title} · ${collection.groups.find(group => group.id === params.groupId)?.title || ""}`
+                    : t("wordStudy.range", { section, unit })}
                 </Text>
               </View>
               <View style={[styles.changeChip, { backgroundColor: theme.bg }]}>
@@ -1591,7 +1675,7 @@ function WordStudyScreen() {
               </Text>
               <TouchableOpacity
                 onPress={() => {
-                  if (summaries.length) void loadWords();
+                  if (summaries.length || collection) void loadWords();
                   else void loadSummaries();
                 }}
                 style={[styles.retryButton, { backgroundColor: theme.primary }]}
@@ -1796,6 +1880,7 @@ function WordStudyScreen() {
 }
 
 const styles = StyleSheet.create({
+  positionWarning: { fontSize: 11, lineHeight: 16, paddingHorizontal: 18, marginBottom: 5 },
   header: {
     paddingHorizontal: 18,
     paddingBottom: 10,

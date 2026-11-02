@@ -1,6 +1,8 @@
 import topik from "./topik/ru";
+import { wordLibrary } from "../../../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.ru,
   topik,
   learningStreak: {
     title: "Общая серия обучения",

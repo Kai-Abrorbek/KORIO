@@ -108,3 +108,32 @@ The Telegram phonics test script can also produce bounded SSR previews when
 `KORIO_PHONICS_PREVIEW_DIR` points inside the OS temporary directory. Its localhost
 server serves only generated fixtures; it does not bypass Telegram authentication
 or exercise live TTS. Stop the server after visual QA.
+
+## Word collections
+
+`word-library.ts` defines the shared collection/group contracts, catalog filters,
+and identity-based resume rules used by the mobile and Telegram wordbook pages.
+`word-library.i18n.ts` supplies the same complete ko/en/uz/ru UI copy to both
+clients. Metadata requests use the UI language; word meanings and examples keep
+using the separately selected content language.
+
+Collections reference existing `Word` IDs. The original word documents, course
+placements, seed files, and `UserWordProgress` records are not migrated or copied.
+The original course is exposed as a read-only virtual collection; bookmarks and
+reading positions live in new account-scoped collection records. Removing a
+bookmark preserves its reading position and shared mastery. Browsing previews
+does not mark words as studied or complete guided-path lessons.
+
+Deploy the additive word-collection API before either client. New textbook,
+exam, level, and topic collections require real word memberships and translations
+published through the admin API; the design mock's sample content is not seeded.
+See `apps/api/src/word-collections/README.md` for the authoring contract.
+
+The mobile changes use existing JavaScript/native APIs and can ship as an OTA
+update to a compatible installed runtime; no new native build is required.
+Publishing an OTA and deploying the API/Telegram client remain separate release
+steps.
+
+```powershell
+pnpm exec node --experimental-strip-types --test shared/word-library.test.mjs
+```

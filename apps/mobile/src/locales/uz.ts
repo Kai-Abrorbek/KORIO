@@ -1,7 +1,9 @@
 import topik from "./topik/uz";
 import alphabet from "./alphabet";
+import { wordLibrary } from "../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.uz,
   alphabet: alphabet.uz,
   topik,
   rewardInbox: {

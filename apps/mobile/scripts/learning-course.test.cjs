@@ -81,6 +81,19 @@ for (const [client, courses] of [
     assert.equal(courses.isLearningRequest("/expressions-admin"), false);
   });
 
+  test(`${client}: wordbook requests keep their course and explanation language`, () => {
+    const url = new URL(
+      courses.learningScopePath("/word-collections/book-1/words?groupId=group-1&lang=ru", "en"),
+      "https://api.test",
+    );
+    assert.equal(url.searchParams.get("courseId"), "en-general");
+    assert.equal(url.searchParams.get("targetLanguage"), "en");
+    assert.equal(url.searchParams.get("lang"), "ru");
+    assert.equal(url.searchParams.get("groupId"), "group-1");
+    assert.equal(courses.isLearningRequest("/word-collections/book-1/position"), true);
+    assert.equal(courses.isLearningRequest("/word-collections-admin"), false);
+  });
+
   test(`${client}: daily quests carry the course but are not learning requests`, () => {
     const claim = new URL(
       courses.learningScopePath("/retention/quests/claim", "en"),

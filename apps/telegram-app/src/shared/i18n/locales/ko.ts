@@ -1,6 +1,8 @@
 import topik from "./topik/ko";
+import { wordLibrary } from "../../../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.ko,
   topik,
   learningStreak: {
     title: "전체 연속학습",

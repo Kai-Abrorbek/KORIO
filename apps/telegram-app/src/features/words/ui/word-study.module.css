@@ -246,6 +246,14 @@
   padding-top: 34px;
 }
 
+.positionError {
+  color: var(--word-muted);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 4px 8px;
+}
+
 .stateCard {
   align-items: center;
   background: var(--word-surface);

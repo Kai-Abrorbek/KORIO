@@ -102,6 +102,8 @@ import { AdminManualRevenueService } from './revenue/admin-manual-revenue.servic
 import { AdminStarsBalanceService } from './revenue/admin-stars-balance.service';
 import { AdminCardTransfersService } from './revenue/admin-card-transfers.service';
 import { AdminStarsSalesService } from './revenue/admin-stars-sales.service';
+import { WordCollectionsModule } from '../word-collections/word-collections.module';
+import { AdminWordCollectionsController } from './content/admin-word-collections.controller';
 
 /**
  * 운영 도구.
@@ -144,6 +146,7 @@ import { AdminStarsSalesService } from './revenue/admin-stars-sales.service';
     AppReleaseModule,
     PushModule,
     PaymentsModule,
+    WordCollectionsModule,
     MongooseModule.forFeature([
       { name: DeviceToken.name, schema: DeviceTokenSchema },
     ]),
@@ -164,6 +167,7 @@ import { AdminStarsSalesService } from './revenue/admin-stars-sales.service';
     AdminManageController,
     AdminUserActionsController,
     AdminSelectedPushController,
+    AdminWordCollectionsController,
   ],
   providers: [
     AdminAuthService,

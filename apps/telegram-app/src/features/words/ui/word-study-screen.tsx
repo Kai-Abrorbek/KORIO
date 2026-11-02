@@ -14,7 +14,7 @@ import { rememberAvatarWord } from "../../profile/model/avatar-study";
 import { completeStudyNode } from "../../lesson/api/lesson";
 import { useKoreanSpeech, speechLanguageOf } from "../../../shared/browser/use-korean-speech";
 import { DEFAULT_LEARNING_COURSES, learnCourseOf, type LearnCourse } from "../../learning/model/learning-options";
-import { useContentLanguage } from "../../../shared/i18n/language-context";
+import { useAppLanguage, useContentLanguage } from "../../../shared/i18n/language-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import {
   getUnitWords,
@@ -30,8 +30,10 @@ import {
   type WordSectionSummary,
 } from "../model/word";
 import { useWordCardSwipe, WORD_CARD_SWIPE_THRESHOLD } from "./use-word-card-swipe";
-import { readWordPreferences, saveWordPreferences } from "../model/word-preferences";
+import { readWordAutoPlay, readWordPreferences, saveWordPreferences } from "../model/word-preferences";
 import { uzt } from "../../../shared/i18n/uz-text";
+import { getDefaultWordCollectionGroup, getResumeWordIndex, type WordCollectionDetail, type WordCollectionGroup, type WordCollectionPosition } from "../../../../../../shared/word-library";
+import { getWordCollection, getWordCollectionWords, saveWordCollectionPosition } from "../api/word-collections";
 import styles from "./word-study.module.css";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
@@ -107,7 +109,7 @@ function hapticNotification(type: "error" | "success") {
   window.Telegram?.WebApp.HapticFeedback?.notificationOccurred(type);
 }
 
-function useSeenWords(request: AuthenticatedRequest) {
+function useSeenWords(request: AuthenticatedRequest, scope: string) {
   const pendingRef = useRef<string[]>([]);
   const sentRef = useRef(new Set<string>());
 
@@ -128,7 +130,10 @@ function useSeenWords(request: AuthenticatedRequest) {
     [flush],
   );
 
-  useEffect(() => flush, [flush]);
+  useEffect(() => {
+    sentRef.current.clear();
+    return flush;
+  }, [flush, scope]);
   return { flush, markSeen };
 }
 
@@ -442,15 +447,26 @@ export function WordStudyScreen() {
   const course = learnCourseOf(user?.learnCourse);
   const speechLocale = DEFAULT_LEARNING_COURSES[course].speechLocale;
   const contentLanguage = useContentLanguage();
-  const { flush: flushSeen, markSeen } = useSeenWords(request);
+  const { flush: flushSeen, markSeen } = useSeenWords(request, `${user?.id ?? ""}:${course}`);
+  const { language } = useAppLanguage();
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
   const requestedSection = Number(params.get("section")) || 0;
   const requestedUnit = Number(params.get("unit")) || 0;
   const lesson = Math.max(1, Number(params.get("lesson")) || 1);
   const lessonCount = Math.max(1, Number(params.get("lessonCount")) || 1);
-  const fromStudyPath = params.get("from") === "studyPath";
+  const collectionId = params.get("collectionId") ?? "";
+  const requestedGroupId = params.get("groupId") ?? "";
+  const fromStudyPath = params.get("from") === "studyPath" && !collectionId;
   const shouldResume = params.get("resume") === "1";
 
+  const studyScope = `${user?.id ?? ""}:${course}:${collectionId}:${requestedGroupId}:${requestedSection}:${requestedUnit}:${contentLanguage}:${language}:${fromStudyPath}:${lesson}:${lessonCount}`;
+  const currentScopeRef = useRef(studyScope);
+  currentScopeRef.current = studyScope;
+  const [scopeReadyFor, setScopeReadyFor] = useState("");
+  const [wordsScope, setWordsScope] = useState("");
+  const [collection, setCollection] = useState<WordCollectionDetail | null>(null);
+  const [collectionGroup, setCollectionGroup] = useState<WordCollectionGroup | null>(null);
+  const [positionFailed, setPositionFailed] = useState(false);
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
   const [section, setSection] = useState(3);
   const [unit, setUnit] = useState(1);
@@ -471,6 +487,7 @@ export function WordStudyScreen() {
   const [dragX, setDragX] = useState(0);
   const [cardMotion, setCardMotion] = useState<CardMotion>("idle");
 
+  const resumePositionRef = useRef<WordCollectionPosition | null>(null);
   const resumeIndexRef = useRef<number | null>(null);
   const resumeConsumedRef = useRef(false);
   const recallOfferShownRef = useRef(false);
@@ -481,60 +498,74 @@ export function WordStudyScreen() {
   const animationLockedRef = useRef(false);
 
   const loadSummaries = useCallback(async () => {
+    const requestScope = studyScope;
     setScopeLoading(true);
     setLoadFailed(false);
+    setPositionFailed(false);
+    setWords([]);
+    setWordsLoading(false);
+    setAutoPlay(readWordAutoPlay(course, user?.id));
     try {
-      const result = await getWordSections(request);
-      const available = result.filter((summary) => summary.words > 0);
-      const saved = readWordPreferences(course, user?.id);
-      setSummaries(result);
-      if (saved) setAutoPlay(saved.autoPlay);
-
-      const targetSection = requestedSection || saved?.section;
-      const targetUnit = requestedUnit || saved?.unit;
-      const matchedSummary = available.find((item) => item.section === targetSection);
-      const matchedUnit = matchedSummary?.units.find(
-        (item) => item.unit === targetUnit,
-      )?.unit;
-
-      if (matchedSummary && matchedUnit) {
-        setSection(matchedSummary.section);
-        setUnit(matchedUnit);
-        if (
-          shouldResume && !fromStudyPath &&
-          saved &&
-          saved.section === matchedSummary.section &&
-          saved.unit === matchedUnit
-        ) {
-          resumeIndexRef.current = saved.cardIndex;
-        }
+      if (collectionId) {
+        const detail = await getWordCollection(request, course, language, collectionId);
+        if (currentScopeRef.current !== requestScope) return;
+        if (detail.targetLanguage !== course || detail.courseId !== DEFAULT_LEARNING_COURSES[course].courseId) throw new Error("WORD_COLLECTION_SCOPE_CHANGED");
+        const group = requestedGroupId
+          ? detail.groups.find((item) => item.id === requestedGroupId)
+          : getDefaultWordCollectionGroup(detail);
+        if (requestedGroupId && !group) throw new Error("WORD_COLLECTION_GROUP_NOT_FOUND");
+        setCollection(detail);
+        setCollectionGroup(group ?? null);
+        setSection(group?.section ?? 0);
+        setUnit(group?.unit ?? 0);
+        setSummaries([]);
+        resumePositionRef.current = shouldResume && detail.lastPosition?.groupId === group?.id ? detail.lastPosition : null;
+        setScopeReadyFor(requestScope);
       } else {
-        const fallback = available[0];
-        if (fallback?.units[0]) {
-          setSection(fallback.section);
-          setUnit(fallback.units[0].unit);
+        const result = await getWordSections(request);
+        if (currentScopeRef.current !== requestScope) return;
+        const available = result.filter((summary) => summary.words > 0);
+        const matchedSummary = available.find((item) => item.section === requestedSection);
+        const matchedUnit = matchedSummary?.units.find((item) => item.unit === requestedUnit)?.unit;
+        setCollection(null);
+        setCollectionGroup(null);
+        setSummaries(result);
+        if (matchedSummary && matchedUnit) {
+          setSection(matchedSummary.section);
+          setUnit(matchedUnit);
+          const saved = readWordPreferences(course, user?.id);
+          if (shouldResume && !fromStudyPath && saved?.section === matchedSummary.section && saved.unit === matchedUnit) resumeIndexRef.current = saved.cardIndex;
+          setScopeReadyFor(requestScope);
+        } else if (available.length) {
+          router.replace("/word-library");
+        } else {
+          setWords([]);
+          setWordsScope(requestScope);
+          setScopeReadyFor(requestScope);
         }
-        if (available.length > 0) router.replace("/word-library");
       }
     } catch {
-      setLoadFailed(true);
+      if (currentScopeRef.current === requestScope) setLoadFailed(true);
     } finally {
-      setScopeLoading(false);
+      if (currentScopeRef.current === requestScope) setScopeLoading(false);
     }
-  }, [request, requestedSection, requestedUnit, course, user?.id, shouldResume, fromStudyPath, router]);
+  }, [studyScope, request, course, user?.id, collectionId, requestedGroupId, language, shouldResume, requestedSection, requestedUnit, fromStudyPath, router]);
 
   useEffect(() => {
-    if (!requestedSection || !requestedUnit) {
+    if (!collectionId && (!requestedSection || !requestedUnit)) {
       router.replace("/word-library");
       return;
     }
     resumeConsumedRef.current = false;
     resumeIndexRef.current = null;
+    resumePositionRef.current = null;
     void loadSummaries();
-  }, [loadSummaries, requestedSection, requestedUnit, router]);
+  }, [collectionId, loadSummaries, requestedSection, requestedUnit, router]);
 
   const loadWords = useCallback(async () => {
-    if (scopeLoading || summaries.length === 0 || !section || !unit) return;
+    if (scopeLoading || scopeReadyFor !== studyScope) return;
+    if (collectionId ? !collectionGroup : summaries.length === 0 || !section || !unit) return;
+    const requestScope = studyScope;
     if (animationTimeoutRef.current !== null) {
       window.clearTimeout(animationTimeoutRef.current);
       animationTimeoutRef.current = null;
@@ -562,16 +593,24 @@ export function WordStudyScreen() {
     setCardMotion("idle");
 
     try {
-      const all = await getUnitWords(request, section, unit);
+      const all = collectionId && collectionGroup
+        ? await getWordCollectionWords(request, course, contentLanguage, collectionId, collectionGroup.id)
+        : await getUnitWords(request, section, unit);
+      if (currentScopeRef.current !== requestScope) return;
       const result =
-        lessonCount > 1
+        fromStudyPath && lessonCount > 1
           ? (() => {
               const range = lessonSlice(all.length, lessonCount, lesson);
               return all.slice(range.start, range.end);
             })()
           : all;
       setWords(result);
+      setWordsScope(requestScope);
 
+      if (collectionId && !resumeConsumedRef.current) {
+        setCardIndex(getResumeWordIndex(result, resumePositionRef.current));
+        resumeConsumedRef.current = true;
+      }
       const resumeAt = resumeIndexRef.current;
       resumeIndexRef.current = null;
       if (!resumeConsumedRef.current && resumeAt != null && result.length > 0) {
@@ -581,12 +620,19 @@ export function WordStudyScreen() {
         );
       }
     } catch {
-      setLoadFailed(true);
+      if (currentScopeRef.current === requestScope) setLoadFailed(true);
     } finally {
-      setWordsLoading(false);
+      if (currentScopeRef.current === requestScope) setWordsLoading(false);
     }
   }, [
     flushSeen,
+    studyScope,
+    scopeReadyFor,
+    collectionId,
+    collectionGroup,
+    course,
+    contentLanguage,
+    fromStudyPath,
     lesson,
     lessonCount,
     request,
@@ -601,9 +647,9 @@ export function WordStudyScreen() {
     void loadWords();
   }, [loadWords]);
 
-  const currentWord = words[cardIndex];
-  const previousWord = cardIndex > 0 ? words[cardIndex - 1] : undefined;
-  const nextWord = cardIndex < words.length - 1 ? words[cardIndex + 1] : undefined;
+  const currentWord = wordsScope === studyScope ? words[cardIndex] : undefined;
+  const previousWord = wordsScope === studyScope && cardIndex > 0 ? words[cardIndex - 1] : undefined;
+  const nextWord = wordsScope === studyScope && cardIndex < words.length - 1 ? words[cardIndex + 1] : undefined;
   const hasPendingRecalls = pendingRecallWordIds.length > 0;
   const canGoPrevious = recallWord ? Boolean(currentWord) : Boolean(previousWord);
   const canGoNext =
@@ -621,6 +667,38 @@ export function WordStudyScreen() {
   const previousPreviewWord = recallWord ? currentWord : previousWord;
   const currentWordId = currentWord?.id ?? "";
   const currentSpeechText = currentWord ? speechText(currentWord) : "";
+  const positionQueueRef = useRef(Promise.resolve());
+  const pendingPositionRef = useRef<{
+    scope: string;
+    request: AuthenticatedRequest;
+    course: LearnCourse;
+    language: string;
+    collectionId: string;
+    position: WordCollectionPosition;
+  } | null>(null);
+  const flushPosition = useCallback((reportFailure = true) => {
+    const pending = pendingPositionRef.current;
+    if (!pending) return positionQueueRef.current;
+    pendingPositionRef.current = null;
+    positionQueueRef.current = positionQueueRef.current
+      .then(() => saveWordCollectionPosition(pending.request, pending.course, pending.language, pending.collectionId, pending.position))
+      .then(() => { if (reportFailure && currentScopeRef.current === pending.scope) setPositionFailed(false); })
+      .catch(() => { if (reportFailure && currentScopeRef.current === pending.scope) setPositionFailed(true); });
+    return positionQueueRef.current;
+  }, []);
+
+  useEffect(() => {
+    if (!collectionId || !collectionGroup || !currentWord || wordsLoading || scopeLoading) return;
+    pendingPositionRef.current = {
+      scope: studyScope, request, course, language, collectionId,
+      position: { groupId: collectionGroup.id, cardIndex, lastWordId: currentWord.id },
+    };
+    const timeout = window.setTimeout(() => flushPosition(), 350);
+    return () => window.clearTimeout(timeout);
+  }, [cardIndex, collectionGroup, collectionId, course, currentWord, flushPosition, language, request, scopeLoading, studyScope, wordsLoading]);
+
+  useEffect(() => () => { void flushPosition(false); }, [flushPosition, studyScope]);
+
 
   useEffect(() => {
     markSeen(currentWordId);
@@ -749,7 +827,7 @@ export function WordStudyScreen() {
     showRecall(candidateId);
   }, [currentWord?.id, showRecall, words]);
 
-  const skipRecallPractice = useCallback(() => {
+  const skipRecallPractice = useCallback(async () => {
     setOfferOpen(false);
     stop();
     if (fromStudyPath) {
@@ -757,9 +835,10 @@ export function WordStudyScreen() {
       return;
     }
     flushSeen();
+    await flushPosition();
     if (window.history.length > 1) router.back();
     else router.replace("/");
-  }, [finishStudyPathUnit, flushSeen, fromStudyPath, router, stop]);
+  }, [finishStudyPathUnit, flushPosition, flushSeen, fromStudyPath, router, stop]);
 
   useEffect(() => {
     if (
@@ -901,27 +980,32 @@ export function WordStudyScreen() {
     [],
   );
 
-  const goBack = () => {
+  const goBack = async () => {
     stop();
     flushSeen();
+    await flushPosition();
     if (window.history.length > 1) router.back();
     else router.replace("/");
   };
 
-  const openScopePicker = () => {
+  const openScopePicker = async () => {
     stop();
     flushSeen();
-    if (!fromStudyPath) {
+    await flushPosition();
+    if (!fromStudyPath && !collectionId) {
       saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
     }
-    router.push(`/word-library?section=${section}&unit=${unit}`);
+    const libraryParams = collectionId
+      ? new URLSearchParams({ collectionId, ...(collectionGroup ? { groupId: collectionGroup.id } : {}) })
+      : new URLSearchParams({ section: String(section), unit: String(unit) });
+    router.push(`/word-library?${libraryParams.toString()}`);
   };
 
   useEffect(() => {
     if (wordsLoading || words.length === 0) return;
     if ((words[0]?.targetLanguage ?? "ko") !== course) return;
-    if (!fromStudyPath) saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
-  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course, user?.id, fromStudyPath]);
+    if (!fromStudyPath && !collectionId) saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
+  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course, user?.id, fromStudyPath, collectionId]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
   const cardWidth =
@@ -982,7 +1066,7 @@ export function WordStudyScreen() {
         {!keyboardVisible ? (
           <button
             className={styles.scopeButton}
-            disabled={scopeLoading || summaries.every((item) => !item.words)}
+            disabled={scopeLoading || (!collectionId && summaries.every((item) => !item.words))}
             onClick={openScopePicker}
             type="button"
           >
@@ -991,7 +1075,7 @@ export function WordStudyScreen() {
             </span>
             <span className={styles.scopeCopy}>
               <small>Hozirgi o&apos;quv doirasi</small>
-              <strong>{`${section}-bo'lim · ${unit}-unit`}</strong>
+              <strong data-no-translate={Boolean(collection) || undefined}>{collection ? collection.title : `${section}-bo'lim · ${unit}-unit`}</strong>
             </span>
             <em data-i18n="wordLibrary.change">
               {uzt("wordLibrary.change")}
@@ -1000,7 +1084,8 @@ export function WordStudyScreen() {
           </button>
         ) : null}
 
-        {scopeLoading || wordsLoading ? (
+        {positionFailed ? <p className={styles.positionError} data-i18n="wordLibrary.positionFailed" role="status">{uzt("wordLibrary.positionFailed")}</p> : null}
+        {scopeLoading || (!loadFailed && scopeReadyFor !== studyScope) || wordsLoading ? (
           <section className={styles.centerState}>
             <div className={styles.stateCard}>
               <span className={styles.spinner} />

@@ -1,6 +1,8 @@
 import topik from "./topik/uz";
+import { wordLibrary } from "../../../../../../shared/word-library.i18n";
 
 export default {
+  wordLibrary: wordLibrary.uz,
   topik,
   learningStreak: {
     title: "Umumiy o'qish seriyasi",
