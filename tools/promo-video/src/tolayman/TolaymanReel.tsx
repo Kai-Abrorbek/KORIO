@@ -1010,10 +1010,24 @@ function Finish() {
 }
 
 // ── 소리 ──
+/** 대사가 나오는 동안 1, 쉬는 동안 0 — 가장자리는 6프레임에 걸쳐 */
+function speaking(g: number) {
+  let v = 0;
+  for (const k of LINE_KEYS) {
+    const a = T[k].at - 4;
+    const b = end(k) + 4;
+    v = Math.max(v, Math.min(clamp01((g - a + 6) / 6), clamp01((b + 6 - g) / 6)));
+  }
+  return v;
+}
+/**
+ * 배경(음악·현장음) — volume 은 말소리 밑의 크기. 대사가 없을 때만 두 배로 올라온다 (자동 덕킹).
+ * 음악 파일마다 크기가 달라 volume 은 파일 평균 음량에 맞춰 정했다 (말소리 평균보다 약 17dB 아래).
+ */
 function Bed({ src, from, to, volume, fade = 30 }: { src: string; from: number; to: number; volume: number; fade?: number }) {
   return (
     <Sequence durationInFrames={Math.max(1, to - from)} from={Math.max(0, from)} layout="none">
-      <Audio loop src={staticFile(src)} volume={(f) => volume * Math.min(clamp01(f / fade), clamp01((to - from - f) / fade))} />
+      <Audio loop src={staticFile(src)} volume={(f) => volume * (2 - speaking(from + f)) * Math.min(clamp01(f / fade), clamp01((to - from - f) / fade))} />
     </Sequence>
   );
 }
@@ -1029,21 +1043,21 @@ const HITS: { at: number; src: string; volume?: number }[] = [];
 function Sounds() {
   return (
     <>
-      <Bed from={0} src={A("m1")} to={T.n05.at + 10} volume={0.2} />
-      <Bed from={T.n05.at - 10} src={A("m2")} to={T.c05.at + 10} volume={0.2} />
-      <Bed from={T.c05.at - 10} src={A("m3")} to={T.n15.at + 10} volume={0.18} />
-      <Bed from={T.n15.at - 10} src={A("m4")} to={TOLAYMAN_TOTAL} volume={0.2} />
-      <Bed from={0} src={A("sfx-choyxona")} to={T.n02.at} volume={0.18} />
-      <Bed from={T.n03.at - 6} src={A("sfx-choyxona")} to={word("n03", "kechqurun")} volume={0.12} />
-      <Bed from={word("n03", "kechqurun") - 4} src={A("sfx-toy")} to={end("n04") + 6} volume={0.14} />
-      <Bed from={T.c05.at - 4} src={A("sfx-choyxona")} to={T.n10.at} volume={0.1} />
-      <Bed from={T.n16.at - 4} src={A("sfx-choyxona")} to={end("n17")} volume={0.14} />
+      <Bed from={0} src={A("m1")} to={T.n05.at + 10} volume={0.11} />
+      <Bed from={T.n05.at - 10} src={A("m2")} to={T.c05.at + 10} volume={0.055} />
+      <Bed from={T.c05.at - 10} src={A("m3")} to={T.n15.at + 10} volume={0.06} />
+      <Bed from={T.n15.at - 10} src={A("m4")} to={TOLAYMAN_TOTAL} volume={0.055} />
+      <Bed from={0} src={A("sfx-choyxona")} to={T.n02.at} volume={0.07} />
+      <Bed from={T.n03.at - 6} src={A("sfx-choyxona")} to={word("n03", "kechqurun")} volume={0.05} />
+      <Bed from={word("n03", "kechqurun") - 4} src={A("sfx-toy")} to={end("n04") + 6} volume={0.05} />
+      <Bed from={T.c05.at - 4} src={A("sfx-choyxona")} to={T.n10.at} volume={0.04} />
+      <Bed from={T.n16.at - 4} src={A("sfx-choyxona")} to={end("n17")} volume={0.06} />
       {HITS.map((h, i) => (
         <Hit key={`${h.src}-${h.at}-${i}`} {...h} />
       ))}
       {LINE_KEYS.map((k) => (
         <Sequence from={T[k].at} key={k} layout="none">
-          <Audio src={staticFile(`ai/tolayman/${k}.mp3`)} volume={k.startsWith("c") ? 1.0 : 1.05} />
+          <Audio src={staticFile(`ai/tolayman/${k}.mp3`)} volume={1.0} />
         </Sequence>
       ))}
     </>
@@ -1066,13 +1080,13 @@ function Sounds() {
   kick(word("n01", "oʻylamasdan."));
   hit(word("n02", "kelganda…") + 12, "sfx-scratch", 0.5);
   hit(word("c04", "Ellik"), "sfx-boing", 0.4);
-  hit(word("c04", "Qimmat-ku!"), "sfx-impact", 0.5);
+  hit(word("c04", "Qimmat-ku!"), "sfx-impact", 0.35);
   shake(word("c04", "Qimmat-ku!"));
   kick(word("c04", "Qimmat-ku!"));
   hit(word("n03", "tushlik"), "sfx-kaching", 0.4);
   hit(word("n03", "soldi."), "sfx-kaching", 0.4);
   kick(word("n04", "toʻrt"));
-  hit(word("n04", "toʻrt"), "sfx-impact", 0.45);
+  hit(word("n04", "toʻrt"), "sfx-impact", 0.35);
   shake(word("n04", "toʻrt"));
   hit(word("n05", "qimmat"), "sfx-boing", 0.35);
   hit(word("n06", "Nobel"), "sfx-impact", 0.4);
@@ -1080,7 +1094,7 @@ function Sounds() {
   hit(word("n07", "boʻm-boʻsh."), "sfx-boing", 0.35);
   hit(T.n08.at, "sfx-receipt", 0.45);
   hit(word("n09", "Korio"), "sfx-coin", 0.35);
-  hit(word("n09", "arzon.") - 4, "sfx-impact", 0.45);
+  hit(word("n09", "arzon.") - 4, "sfx-impact", 0.35);
   shake(word("n09", "arzon.") - 4);
   hit(T.n10.at - 4, "sfx-bus", 0.35);
   hit(word("n10", "yarmi."), "sfx-receipt", 0.4);
@@ -1089,17 +1103,17 @@ function Sounds() {
     kick(t);
     hit(t, "sfx-whip", 0.4);
   });
-  hit(T.n14.at, "sfx-impact", 0.45);
+  hit(T.n14.at, "sfx-impact", 0.35);
   shake(T.n14.at);
-  hit(word("n14", "arzon.") - 4, "sfx-impact", 0.45);
+  hit(word("n14", "arzon.") - 4, "sfx-impact", 0.35);
   hit(word("n15", "pul"), "sfx-coin", 0.6);
-  hit(T.c08.at - 1, "sfx-impact", 0.5);
+  hit(T.c08.at - 1, "sfx-impact", 0.35);
   kick(T.c08.at - 1);
   shake(T.c08.at - 1);
   hit(T.c09.at, "sfx-gasp", 0.45);
   hit(T.n18.at - 6, "sfx-kaching", 0.45);
   // 장면이 휙 넘어갈 때
-  SHOTS.filter((s) => s.trans === "whip").forEach((s) => hit(s.at - 1, "sfx-whip", 0.32));
+  SHOTS.filter((s) => s.trans === "whip").forEach((s) => hit(s.at - 1, "sfx-whip", 0.2));
   SHOTS.filter((s) => s.trans === "punch").forEach((s) => kick(s.at));
 }
 

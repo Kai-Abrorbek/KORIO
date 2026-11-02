@@ -2,10 +2,9 @@
   "id": "tolayman",
   "voices": {
     "nar": {
-      "id": "rwtcHtZgYU6HN2zLNBlf",
-      "speed": 1.02,
-      "tempo": 1.06,
-      "pitch": 0.944
+      "id": "EkK5I93UQWFDigLMpZcX",
+      "speed": 1.04,
+      "tempo": 1.15
     },
     "sanjar": {
       "id": "TX3LPaxmHKxFdv7VOQHJ",
@@ -13,7 +12,7 @@
       "tempo": 1.04
     },
     "dilshod": {
-      "id": "EkK5I93UQWFDigLMpZcX",
+      "id": "pNInz6obpgDQGcFmaJgB",
       "speed": 1.06,
       "tempo": 1.04
     },
