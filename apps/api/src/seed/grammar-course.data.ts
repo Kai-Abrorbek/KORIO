@@ -43,7 +43,11 @@ import {
   ENGLISH_GT_S8_NODES,
   ENGLISH_GT_S8_QUESTIONS,
 } from './data/english-grammar/section8';
-import { ENGLISH_GRAMMAR_SEED_S9 } from './data/english-grammar/section9';
+import {
+  ENGLISH_GRAMMAR_SEED_S9,
+  ENGLISH_GT_S9_NODES,
+  ENGLISH_GT_S9_QUESTIONS,
+} from './data/english-grammar/section9';
 import { GRAMMAR_SEED } from './data/grammar/grammar.data';
 import { GT_S1_NODES, GT_S1_QUESTIONS } from './data/grammar-track/section1';
 import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
@@ -70,6 +74,7 @@ const ENGLISH_TRACK = {
     ...ENGLISH_GT_S6_NODES,
     ...ENGLISH_GT_S7_NODES,
     ...ENGLISH_GT_S8_NODES,
+    ...ENGLISH_GT_S9_NODES,
   ],
   questions: {
     ...ENGLISH_GT_S1_QUESTIONS,
@@ -80,6 +85,7 @@ const ENGLISH_TRACK = {
     ...ENGLISH_GT_S6_QUESTIONS,
     ...ENGLISH_GT_S7_QUESTIONS,
     ...ENGLISH_GT_S8_QUESTIONS,
+    ...ENGLISH_GT_S9_QUESTIONS,
   },
 };
 

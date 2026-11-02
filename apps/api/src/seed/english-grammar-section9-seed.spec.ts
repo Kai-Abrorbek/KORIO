@@ -101,7 +101,7 @@ describe('English grammar section 9 seed', () => {
     }
   });
 
-  it('generates a complete mixed practice set without publishing it yet', () => {
+  it('publishes a complete mixed practice set', () => {
     expect(ENGLISH_GT_S9_NODES).toHaveLength(3);
     expect(Object.keys(ENGLISH_GT_S9_QUESTIONS)).toHaveLength(260);
 
@@ -214,6 +214,7 @@ describe('English grammar section 9 seed', () => {
       ...ENGLISH_GT_S6_NODES,
       ...ENGLISH_GT_S7_NODES,
       ...ENGLISH_GT_S8_NODES,
+      ...ENGLISH_GT_S9_NODES,
     ];
     const publishedTrackQuestions = {
       ...ENGLISH_GT_S1_QUESTIONS,
@@ -224,16 +225,17 @@ describe('English grammar section 9 seed', () => {
       ...ENGLISH_GT_S6_QUESTIONS,
       ...ENGLISH_GT_S7_QUESTIONS,
       ...ENGLISH_GT_S8_QUESTIONS,
+      ...ENGLISH_GT_S9_QUESTIONS,
     };
 
     expect(registeredGrammar).toHaveLength(127);
     expect(registeredGrammar.slice(-13).map((grammar) => grammar.code)).toEqual(
       ENGLISH_GRAMMAR_SEED_S9.map((grammar) => grammar.code),
     );
-    expect(publishedTrackNodes).toHaveLength(24);
-    expect(Object.keys(publishedTrackQuestions)).toHaveLength(2280);
+    expect(publishedTrackNodes).toHaveLength(27);
+    expect(Object.keys(publishedTrackQuestions)).toHaveLength(2540);
     expect(Math.max(...publishedTrackNodes.map((node) => node.section))).toBe(
-      8,
+      9,
     );
   });
 });
