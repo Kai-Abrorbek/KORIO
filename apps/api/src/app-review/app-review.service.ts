@@ -40,12 +40,8 @@ export function promptSkipReason(
     return 'too_new';
   }
   if (!state) return null;
-  if (
-    state.lastReviewAt &&
-    t - new Date(state.lastReviewAt).getTime() < APP_REVIEW.COOLDOWN_MS
-  ) {
-    return 'reviewed';
-  }
+  // 한 번 평가했으면 끝 — 다시는 묻지 않는다
+  if (state.lastReviewAt) return 'reviewed';
   if (state.snoozeUntil && new Date(state.snoozeUntil).getTime() > t) {
     return 'snoozed';
   }
@@ -123,13 +119,12 @@ export class AppReviewService {
   }
 
   /**
-   * 평가를 받고 보석을 준다. 7일에 한 번 — 상태 문서의 조건부 upsert 가 막는다
-   * (조건이 안 맞으면 같은 userId 로 새 문서를 넣으려다 unique 에 걸린다).
+   * 평가를 받고 보석을 준다. 계정당 한 번 — 상태 문서의 조건부 upsert 가 막는다
+   * (이미 평가했으면 같은 userId 로 새 문서를 넣으려다 unique 에 걸린다).
    */
   async submit(userId: string, dto: CreateAppReviewDto) {
     const uid = new Types.ObjectId(userId);
     const now = new Date();
-    const since = new Date(now.getTime() - APP_REVIEW.COOLDOWN_MS);
     const before = await this.states
       .findOne({ userId: uid })
       .select('lastReviewAt')
@@ -139,7 +134,7 @@ export class AppReviewService {
       await this.states.updateOne(
         {
           userId: uid,
-          $or: [{ lastReviewAt: null }, { lastReviewAt: { $lte: since } }],
+          lastReviewAt: null,
         },
         { $set: { lastReviewAt: now, snoozeUntil: null } },
         { upsert: true },

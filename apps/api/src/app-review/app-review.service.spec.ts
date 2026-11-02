@@ -21,11 +21,11 @@ describe('promptSkipReason', () => {
     expect(promptSkipReason(now, today, fresh, null)).toBe('too_new');
   });
 
-  it('hides for seven days after a review, then shows again', () => {
-    const sixDays = { lastReviewAt: new Date(now.getTime() - 6 * DAY) };
-    const eightDays = { lastReviewAt: new Date(now.getTime() - 8 * DAY) };
-    expect(promptSkipReason(now, today, oldUser, sixDays)).toBe('reviewed');
-    expect(promptSkipReason(now, today, oldUser, eightDays)).toBeNull();
+  it('never shows again once the account has reviewed', () => {
+    const yesterday = { lastReviewAt: new Date(now.getTime() - DAY) };
+    const longAgo = { lastReviewAt: new Date(now.getTime() - 400 * DAY) };
+    expect(promptSkipReason(now, today, oldUser, yesterday)).toBe('reviewed');
+    expect(promptSkipReason(now, today, oldUser, longAgo)).toBe('reviewed');
   });
 
   it('respects "hide for a day" until the snooze ends', () => {
@@ -114,7 +114,7 @@ describe('AppReviewService.submit', () => {
     );
   });
 
-  it('refuses a second review inside the week without paying', async () => {
+  it('refuses a second review without paying again', async () => {
     const { service, reviews, users } = build(
       jest
         .fn()
