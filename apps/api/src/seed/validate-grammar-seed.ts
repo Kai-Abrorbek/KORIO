@@ -205,10 +205,16 @@ for (const node of nodes) {
   }
   for (const lesson of node.lessons ?? []) {
     const grammarCode = lesson.grammarCode;
+    const isKoreanSection5 =
+      scope.targetLanguage === DEFAULT_TARGET_LANGUAGE && node.section === 5;
     trackedGrammarCodes.add(grammarCode);
     let grammarFocusBlanks = 0;
     let contextFocusBlanks = 0;
     let multiBlanks = 0;
+    let threeBlankQuestions = 0;
+    const blankSentences = new Set<string>();
+    const buildSentences = new Set<string>();
+    const orderedQuestionTypes: string[] = [];
     if (!knownGrammar.has(grammarCode)) {
       fail(
         grammarCode ?? 'lesson',
@@ -228,6 +234,7 @@ for (const node of nodes) {
       const counts = countsByGrammar.get(grammarCode) ?? { blank: 0, build: 0 };
       if (question.type === 'grammar_blank') counts.blank += 1;
       if (question.type === 'grammar_build') counts.build += 1;
+      orderedQuestionTypes.push(question.type);
       countsByGrammar.set(grammarCode, counts);
 
       if (scope.targetLanguage !== DEFAULT_TARGET_LANGUAGE) {
@@ -272,6 +279,7 @@ for (const node of nodes) {
         let rebuilt: string;
         if (template) {
           multiBlanks += 1;
+          if (blankCount === 3) threeBlankQuestions += 1;
           if (blankCount < 2 || blankCount > 3) {
             fail(questionCode, `다중 빈칸이 ${blankCount}개다 (2~3개 필요)`);
           }
@@ -301,20 +309,28 @@ for (const node of nodes) {
           }
           rebuilt = `${question.sentencePrefix}${question.answer}${question.sentenceSuffix}`;
         }
-        if (
-          question.answerTranslation?.en &&
-          rebuilt !== question.answerTranslation.en
-        ) {
+        blankSentences.add(rebuilt);
+        const answerLanguage =
+          scope.targetLanguage === DEFAULT_TARGET_LANGUAGE
+            ? DEFAULT_TARGET_LANGUAGE
+            : scope.targetLanguage;
+        const translatedAnswer = question.answerTranslation?.[answerLanguage];
+        if (translatedAnswer && rebuilt !== translatedAnswer) {
           fail(
             questionCode,
-            `빈칸 정답을 넣으면 '${rebuilt}' 로 번역과 다르다`,
+            `빈칸 정답을 넣으면 '${rebuilt}' 로 ${answerLanguage} 번역과 다르다`,
           );
         }
       }
       if (question.type === 'grammar_build') {
-        const rebuilt = (question.buildRows ?? [])
-          .map((row: any) => row.correct)
-          .join(' ');
+        const rebuilt = (question.buildRows ?? []).reduce(
+          (sentence: string, row: any, index: number) =>
+            index === 0 || row.glue
+              ? sentence + row.correct
+              : `${sentence} ${row.correct}`,
+          '',
+        );
+        buildSentences.add(rebuilt);
         if (rebuilt !== question.answer) {
           fail(
             questionCode,
@@ -333,6 +349,7 @@ for (const node of nodes) {
           }
           const tokens = [row.correct, ...(row.options ?? [])];
           if (
+            scope.targetLanguage === 'en' &&
             tokens.some(
               (token) => typeof token !== 'string' || !/^\S+$/u.test(token),
             )
@@ -361,6 +378,60 @@ for (const node of nodes) {
           grammarCode,
           `다중 빈칸이 ${multiBlanks}개다 (${expectedMultiBlanks}개 필요)`,
         );
+      }
+    }
+    if (isKoreanSection5) {
+      const counts = countsByGrammar.get(grammarCode) ?? { blank: 0, build: 0 };
+      if (counts.blank !== 10 || counts.build !== 10) {
+        fail(
+          grammarCode,
+          `트랙 문제가 빈칸 ${counts.blank}개·조립 ${counts.build}개다 (10개씩 필요)`,
+        );
+      }
+      if (grammarFocusBlanks !== 5 || contextFocusBlanks !== 5) {
+        fail(
+          grammarCode,
+          `빈칸 초점이 문법 ${grammarFocusBlanks}개·문맥 ${contextFocusBlanks}개다 (5개씩 필요)`,
+        );
+      }
+      if (multiBlanks !== 4 || threeBlankQuestions !== 1) {
+        fail(
+          grammarCode,
+          `다중 빈칸이 ${multiBlanks}개이고 그중 3칸 문항이 ${threeBlankQuestions}개다 (4개·1개 필요)`,
+        );
+      }
+      if (blankSentences.size !== 10 || buildSentences.size !== 10) {
+        fail(
+          grammarCode,
+          `고유 문장이 빈칸 ${blankSentences.size}개·조립 ${buildSentences.size}개다 (10개씩 필요)`,
+        );
+      }
+      const overlaps = [...blankSentences].filter((sentence) =>
+        buildSentences.has(sentence),
+      );
+      if (overlaps.length) {
+        fail(
+          grammarCode,
+          `빈칸·조립에 같은 문장이 있다: ${overlaps.join(' / ')}`,
+        );
+      }
+      let longestRun = 0;
+      let currentRun = 0;
+      let previousType = '';
+      for (const type of orderedQuestionTypes) {
+        currentRun = type === previousType ? currentRun + 1 : 1;
+        previousType = type;
+        longestRun = Math.max(longestRun, currentRun);
+      }
+      if (longestRun > 2) {
+        fail(grammarCode, `같은 문제 유형이 ${longestRun}개 연속으로 배치됐다`);
+      }
+      const numbers = (lesson.questions ?? []).map((code: string) =>
+        Number(code.slice(-2)),
+      );
+      const ascending = [...numbers].sort((a, b) => a - b);
+      if (numbers.join(',') === ascending.join(',')) {
+        fail(grammarCode, '문제 코드가 숫자 순서대로 배치됐다');
       }
     }
   }
