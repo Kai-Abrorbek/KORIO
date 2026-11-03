@@ -7,6 +7,7 @@ import { playSfx } from "../../../shared/browser/sfx";
 import { translateText, useAppLanguage } from "../../../shared/i18n/language-context";
 import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { haptic } from "../../retention/model/retention";
 import { Button3D } from "../../retention/ui/parts";
@@ -126,15 +127,7 @@ export function AppReviewDialog({
     rating && rating <= 3 ? "appReview.placeholderLow" : "appReview.placeholderHigh";
 
   return (
-    <div
-      aria-modal="true"
-      className={`${styles.root} ${shown && open ? styles.shown : ""}`}
-      role="dialog"
-    >
-      <div className={styles.backdrop} />
-      <section className={styles.card}>
-        {/* 카드 위쪽만 하늘몬 보라로 은은하게 물든다 — 하늘몬은 그 위에 서서 가장자리 너머로 고개를 내민다 */}
-        <span aria-hidden className={styles.sky} />
+    <CenteredDialog className={styles.card} dismissible={!busy} backdropDismissible={false} onClose={onClose} shown={shown && open}>
         <div className={`${styles.form} ${thanks ? styles.formHidden : ""}`}>
           <span className={styles.peek}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -199,7 +192,7 @@ export function AppReviewDialog({
           ) : null}
 
           <Button3D
-            className={styles.submit}
+            className={`${styles.submit} ${dialogStyles.primary}`}
             disabled={!rating || thanks}
             i18nKey="appReview.submit"
             label={uzt("appReview.submit", { n: reward })}
@@ -227,7 +220,6 @@ export function AppReviewDialog({
             </div>
           </div>
         ) : null}
-      </section>
-    </div>
+    </CenteredDialog>
   );
 }

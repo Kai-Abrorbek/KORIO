@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Animated,
   Linking,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,6 +19,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { wordToneOf } from "@/services/stt.service";
 import { useSpeakingCopy, formatSpeaking } from "./copy";
 import { useSpeakingPalette } from "./palette";
+import { CenteredModal, DialogButton, DialogIcon, useDialogTheme } from "@/components/common/CenteredModal";
 import { normalizeSpeakingWord } from "./session";
 import { useSpeakingPractice } from "./useSpeakingPractice";
 import SpokenText from "@/features/expressions/components/SpokenText";
@@ -502,45 +502,15 @@ export function SpeakingPracticeView({ practice, onClose, onTopics }: {
 /** 나가기 확인 — 연습을 끊는 순간이라 무겁지 않게, 대신 확실하게 보이도록 */
 function LeaveDialog({ visible, onStay, onLeave }: { visible: boolean; onStay: () => void; onLeave: () => void }) {
   const c = useSpeakingCopy();
-  const p = useSpeakingPalette();
-  const enter = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (!visible) return;
-    enter.setValue(0);
-    const animation = Animated.spring(enter, { toValue: 1, useNativeDriver: true, damping: 15, stiffness: 210, mass: 0.8 });
-    animation.start();
-    return () => animation.stop();
-  }, [visible, enter]);
-
+  const colors = useDialogTheme();
   return (
-    <Modal visible={visible} transparent statusBarTranslucent animationType="fade" onRequestClose={onStay}>
-      <Pressable style={styles.modalBackdrop} accessibilityRole="button" accessibilityLabel={c.stay} onPress={onStay}>
-        <Animated.View accessibilityViewIsModal onStartShouldSetResponder={() => true}
-          style={[styles.modalCard, { backgroundColor: p.surface, opacity: enter, transform: [
-            { scale: enter.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
-            { translateY: enter.interpolate({ inputRange: [0, 1], outputRange: [26, 0] }) },
-          ] }]}>
-          <View style={[styles.modalGlow, { backgroundColor: p.primarySoft }]}>
-            <Ionicons name="mic-off-outline" size={30} color={p.primary} />
-            <View style={[styles.modalSpark, { backgroundColor: p.surface }]}>
-              <Ionicons name="pause" size={12} color={p.warm} />
-            </View>
-          </View>
-          <Text style={[styles.modalTitle, { color: p.ink }]}>{c.leaveTitle}</Text>
-          <Text style={[styles.modalBody, { color: p.muted }]}>{c.leaveBody}</Text>
-          <Pressable accessibilityRole="button" onPress={onStay}
-            style={({ pressed }) => [styles.modalStay, { backgroundColor: p.primary, borderBottomWidth: pressed ? 2 : 5, transform: [{ translateY: pressed ? 3 : 0 }] }]}>
-            <Ionicons name="mic" size={17} color={p.bg} />
-            <Text style={[styles.modalStayText, { color: p.bg }]}>{c.stay}</Text>
-          </Pressable>
-          <Pressable accessibilityRole="button" onPress={onLeave}
-            style={({ pressed }) => [styles.modalLeave, { opacity: pressed ? 0.5 : 1 }]}>
-            <Text style={[styles.modalLeaveText, { color: p.muted }]}>{c.leave}</Text>
-          </Pressable>
-        </Animated.View>
-      </Pressable>
-    </Modal>
+    <CenteredModal visible={visible} onClose={onStay}>
+      <DialogIcon name="mic-off-outline" tone="warning" />
+      <Text style={[styles.modalTitle, { color: colors.text }]}>{c.leaveTitle}</Text>
+      <Text style={[styles.modalBody, { color: colors.textSecondary }]}>{c.leaveBody}</Text>
+      <DialogButton label={c.stay} onPress={onStay} icon="mic" style={{ marginTop: 24 }} />
+      <DialogButton label={c.leave} onPress={onLeave} variant="secondary" style={{ marginTop: 8 }} />
+    </CenteredModal>
   );
 }
 

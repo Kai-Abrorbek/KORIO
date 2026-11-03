@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Modal, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -15,6 +15,7 @@ import { TITLE_LOOK, isTitle, type PaidTitle } from "@/components/avatar/avatarT
 import NameTitle from "@/components/avatar/NameTitle";
 import Button3D from "@/features/retention/components/Button3D";
 import SwipeSheet from "@/components/common/SwipeSheet";
+import { CenteredModal, DialogButton, useDialogTheme } from "@/components/common/CenteredModal";
 import { useTheme } from "@/hooks/useTheme";
 import type { ThemeColors } from "@/constants/theme";
 import type { AvatarConfig } from "@/types/avatar";
@@ -392,7 +393,7 @@ export function CosmeticBought({
   streak?: number;
 }) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const theme = useDialogTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -400,24 +401,30 @@ export function CosmeticBought({
   if (!isShopItem(id)) return null;
   const look = shopLook(id);
   return (
-    <Modal visible transparent animationType="fade" statusBarTranslucent navigationBarTranslucent onRequestClose={onClose}>
-      <View style={s.center}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-        <View style={s.bought}>
-          {isScene(id) || isPet(id) || isWearItem(id) || isTitle(id) ? (
-            <ShopStage avatar={avatar} id={id} height={170} s={s} streak={streak} />
-          ) : (
-            <>
-              <View style={[s.boughtGlow, { backgroundColor: look.color + "33" }]} />
-              <AvatarPreview avatar={{ ...avatar, aura: id }} size={170} showBackground={false} aura />
-            </>
-          )}
-          <Text style={s.sheetTitle}>{t(`${look.keys}.boughtTitle`)}</Text>
-          <Text style={[s.sheetDesc, { marginBottom: 16 }]}>{t(`${look.keys}.boughtBody`)}</Text>
-          <Button3D label={t("avatarEditor.aura.great")} color="#1FA4DC" depthColor="#157FAE" onPress={onClose} style={{ alignSelf: "stretch" }} />
-        </View>
-      </View>
-    </Modal>
+    <CenteredModal visible onClose={onClose} maxWidth={380}>
+      {isScene(id) || isPet(id) || isWearItem(id) || isTitle(id) ? (
+        <ShopStage avatar={avatar} id={id} height={170} s={s} streak={streak} />
+      ) : (
+        <>
+          <View
+            style={[s.boughtGlow, { backgroundColor: look.color + "33" }]}
+          />
+          <AvatarPreview
+            avatar={{ ...avatar, aura: id }}
+            size={170}
+            showBackground={false}
+            aura
+          />
+        </>
+      )}
+      <Text style={[s.sheetTitle, s.boughtTitle]}>
+        {t(`${look.keys}.boughtTitle`)}
+      </Text>
+      <Text style={[s.sheetDesc, s.boughtBody]}>
+        {t(`${look.keys}.boughtBody`)}
+      </Text>
+      <DialogButton label={t("avatarEditor.aura.great")} onPress={onClose} />
+    </CenteredModal>
   );
 }
 
@@ -488,17 +495,7 @@ const getStyles = (theme: ThemeColors) =>
     later: { alignSelf: "center", paddingVertical: 10, paddingHorizontal: 16, marginTop: 4 },
     laterText: { color: theme.textSecondary, fontSize: 14.5, fontWeight: "800" },
 
-    center: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, backgroundColor: "rgba(20,16,40,0.52)" },
-    bought: {
-      width: "100%",
-      maxWidth: 340,
-      backgroundColor: theme.surface,
-      borderRadius: 28,
-      paddingTop: 18,
-      paddingBottom: 18,
-      paddingHorizontal: 20,
-      alignItems: "center",
-      overflow: "hidden",
-    },
+    boughtTitle: { fontSize: 24, lineHeight: 30, fontWeight: "800", marginTop: 16, marginBottom: 8 },
+    boughtBody: { fontSize: 14, lineHeight: 22, fontWeight: "600", marginBottom: 22 },
     boughtGlow: { position: "absolute", top: 20, width: 190, height: 190, borderRadius: 95 },
   });

@@ -7,6 +7,7 @@ import { LanguageProvider } from "../src/shared/i18n/language-context";
 import { MicrophonePermissionBootstrap } from "../src/shared/browser/microphone-permission-bootstrap";
 import { ButtonSoundBootstrap } from "../src/shared/browser/button-sound-bootstrap";
 import { ThemeProvider } from "../src/shared/theme/theme-context";
+import { AppDialogHost } from "../src/shared/ui/app-dialog-host";
 
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <LanguageProvider>
           <ThemeProvider>
             <TelegramAuthProvider>{children}</TelegramAuthProvider>
+            <AppDialogHost />
           </ThemeProvider>
         </LanguageProvider>
       </body>

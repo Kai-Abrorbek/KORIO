@@ -139,8 +139,7 @@ export default function SupportScreen() {
   return (
     <KeyboardAvoidingView
       style={[s.screen, { paddingTop: insets.top + 4 }]}
-      // 안드로이드는 app.json softwareKeyboardLayoutMode:"resize" 가 창을 줄인다
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <View style={s.header}>
         <Pressable onPress={() => router.back()} hitSlop={10} accessibilityLabel={t("common.back")}>

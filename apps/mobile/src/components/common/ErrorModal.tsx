@@ -1,107 +1,36 @@
-import { View, Text, StyleSheet, Modal } from "react-native";
-import { Pressable } from "@/components/ui/Pressables";
+import { View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
-import { Ionicons } from "@expo/vector-icons";
-import { useTheme } from "@/hooks/useTheme";
-import { ThemeColors } from "@/constants/theme";
 import { useErrorStore } from "@/store/error.store";
+import {
+  CenteredModal,
+  DialogButton,
+  DialogIcon,
+  useDialogTheme,
+} from "./CenteredModal";
+import { createDialogStyles } from "./dialog-styles";
 
 export default function ErrorModal() {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const s = styles(theme);
+  const styles = createDialogStyles(useDialogTheme());
   const { visible, code, retry, dismiss } = useErrorStore();
-
   const message = t(`errors.${code}`, {
     defaultValue: t("errors.UNKNOWN_ERROR"),
   });
-
   return (
-    <Modal
-      visible={visible}
-      transparent
-      // 모달은 페이드로만 열고 닫는다 (스프링·팝 금지)
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={dismiss}
-    >
-      <View style={s.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={dismiss} />
-        <View style={s.card}>
-          <View style={s.iconWrap}>
-            <Ionicons name="warning" size={32} color="#fff" />
-          </View>
-          <Text style={s.title}>{t("errors.title")}</Text>
-          <Text style={s.msg}>{message}</Text>
-          <Pressable
-            style={({ pressed }) => [s.btn, pressed && s.btnPressed]}
-            onPress={retry}
-          >
-            <Text style={s.btnT}>{t("errors.retry")}</Text>
-          </Pressable>
-          <Pressable onPress={dismiss} hitSlop={6} style={s.closeBtn}>
-            <Text style={s.closeT}>{t("errors.close")}</Text>
-          </Pressable>
-        </View>
+    <CenteredModal visible={visible} onClose={dismiss}>
+      <DialogIcon name="warning-outline" tone="danger" />
+      <Text accessibilityRole="header" style={styles.title}>
+        {t("errors.title")}
+      </Text>
+      <Text style={styles.message}>{message}</Text>
+      <View style={styles.actions}>
+        <DialogButton label={t("errors.retry")} onPress={retry} />
+        <DialogButton
+          label={t("errors.close")}
+          variant="secondary"
+          onPress={dismiss}
+        />
       </View>
-    </Modal>
+    </CenteredModal>
   );
 }
-
-const styles = (theme: ThemeColors) =>
-  StyleSheet.create({
-    backdrop: {
-      flex: 1,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingHorizontal: 32,
-    },
-    card: {
-      width: "100%",
-      maxWidth: 340,
-      backgroundColor: theme.surface,
-      borderRadius: 26,
-      paddingTop: 28,
-      paddingBottom: 22,
-      paddingHorizontal: 24,
-      alignItems: "center",
-    },
-    iconWrap: {
-      width: 64,
-      height: 64,
-      borderRadius: 32,
-      backgroundColor: "#FF4B4B",
-      alignItems: "center",
-      justifyContent: "center",
-      marginBottom: 16,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: "800",
-      color: theme.text,
-      marginBottom: 8,
-      textAlign: "center",
-    },
-    msg: {
-      fontSize: 15,
-      color: theme.textSecondary,
-      textAlign: "center",
-      lineHeight: 22,
-      marginBottom: 22,
-      fontWeight: "500",
-    },
-    btn: {
-      width: "100%",
-      backgroundColor: theme.primary,
-      borderRadius: 16,
-      paddingVertical: 15,
-      alignItems: "center",
-      borderBottomWidth: 4,
-      borderBottomColor: "rgba(0,0,0,0.2)",
-    },
-    btnPressed: { transform: [{ translateY: 2 }], borderBottomWidth: 2 },
-    btnT: { color: "#fff", fontSize: 16, fontWeight: "800" },
-    closeBtn: { paddingVertical: 12, marginTop: 4 },
-    closeT: { fontSize: 15, fontWeight: "700", color: theme.textSecondary },
-  });

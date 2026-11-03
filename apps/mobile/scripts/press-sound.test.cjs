@@ -275,12 +275,12 @@ test("native switch invokes both native callbacks before fallback and plays once
   assert.equal(element.props.onValueChange, undefined);
 });
 
-test("authored native dialog buttons preserve actions and use one settings-aware fallback", () => {
+test("authored app dialog buttons preserve actions and use one settings-aware fallback", () => {
   const { runWithDefaultPressSound, sounds, play } = fixture();
   const calls = [];
   const { useSoundAlert } = loadSource("hooks/useSoundAlert.ts", {
     react: { useCallback: (callback) => callback, useMemo: (create) => create() },
-    "react-native": { Alert: { alert: (...args) => calls.push(args) } },
+    "@/store/app-dialog.store": { useAppDialogStore: { getState: () => ({ present: (...args) => calls.push(args) }) } },
     "react-i18next": { useTranslation: () => ({ t: () => "Confirm" }) },
     "@/hooks/useSound": { useSound: () => ({ play }) },
     "@/utils/press-sound": { runWithDefaultPressSound },
@@ -303,6 +303,43 @@ test("authored native dialog buttons preserve actions and use one settings-aware
   assert.equal(calls[1][2][0].text, "Confirm");
   calls[1][2][0].onPress();
   assert.equal(sounds.at(-1), "click");
+});
+
+test("queued app alerts settle once and preserve a callback's follow-up dialog", () => {
+  const { useAppDialogStore: store } = loadSource("store/app-dialog.store.ts", { zustand: require("zustand") });
+  const { present, choose } = store.getState();
+  let calls = 0;
+  present("First", "Confirm", [{ text: "OK", onPress: () => {
+    calls++;
+    present("Receipt", undefined, [{ text: "Done" }]);
+  } }]);
+  present("Second", undefined, [{ text: "Next" }]);
+  const first = store.getState().queue[0];
+  choose(first.id, 99);
+  assert.equal(store.getState().queue[0].id, first.id);
+  choose(first.id, 0);
+  choose(first.id, 0);
+  assert.equal(calls, 1);
+  assert.deepEqual(Array.from(store.getState().queue, (dialog) => dialog.title), ["Second", "Receipt"]);
+});
+
+test("app alert cancellation preserves mandatory choices and dismissal callbacks", () => {
+  const { useAppDialogStore: store } = loadSource("store/app-dialog.store.ts", { zustand: require("zustand") });
+  let dismissed = 0;
+  const { present, choose, dismiss } = store.getState();
+  present("Required", undefined, [{ text: "OK" }]);
+  const first = store.getState().queue[0];
+  dismiss(first.id);
+  assert.equal(store.getState().queue[0].id, first.id);
+  choose(first.id, 0);
+  present("Optional", undefined, [{ text: "OK" }], { cancelable: true, onDismiss: () => dismissed++ });
+  const next = store.getState().queue[0];
+  dismiss(first.id);
+  assert.equal(dismissed, 0);
+  dismiss(next.id);
+  dismiss(next.id);
+  assert.equal(dismissed, 1);
+  assert.equal(store.getState().queue.length, 0);
 });
 
 test("mobile application controls cannot bypass the shared sound wrappers", () => {

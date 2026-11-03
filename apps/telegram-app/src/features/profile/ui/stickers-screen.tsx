@@ -18,6 +18,7 @@ import {
   type StickersState,
 } from "../api/stickers";
 import styles from "./stickers-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 
 /**
  * 내 캐릭터 텔레그램 스티커팩 — 모바일 app/stickers.tsx 와 같은 화면.
@@ -447,9 +448,7 @@ function DoneModal({
   stickers: (string | undefined)[];
 }) {
   return (
-    <div aria-modal="true" className={`${styles.sheetRoot} ${styles.center}`} role="dialog">
-      <button aria-label={uzt("stickers.done.later")} className={styles.backdrop} onClick={onClose} type="button" />
-      <section className={styles.done}>
+    <CenteredDialog onClose={onClose} className={styles.done}>
         <div className={styles.doneFan}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {stickers.map((src, index) => (src ? <img alt="" key={index} src={src} style={{ "--i": index } as CSSProperties} /> : null))}
@@ -459,7 +458,7 @@ function DoneModal({
         </h2>
         <p data-i18n="stickers.done.body">{uzt("stickers.done.body")}</p>
         <button
-          className={`${styles.cta} ${styles.ctaTelegram}`}
+          className={dialogStyles.primary}
           onClick={() => {
             haptic("light");
             onAdd();
@@ -469,10 +468,9 @@ function DoneModal({
           <MobileIcon name="paper-plane" size={19} />
           <span data-i18n="stickers.cta.add">{uzt("stickers.cta.add")}</span>
         </button>
-        <button className={styles.later} onClick={onClose} type="button">
+        <button className={dialogStyles.secondary} onClick={onClose} type="button">
           <span data-i18n="stickers.done.later">{uzt("stickers.done.later")}</span>
         </button>
-      </section>
-    </div>
+    </CenteredDialog>
   );
 }

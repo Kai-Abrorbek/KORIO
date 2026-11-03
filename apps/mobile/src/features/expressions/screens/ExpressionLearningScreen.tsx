@@ -4,7 +4,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ActivityIndicator,
-  Modal,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -31,6 +32,7 @@ import { expressionPackThemeByCode } from "@/constants/expression-packs";
 import { useSpeakingPalette } from "@/features/speaking/palette";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
+import { CenteredModal, DialogButton, DialogIcon, useDialogTheme } from "@/components/common/CenteredModal";
 import * as Haptics from "@/utils/haptics";
 import ExpressionLearningPage from "../components/ExpressionLearningPage";
 import { useExpressionLearning } from "../hooks/useExpressionLearning";
@@ -41,128 +43,37 @@ const SWIPE_THRESHOLD = 78;
 const SWIPE_VELOCITY = 680;
 
 function ExpressionRecallOfferModal({
-  visible,
-  expressionCount,
-  busy,
-  saveFailed,
-  theme,
-  accent,
-  accentDark,
-  background,
-  onClose,
-  onStart,
-  onSkip,
+  visible, expressionCount, busy, saveFailed, onClose, onStart, onSkip,
 }: {
   visible: boolean;
   expressionCount: number;
   busy: boolean;
   saveFailed: boolean;
-  theme: ReturnType<typeof useTheme>;
-  accent: string;
-  accentDark: string;
-  background: string;
   onClose: () => void;
   onStart: () => void;
   onSkip: () => void;
 }) {
   const { t } = useTranslation();
-
+  const colors = useDialogTheme();
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onClose}
-    >
-      <View style={styles.recallOfferRoot}>
-        <Pressable
-          disabled={busy}
-          style={styles.recallOfferBackdrop}
-          onPress={onClose}
-        />
-        <View
-          style={[
-            styles.recallOfferCard,
-            {
-              backgroundColor: theme.surface,
-              borderColor: `${accent}36`,
-              shadowColor: theme.text,
-            },
-          ]}
-        >
-          <View
-            style={[styles.recallOfferIcon, { backgroundColor: background }]}
-          >
-            <Ionicons name="chatbubbles-outline" size={29} color={accentDark} />
-          </View>
-          <Text style={[styles.recallOfferEyebrow, { color: accentDark }]}>
-            {t("expressionLearning.practiceOfferEyebrow")}
-          </Text>
-          <Text style={[styles.recallOfferTitle, { color: theme.text }]}>
-            {t("expressionLearning.practiceOfferTitle")}
-          </Text>
-          <Text
-            style={[
-              styles.recallOfferDescription,
-              { color: theme.textSecondary },
-            ]}
-          >
-            {t("expressionLearning.practiceOfferDescription", {
-              count: expressionCount,
-            })}
-          </Text>
-
-          {saveFailed ? (
-            <Text style={styles.recallOfferError}>
-              {t("expressionLearning.saveFailed")}
-            </Text>
-          ) : null}
-
-          <Pressable
-            accessibilityRole="button"
-            disabled={busy}
-            onPress={onStart}
-            style={({ pressed }) => [
-              styles.recallOfferStartButton,
-              {
-                backgroundColor: accent,
-                opacity: busy ? 0.6 : pressed ? 0.88 : 1,
-              },
-            ]}
-          >
-            {busy ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <>
-                <Ionicons name="school-outline" size={20} color="#FFFFFF" />
-                <Text style={styles.recallOfferStartText}>
-                  {t("expressionLearning.practiceOfferStart")}
-                </Text>
-              </>
-            )}
-          </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            disabled={busy}
-            onPress={onSkip}
-            style={({ pressed }) => [
-              styles.recallOfferSkipButton,
-              { opacity: busy ? 0.45 : pressed ? 0.7 : 1 },
-            ]}
-          >
-            <Text
-              style={[
-                styles.recallOfferSkipText,
-                { color: theme.textSecondary },
-              ]}
-            >
-              {t("expressionLearning.practiceOfferLater")}
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    </Modal>
+    <CenteredModal visible={visible} onClose={onClose} dismissible={!busy}>
+      <DialogIcon name="chatbubbles-outline" />
+      <Text style={[styles.recallOfferTitle, { color: colors.text }]}>
+        {t("expressionLearning.practiceOfferTitle")}
+      </Text>
+      <Text style={[styles.recallOfferDescription, { color: colors.textSecondary }]}>
+        {t("expressionLearning.practiceOfferDescription", { count: expressionCount })}
+      </Text>
+      {saveFailed ? (
+        <Text style={[styles.recallOfferError, { color: colors.error }]}>
+          {t("expressionLearning.saveFailed")}
+        </Text>
+      ) : null}
+      <DialogButton label={t("expressionLearning.practiceOfferStart")} onPress={onStart}
+        disabled={busy} loading={busy} icon="school-outline" style={{ marginTop: 24 }} />
+      <DialogButton label={t("expressionLearning.practiceOfferLater")} onPress={onSkip}
+        disabled={busy} variant="secondary" style={{ marginTop: 8 }} />
+    </CenteredModal>
   );
 }
 
@@ -711,7 +622,8 @@ export default function ExpressionLearningScreen() {
   }
 
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[
         styles.screen,
         { backgroundColor: practicePalette.bg, paddingTop: insets.top },
@@ -918,17 +830,13 @@ export default function ExpressionLearningScreen() {
         expressionCount={session.items.length}
         busy={recallOfferBusy || saving}
         saveFailed={saveFailed}
-        theme={theme}
-        accent={packTheme.accent}
-        accentDark={packTheme.accentDark}
-        background={packTheme.background}
         onClose={() => {
           if (!recallOfferBusy && !saving) setRecallOfferVisible(false);
         }}
         onStart={() => void startRecallPractice()}
         onSkip={() => void finishWithoutRecall()}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

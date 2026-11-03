@@ -56,6 +56,7 @@ import { useSeenWords } from "@/hooks/useSeenWords";
 import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
 import { isAnswerCorrect } from "@/utils/answer-check";
+import { recallInputScrollOffset } from "@/utils/word-recall-layout";
 import { DEFAULT_LEARNING_COURSES } from "@/constants/learnCourses";
 import WordStudyCompletion from "@/components/words/WordStudyCompletion";
 import { getWordLibraryPalette } from "../../../../shared/word-library-theme";
@@ -418,6 +419,37 @@ function RecallCard({
   const colors = getWordLibraryPalette(
     theme.bg === getWordLibraryPalette(true).bg,
   );
+  const [inputFocused, setInputFocused] = useState(false);
+  const inputFocusedRef = useRef(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const revealFrameRef = useRef<number | null>(null);
+  const inputLayoutRef = useRef({ top: 0, height: 0 });
+  const scrollLayoutRef = useRef({ viewport: 0, content: 0, offset: 0 });
+  const compactLayout = compact || inputFocused;
+  const keepInputVisible = useCallback(() => {
+    if (revealFrameRef.current !== null) cancelAnimationFrame(revealFrameRef.current);
+    revealFrameRef.current = requestAnimationFrame(() => {
+      revealFrameRef.current = null;
+      if (!inputFocusedRef.current) return;
+      const layout = scrollLayoutRef.current;
+      const target = recallInputScrollOffset({
+        inputTop: inputLayoutRef.current.top,
+        inputHeight: inputLayoutRef.current.height,
+        viewportHeight: layout.viewport,
+        contentHeight: layout.content,
+        scrollOffset: layout.offset,
+      });
+      if (Math.abs(target - layout.offset) < 1) return;
+      layout.offset = target;
+      scrollRef.current?.scrollTo({ y: target, animated: false });
+    });
+  }, []);
+  useEffect(() => {
+    if (compactLayout) keepInputVisible();
+  }, [compactLayout, keepInputVisible]);
+  useEffect(() => () => {
+    if (revealFrameRef.current !== null) cancelAnimationFrame(revealFrameRef.current);
+  }, []);
 
   return (
     <View
@@ -435,18 +467,30 @@ function RecallCard({
       ]}
     >
       <ScrollView
+        ref={scrollRef}
         style={styles.cardScroll}
         contentContainerStyle={styles.cardScrollContent}
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled
-        automaticallyAdjustKeyboardInsets
+        onLayout={(event) => {
+          scrollLayoutRef.current.viewport = event.nativeEvent.layout.height;
+          keepInputVisible();
+        }}
+        onContentSizeChange={(_, height) => {
+          scrollLayoutRef.current.content = height;
+          keepInputVisible();
+        }}
+        onScroll={(event) => {
+          scrollLayoutRef.current.offset = event.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={16}
       >
-        <WordVisual
+        {!compactLayout && <WordVisual
           word={word}
           palette={palette}
           theme={theme}
           concealHeadword
-        />
+        />}
 
         <View style={[styles.cardBody, compact && styles.recallBodyCompact]}>
           <View style={styles.recallBadgeRow}>
@@ -482,6 +526,10 @@ function RecallCard({
             })}
           </Text>
           <View
+            onLayout={(event) => {
+              inputLayoutRef.current = { top: event.nativeEvent.layout.y, height: event.nativeEvent.layout.height };
+              keepInputVisible();
+            }}
             style={[
               styles.recallInputShell,
               compact && styles.recallInputShellCompact,
@@ -501,6 +549,16 @@ function RecallCard({
               autoCorrect={false}
               editable={!isCorrect}
               returnKeyType="done"
+              submitBehavior="submit"
+              onFocus={() => {
+                inputFocusedRef.current = true;
+                setInputFocused(true);
+                keepInputVisible();
+              }}
+              onBlur={() => {
+                inputFocusedRef.current = false;
+                setInputFocused(false);
+              }}
               value={answer}
               onChangeText={onChangeAnswer}
               onSubmitEditing={onSubmit}
@@ -1869,8 +1927,8 @@ function WordStudyScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      enabled={Platform.OS === "ios" && Boolean(recallWord)}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      enabled={Boolean(recallWord)}
       style={[styles.container, { backgroundColor: colors.bg }]}
     >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>

@@ -1,16 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import Animated, {
   Easing,
@@ -26,10 +21,8 @@ import { Pressable } from "@/components/ui/Pressables";
 import HaneulmonMascot, {
   type HaneulmonMood,
 } from "@/components/home/HaneulmonMascot";
-import Button3D from "@/features/retention/components/Button3D";
-import { useTheme } from "@/hooks/useTheme";
+import { CenteredModal, DialogButton, useDialogTheme } from "@/components/common/CenteredModal";
 import { useSound } from "@/hooks/useSound";
-import type { ThemeColors } from "@/constants/theme";
 import { ApiError } from "@/services/api";
 import { AppReviewService } from "@/services/app-review.service";
 import * as Haptics from "@/utils/haptics";
@@ -37,8 +30,6 @@ import HaneulmonBow, { BOW_BOTTOM_AT, BOW_CHEER_AT } from "./HaneulmonBow";
 
 const COMMENT_MAX = 1000;
 const STAR_DEPTH = 3;
-const GOLD = "#FFD900";
-const GOLD_DEPTH = "#E5AE00";
 
 /** 별점에 따라 하늘몬 표정이 바뀐다 — 0 은 아직 안 고름 */
 const MOOD_BY_RATING: HaneulmonMood[] = [
@@ -82,7 +73,7 @@ export default function AppReviewModal({
   onDone,
 }: AppReviewModalProps) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const theme = useDialogTheme();
   const s = getStyles(theme);
   const { play } = useSound();
   const reducedMotion = useReducedMotion();
@@ -170,27 +161,13 @@ export default function AppReviewModal({
   const busy = sending || thanks;
 
   return (
-    <Modal
-      transparent
+    <CenteredModal
       visible={visible}
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={() => !busy && onClose()}
+      onClose={onClose}
+      dismissible={!busy}
+      backdropDismissible={false}
     >
-      <GestureHandlerRootView style={s.root}>
-        <View style={[StyleSheet.absoluteFill, s.backdrop]} />
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={s.center}
-        >
-          <View style={s.card}>
-            {/* 카드 위쪽만 하늘몬 보라로 은은하게 물든다 — 하늘몬은 그 위에 서서 가장자리 너머로 고개를 내민다 */}
-            <LinearGradient
-              pointerEvents="none"
-              colors={["rgba(119,110,226,0.18)", "rgba(119,110,226,0)"]}
-              style={s.sky}
-            />
+          <View style={s.content}>
             <Animated.View
               style={formStyle}
               pointerEvents={thanks ? "none" : "auto"}
@@ -200,7 +177,7 @@ export default function AppReviewModal({
               </View>
 
               <View style={s.gift}>
-                <Ionicons name="diamond" size={14} color="#5CD0F0" />
+                <Ionicons name="diamond" size={14} color={theme.onPink} />
                 <Text style={s.giftText}>
                   {t("appReview.reward", { n: reward })}
                 </Text>
@@ -239,7 +216,8 @@ export default function AppReviewModal({
                     ? "appReview.placeholderLow"
                     : "appReview.placeholderHigh",
                 )}
-                placeholderTextColor={theme.textSecondary + "B3"}
+                placeholderTextColor={theme.textSecondary}
+                selectionColor={theme.primary}
                 multiline
                 maxLength={COMMENT_MAX}
                 textAlignVertical="top"
@@ -254,7 +232,7 @@ export default function AppReviewModal({
 
               {error ? <Text style={s.error}>{error}</Text> : null}
 
-              <Button3D
+              <DialogButton
                 label={t("appReview.submit", { n: reward })}
                 onPress={submit}
                 disabled={!rating || thanks}
@@ -297,9 +275,7 @@ export default function AppReviewModal({
               </View>
             ) : null}
           </View>
-        </KeyboardAvoidingView>
-      </GestureHandlerRootView>
-    </Modal>
+    </CenteredModal>
   );
 }
 
@@ -315,7 +291,7 @@ function Star({
   n: number;
   on: boolean;
   picked: boolean;
-  theme: ThemeColors;
+  theme: ReturnType<typeof useDialogTheme>;
   label: string;
   onPress: () => void;
 }) {
@@ -331,9 +307,8 @@ function Star({
     transform: [{ scale: pop.value }],
   }));
 
-  const dark = theme.bg !== "#ffffff";
-  const face = on ? GOLD : theme.border;
-  const depth = on ? GOLD_DEPTH : dark ? "#2E2E37" : "#D6D2EC";
+  const face = on ? theme.yellow : theme.border;
+  const depth = on ? theme.onYellow : theme.soft;
 
   return (
     <Pressable
@@ -371,38 +346,18 @@ const starStyles = StyleSheet.create({
   layer: { position: "absolute" },
 });
 
-const getStyles = (theme: ThemeColors) =>
+const getStyles = (theme: ReturnType<typeof useDialogTheme>) =>
   StyleSheet.create({
-    root: { flex: 1 },
-    // 흐린 배경 대신 보라빛이 도는 짙은 막 — 홈이 은은하게 비친다
-    backdrop: { backgroundColor: "rgba(16, 11, 44, 0.74)" },
-    center: { flex: 1, alignItems: "center", justifyContent: "center" },
-    card: {
-      width: "88%",
-      maxWidth: 380,
-      backgroundColor: theme.surface,
-      borderRadius: 28,
-      paddingTop: 52,
-      paddingHorizontal: 20,
-      paddingBottom: 14,
-      borderWidth: 1,
-      borderColor: theme.border,
-    },
+    content: { width: "100%", position: "relative" },
     peek: {
-      position: "absolute",
-      top: -112,
       alignSelf: "center",
       alignItems: "center",
       justifyContent: "center",
-    },
-    sky: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 150,
-      borderTopLeftRadius: 27,
-      borderTopRightRadius: 27,
+      width: 116,
+      height: 116,
+      borderRadius: 40,
+      backgroundColor: theme.yellowWash,
+      marginBottom: 16,
     },
     gift: {
       alignSelf: "center",
@@ -412,27 +367,25 @@ const getStyles = (theme: ThemeColors) =>
       paddingVertical: 5,
       paddingHorizontal: 12,
       borderRadius: 999,
-      backgroundColor: "#FFF1C7",
-      borderWidth: 1,
-      borderColor: "#FFE38A",
+      backgroundColor: theme.pinkWash,
     },
-    giftText: { fontSize: 12.5, fontWeight: "900", color: "#9A6A00" },
+    giftText: { fontSize: 12.5, fontWeight: "700", color: theme.onPink },
     title: {
       marginTop: 12,
-      fontSize: 22,
-      fontWeight: "900",
+      fontSize: 24,
+      fontWeight: "800",
       color: theme.text,
       textAlign: "center",
-      lineHeight: 28,
+      lineHeight: 31,
       letterSpacing: -0.3,
     },
     body: {
       marginTop: 6,
-      fontSize: 14,
-      fontWeight: "600",
+      fontSize: 15,
+      fontWeight: "500",
       color: theme.textSecondary,
       textAlign: "center",
-      lineHeight: 20,
+      lineHeight: 23,
     },
     stars: {
       marginTop: 18,
@@ -476,7 +429,7 @@ const getStyles = (theme: ThemeColors) =>
       marginTop: 10,
       fontSize: 13,
       fontWeight: "800",
-      color: "#FF4B4B",
+      color: theme.error,
       textAlign: "center",
     },
     submit: { marginTop: 14 },

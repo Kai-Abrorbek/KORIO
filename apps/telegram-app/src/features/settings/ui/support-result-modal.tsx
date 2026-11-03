@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, type CSSProperties } from "react";
 
 import { uzt } from "../../../shared/i18n/uz-text";
-import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { SUPPORT_CATEGORY_LOOK, SUPPORT_LIMITS, type SupportCategory } from "../model/support";
 import styles from "./support-result-modal.module.css";
@@ -51,20 +51,12 @@ export function SupportResultModal({
     return () => window.clearTimeout(timer);
   }, [result]);
 
-  useTelegramBackOverride(result ? onClose : null);
-
   if (!shown) return null;
   const sent = shown.kind === "sent";
   const look = shown.kind === "sent" ? SUPPORT_CATEGORY_LOOK[shown.category] : null;
 
   return (
-    <div
-      aria-modal="true"
-      className={`${styles.backdrop} ${visible ? styles.visible : ""}`}
-      onClick={onClose}
-      role="dialog"
-    >
-      <div className={styles.card} onClick={(event) => event.stopPropagation()}>
+    <CenteredDialog className={styles.card} onClose={onClose} shown={visible}>
         {sent ? (
           <div className={styles.mascotWrap}>
             <i aria-hidden="true" className={styles.mascotGlow} />
@@ -109,7 +101,7 @@ export function SupportResultModal({
           </div>
         ) : null}
 
-        <button className={styles.primary} onClick={shown.kind === "failed" ? onRetry : onClose} type="button">
+        <button className={`${styles.primary} ${dialogStyles.primary}`} onClick={shown.kind === "failed" ? onRetry : onClose} type="button">
           {shown.kind === "failed" ? (
             <span data-i18n="common.retry">{uzt("common.retry")}</span>
           ) : (
@@ -117,11 +109,10 @@ export function SupportResultModal({
           )}
         </button>
         {shown.kind === "failed" ? (
-          <button className={styles.secondary} onClick={onClose} type="button">
+          <button className={`${styles.secondary} ${dialogStyles.secondary}`} onClick={onClose} type="button">
             <span data-i18n="common.close">{uzt("common.close")}</span>
           </button>
         ) : null}
-      </div>
-    </div>
+    </CenteredDialog>
   );
 }

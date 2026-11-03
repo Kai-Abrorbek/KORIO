@@ -1,22 +1,21 @@
 import "../locales/i18n";
 // LiveKit 전역은 앱에서 제일 먼저, 딱 한 번 등록한다 (utils/livekit-globals)
 import "../utils/livekit-globals";
-import { Stack } from "expo-router";
+import { Stack, ThemeProvider, DarkTheme, DefaultTheme, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 // expo-router 는 react-navigation 을 vendoring 한다 — @react-navigation/native
 // 에서 가져오면 Stack 이 읽는 테마 컨텍스트와 다른 인스턴스라 아무 효과가 없다
-import { ThemeProvider, DarkTheme, DefaultTheme } from "expo-router";
 import { useColorScheme } from "react-native";
 import { SoundProvider } from "@/hooks/useSound";
 import EnergyModal from "@/components/energy/EnergyModal";
 import { useEnergyStore } from "@/store/energy.store";
 import { useAuthStore } from "@/store/auth.store";
-import { useRouter } from "expo-router";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { useReferralClaim } from "@/hooks/useReferralClaim";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import ErrorModal from "@/components/common/ErrorModal";
+import AppDialogHost from "@/components/common/AppDialogHost";
 import PremiumGateModal from "@/components/subscription/PremiumGateModal";
 import { usePresenceHeartbeat } from "@/hooks/usePresenceHeartbeat";
 import TourOverlay from "@/features/tour/TourOverlay";
@@ -335,6 +334,7 @@ export default function RootLayout() {
 
           {/* 전역 에러 처리 모달*/}
           <ErrorModal />
+          <AppDialogHost />
           {/* 스토어에 새 버전이 나오면 업데이트 안내 (필수면 닫을 수 없음) */}
           <AppUpdateGate />
           {/* 전역 에너지 부족 모달 — 어느 화면에서든 뜸 */}

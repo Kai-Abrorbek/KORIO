@@ -6,6 +6,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { PARTICLE_QUESTIONS, type ParticleQuestion } from "../model/particle-questions";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./particle-rush-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { getContentLang } from "../../../shared/i18n/content-language";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
@@ -146,18 +147,16 @@ export function ParticleRushScreen() {
       </div>
 
       {over ? (
-        <div className={styles.overlay}>
-          <section className={styles.endCard}>
-            <span className={styles.endEmoji}>⚡</span>
+        <CenteredDialog onClose={exit} backdropDismissible={false} className={styles.endCard}>
+            <span aria-hidden="true" className={`${dialogStyles.icon} ${dialogStyles.iconWarning}`}><MobileIcon name="flash" size={32} /></span>
             <h1>O&apos;yin tugadi!</h1>
-            <div className={styles.endStats}>
+            <div className={dialogStyles.stats}>
               <div><strong>{score}</strong><span>Ball</span></div>
               <div><strong>{solved}</strong><span>To&apos;g&apos;ri javoblar</span></div>
             </div>
-            {!isChallenge ? <button className={styles.again} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
-            <button className={styles.exit} onClick={exit} type="button">Chiqish</button>
-          </section>
-        </div>
+            {!isChallenge ? <button className={dialogStyles.primary} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
+            <button className={dialogStyles.secondary} onClick={exit} type="button">Chiqish</button>
+        </CenteredDialog>
       ) : null}
     </main>
   );

@@ -7,6 +7,7 @@ import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { learnCourseOf } from "../../learning/model/learning-options";
 import type { ExpressionProficiency } from "../../expressions/model/expressions";
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { normalizeSpeakingWord, wordToneOf } from "../model/speaking";
 import { useSpeakingPractice, type SpeakingError } from "../model/use-speaking-practice";
 import { TopicIllustration } from "./topic-illustration";
@@ -141,7 +142,7 @@ export function SpeakingPracticeScreen() {
         </>
       ) : null}
 
-      {exitAsking ? <div className={styles.modalBackdrop} role="presentation" onClick={() => setExitAsking(false)}><section aria-modal="true" className={styles.modal} onClick={(event) => event.stopPropagation()} role="dialog"><span><MobileIcon name="mic-off-outline" size={30} /><i><MobileIcon name="pause" size={12} /></i></span><h2>Biroz tanaffus qilasizmi?</h2><p>Saqlangan iboralar qoladi. Keyingi safar mavzuni boshidan boshlashingiz mumkin.</p><button onClick={() => setExitAsking(false)} type="button"><MobileIcon name="mic" size={17} /> Davom etish</button><button onClick={leave} type="button">Chiqish</button></section></div> : null}
+      {exitAsking ? <CenteredDialog className={styles.modal} onClose={() => setExitAsking(false)}><span className={`${dialogStyles.icon} ${dialogStyles.iconWarning}`}><MobileIcon name="mic-off-outline" size={34} /></span><h2>Biroz tanaffus qilasizmi?</h2><p>Saqlangan iboralar qoladi. Keyingi safar mavzuni boshidan boshlashingiz mumkin.</p><button className={dialogStyles.primary} onClick={() => setExitAsking(false)} type="button"><MobileIcon name="mic" size={17} /> Davom etish</button><button className={dialogStyles.secondary} onClick={leave} type="button">Chiqish</button></CenteredDialog> : null}
     </main>
   );
 }

@@ -8,6 +8,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./echo-chain-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const GRID = 9;
@@ -191,18 +192,16 @@ export function EchoChainScreen() {
       </div>
 
       {over ? (
-        <div className={styles.overlay}>
-          <section className={styles.endCard}>
-            <span className={styles.endEmoji}>🔊</span>
+        <CenteredDialog onClose={exit} backdropDismissible={false} className={styles.endCard}>
+            <span aria-hidden="true" className={`${dialogStyles.icon} `}><MobileIcon name="volume-high" size={32} /></span>
             <h1>O&apos;yin tugadi!</h1>
-            <div className={styles.endStats}>
+            <div className={dialogStyles.stats}>
               <div><strong>{score}</strong><span>Ball</span></div>
               <div><strong>{round}</strong><span>Eng yuqori raund</span></div>
             </div>
-            {!isChallenge ? <button className={styles.again} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
-            <button className={styles.exit} onClick={exit} type="button">Chiqish</button>
-          </section>
-        </div>
+            {!isChallenge ? <button className={dialogStyles.primary} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
+            <button className={dialogStyles.secondary} onClick={exit} type="button">Chiqish</button>
+        </CenteredDialog>
       ) : null}
     </main>
   );

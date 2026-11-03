@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 import { MobileIcon, type IoniconName } from "../../../shared/ui/mobile-icon";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import styles from "./retention.module.css";
 
 type Tone = "purple" | "green" | "orange" | "amber" | "pink" | "blue";
@@ -133,19 +134,7 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
   } = open ? props : lastShown.current;
   const dismiss = onBackdrop ?? onSecondary;
   return (
-    <div
-      aria-modal="true"
-      className={`${styles.dialogRoot} ${shown && open ? styles.dialogShown : ""}`}
-      role="dialog"
-    >
-      <button
-        aria-label="close"
-        className={styles.dialogBackdrop}
-        onClick={() => dismiss?.()}
-        style={{ border: 0 }}
-        type="button"
-      />
-      <section className={styles.dialog}>
+    <CenteredDialog className={styles.dialog} dismissible={Boolean(dismiss) && !loading} onClose={dismiss} shown={shown && open}>
         <span className={styles.dialogMascot}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" src={`/characters/hangulmon_${mood}.png`} />
@@ -167,7 +156,7 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
           </div>
         ) : null}
         <Button3D
-          className={styles.dialogPrimary}
+          className={`${styles.dialogPrimary} ${dialogStyles.primary}`}
           i18nKey={primaryKey}
           label={primaryLabel}
           loading={loading}
@@ -176,7 +165,7 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
         />
         {secondaryLabel ? (
           <button
-            className={styles.dialogSecondary}
+            className={`${styles.dialogSecondary} ${dialogStyles.secondary}`}
             data-i18n={secondaryKey}
             onClick={onSecondary}
             type="button"
@@ -184,7 +173,6 @@ export function RewardDialog({ open, ...props }: RewardDialogProps & { open: boo
             {secondaryLabel}
           </button>
         ) : null}
-      </section>
-    </div>
+    </CenteredDialog>
   );
 }

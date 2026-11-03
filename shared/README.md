@@ -132,7 +132,19 @@ unit counts are displayed without incorrectly summing overlapping word counts.
 `word-library-theme.ts` keeps the reference-led wordbook palette consistent in
 both clients: warm white surfaces, blue actions, yellow section markers, and pink
 saved bookmarks, with explicit dark variants. These colors apply only to the
-wordbook surface, not to the rest of the application.
+wordbook surface. `dialog-theme.ts` reuses that approved palette for centered
+dialogs without changing the application's global theme.
+
+Native `CenteredModal` and Telegram `CenteredDialog` share the dialog colors,
+action hierarchy, safe-area scrolling and dark variants. Confirmations, errors,
+rewards, tips, support results, practice offers, cosmetic/sticker confirmations
+and game-end overlays use these surfaces. Genuine bottom/side sheets and
+full-screen flows retain their layout. Existing Alert-style callers use queued
+hosts; stale or repeated button events cannot answer the following request.
+
+The native word recall card hides illustration space while typing and keeps the
+focused input inside its measured, keyboard-reduced scroll viewport. Expression
+typing and support forms also adjust their available height on Android.
 
 `word-study-flow.ts` defines the explicit forward boundary for both card decks:
 arriving at the final card leaves it visible, and the next forward action offers

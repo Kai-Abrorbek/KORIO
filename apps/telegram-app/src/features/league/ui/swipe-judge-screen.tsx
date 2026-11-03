@@ -7,6 +7,7 @@ import type { GameWord } from "../model/use-game-words";
 import { meaningOfGameWord, useGameWords } from "../model/use-game-words";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./swipe-judge-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const GAME_SECONDS = 60;
@@ -240,19 +241,17 @@ export function SwipeJudgeScreen() {
       </div>
 
       {over ? (
-        <div className={styles.overlay}>
-          <section className={styles.endCard}>
-            <span className={styles.endEmoji}>🃏</span>
+        <CenteredDialog onClose={exit} backdropDismissible={false} className={styles.endCard}>
+            <span aria-hidden="true" className={`${dialogStyles.icon} ${dialogStyles.iconDanger}`}><MobileIcon name="layers" size={32} /></span>
             <h1>O&apos;yin tugadi!</h1>
-            <div className={styles.endStats}>
+            <div className={dialogStyles.stats}>
               <div><strong>{score}</strong><span>Ball</span></div>
               <div><strong>{accuracy}%</strong><span>Aniqlik</span></div>
               <div><strong>{correct}</strong><span>To&apos;g&apos;ri javoblar</span></div>
             </div>
-            {!isChallenge ? <button className={styles.again} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
-            <button className={styles.exit} onClick={exit} type="button">Chiqish</button>
-          </section>
-        </div>
+            {!isChallenge ? <button className={dialogStyles.primary} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
+            <button className={dialogStyles.secondary} onClick={exit} type="button">Chiqish</button>
+        </CenteredDialog>
       ) : null}
     </main>
   );
