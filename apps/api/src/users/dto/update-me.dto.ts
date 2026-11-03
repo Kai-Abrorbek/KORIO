@@ -13,7 +13,19 @@ import {
   MaxLength,
   Min,
   MinLength,
+  Validate,
+  ValidateIf,
+  ValidatorConstraint,
+  type ValidatorConstraintInterface,
 } from 'class-validator';
+import { isSafeImageUrl } from '../../common/safe-image-url';
+
+@ValidatorConstraint({ name: 'safeImageUrl' })
+class SafeImageUrlConstraint implements ValidatorConstraintInterface {
+  validate(value: unknown) {
+    return isSafeImageUrl(value);
+  }
+}
 
 /**
  * PATCH /users/me.
@@ -46,9 +58,12 @@ export class UpdateMeDto {
   @MaxLength(60)
   country?: string;
 
+  /** 빈 문자열 = 사진 지우기. 그 밖엔 소셜 제공자의 https 이미지만 (safe-image-url.ts) */
   @IsOptional()
   @IsString()
   @MaxLength(500)
+  @ValidateIf((_, value) => value !== '')
+  @Validate(SafeImageUrlConstraint, { message: 'PROFILE_IMAGE_NOT_ALLOWED' })
   profileImage?: string;
 
   @IsOptional()

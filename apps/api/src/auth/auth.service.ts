@@ -24,6 +24,8 @@ import {
   normalizeEmailOptional,
 } from '../common/normalize-email';
 import { findUserByEmail } from '../users/find-by-email';
+import { TIMING_DUMMY_HASH } from '../common/timing-dummy-hash';
+import { safeImageUrl } from '../common/safe-image-url';
 import { OAuth2Client } from 'google-auth-library';
 import * as crypto from 'crypto';
 import { trialFields, isSuperActive } from '../users/super.util';
@@ -103,11 +105,13 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await findUserByEmail(this.userModel, dto.email, '+password');
     // 소셜로만 가입한 계정은 password 가 비어 있다. bcrypt.compare 에 undefined 를
-    // 넘기면 던지므로(500) 여기서 먼저 걸러 낸다.
-    if (!user?.password) throw new UnauthorizedException('INVALID_CREDENTIALS');
-
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid)
+    // 넘기면 던지므로(500) 가짜 해시로 대신 돌린다 — 바로 401 을 주면 응답
+    // 시간만으로 "이 이메일은 가입돼 있다/비번 계정이다" 가 새 나간다.
+    const isPasswordValid = await bcrypt.compare(
+      dto.password,
+      user?.password || TIMING_DUMMY_HASH,
+    );
+    if (!user?.password || !isPasswordValid)
       throw new UnauthorizedException('INVALID_CREDENTIALS');
 
     await this.attachOnboarding(user._id, dto.sessionId);
@@ -118,8 +122,9 @@ export class AuthService {
   async socialLogin(dto: SocialLoginDto) {
     let providerId = dto.providerId;
     let email = normalizeEmailOptional(dto.email);
-    let nickname = dto.nickname;
-    let profileImage = dto.profileImage;
+    // 길이 제한이 없던 입력이다 — 프로필 수정(PATCH /users/me)과 같은 30자로 자른다
+    let nickname = dto.nickname?.trim().slice(0, 30);
+    let profileImage = safeImageUrl(dto.profileImage);
 
     // 🔴 이 엔드포인트는 **서버가 토큰을 검증할 수 있는 제공자(구글)만** 받는다.
     //    예전엔 provider·providerId·email 을 앱이 준 그대로 믿어서, 아무나
@@ -148,12 +153,14 @@ export class AuthService {
       // 구글이 준 값도 대소문자가 섞여 올 수 있다. 여기서 안 맞추면 같은 사람이
       // 이메일 계정과 소셜 계정으로 갈라진다.
       // ⚠️ 구글이 확인한 주소만 쓴다 — 같은 이메일의 기존 계정에 붙이기 때문이다
+      // (값이 빠져 온 경우도 "확인 안 됨" 으로 본다)
       email =
-        payload.email_verified === false
-          ? undefined
-          : normalizeEmailOptional(payload.email);
-      nickname = nickname || payload.name;
-      profileImage = profileImage || payload.picture;
+        payload.email_verified === true
+          ? normalizeEmailOptional(payload.email)
+          : undefined;
+      nickname = nickname || payload.name?.slice(0, 30);
+      // 구글이 서명한 사진을 먼저 쓴다. 앱이 보낸 주소는 검증된 이미지 서버일 때만
+      profileImage = payload.picture || profileImage;
     }
 
     if (!providerId)

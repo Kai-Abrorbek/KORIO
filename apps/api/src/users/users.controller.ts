@@ -254,13 +254,31 @@ export class UsersController {
     return this.usersService.unfollow(req.user._id.toString(), targetId);
   }
 
+  // 닉네임 정규식 검색은 인덱스를 못 탄다 (전체 스캔). 유저 목록 긁어 가기와
+  // 서버 부하 둘 다 막는다
   @Get('search')
+  @UseGuards(RateLimitGuard)
+  @RateLimit({ windowMs: 60_000, max: 30, perUser: true })
   async search(@Request() req, @Query('q') q: string) {
     return this.usersService.searchUsers(req.user._id.toString(), q);
   }
 
-  /** 연락처 매칭. 앱이 번호를 정규화·해시해서 보낸다 (원본은 안 받는다) */
+  /**
+   * 연락처 매칭. 앱이 번호를 정규화·해시해서 보낸다 (원본은 안 받는다)
+   *
+   * 🔴 전화번호는 경우의 수가 작아서 해시가 비밀이 아니다 (+998 휴대폰은 전부
+   *    합쳐도 수억 개 — 노트북으로 몇 분이면 전부 해시한다). 한도가 없으면 한
+   *    번에 2000개씩 던져서 "이 번호 = 이 계정" 표를 통째로 만들 수 있다.
+   *    앱은 연락처 화면을 열 때 한 번만 부른다.
+   */
   @Post('match-contacts')
+  @UseGuards(RateLimitGuard)
+  @RateLimit(
+    { windowMs: 60 * 60_000, max: 10, perUser: true },
+    { windowMs: 24 * 60 * 60_000, max: 30, perUser: true },
+    // 계정을 여러 개 만들어 돌려도 한 IP 에서는 여기까지
+    { windowMs: 24 * 60 * 60_000, max: 200 },
+  )
   async matchContacts(@Request() req, @Body() dto: MatchContactsDto) {
     return this.usersService.matchByPhoneHashes(
       req.user._id.toString(),
@@ -268,8 +286,17 @@ export class UsersController {
     );
   }
 
-  /** 내 번호 등록 — 친구들이 연락처로 나를 찾을 수 있게 */
+  /**
+   * 내 번호 등록 — 친구들이 연락처로 나를 찾을 수 있게.
+   * PHONE_ALREADY_REGISTERED 응답이 "이 번호가 가입돼 있다" 를 알려주므로
+   * 번호 하나씩 넣어 보는 조회 도구가 되지 않게 좁힌다.
+   */
   @Post('me/phone')
+  @UseGuards(RateLimitGuard)
+  @RateLimit(
+    { windowMs: 24 * 60 * 60_000, max: 10, perUser: true },
+    { windowMs: 24 * 60 * 60_000, max: 50 },
+  )
   async setPhone(@Request() req, @Body() dto: SetPhoneDto) {
     return this.usersService.setPhone(req.user._id.toString(), dto.phone);
   }

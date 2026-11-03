@@ -83,7 +83,9 @@ async function bootstrap() {
       // 어느 출처가 막혔는지 반드시 남긴다. 예전엔 'CORS_NOT_ALLOWED' 만 찍혀서
       // 스택만 보고는 무엇을 허용해야 하는지 알 수가 없었다.
       // 같은 출처는 한 번만 — 봇이 두드리면 로그가 그걸로 덮인다.
-      if (!rejectedOrigins.has(origin)) {
+      // 개수도 묶는다: Origin 은 요청마다 아무 값이나 넣을 수 있어서, 안 묶으면
+      // 무작위 Origin 만으로 이 Set 을 끝없이 키워 메모리를 채울 수 있다
+      if (!rejectedOrigins.has(origin) && rejectedOrigins.size < 500) {
         rejectedOrigins.add(origin);
         Logger.warn(
           `CORS 거부: ${origin} — 우리 서비스면 ALLOWED_ORIGINS 에 추가해라 ` +

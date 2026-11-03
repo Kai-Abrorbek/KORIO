@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { AdminAuthService } from './admin-auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
@@ -23,7 +16,13 @@ export class AdminAuthController {
    *    건 그 자체로 신호다.
    */
   @Post('login')
-  @RateLimit({ windowMs: 15 * 60_000, max: 10, keyBody: 'email' })
+  @RateLimit(
+    { windowMs: 15 * 60_000, max: 10, keyBody: 'email' },
+    // 한 IP 가 어드민 이메일을 바꿔 가며 찔러보는 것
+    { windowMs: 15 * 60_000, max: 30 },
+    // IP 를 돌려 가며 어드민 한 명을 노리는 것
+    { windowMs: 60 * 60_000, max: 20, keyBody: 'email', ignoreIp: true },
+  )
   login(@Body() dto: AdminLoginDto, @Req() req: any) {
     return this.service.login(dto.email, dto.password, req.ip);
   }

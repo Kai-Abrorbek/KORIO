@@ -17,13 +17,25 @@ import {
 } from './dto/password-reset.dto';
 import { Get, Param, Query, Res, BadRequestException } from '@nestjs/common';
 import type { Response } from 'express';
-import {
-  OAUTH,
-  callbackUrl,
-  type OAuthProviderKey,
-} from './oauth.providers';
+import { OAUTH, callbackUrl, type OAuthProviderKey } from './oauth.providers';
 import { packState, unpackState, safeRedirect } from './oauth-state';
 import { TelegramMiniAppLoginDto } from './dto/telegram-mini-app-login.dto';
+
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
+/**
+ * IP 를 빼고 "이 이메일 전체" 로 세는 한도. IP+이메일 한도만 있으면 봇넷이
+ * IP 를 돌려 가며 한 계정을 무한히 두드린다. 정상 사용자는 절대 안 닿을
+ * 만큼 넉넉하게 — 대신 공격받는 동안엔 그 이메일이 잠시 막힌다 (털리는 것보다 낫다).
+ */
+const perEmail = (windowMs: number, max: number) => ({
+  windowMs,
+  max,
+  keyBody: 'email',
+  ignoreIp: true,
+});
 
 @Controller('auth')
 @UseGuards(RateLimitGuard)
@@ -44,30 +56,46 @@ export class AuthController {
     return this.authService.register(dto);
   }
 
-  // 한 IP 가 인증 메일을 대량으로 뿌리지 못하게 (가입 1건 = 메일 1통)
-  @RateLimit({ windowMs: 60 * 60 * 1000, max: 10 })
+  // 한 IP 가 인증 메일을 대량으로 뿌리지 못하게 (가입 1건 = 메일 1통).
+  // 이메일 전체 한도: 남의 주소로 메일 폭탄 + 코드 새로 받아 가며 대입하기 차단
+  @RateLimit({ windowMs: HOUR, max: 10 }, perEmail(HOUR, 5))
   @Post('register/start')
   async registerStart(@Body() dto: RegisterDto) {
     return this.signup.start(dto);
   }
 
   // 메일 폭탄 방지 — 비밀번호 찾기와 같은 한도
-  @RateLimit({ windowMs: 15 * 60 * 1000, max: 3, keyBody: 'email' })
+  @RateLimit(
+    { windowMs: 15 * MINUTE, max: 3, keyBody: 'email' },
+    perEmail(HOUR, 6),
+  )
   @Post('register/resend')
   async registerResend(@Body() dto: ResendSignupDto) {
     return this.signup.resend(dto);
   }
 
-  // 6자리 무차별 대입 방지. 건당 5회 제한과 별개로 엔드포인트에도 한도
-  @RateLimit({ windowMs: 10 * 60 * 1000, max: 10, keyBody: 'email' })
+  // 6자리 무차별 대입 방지. 건당 5회 제한과 별개로 엔드포인트에도 한도.
+  // 코드를 새로 받으면 건당 횟수가 0 으로 돌아가므로 이메일 전체 한도가 진짜 상한이다
+  @RateLimit(
+    { windowMs: 10 * MINUTE, max: 10, keyBody: 'email' },
+    perEmail(HOUR, 10),
+    perEmail(DAY, 30),
+  )
   @Post('register/verify')
   async registerVerify(@Body() dto: VerifySignupDto) {
     return this.signup.verify(dto);
   }
 
-  // 무차별 대입 방지. ip + email 조합이라 한 IP 뒤의 다른 사람이나
-  // 남의 계정을 대신 잠그는 일은 안 생긴다.
-  @RateLimit({ windowMs: 60 * 1000, max: 5, keyBody: 'email' })
+  // 무차별 대입 방지, 세 겹:
+  //  · IP+이메일 1분 5회 — 한 IP 뒤의 다른 사람은 안 막힌다
+  //  · IP 하나 15분 100회 — 한 IP 가 이메일만 바꿔 가며 유출 비번 목록을
+  //    대입하는 것(credential stuffing). 로그인은 토큰이 7일이라 드물다
+  //  · 이메일 전체 15분 20회 — IP 를 돌려 가며 한 계정을 노리는 것
+  @RateLimit(
+    { windowMs: MINUTE, max: 5, keyBody: 'email' },
+    { windowMs: 15 * MINUTE, max: 100 },
+    perEmail(15 * MINUTE, 20),
+  )
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
@@ -89,7 +117,13 @@ export class AuthController {
 
   // 메일 폭탄 방지. 남의 주소를 넣고 계속 눌러대는 것도 여기서 막힌다.
   // ip+email 조합이라 한 IP 뒤의 다른 사람까지 같이 막히지는 않는다.
-  @RateLimit({ windowMs: 15 * 60 * 1000, max: 3, keyBody: 'email' })
+  // 이메일 전체 한도: 새 코드 = 건당 횟수 초기화라, 이게 없으면 봇넷이 코드를
+  // 계속 새로 받아 가며 6자리를 대입할 수 있다
+  @RateLimit(
+    { windowMs: 15 * MINUTE, max: 3, keyBody: 'email' },
+    perEmail(HOUR, 5),
+    perEmail(DAY, 10),
+  )
   @Post('password/forgot')
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.passwordReset.forgot(dto);
@@ -97,7 +131,13 @@ export class AuthController {
 
   // 6자리는 100만 가지뿐이다. 건당 5회 제한이 있지만, 코드를 계속 새로
   // 받아가며 두드리는 걸 막으려면 엔드포인트 쪽에도 한도가 있어야 한다.
-  @RateLimit({ windowMs: 10 * 60 * 1000, max: 10, keyBody: 'email' })
+  // 이메일 전체로 하루 30회면 1년 내내 두드려도 맞힐 확률이 약 1% 다
+  // (그동안 피해자 메일함엔 재설정 메일이 쌓인다)
+  @RateLimit(
+    { windowMs: 10 * MINUTE, max: 10, keyBody: 'email' },
+    perEmail(HOUR, 10),
+    perEmail(DAY, 30),
+  )
   @Post('password/verify')
   async verifyResetCode(@Body() dto: VerifyResetCodeDto) {
     return this.passwordReset.verify(dto);

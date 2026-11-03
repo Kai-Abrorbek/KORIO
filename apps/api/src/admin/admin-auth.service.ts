@@ -10,6 +10,7 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import { adminJwtSecret } from '../config/secrets';
+import { ADMIN_TIMING_DUMMY_HASH } from '../common/timing-dummy-hash';
 import {
   ADMIN_ROLES,
   ADMIN_TOKEN_SCOPE,
@@ -63,9 +64,11 @@ export class AdminAuthService {
      * 설정 안 됐다" 를 구분해 주면, 아무 계정이나 넣어보는 것만으로
      * **누가 어드민인지 목록을 만들 수 있다.**
      */
-    const ok =
-      !!user?.adminPassword &&
-      (await bcrypt.compare(password, user.adminPassword));
+    // 비밀번호가 없는 계정도 bcrypt 를 한 번 돌린다. 안 그러면 "어드민 아님" 은
+    // 바로 답하고 "비번 틀림" 만 ~70ms 늦어서, 응답 시간만 재도 누가 어드민인지 나온다
+    const hash = user?.adminPassword || ADMIN_TIMING_DUMMY_HASH;
+    const matches = await bcrypt.compare(password, hash);
+    const ok = !!user?.adminPassword && matches;
     const role = user?.adminRole as AdminRole | null | undefined;
     if (!ok || !role || !ADMIN_ROLES.includes(role)) {
       // 응답은 하나지만 **로그에는 이유를 남긴다.** 로그는 공격자가 못 본다.

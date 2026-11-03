@@ -112,6 +112,44 @@ import {
   scoreToPlacementLevel,
   selfReportedPlacement,
 } from '../lessons/placement.const';
+import { ChatMessage } from '../ai/schemas/chat-message.schema';
+import { VoiceTutorMessage } from '../voice-tutor/schemas/voice-tutor-message.schema';
+import { VoiceTutorMemory } from '../voice-tutor/schemas/voice-tutor-memory.schema';
+import { VoiceTutorSession } from '../voice-tutor/schemas/voice-tutor-session.schema';
+import { VoiceTutorSettings } from '../voice-tutor/schemas/voice-tutor-settings.schema';
+import { VoiceTutorPlan } from '../voice-tutor/schemas/voice-tutor-plan.schema';
+import { VoiceTutorProgress } from '../voice-tutor/schemas/voice-tutor-progress.schema';
+import { VoiceTutorAudio } from '../voice-tutor/schemas/voice-tutor-audio.schema';
+import { DeviceToken } from '../push/schemas/device-token.schema';
+import { PasswordReset } from '../auth/schemas/password-reset.schema';
+import { UserMistake } from './schemas/user-mistake.schema';
+import { Onboarding } from '../onboarding/schemas/onboarding.schema';
+
+/**
+ * 탈퇴할 때 같이 지우는 개인 기록 (모델 이름).
+ *
+ * 탈퇴한 사람의 AI 대화·음성 튜터 대화와 녹음·튜터가 기억해 둔 개인 정보·
+ * 푸시 토큰이 DB 에 남아 있으면, DB 가 새는 날 이미 떠난 사람 것까지 같이 샌다.
+ * 다른 모듈의 모델이라 주입 대신 같은 연결에서 이름으로 꺼낸다 (등록 안 된
+ * 모델은 건너뛴다).
+ *
+ * 결제·구독·젬 장부·출금·관리자 지급 기록은 **일부러 남긴다** — 회계와 환불·
+ * 부정 사용 분쟁에 필요하다.
+ */
+const PERSONAL_DATA_MODELS = [
+  ChatMessage.name,
+  VoiceTutorMessage.name,
+  VoiceTutorMemory.name,
+  VoiceTutorSession.name,
+  VoiceTutorSettings.name,
+  VoiceTutorPlan.name,
+  VoiceTutorProgress.name,
+  VoiceTutorAudio.name,
+  DeviceToken.name,
+  PasswordReset.name,
+  UserMistake.name,
+  Onboarding.name,
+];
 
 @Injectable()
 export class UsersService {
@@ -764,6 +802,11 @@ export class UsersService {
       this.progressModel.deleteMany({ userId: _id }),
       this.statsModel.deleteMany({ userId: _id }),
       this.notifications.clearAll(userId).catch(() => undefined),
+      ...PERSONAL_DATA_MODELS.map((name) =>
+        (this.userModel.db?.models?.[name] as Model<unknown> | undefined)
+          ?.deleteMany({ userId: _id })
+          .exec(),
+      ),
       // 남이 나를 팔로우한 기록도 지운다
       this.userModel.updateMany(
         { $or: [{ following: _id }, { followers: _id }] },

@@ -38,41 +38,63 @@ export interface RateLimitOptions {
    * 서로를 막는다. 토큰이 없는 요청은 IP 로 센다.
    */
   perUser?: boolean;
+  /**
+   * IP 를 빼고 keyBody 값 하나로만 센다 — "어디서 오든 이 계정은 이만큼까지".
+   *
+   * IP+계정 한도만 있으면 봇넷이 IP 를 돌려가며 한 계정을 무한히 두드린다
+   * (6자리 코드는 100만 가지뿐이다). 대신 남이 이 계정을 일부러 잠글 수 있으니
+   * 정상 사용자가 절대 안 닿을 만큼 넉넉하게 잡고, IP+계정 한도와 같이 건다.
+   */
+  ignoreIp?: boolean;
 }
 
-export const RateLimit = (options: RateLimitOptions) =>
+/** 한도를 여러 개 겹쳐 걸 수 있다 (예: IP+계정 10분 10회 + 계정 전체 1시간 10회). */
+export const RateLimit = (...options: RateLimitOptions[]) =>
   SetMetadata(RATE_LIMIT_KEY, options);
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  private readonly hits = new Map<string, number[]>();
+  /** key → 그 한도의 창 길이와 창 안에 든 요청 시각들 */
+  private readonly hits = new Map<
+    string,
+    { windowMs: number; times: number[] }
+  >();
+
+  private lastSweep = 0;
 
   constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const options = this.reflector.get<RateLimitOptions | undefined>(
-      RATE_LIMIT_KEY,
-      context.getHandler(),
-    );
-    if (!options) return true;
+    const raw = this.reflector.get<
+      RateLimitOptions | RateLimitOptions[] | undefined
+    >(RATE_LIMIT_KEY, context.getHandler());
+    const limits = raw ? [raw].flat() : [];
+    if (!limits.length) return true;
 
     const req = context.switchToHttp().getRequest<Request>();
-    const key = this.buildKey(context, req, options);
-
     const now = Date.now();
-    const since = now - options.windowMs;
-    const recent = (this.hits.get(key) ?? []).filter((t) => t > since);
+    // 전부 먼저 검사하고 나서 기록한다 — 막힌 요청은 어느 한도에도 안 쌓인다.
+    // 그래야 막힌 동안 두드린 것 때문에 풀릴 때가 계속 밀리지 않고, 막힌
+    // 요청이 새 키를 만들어 맵을 키우지도 않는다
+    const checked = limits.map((options, index) => {
+      const key = this.buildKey(context, req, options, index);
+      const since = now - options.windowMs;
+      const times = (this.hits.get(key)?.times ?? []).filter((t) => t > since);
+      return { key, times, options };
+    });
 
-    if (recent.length >= options.max) {
+    if (checked.some(({ times, options }) => times.length >= options.max)) {
       throw new HttpException(
         'TOO_MANY_REQUESTS',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 
-    recent.push(now);
-    this.hits.set(key, recent);
-    this.sweep(since);
+    for (const { key, times, options } of checked) {
+      times.push(now);
+      this.hits.set(key, { windowMs: options.windowMs, times });
+    }
+    this.sweep(now);
     return true;
   }
 
@@ -80,9 +102,10 @@ export class RateLimitGuard implements CanActivate {
     context: ExecutionContext,
     req: Request,
     options: RateLimitOptions,
+    index = 0,
   ): string {
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-    const handler = `${context.getClass().name}.${context.getHandler().name}`;
+    const handler = `${context.getClass().name}.${context.getHandler().name}#${index}`;
     const userId = options.perUser
       ? (
           req as Request & { user?: { _id?: { toString(): string } } }
@@ -94,18 +117,34 @@ export class RateLimitGuard implements CanActivate {
     const raw = (req.body as Record<string, unknown> | undefined)?.[
       options.keyBody
     ];
-    // 문자열이 아니면(주입 시도 포함) 값 자체는 키에 안 쓴다
+    // ⚠️ DTO 의 normalizeEmail 과 **똑같이** 맞춘다 (String → trim → 소문자).
+    //    가드는 파이프보다 먼저 돌아서 body 가 원문이다. 안 맞추면
+    //    " kai@x.com" 이나 ["kai@x.com"] 처럼 모양만 바꿔 보내도 서비스에는
+    //    같은 계정으로 닿는데 한도는 매번 새로 시작한다.
     const extra =
-      typeof raw === 'string' ? raw.toLowerCase().slice(0, 200) : '';
+      raw === undefined || raw === null
+        ? ''
+        : String(raw as string)
+            .trim()
+            .toLowerCase()
+            .slice(0, 200);
+    if (options.ignoreIp) return `${handler}:any:${extra}`;
     return `${handler}:${ip}:${extra}`;
   }
 
-  /** 오래된 항목 정리 — 맵이 무한히 커지지 않게 */
-  private sweep(since: number) {
-    if (this.hits.size < 5000) return;
-    for (const [key, times] of this.hits) {
-      const alive = times.filter((t) => t > since);
-      if (alive.length) this.hits.set(key, alive);
+  /**
+   * 오래된 항목 정리 — 맵이 무한히 커지지 않게.
+   * 키마다 **자기 창 길이로** 자른다. 지금 요청의 창(예: 1분)으로 다 자르면
+   * 맵이 클 때마다 남의 1시간·하루 한도가 통째로 초기화된다.
+   */
+  private sweep(now: number) {
+    // 크면 매 요청마다 맵 전체를 도는 꼴이 된다 — 1분에 한 번만
+    if (this.hits.size < 5000 || now - this.lastSweep < 60_000) return;
+    this.lastSweep = now;
+    for (const [key, entry] of this.hits) {
+      const since = now - entry.windowMs;
+      const alive = entry.times.filter((t) => t > since);
+      if (alive.length) entry.times = alive;
       else this.hits.delete(key);
     }
   }
