@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableOpacity } from "@/components/ui/Pressables";
-import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
-import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { CenteredModal, DialogButton, DialogIcon, useDialogTheme } from "@/components/common/CenteredModal";
 import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
@@ -23,9 +22,9 @@ type Phase = "listen" | "input" | "between";
 export default function EchoChainScreen() {
   // 리그 챌린지로 열렸으면 끝날 때 점수를 서버에 보낸다 (아니면 그냥 뒤로)
   const { isChallenge, finish } = useLeagueChallenge();
-  const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
+  const dialog = useDialogTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
   const { speak, stop } = useSpeech();
@@ -281,34 +280,24 @@ export default function EchoChainScreen() {
       </View>
 
       {/* 종료 */}
-      {over ? (
-        <Animated.View entering={FadeIn.duration(250)} style={s.overlay}>
-          <Animated.View entering={ZoomIn.duration(300)} style={s.endCard}>
-            <Text style={s.endEmoji}>🔊</Text>
-            <Text style={s.endTitle}>{t("arcade.gameOver")}</Text>
-            <View style={s.endStats}>
+      <CenteredModal visible={over} onClose={exit} backdropDismissible={false}>
+        <DialogIcon name="volume-high" tone="warning" />
+        <Text style={[s.endTitle, { color: dialog.text }]}>{t("arcade.gameOver")}</Text>
+            <View style={[s.endStats, { width: "100%", borderColor: dialog.border }]}>
               <View style={s.endStat}>
-                <Text style={s.endStatNum}>{score}</Text>
-                <Text style={s.endStatLabel}>{t("arcade.score")}</Text>
+                <Text style={[s.endStatNum, { color: dialog.text }]}>{score}</Text>
+                <Text style={[s.endStatLabel, { color: dialog.textSecondary }]}>{t("arcade.score")}</Text>
               </View>
               <View style={s.endStat}>
-                <Text style={s.endStatNum}>{round}</Text>
-                <Text style={s.endStatLabel}>{t("arcade.maxRound")}</Text>
+                <Text style={[s.endStatNum, { color: dialog.text }]}>{round}</Text>
+                <Text style={[s.endStatLabel, { color: dialog.textSecondary }]}>{t("arcade.maxRound")}</Text>
               </View>
             </View>
-            {/* 챌린지에서는 다시 하기를 숨긴다 — 에너지 한 번 내고 무한히
-                돌리면 하루 한도까지 XP 를 긁을 수 있다 */}
-            {isChallenge ? null : (
-              <TouchableOpacity style={s.againBtn} onPress={restart}>
-                <Text style={s.againText}>{t("arcade.playAgain")}</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity style={s.exitBtn} onPress={exit}>
-              <Text style={s.exitText}>{t("arcade.exit")}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </Animated.View>
-      ) : null}
+        {isChallenge ? null : (
+          <DialogButton label={t("arcade.playAgain")} onPress={restart} style={{ marginTop: 20 }} />
+        )}
+        <DialogButton label={t("arcade.exit")} onPress={exit} variant={isChallenge ? "primary" : "secondary"} style={{ marginTop: 8 }} />
+      </CenteredModal>
     </View>
   );
 }

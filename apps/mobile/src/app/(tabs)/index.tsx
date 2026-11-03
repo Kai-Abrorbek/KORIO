@@ -355,7 +355,7 @@ export default function HomeScreen() {
       icon: "heart-outline",
       label: t("home.wordbook"),
       color: "#FF6B6B",
-      onPress: () => router.push("/word-study"),
+      onPress: () => router.push("/word-library"),
     },
   ];
 

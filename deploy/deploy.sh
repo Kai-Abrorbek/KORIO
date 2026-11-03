@@ -119,6 +119,43 @@ ensure_disk() {
     sudo truncate -s 0 /var/lib/docker/containers/*/*-json.log"
 }
 
+# ── 기본 이미지 (node · nginx · caddy) ──
+# 서버가 Docker Hub 에 못 닿을 때가 있다 (2026-11-03: registry-1.docker.io 가 IPv4·IPv6
+# 모두 시간 초과 — 서버 쪽 네트워크, Docker Hub 자체는 멀쩡했다). 빌드는 --pull 을 안 써서
+# 서버에 있는 기본 이미지로 돌므로, 없을 때만 받는다:
+#   Docker Hub → 구글 미러(mirror.gcr.io) → AWS 미러(public.ecr.aws/docker)
+# 미러에서 받으면 원래 이름으로 태그를 붙인다 — Dockerfile 은 그대로 둔다.
+# 목록은 Dockerfile 의 FROM 과 compose 의 image: 에서 읽는다 (버전을 바꿔도 따라온다).
+base_images() {
+  {
+    local app
+    for app in api telegram-app admin tutor-agent; do
+      awk 'toupper($1)=="FROM" {print $2}' "$REPO_ROOT/apps/$app/Dockerfile"
+    done
+    awk '$1=="image:" && $2 !~ /\$/ {print $2}' docker-compose.yml
+  } | grep ':' | sort -u   # 'base' · 'deps' 같은 단계 이름은 태그(:)가 없어 빠진다
+}
+
+ensure_base_images() {
+  local img repo mirror
+  while read -r img; do
+    docker image inspect "$img" >/dev/null 2>&1 && continue
+    log "기본 이미지 받기: $img"
+    timeout 120 docker pull -q "$img" >/dev/null 2>&1 && continue
+    # 공식 이미지(node, nginx …)는 미러에서 library/ 아래에 있다
+    repo="$img"; [[ "$repo" != */* ]] && repo="library/$repo"
+    for mirror in mirror.gcr.io public.ecr.aws/docker; do
+      if timeout 180 docker pull -q "$mirror/$repo" >/dev/null 2>&1; then
+        docker tag "$mirror/$repo" "$img"
+        warn "Docker Hub 에 못 닿아 $mirror 에서 받았다: $img"
+        continue 2
+      fi
+    done
+    die "기본 이미지 $img 를 Docker Hub · 미러 어디서도 못 받았다. 서버 인터넷부터 확인해라:
+    curl -sS -o /dev/null -w '%{http_code}\n' --max-time 10 https://mirror.gcr.io/v2/"
+  done < <(base_images)
+}
+
 # 한 색의 모든 컨테이너가 healthy 가 될 때까지. 하나라도 실패하면 1
 wait_color_healthy() {
   local name
@@ -205,6 +242,8 @@ cmd_deploy() {
   # (아직 api 가 없어 502 를 내지만, 첫 배포엔 트래픽이 없고 두 번째부터는
   #  이미 떠 있어서 no-op 다)
   ensure_disk
+  # Caddy 기동과 빌드 전에 — 서버에 없으면 받아 둔다 (Docker Hub 가 막혀도 미러로)
+  ensure_base_images
 
   log "Caddy 기동 (인증서 발급이 빌드와 함께 돈다)"
   "${COMPOSE[@]}" up -d caddy

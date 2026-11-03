@@ -81,6 +81,19 @@ for (const [client, courses] of [
     assert.equal(courses.isLearningRequest("/expressions-admin"), false);
   });
 
+  test(`${client}: wordbook requests keep their course and explanation language`, () => {
+    const url = new URL(
+      courses.learningScopePath("/word-collections/book-1/words?groupId=group-1&lang=ru", "en"),
+      "https://api.test",
+    );
+    assert.equal(url.searchParams.get("courseId"), "en-general");
+    assert.equal(url.searchParams.get("targetLanguage"), "en");
+    assert.equal(url.searchParams.get("lang"), "ru");
+    assert.equal(url.searchParams.get("groupId"), "group-1");
+    assert.equal(courses.isLearningRequest("/word-collections/book-1/position"), true);
+    assert.equal(courses.isLearningRequest("/word-collections-admin"), false);
+  });
+
   test(`${client}: daily quests carry the course but are not learning requests`, () => {
     const claim = new URL(
       courses.learningScopePath("/retention/quests/claim", "en"),
@@ -452,4 +465,29 @@ test("mobile pending seen-word writes preserve the originating course", async ()
   await WordService.markSeen(["ko-word"], "ko");
   assert.match(calls[0].url, /courseId=ko-general/);
   assert.deepEqual(calls[0].body.ids, ["ko-word"]);
+});
+
+test("mobile recall review and mastery preserve their original course across delayed writes", async () => {
+  const calls = [];
+  const state = { learnCourse: "ko" };
+  const { WordService } = load("../src/services/word.service.ts", {
+    "@/store/settings.store": { useSettingsStore: { getState: () => state } },
+    "@/constants/learnCourses": mobile,
+    "@/services/api": {
+      __esModule: true,
+      default: { post: async (url, body) => { calls.push({ url, body }); } },
+    },
+  });
+  await WordService.reviewWord("word-1", "good", "ko");
+  state.learnCourse = "en";
+  await WordService.masterWord("word-1", "ko");
+  assert.equal(calls.length, 2);
+  for (const call of calls) {
+    assert.match(call.url, /courseId=ko-general/);
+    assert.match(call.url, /targetLanguage=ko/);
+  }
+  assert.deepEqual(calls[0].body, { result: "good" });
+  assert.match(calls[1].url, /\/words\/word-1\/master\?/);
+  await WordService.masterWord("english-word");
+  assert.match(calls[2].url, /courseId=en-general/);
 });

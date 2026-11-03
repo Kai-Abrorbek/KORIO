@@ -1,4 +1,5 @@
-# syntax=docker/dockerfile:1.7
+# (syntax 줄을 뺐다 — 빌드마다 Docker Hub 에서 해석기를 확인해서, 서버가 Docker Hub 에
+#  못 닿으면 빌드가 멈췄다. RUN --mount 캐시는 Docker 기본 해석기로 된다. 2026-11-03)
 
 FROM node:22-bookworm-slim AS base
 ENV PNPM_HOME=/pnpm \

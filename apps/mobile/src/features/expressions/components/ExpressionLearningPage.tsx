@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   Keyboard,
+  findNodeHandle,
   ScrollView,
   StyleSheet,
   Text,
@@ -71,6 +72,28 @@ export default function ExpressionLearningPage({
   const expressionText = expression.text || expression.korean;
   const requiresAnswer = item.kind === "quiz" || item.kind === "retry";
   const inputRef = useRef<TextInput>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const revealRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const revealInput = useCallback(() => {
+    if (revealRef.current) clearTimeout(revealRef.current);
+    revealRef.current = setTimeout(() => {
+      if (!inputRef.current?.isFocused()) return;
+      const target = findNodeHandle(inputRef.current);
+      if (target !== null)
+        scrollRef.current?.scrollResponderScrollNativeHandleToKeyboard(
+          target,
+          20,
+          true,
+        );
+    }, 60);
+  }, []);
+  useEffect(() => {
+    const shown = Keyboard.addListener("keyboardDidShow", revealInput);
+    return () => {
+      shown.remove();
+      if (revealRef.current) clearTimeout(revealRef.current);
+    };
+  }, [revealInput]);
   const retryScheduledRef = useRef(false);
   const typedAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // 화면이 렌더마다 새 함수를 넘긴다 — 잠시 뒤 넘길 때는 그때의 최신 것을 부른다
@@ -186,10 +209,11 @@ export default function ExpressionLearningPage({
 
   return (
     <ScrollView
+      ref={scrollRef}
+      onLayout={revealInput}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
-      automaticallyAdjustKeyboardInsets
       contentContainerStyle={styles.scrollContent}
     >
       <Animated.View
@@ -261,6 +285,7 @@ export default function ExpressionLearningPage({
                 {typingPlan.kind === "full" ? (
                   <TextInput
                     ref={inputRef}
+                    onFocus={revealInput}
                     autoFocus
                     value={typedAnswer}
                     onChangeText={(value) => {
@@ -285,6 +310,7 @@ export default function ExpressionLearningPage({
                         return (
                           <TextInput
                             ref={inputRef}
+                            onFocus={revealInput}
                             autoFocus
                             key="expression-blank"
                             value={typedAnswer}

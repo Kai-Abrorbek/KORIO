@@ -17,6 +17,7 @@ import { useSwipeToClose } from "../../../shared/ui/use-swipe-to-close";
 import { GeneratedAvatar } from "../../league/ui/generated-avatar";
 import type { CosmeticsState } from "../api/cosmetics";
 import styles from "./aura-picker.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 
 /**
  * 캐릭터 에디터의 "Aura" 탭 — 모바일 AuraPicker 와 같다.
@@ -365,18 +366,14 @@ export function CosmeticBought({
   streak?: number;
 }) {
   const look = shopLook(id);
-  useTelegramBackOverride(onClose);
   return (
-    <div aria-modal="true" className={`${styles.sheetRoot} ${styles.shown} ${styles.center}`} role="dialog">
-      <button aria-label={uzt("avatarEditor.aura.great")} className={styles.backdrop} onClick={onClose} type="button" />
-      <section className={styles.bought} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
+    <CenteredDialog onClose={onClose} className={styles.bought} style={{ "--rarity": RARITY_COLOR[look.rarity], "--aura": look.color } as CSSProperties}>
         <ShopStage avatar={avatar} className={styles.boughtStage} id={id} streak={streak} />
         <h2 data-i18n={`${look.keys}.boughtTitle`}>{uzt(`${look.keys}.boughtTitle`)}</h2>
         <p data-i18n={`${look.keys}.boughtBody`}>{uzt(`${look.keys}.boughtBody`)}</p>
-        <button className={styles.buy} onClick={onClose} type="button">
+        <button className={dialogStyles.primary} onClick={onClose} type="button">
           <span data-i18n="avatarEditor.aura.great">{uzt("avatarEditor.aura.great")}</span>
         </button>
-      </section>
-    </div>
+    </CenteredDialog>
   );
 }

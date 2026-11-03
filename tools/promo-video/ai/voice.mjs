@@ -2,12 +2,14 @@
 /**
  * 인물 대사 · 효과음을 만든다. 키는 apps/api/.env 에서 읽는다 (화면에 찍지 않는다).
  *
- *   node ai/voice.mjs eleven <voiceId> "<대사>" <결과.mp3>
- *       ElevenLabs v3 — [laughs] 같은 연기 지시를 넣을 수 있다. 외국인 손님처럼 살짝 억양이 있는 한국어에 맞다.
+ *   node ai/voice.mjs eleven <voiceId> "<대사>" <결과.mp3> [--lang uz] [--model eleven_v4_turbo] [--speed 1.05]
+ *       기본값은 ElevenLabs v3 · 한국어. --lang/--model 을 지정하면 다른 언어 내레이션에도 쓸 수 있다.
  *   node ai/voice.mjs azure <ko-KR-...Neural> "<대사>" <결과.mp3> [--rate -10%] [--pitch +0%]
  *       Azure 한국인 목소리 — 사장님처럼 토박이 발음이 필요할 때.
  *   node ai/voice.mjs sfx "<소리 설명 (영어)>" <초> <결과.mp3>
  *       ElevenLabs 효과음 (식당 소음 같은 배경음)
+ *   node ai/voice.mjs isolate <직접 찍은 소리.wav> <결과.mp3>
+ *       ElevenLabs 목소리 분리 — 방 울림 · 잡음을 걷어 낸다 (직접 찍은 영상의 목소리)
  */
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -38,10 +40,16 @@ let outFile;
 if (provider === "eleven") {
   const [voiceId, text, out] = args;
   outFile = out;
+  const speed = flag("--speed");
   audio = await post(
     `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`,
     { "xi-api-key": env.ELEVENLABS_API_KEY, "Content-Type": "application/json" },
-    JSON.stringify({ text, model_id: "eleven_v3", language_code: "ko", voice_settings: { stability: 0.5, similarity_boost: 0.8 } }),
+    JSON.stringify({
+      text,
+      model_id: flag("--model") ?? "eleven_v3",
+      language_code: flag("--lang") ?? "ko",
+      voice_settings: { stability: 0.5, similarity_boost: 0.8, ...(speed ? { speed: Number(speed) } : {}) },
+    }),
   );
 } else if (provider === "azure") {
   const [voice, text, out] = args;
@@ -64,8 +72,14 @@ if (provider === "eleven") {
     { "xi-api-key": env.ELEVENLABS_API_KEY, "Content-Type": "application/json" },
     JSON.stringify({ text, duration_seconds: Number(seconds), prompt_influence: 0.5 }),
   );
+} else if (provider === "isolate") {
+  const [file, out] = args;
+  outFile = out;
+  const form = new FormData();
+  form.append("audio", new Blob([readFileSync(file)]), file.split(/[\\/]/).pop());
+  audio = await post("https://api.elevenlabs.io/v1/audio-isolation", { "xi-api-key": env.ELEVENLABS_API_KEY }, form);
 } else {
-  console.error('usage: voice.mjs eleven <voiceId> "<text>" <out.mp3> | azure <voice> "<text>" <out.mp3> [--rate -10%] | sfx "<description>" <seconds> <out.mp3>');
+  console.error('usage: voice.mjs eleven <voiceId> "<text>" <out.mp3> [--lang uz] [--model eleven_v4_turbo] [--speed 1.05] | azure <voice> "<text>" <out.mp3> [--rate -10%] | sfx "<description>" <seconds> <out.mp3> | isolate <in> <out.mp3>');
   process.exit(1);
 }
 mkdirSync(dirname(outFile), { recursive: true });

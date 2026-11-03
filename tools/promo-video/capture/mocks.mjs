@@ -150,6 +150,30 @@ export function mocksFor(scene) {
       return [...common, ...vocabMocks()];
     case "vocabMatch":
       return [...common, ...lessonMocks([WORD_MATCHING])];
+    // 단어 카드 (So'z kartalari) — ?section=1&unit=1
+    case "wordCards":
+      return [...common, ...wordCardMocks()];
+    // 가족 단어 카드 (아들 · 딸 · 아버지 …) — ?section=1&unit=1
+    case "wordFamily":
+      return [...common, ...wordCardMocks(FAMILY_WORDS)];
+    // 요금제 화면 — 실제 가격(apps/api payments/card/card-payment.const.ts · telegram-stars.const.ts), 카드 입금(so'm) 표시
+    case "premium":
+    case "premiumMax":
+      return [...common, ...premiumMocks()];
+    // 단어 카드 사용법: 홈 → 학습 카드 → So'z kartalari → 범위 · 카드 · 떠올리기
+    case "wordsTour":
+      return [...common, ...homeMocks(), ...wordCardMocks()];
+    // TOPIK 사용법 — 실제 기출(102회)을 capture/topik-data/render.ts 가 frames/topik-mocks.json 으로 만든다
+    //   topikTour: 홈 → 학습 카드 → TOPIK → TOPIK II → 영역 → 회차 / 나머지는 화면 하나씩 (stage 가 쿼리로 연다)
+    case "topikTour":
+      return [...common, ...homeMocks(), ...topikMocks(scene)];
+    case "topikGuided":
+    case "topikListen":
+    case "topikMock":
+    case "topikResult":
+    case "topikStats":
+    case "topikWriting":
+      return [...common, ...topikMocks(scene)];
     case "vocabBuilder":
       return [...common, ...lessonMocks([SENTENCE_BUILDER])];
     case "avatar":
@@ -207,10 +231,107 @@ export function mocksFor(scene) {
       return [...common, ...questsMocks(true)];
     case "stats":
       return [...common, ...statsMocks()];
+    // 문법 학습 화면 — ?id=obj-eul-reul (시드 apps/api/src/seed/data/grammar/section1.ts 1-10 의 우즈벡어)
+    case "grammarStudy":
+      return [...common, { pattern: "^/grammar/obj-eul-reul(\\?|$)", body: GRAMMAR_OBJ }];
+    // 표현 학습 화면 — ?node=time-and-situation (시드 expressions/topics/greetings-and-goodbyes.ts 의 "식사하셨어요?")
+    case "expressionLearn":
+      return [
+        ...common,
+        { pattern: "^/expressions/nodes/time-and-situation/learning(\\?|$)", body: EXPRESSION_NODE },
+        { pattern: "^/expressions/[^/]+/views(\\?|$)", method: "POST", body: { success: true } },
+      ];
     default:
       return common;
   }
 }
+
+/** 인사 주제 · "시간대와 상황에 맞게 인사하기" 노드 — 첫 카드가 "식사하셨어요?" (lang=uz) */
+const GREETINGS_PACK = {
+  id: "pack-greetings",
+  code: "greetings-and-goodbyes",
+  targetLanguage: "ko",
+  title: "Salomlashish va xayrlashish",
+  description: "Birinchi uchrashuvdan hol-ahvol so'rash va tabiiy xayrlashuvgacha kerakli iboralarni o'rganing.",
+  media: { emoji: "", imageUrl: "", imageAlt: "" },
+  order: 1,
+};
+const expressionItem = (code, korean, romanization, meaning, context, speaker, usageNote) => ({
+  id: `expr-${code}`,
+  code,
+  targetLanguage: "ko",
+  korean,
+  meaning,
+  context,
+  speaker,
+  usageNote,
+  speechLevel: "polite",
+  pronunciation: { romanization, ttsText: korean, audioUrl: "" },
+  media: { emoji: "", imageUrl: "", imageAlt: "" },
+  difficulty: 2,
+  pack: GREETINGS_PACK,
+  progress: { state: "new", viewedCount: 0, isSaved: false, firstViewedAt: null, lastViewedAt: null, learnedAt: null },
+});
+const EXPRESSION_NODE = {
+  topic: GREETINGS_PACK,
+  node: {
+    id: "node-time-and-situation",
+    code: "time-and-situation",
+    title: "Vaqt va vaziyatga mos salomlashish",
+    description: "Ertalab, ishga borish-kelish, ovqat va ob-havo kabi kundalik vaziyatlarda salomlashing.",
+    icon: "sunny-outline",
+    proficiency: "beginner",
+    order: 2,
+    requiredExposures: 2,
+  },
+  items: [
+    expressionItem(
+      "have-you-eaten",
+      "식사하셨어요?",
+      "siksahasyeosseoyo",
+      "Ovqatlandingizmi?",
+      "Ovqat vaqti atrofida tanish odamni ko‘rganda hol-ahvol sifatida so‘raladi.",
+      "Tanish, hamkasb yoki qo‘shni",
+      "Bu har doim birga ovqatlanish taklifi emas, koreyscha hol so‘rash bo‘lishi mumkin.",
+    ),
+  ],
+};
+
+/** N을/를 — 서버가 lang=uz 로 내려 주는 모양 그대로 (grammar.service.ts format) */
+const GRAMMAR_OBJ = {
+  id: "obj-eul-reul",
+  pattern: "N을/를",
+  summary: "Harakat qaratilgan narsani bildiradi. \"Nimani\" qilishni ko'rsatuvchi qo'shimcha.",
+  tags: ["Boshlang'ich", "Qo'shimcha"],
+  explanation: "Oldingi bo'g'inda undosh bo'lsa \"을\", bo'lmasa \"를\". Qoida \"은/는\" bilan bir xil, lekin vazifasi boshqa: \"은/는\" mavzuni, \"을/를\" harakat obyektini bildiradi.",
+  conjugationRule: "받침 bor + 을  ·  받침 yo'q + 를",
+  conjugations: [
+    { base: "밥", result: "밥을" },
+    { base: "책", result: "책을" },
+    { base: "옷", result: "옷을" },
+    { base: "커피", result: "커피를" },
+    { base: "친구", result: "친구를" },
+  ],
+  examples: [
+    { text: "저는 밥을 먹어요.", ko: "저는 밥을 먹어요.", gloss: "Men ovqat yeyapman.", highlight: "밥을" },
+    { text: "커피를 마셔요.", ko: "커피를 마셔요.", gloss: "Qahva ichaman.", highlight: "커피를" },
+    { text: "친구를 만나요.", ko: "친구를 만나요.", gloss: "Do'st bilan uchrashaman.", highlight: "친구를" },
+  ],
+  dialogue: [
+    { speaker: "A", side: "left", text: "지금 뭐 해요?", ko: "지금 뭐 해요?", gloss: "Hozir nima qilyapsiz?", highlight: "뭐" },
+    { speaker: "B", side: "right", text: "신문을 읽어요.", ko: "신문을 읽어요.", gloss: "Gazeta o'qiyapman.", highlight: "신문을" },
+  ],
+  similar: {
+    pattern: "N은/는",
+    note: "받침 qoidasi bir xil, lekin o'rni va ma'nosi boshqa. \"저는 밥을 먹어요\" da \"저는\" — gapiruvchi, \"밥을\" — yeyiladigan narsa.",
+  },
+  cautions: [
+    "\"커피을\", \"밥를\" deb almashtirmaslik uchun faqat oxirgi bo'g'inga qarang.",
+    "\"잡지\" kabi so'zda oldingi bo'g'inda undosh bo'lsa ham, oxirgi \"지\" da yo'q — demak \"를\": \"잡지를\".",
+    "Nutqda qo'shimchani tushirib \"밥 먹어요\" deyish mumkin, lekin yozuvda qo'shiladi.",
+  ],
+  quiz: [],
+};
 
 /** TOPIK I 읽기 40~42번 모양 — 안내문을 읽고 맞지 않는 것 고르기 */
 const block = (text) => ({ type: "paragraph", segments: [{ type: "text", text, key: "", label: "" }] });
@@ -338,6 +459,79 @@ function vocabRoadmap() {
       ]),
     ],
   };
+}
+
+/** 단어 카드 (So'z kartalari) — 1단원 단어 6개 */
+/** 요금제 — 서버와 같은 값 (카드 so'm · Stars). 구독 없음 상태라 요금제가 바로 보인다 */
+function premiumMocks() {
+  const plans = [
+    ["super", 1, 250, 59_000], ["super", 3, 675, 155_000], ["super", 6, 1225, 279_000], ["super", 12, 1950, 449_000],
+    ["max", 1, 550, 129_000], ["max", 3, 1450, 329_000], ["max", 6, 2750, 629_000], ["max", 12, 4950, 1_139_000],
+  ];
+  const planName = { 1: "monthly", 3: "three_months", 6: "six_months", 12: "yearly" };
+  const base = (tier, key) => plans.find((p) => p[0] === tier && p[1] === 1)[key];
+  const stars = plans.map(([tier, months, starsPrice]) => ({
+    id: `${tier}_${months}m`, tier, plan: planName[months], months, days: months * 30, stars: starsPrice,
+    perMonthStars: Math.round(starsPrice / months),
+    savePercent: months > 1 ? Math.round((1 - starsPrice / (base(tier, 2) * months)) * 100) : 0,
+    best: months === 12,
+  }));
+  const card = plans.map(([tier, months, , uzs]) => ({
+    id: `${tier}_${months}m`, tier, plan: planName[months], months, days: months * 30, priceUzs: uzs,
+    perMonthUzs: Math.round(uzs / months),
+    savePercent: months > 1 ? Math.max(0, Math.round((1 - uzs / (base(tier, 3) * months)) * 100)) : 0,
+    best: months === 12,
+  }));
+  return [
+    {
+      pattern: "^/payments/subscriptions/me",
+      body: { autoRenew: false, canUpgradeTo: ["super", "max"], expiresAt: null, isPremium: false, isSuper: false, isTrial: false, plan: null, platform: null, productId: null, provider: null, status: null, tier: "super", trialDaysLeft: null },
+    },
+    { pattern: "^/payments/telegram/products", body: { enabled: true, currency: "XTR", products: stars } },
+    {
+      pattern: "^/payments/card/config",
+      body: { enabled: true, cards: [{ brand: "humo", number: "9860000000000000", holder: "KORIO", last4: "0000" }], products: card, transferMinutes: 30, activeOrder: null },
+    },
+  ];
+}
+
+/** 가족 단어 — 시드 vocabulary/section2/unit1 의 우즈벡어 뜻 그대로 (아들이 첫 카드) */
+const FAMILY_WORDS = [
+  ["아들", "o‘g‘il farzand", "adeul", "", "아들이 두 명 있어요.", "Ikki o‘g‘lim bor."],
+  ["딸", "qiz farzand", "ttal", "", "딸이 한 명 있어요.", "Bitta qizim bor."],
+  ["아버지", "ota", "abeoji", "", "아버지는 운전을 잘하세요.", "Otam mashinani yaxshi haydaydi."],
+  ["어머니", "ona", "eomeoni", "", "어머니는 요리를 잘하세요.", "Onam yaxshi ovqat pishiradi."],
+  ["가족", "oila", "gajok", "", "주말에 가족을 만나요.", "Dam olish kunlari oilam bilan uchrashaman."],
+];
+
+function wordCardMocks(list) {
+  const word = (i, headword, meaning, romanization, emoji, example, translation) => ({
+    id: `w${i}`, code: `promo-${i}`, courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR",
+    difficulty: 1, headword, meaning, partOfSpeech: "noun", senseKey: "", tags: [], usageNote: "",
+    media: { emoji, imageAlt: meaning, imageUrl: "" },
+    pronunciation: { hangul: headword, romanization, ttsText: headword },
+    examples: [{ korean: example, translation }],
+    placement: { isCore: true, order: i, section: 1, unit: 1 },
+    progress: { state: i < 2 ? "learning" : "new" },
+  });
+  const items = list ? list.map((w, i) => word(i, ...w)) : [
+    word(0, "학생", "talaba", "haksaeng", "🧑‍🎓", "저는 학생이에요.", "Men talabaman."),
+    word(1, "선생님", "o'qituvchi", "seonsaengnim", "👩‍🏫", "선생님, 안녕하세요!", "Ustoz, assalomu alaykum!"),
+    word(2, "의사", "shifokor", "uisa", "🧑‍⚕️", "제 친구는 의사예요.", "Do'stim shifokor."),
+    word(3, "친구", "do'st", "chingu", "🧑‍🤝‍🧑", "친구를 만나요.", "Do'stim bilan uchrashaman."),
+    word(4, "회사원", "ofis xodimi", "hoesawon", "🧑‍💼", "아버지는 회사원이에요.", "Otam ofis xodimi."),
+    word(5, "가수", "qo'shiqchi", "gasu", "🎤", "저는 가수를 좋아해요.", "Men qo'shiqchini yaxshi ko'raman."),
+  ];
+  return [
+    {
+      pattern: "^/words/sections/summary",
+      body: [{ section: 1, unitCount: 8, words: 120, new: 80, learning: 24, review: 10, mastered: 6, due: 5,
+        units: Array.from({ length: 8 }, (_, u) => ({ unit: u + 1, words: 15, new: u ? 15 : 9, learning: u ? 0 : 4, review: u ? 0 : 2, mastered: 0, due: u ? 0 : 2 })) }],
+    },
+    { pattern: "^/words\\?", body: { items, nextCursor: null, total: items.length } },
+    { pattern: "^/words/seen", method: "POST", body: { seen: 1 } },
+    { pattern: "^/words/[^/]+/reviews", method: "POST", body: {} },
+  ];
 }
 
 function vocabMocks() {
@@ -588,5 +782,75 @@ function questsMocks(ready) {
         streakGoal: { options: [], streakChest: { everyDays: 7, gems: 30 }, active: null, result: null },
       },
     },
+  ];
+}
+
+/** TOPIK 장면 — 힌트 · 정답 공개는 누를 때마다 다음 응답 (init-script 의 counts · by) */
+function topikMocks(scene) {
+  const file = join(import.meta.dirname, "..", "frames", "topik-mocks.json");
+  if (!existsSync(file)) throw new Error("frames/topik-mocks.json 이 없다 — capture/topik-data/render.ts 를 먼저 돌린다");
+  const d = JSON.parse(readFileSync(file, "utf8"));
+  const listening = scene === "topikListen";
+  const writing = scene === "topikWriting";
+  const mode = scene === "topikMock" ? "mock_exam" : "guided";
+  // 쓰기는 문제 하나(53번, 원고지)만 연다 — 화면이 받은 첫 문제를 보여 준다
+  const only = (s, n) => ({
+    ...s,
+    range: { from: n, to: n },
+    groups: s.groups.filter((g) => g.startNumber <= n && g.endNumber >= n).map((g) => ({ ...g, questions: g.questions.filter((q) => q.number === n) })),
+  });
+  const session = writing ? only(d.writing, 53) : listening ? d.listening.session : d.readingMock;
+  const current = writing ? 53 : listening ? d.listening.number : scene === "topikMock" ? 12 : 5;
+  const attempt = {
+    id: "promo-attempt", examId: session.exam.id, examVersion: 1, mode, status: "in_progress",
+    currentQuestionNumber: current, elapsedSeconds: mode === "mock_exam" ? 754 : 0, answeredCount: 0,
+    answers: [], learningStates: [], startedAt: "2026-10-22T05:00:00.000Z", lastSavedAt: null,
+  };
+  const focus = listening ? d.listening : d.reading;
+  const reveals = focus.learning.map((l) => ({ revealedHintKeys: l.revealedHints.map((h) => h.key), hintViewCount: l.hintViewCount }));
+  const type = (questionType, attempted, correct, sec) => ({
+    questionType, attempted, correct, accuracy: Math.round((correct / attempted) * 100), averageDurationMs: sec * 1000,
+    hintViewCount: Math.round(attempted / 4), solutionViewCount: Math.round(attempted / 6), correctWithoutHintCount: Math.round(correct * 0.8),
+  });
+  const stats = {
+    mockExamCount: 6, practiceCount: 0, guidedCount: 14, totalQuestions: 520, correctQuestions: 382, accuracy: 73,
+    totalStudySeconds: 41 * 3600, correctWithoutHintCount: 301, bestScore: 84, lastScore: 84, averageScore: 71,
+    questionTypes: [
+      type("practical_text_topic", 48, 44, 38), type("grammar_fill_blank", 52, 45, 31), type("passage_content_match", 96, 71, 64),
+      type("sentence_ordering", 36, 22, 72), type("passage_fill_blank", 88, 58, 69), type("headline_interpretation", 30, 16, 55),
+      type("sentence_insertion", 24, 9, 81),
+    ],
+  };
+  const weak = [
+    { questionId: "w1", questionVersion: 1, examRound: 102, questionNumber: 39, questionType: "sentence_insertion", section: "reading", accuracy: 25, consecutiveWrong: 3 },
+    { questionId: "w2", questionVersion: 1, examRound: 96, questionNumber: 27, questionType: "headline_interpretation", section: "reading", accuracy: 40, consecutiveWrong: 2 },
+    { questionId: "w3", questionVersion: 1, examRound: 91, questionNumber: 14, questionType: "sentence_ordering", section: "reading", accuracy: 50, consecutiveWrong: 2 },
+  ];
+  const history = [
+    { attemptId: "promo-attempt", examCode: "topik-ii-reading-102-2025", section: "reading", examRound: 102, mode: "mock_exam", score: 84, accuracy: 84, submittedAt: "2026-10-22T16:40:00.000Z" },
+    { attemptId: "promo-2", examCode: "topik-ii-listening-96-2024", section: "listening", examRound: 96, mode: "mock_exam", score: 72, accuracy: 72, submittedAt: "2026-10-21T16:10:00.000Z" },
+    { attemptId: "promo-3", examCode: "topik-ii-reading-91-2023", section: "reading", examRound: 91, mode: "guided", score: 70, accuracy: 70, submittedAt: "2026-10-20T15:30:00.000Z" },
+  ];
+  return [
+    { pattern: "^/users/me/learn-mode", method: "PATCH", body: { learnMode: "topik", topikLevel: "2", learnCourse: "ko" } },
+    { pattern: "^/topik/exams/completed", body: [] },
+    { pattern: "^/topik/exams(\\?|$)", body: d.exams },
+    { pattern: "^/topik/exams/[^/]+/session", body: session },
+    { pattern: "^/topik/exams/[^/]+/attempts", method: "POST", body: attempt },
+    { pattern: "^/topik/attempts/[^/]+/answers", method: "PATCH", body: { saved: true } },
+    { pattern: `^/topik/attempts/[^/]+/questions/${focus.question}/learning-support`, bodies: focus.learning, by: "hints" },
+    { pattern: "^/topik/attempts/[^/]+/questions/[^/]+/learning-support", body: focus.learning[0] },
+    { pattern: "^/topik/attempts/[^/]+/questions/[^/]+/hints/[^/]+/reveal", method: "POST", counts: "hints", bodies: reveals, by: "hints" },
+    {
+      pattern: "^/topik/attempts/[^/]+/questions/([^/]+)/solution/reveal",
+      method: "POST",
+      body: writing ? d.writingSolutions[session.groups.flatMap((g) => g.questions).find((q) => q.number === 53).id] : focus.solution,
+    },
+    { pattern: "^/topik/attempts/[^/]+/result", body: d.result },
+    { pattern: "^/topik/attempts/[^/]+/submit", method: "POST", body: { celebration: null } },
+    { pattern: "^/topik/attempts/[^/]+(\\?|$)", body: attempt },
+    { pattern: "^/topik/stats/summary", body: stats },
+    { pattern: "^/topik/stats/weak-questions", body: weak },
+    { pattern: "^/topik/stats/history", body: history },
   ];
 }

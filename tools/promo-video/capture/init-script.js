@@ -58,6 +58,7 @@
   const audioUrls = new WeakMap();
   const bufferUrls = new WeakMap();
   const mocks = config.mocks.map((m) => ({ ...m, regex: new RegExp(m.pattern) }));
+  const counters = {};
   const json = (body) =>
     new Response(JSON.stringify(body ?? null), { headers: { "content-type": "application/json" }, status: 200 });
 
@@ -82,6 +83,15 @@
     if (path.startsWith("/auth/telegram")) return json({ accessToken: "promo", user: config.user });
     const hit = mocks.find((m) => (!m.method || m.method === method) && m.regex.test(path));
     if (!hit) state.unmocked.push(`${method} ${path}`);
+    // bodies: [...] 면 상태가 바뀌는 응답 (마지막은 계속) — 힌트를 하나씩 여는 화면처럼
+    //   counts: "이름" → 맞을 때마다 그 이름의 횟수 +1 · by: "이름" → 그 횟수 번째 응답 (없으면 이 요청을 부른 횟수)
+    //   개발 모드는 effect 를 두 번 돌려 같은 GET 이 두 번 오므로, 상태는 GET 횟수가 아니라 POST(counts) 로 센다
+    if (hit?.counts) counters[hit.counts] = (counters[hit.counts] ?? 0) + 1;
+    if (hit?.bodies) {
+      hit.calls = (hit.calls ?? 0) + 1;
+      const index = hit.by ? counters[hit.by] ?? 0 : hit.calls - 1;
+      return json(hit.bodies[Math.min(index, hit.bodies.length - 1)]);
+    }
     return json(hit ? hit.body : {});
   };
 

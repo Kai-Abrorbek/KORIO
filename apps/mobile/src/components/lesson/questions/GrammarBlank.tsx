@@ -21,9 +21,19 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import { useSpeech } from "@/hooks/useSpeech";
-import { isAnswerCorrect } from "@/utils/answer-check";
+import { gradeAnswer, isAnswerCorrect } from "@/utils/answer-check";
+import {
+  answersOf,
+  blankCount,
+  fillTemplate,
+  isComplete,
+  parseBlanks,
+  templateOf,
+  toAnswerPayload,
+} from "@/utils/blank-sentence";
 import { ThemeColors } from "@/constants/theme";
 import { LessonQuestion, AnswerState } from "@/types/lesson";
+import BlankSentence from "../BlankSentence";
 
 // ── 레퍼런스 팔레트 ──
 const C = {
@@ -93,10 +103,26 @@ export default function GrammarBlank({
   answerState,
   onAnswer,
   onNext,
+  theme,
 }: Props) {
   const { t } = useTranslation();
   const { speak } = useSpeech();
   const { width } = useWindowDimensions();
+
+  const blankTemplate = templateOf(question);
+  const blankTokens = useMemo(
+    () => parseBlanks(blankTemplate),
+    [blankTemplate],
+  );
+  const totalBlankCount = blankCount(blankTokens);
+  const expectedBlankAnswers = answersOf(question);
+  const isMultiBlank =
+    totalBlankCount > 1 && expectedBlankAnswers.length === totalBlankCount;
+  const completedSentence = isMultiBlank
+    ? fillTemplate(blankTokens, expectedBlankAnswers)
+    : (question.sentencePrefix ?? "") +
+      question.answer +
+      (question.sentenceSuffix ?? "");
 
   // 엔진 문제 형태를 카드가 쓰던 이름으로 매핑
   const q = {
@@ -105,10 +131,7 @@ export default function GrammarBlank({
     answer: question.answer,
     suffix: question.sentenceSuffix ?? "",
     prompt: question.answerTranslation ?? "",
-    full:
-      (question.sentencePrefix ?? "") +
-      question.answer +
-      (question.sentenceSuffix ?? ""),
+    full: completedSentence,
     pattern: question.tags?.[0] ?? "",
     highlight: undefined as string | undefined,
     wrongHint: question.hint,
@@ -118,6 +141,7 @@ export default function GrammarBlank({
 
   const state = answerState; // "idle" | "correct" | "wrong"
   const [input, setInput] = useState("");
+  const [multiInputs, setMultiInputs] = useState<string[]>([]);
   /** 채점을 엔진에 넘긴 적이 있는지. 오답도 첫 시도 한 번만 기록한다 */
   const [reported, setReported] = useState(false);
   /** 두 번째 시도 이후에 맞힌 경우. 엔진은 이미 오답으로 기록했다 */
@@ -125,6 +149,7 @@ export default function GrammarBlank({
   const [hintLevel, setHintLevel] = useState(0); // 0/1/2
   const [fav, setFav] = useState(false);
   const inputRef = useRef<TextInput>(null);
+  const multiInputRefs = useRef<Record<number, TextInput | null>>({});
 
   // 애니메이션
   const shake = useSharedValue(0);
@@ -165,18 +190,24 @@ export default function GrammarBlank({
   // 뒤로가기로 키보드만 닫히면 RN 은 여전히 포커스를 쥐고 있다고 보고
   // focus() 를 무시한다. blur 로 한 번 놓아준 뒤 다시 잡아야 키보드가 올라온다.
   const focusInput = () => {
+    if (isMultiBlank) {
+      multiInputRefs.current[0]?.blur();
+      setTimeout(() => multiInputRefs.current[0]?.focus(), 50);
+      return;
+    }
     inputRef.current?.blur();
     setTimeout(() => inputRef.current?.focus(), 50);
   };
   // 문제가 바뀌면 입력·힌트 초기화하고 키보드 다시 올린다
   useEffect(() => {
     setInput("");
+    setMultiInputs(Array.from({ length: totalBlankCount }, () => ""));
     setHintLevel(0);
     setReported(false);
     setSolvedLate(false);
     check.value = 0;
     focusInput();
-  }, [q.id]);
+  }, [q.id, totalBlankCount]);
 
   // 채점 결과는 엔진이 알려준다
   useEffect(() => {
@@ -205,6 +236,13 @@ export default function GrammarBlank({
     return hintLevel === 1 ? q.answer.slice(0, 1) : q.answer;
   };
 
+  const revealedMulti = () => {
+    if (hintLevel === 0) return "";
+    return expectedBlankAnswers
+      .map((answer) => (hintLevel === 1 ? `${answer.slice(0, 1)}…` : answer))
+      .join(" / ");
+  };
+
   /**
    * 맞을 때까지 다시 입력하게 한다.
    *
@@ -212,10 +250,17 @@ export default function GrammarBlank({
    * 여기서 직접 보고, 틀리면 정답을 알려주지 않고 다시 입력받는다.
    */
   const handleCheck = () => {
-    const typed = input.trim();
-    if (isOk || !typed) return;
+    const typed = isMultiBlank
+      ? toAnswerPayload(question, blankTokens, multiInputs)
+      : input.trim();
+    const ready = isMultiBlank
+      ? isComplete(blankTokens, multiInputs)
+      : Boolean(typed);
+    if (isOk || !ready) return;
 
-    const right = isAnswerCorrect(typed, q.answer, question.acceptedAnswers);
+    const right = isMultiBlank
+      ? gradeAnswer(typed, question)
+      : isAnswerCorrect(typed, q.answer, question.acceptedAnswers);
 
     if (!reported) {
       setReported(true);
@@ -233,7 +278,11 @@ export default function GrammarBlank({
       withTiming(-5, { duration: 55 }),
       withTiming(0, { duration: 55 }),
     );
-    setInput("");
+    if (isMultiBlank) {
+      setMultiInputs(Array.from({ length: blankCount(blankTokens) }, () => ""));
+    } else {
+      setInput("");
+    }
     setHintLevel((h) => Math.min(2, h + 1)); // 틀릴수록 힌트를 더 열어준다
     focusInput();
   };
@@ -247,6 +296,19 @@ export default function GrammarBlank({
     if (isOk) return;
     setInput(v);
   };
+
+  const handleMultiChange = (index: number, value: string) => {
+    if (isOk) return;
+    setMultiInputs((current) => {
+      const next = [...current];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const canSubmit = isMultiBlank
+    ? isComplete(blankTokens, multiInputs)
+    : Boolean(input.trim());
 
   // 어떤 문법을 연습 중인지 보여준다
   const badge = { text: q.pattern, bg: C.badgeTeal };
@@ -356,73 +418,93 @@ export default function GrammarBlank({
               )}
 
               {/* 정답 문장 + 인라인 입력칸 */}
-              <View style={st.answerRow}>
-                {!!q.prefix && (
-                  // 앞부분은 빈칸 쪽(오른쪽)에 붙인다 — 여유 너비는 왼쪽으로
-                  <Text
-                    style={[
-                      st.answerFix,
-                      sentSize,
-                      keepLine(q.prefix),
-                      { textAlign: "right" },
-                    ]}
-                  >
-                    {q.prefix}
-                  </Text>
-                )}
-                <Pressable
-                  onPress={focusInput}
-                  style={[
-                    st.slot,
-                    { backgroundColor: isOk ? C.slotOk : C.slot },
-                    { minHeight: fit.sent + 16 },
-                  ]}
-                >
-                  {/* 배경 힌트 (흐리게) — 입력 없을 때만 */}
-                  {input.length === 0 && hintLevel > 0 && (
+              {isMultiBlank ? (
+                <View style={st.multiAnswer}>
+                  <BlankSentence
+                    answerState={isOk ? "correct" : "idle"}
+                    autoFocusFirst
+                    fontSize={fit.sent}
+                    inputRefs={multiInputRefs}
+                    mode="input"
+                    onChange={handleMultiChange}
+                    onSubmit={handleCheck}
+                    theme={theme}
+                    tokens={blankTokens}
+                    values={multiInputs}
+                  />
+                  {!!revealedMulti() && !isOk && (
+                    <Text style={st.multiHint}>{revealedMulti()}</Text>
+                  )}
+                </View>
+              ) : (
+                <View style={st.answerRow}>
+                  {!!q.prefix && (
+                    // 앞부분은 빈칸 쪽(오른쪽)에 붙인다 — 여유 너비는 왼쪽으로
                     <Text
                       style={[
-                        st.slotText,
+                        st.answerFix,
                         sentSize,
-                        st.hintGhost,
-                        keepLine(revealed()),
+                        keepLine(q.prefix),
                         { textAlign: "right" },
                       ]}
                     >
-                      {revealed()}
+                      {q.prefix}
                     </Text>
                   )}
+                  <Pressable
+                    onPress={focusInput}
+                    style={[
+                      st.slot,
+                      { backgroundColor: isOk ? C.slotOk : C.slot },
+                      { minHeight: fit.sent + 16 },
+                    ]}
+                  >
+                    {/* 배경 힌트 (흐리게) — 입력 없을 때만 */}
+                    {input.length === 0 && hintLevel > 0 && (
+                      <Text
+                        style={[
+                          st.slotText,
+                          sentSize,
+                          st.hintGhost,
+                          keepLine(revealed()),
+                          { textAlign: "right" },
+                        ]}
+                      >
+                        {revealed()}
+                      </Text>
+                    )}
 
-                  {/* 실제 입력 (힌트 위에 덮임) */}
-                  {input.length > 0 && (
-                    <Text
-                      style={[
-                        st.slotText,
-                        sentSize,
-                        keepLine(input),
-                        // 입력 중엔 커서에 붙이고, 다 맞히면 칸 가운데
-                        { textAlign: isOk ? "center" : "right" },
-                        isOk && { color: C.greenInk },
-                      ]}
-                    >
-                      {input}
+                    {/* 실제 입력 (힌트 위에 덮임) */}
+                    {input.length > 0 && (
+                      <Text
+                        style={[
+                          st.slotText,
+                          sentSize,
+                          keepLine(input),
+                          // 입력 중엔 커서에 붙이고, 다 맞히면 칸 가운데
+                          { textAlign: isOk ? "center" : "right" },
+                          isOk && { color: C.greenInk },
+                        ]}
+                      >
+                        {input}
+                      </Text>
+                    )}
+
+                    {/* 커서 */}
+                    {!isOk && (
+                      <Animated.View
+                        style={[st.caret, { height: fit.sent + 3 }, caretStyle]}
+                      />
+                    )}
+                  </Pressable>
+
+                  {!!q.suffix && (
+                    <Text style={[st.answerFix, sentSize, keepLine(q.suffix)]}>
+                      {q.suffix}
                     </Text>
                   )}
-
-                  {/* 커서 */}
-                  {!isOk && (
-                    <Animated.View
-                      style={[st.caret, { height: fit.sent + 3 }, caretStyle]}
-                    />
-                  )}
-                </Pressable>
-
-                {!!q.suffix && (
-                  <Text style={[st.answerFix, sentSize, keepLine(q.suffix)]}>
-                    {q.suffix}
-                  </Text>
-                )}
-              </View>
+                </View>
+              )}
 
               {/* 정답일 때 완성 문장을 보여준다 */}
               {isOk && <Text style={st.source}>{q.full}</Text>}
@@ -431,19 +513,21 @@ export default function GrammarBlank({
         </ScrollView>
 
         {/* 숨은 입력 (키보드 유지용) */}
-        <TextInput
-          ref={inputRef}
-          value={input}
-          onChangeText={handleChange}
-          autoFocus
-          autoCapitalize="none"
-          autoCorrect={false}
-          blurOnSubmit={false}
-          returnKeyType="done"
-          onSubmitEditing={handleCheck}
-          editable={!isOk}
-          style={st.hiddenInput} // ✅ 정답 후엔 입력 막기
-        />
+        {!isMultiBlank && (
+          <TextInput
+            ref={inputRef}
+            value={input}
+            onChangeText={handleChange}
+            autoFocus
+            autoCapitalize="none"
+            autoCorrect={false}
+            blurOnSubmit={false}
+            returnKeyType="done"
+            onSubmitEditing={handleCheck}
+            editable={!isOk}
+            style={st.hiddenInput} // ✅ 정답 후엔 입력 막기
+          />
+        )}
 
         {/* 키보드 위 툴바 */}
         {isOk ? (
@@ -494,7 +578,7 @@ export default function GrammarBlank({
               />
               <BigBtn
                 colors={["#8f7ff0", "#7161e6"]}
-                onPress={() => speak(q.prefix + q.answer + q.suffix)}
+                onPress={() => speak(q.full)}
                 icon={<Ionicons name="volume-high" size={26} color="#fff" />}
                 label={t("writePractice.listenAgain")}
               />
@@ -518,9 +602,9 @@ export default function GrammarBlank({
             {/* 원본은 키보드 완료 키로만 제출해서, 키보드가 닫히면 답을 낼 방법이
                 없었다. 입력 미리보기 자리를 실제 확인 버튼으로 바꾼다. */}
             <Pressable
-              style={[st.wordBubble, !input.trim() && st.wordBubbleOff]}
+              style={[st.wordBubble, !canSubmit && st.wordBubbleOff]}
               onPress={handleCheck}
-              disabled={!input.trim()}
+              disabled={!canSubmit}
             >
               <Text style={st.wordBubbleText} numberOfLines={1}>
                 {t("lesson.check")}
@@ -686,6 +770,16 @@ const st = StyleSheet.create({
     alignItems: "center",
     marginTop: 22,
     rowGap: 4,
+  },
+  multiAnswer: {
+    marginTop: 22,
+    gap: 8,
+  },
+  multiHint: {
+    color: C.levelText,
+    fontSize: 13,
+    fontWeight: "700",
+    textAlign: "center",
   },
   answerFix: { fontWeight: "700", color: C.ink },
   slot: {

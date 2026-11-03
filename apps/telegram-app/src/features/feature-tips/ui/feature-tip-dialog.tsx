@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 import { uzt } from "../../../shared/i18n/uz-text";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { Button3D } from "../../retention/ui/parts";
 import type { FeatureTip } from "../model/use-feature-tip";
 import styles from "./feature-tips.module.css";
@@ -54,10 +55,7 @@ export function FeatureTipDialog({
   const id = shownTip.id;
 
   return (
-    <div aria-modal="true" className={`${styles.root} ${shown && tip ? styles.shown : ""}`} role="dialog">
-      <button aria-label="close" className={styles.backdrop} onClick={onClose} type="button" />
-      <section className={styles.card}>
-        <span aria-hidden className={styles.sky} />
+    <CenteredDialog className={styles.card} onClose={onClose} shown={shown && Boolean(tip)}>
         <span className={styles.peek}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img alt="" src={`/characters/hangulmon_${MOOD[id]}.png`} />
@@ -75,7 +73,7 @@ export function FeatureTipDialog({
         <Benefit tip={shownTip} />
 
         <Button3D
-          className={styles.cta}
+          className={`${styles.cta} ${dialogStyles.primary}`}
           i18nKey={`featureTips.${id}.cta`}
           label={uzt(`featureTips.${id}.cta`)}
           onClick={() => onGo(shownTip)}
@@ -90,8 +88,7 @@ export function FeatureTipDialog({
             <span data-i18n="featureTips.close">{uzt("featureTips.close")}</span>
           </button>
         </div>
-      </section>
-    </div>
+    </CenteredDialog>
   );
 }
 

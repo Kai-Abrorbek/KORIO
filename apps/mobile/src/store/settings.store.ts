@@ -155,6 +155,8 @@ export interface SoundPrefs {
 
 /** 단어 학습을 마지막으로 보던 지점. 다음에 들어오면 여기서 이어간다. */
 export interface WordStudyPosition {
+  /** Added on new writes; legacy unowned cursors must not cross accounts. */
+  ownerId?: string;
   section: number;
   unit: number;
   cardIndex: number;

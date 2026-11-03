@@ -8,7 +8,7 @@ import {
 export type AppReviewDocument = AppReview & Document;
 export type AppReviewStateDocument = AppReviewState & Document;
 
-/** 유저가 남긴 앱 평가 하나. 7일에 한 번씩 쌓인다 */
+/** 유저가 남긴 앱 평가 하나. 계정당 한 번 (2026-11-03 전에는 7일에 한 번이라 여러 개일 수 있다) */
 @Schema({ timestamps: true, collection: 'app_reviews' })
 export class AppReview {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
@@ -44,7 +44,7 @@ AppReviewSchema.index({ createdAt: -1 });
 
 /**
  * 유저마다 하나 — 모달을 언제 다시 띄울지.
- * userId 가 unique 라서 "7일에 한 번" 을 이 문서의 조건부 upsert 하나로 막는다.
+ * userId 가 unique 라서 "계정당 한 번" 을 이 문서의 조건부 upsert 하나로 막는다.
  */
 @Schema({ timestamps: true, collection: 'app_review_states' })
 export class AppReviewState {

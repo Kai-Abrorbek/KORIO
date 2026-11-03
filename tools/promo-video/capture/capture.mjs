@@ -96,7 +96,7 @@ async function advance(ms) {
 
 /**
  * 정해진 시각이 된 동작을 한다. wait = 진짜 시간으로 기다리기 (가짜 마이크 녹음 등)
- *   { click: "선택자" }   { tap: [x, y] } (앱 css px — 글자 없는 버튼)   { wheel: dy, x?, y? } (스크롤)
+ *   { click: "선택자" }   { tap: [x, y] } (앱 css px — 글자 없는 버튼)   { wheel: dy, x?, y? } (스크롤)   { type: "글자" } (자판 입력)   { press: "Enter" } (키 하나)
  */
 const pending = [...actions].sort((a, b) => a.at - b.at);
 async function runActions() {
@@ -104,6 +104,8 @@ async function runActions() {
     const action = pending.shift();
     try {
       if (action.tap) await page.mouse.click(action.tap[0], action.tap[1]);
+      else if (action.type !== undefined) await page.keyboard.type(action.type, { delay: 60 });
+      else if (action.press) await page.keyboard.press(action.press);
       else if (action.wheel !== undefined) {
         await page.mouse.move(action.x ?? VIEW.width / 2, action.y ?? VIEW.height / 2);
         await page.mouse.wheel(0, action.wheel);

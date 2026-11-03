@@ -16,6 +16,7 @@ import {
 } from "../model/word-chain";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./word-chain-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { confirmDialog } from "../../../shared/telegram/dialogs";
 import { playSfx } from "../../../shared/browser/sfx";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
@@ -76,23 +77,21 @@ function EndModal({ bestCombo, onExit, onRestart, reason, score, turnCount }: {
 }) {
   const win = reason === "ai-surrender";
   return (
-    <div className={styles.endOverlay}>
-      <section className={styles.endSheet}>
+    <CenteredDialog onClose={onExit} backdropDismissible={false}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img alt="Hangulmon" className={styles.endMascot} height={100} src={`/characters/hangulmon_${win ? "celebrating" : "wrong"}.png`} width={100} />
+        <img alt="Hangulmon" className={dialogStyles.mascot} height={100} src={`/characters/hangulmon_${win ? "celebrating" : "wrong"}.png`} width={100} />
         <h1 className={win ? styles.win : styles.lose}>{win ? "G'alaba!" : "Mag'lubiyat..."}</h1>
         <p>{win ? "AI so'z topa olmadi!" : "Yuraklar tugadi"}</p>
-        <div className={styles.endStats}>
+        <div className={dialogStyles.stats}>
           <div><MobileIcon name="flash" size={20} /><strong>{score}</strong><span>Ball</span></div>
           <i />
           <div><MobileIcon className={styles.turnIcon} name="repeat" size={20} /><strong>{turnCount}</strong><span>Yurish</span></div>
           <i />
           <div><MobileIcon className={styles.comboIcon} name="flame" size={20} /><strong>{bestCombo}</strong><span>Eng yuqori kombo</span></div>
         </div>
-        {onRestart ? <button className={styles.restart} onClick={() => { playSfx("click"); onRestart(); }} type="button">Qayta o&apos;ynash</button> : null}
-        <button className={styles.endExit} onClick={onExit} type="button">Chiqish</button>
-      </section>
-    </div>
+        {onRestart ? <button className={dialogStyles.primary} onClick={() => { playSfx("click"); onRestart(); }} type="button">Qayta o&apos;ynash</button> : null}
+        <button className={dialogStyles.secondary} onClick={onExit} type="button">Chiqish</button>
+    </CenteredDialog>
   );
 }
 

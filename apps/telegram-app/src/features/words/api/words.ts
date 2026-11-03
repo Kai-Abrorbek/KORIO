@@ -61,3 +61,7 @@ export function reviewWord(
     method: "POST",
   });
 }
+
+export function masterWord(request: AuthenticatedRequest, id: string): Promise<unknown> {
+  return request(`/words/${encodeURIComponent(id)}/master`, { method: "POST" });
+}

@@ -32,6 +32,14 @@ import { StatsScreen } from "../../src/features/stats/ui/stats-screen";
 import { QuestsScreen } from "../../src/features/retention/ui/quests-screen";
 import { PronunciationQuizScreen } from "../../src/features/pronunciation/ui/pronunciation-quiz-screen";
 import { RoadmapScreen } from "../../src/features/roadmap/ui/roadmap-screen";
+import { WordStudyScreen } from "../../src/features/words/ui/word-study-screen";
+import { GrammarStudyScreen } from "../../src/features/grammar/ui/grammar-study-screen";
+import { ExpressionLearningScreen } from "../../src/features/expressions/ui/expression-learning-screen";
+import { PremiumScreen } from "../../src/features/premium/ui/premium-screen";
+import { TopikExamScreen } from "../../src/features/topik/ui/topik-exam-screen";
+import { TopikResultScreen } from "../../src/features/topik/ui/topik-result-screen";
+import { TopikStatsScreen } from "../../src/features/topik/ui/topik-stats-screen";
+import { TopikWritingScreen } from "../../src/features/topik/ui/topik-writing-screen";
 
 /**
  * AI 튜터 통화 각본 — 학습자가 일본어 "Oishii!" 를 하자 튜터가 깜짝 놀라
@@ -165,10 +173,40 @@ function Scene({ name }: { name: string }): ReactNode {
     case "home":
     case "hangulTour":
     case "vocabTour":
+    case "wordsTour":
+    case "topikTour":
       return <HomeScreen />;
+    case "topikGuided":
+    case "topikListen":
+    case "topikMock":
+      // ?examCode=topik-ii-reading-102-2025&mode=guided (듣기: topik-ii-listening-102-2025, 모의고사: mode=mock_exam)
+      return <TopikExamScreen />;
+    case "topikResult":
+      // ?attemptId=promo-attempt
+      return <TopikResultScreen />;
+    case "topikStats":
+      // ?level=2
+      return <TopikStatsScreen />;
+    case "topikWriting":
+      // ?examCode=topik-ii-writing-102-2025&mode=guided&questionNumber=53
+      return <TopikWritingScreen />;
     case "vocabMap":
       // ?category=vocabulary
       return <RoadmapScreen />;
+    case "wordCards":
+    case "wordFamily":
+      // ?section=1&unit=1
+      return <WordStudyScreen />;
+    case "grammarStudy":
+      // ?id=obj-eul-reul
+      return <GrammarStudyScreen />;
+    case "expressionLearn":
+      // ?node=time-and-situation
+      return <ExpressionLearningScreen />;
+    case "premium":
+    case "premiumMax":
+      // 처음엔 MAX 가 보인다 — SUPER 는 등급 버튼을 눌러서
+      return <PremiumScreen />;
     case "vocabMatch":
     case "vocabBuilder":
       // ?lessonId=promo&category=vocabulary

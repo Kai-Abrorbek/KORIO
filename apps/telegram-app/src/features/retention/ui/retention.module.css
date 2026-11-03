@@ -84,8 +84,8 @@
 /* 대화상자는 애니메이션 없음 — 튀어나오는 스프링·후광 맥박이 흔들려 보였다 (2026-10-06) */
 .dialogBackdrop{position:absolute;inset:0;background:rgb(10 8 30/62%)}
 .dialog{position:relative;display:flex;flex-direction:column;align-items:center;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:76px 22px 20px}
-.dialogMascot{position:absolute;top:-58px;display:grid;place-items:center}
-.dialogMascot::before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:#ffe066;opacity:.5}
+.dialogMascot{position:relative;display:grid;place-items:center;margin-bottom:14px}
+.dialogMascot::before{content:"";position:absolute;width:104px;height:104px;border-radius:32px;background:var(--dialog-yellow-wash)}
 .dialogMascot img{position:relative;width:104px;height:104px;object-fit:contain}
 .dialog h2{margin:0;font-size:21px;font-weight:900;line-height:28px;text-align:center}
 .dialog p{margin:8px 0 0;color:var(--muted);font-size:14.5px;font-weight:600;line-height:21px;text-align:center}

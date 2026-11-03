@@ -92,6 +92,35 @@ interface BlankFocus {
   tokenIndex?: number;
 }
 
+interface MultiBlank {
+  answers: string[];
+  template: string;
+}
+
+/**
+ * Section 4부터는 문법별 타이핑 10문항 중 세 문항을 다중 빈칸으로 낸다.
+ * 설명 페이지의 원본 drill은 계속 단일 빈칸으로 두고, 문제를 만드는 마지막
+ * 단계에서만 주 초점과 가까운 문맥 단어를 함께 가린다.
+ */
+const MULTI_BLANK_PRIORITY = [2, 5, 8, 1, 4, 7, 9, 0, 3, 6] as const;
+const LOW_INFORMATION_TOKENS = new Set([
+  'a',
+  'an',
+  'the',
+  'i',
+  'you',
+  'he',
+  'she',
+  'it',
+  'we',
+  'they',
+  'me',
+  'him',
+  'her',
+  'us',
+  'them',
+]);
+
 const OPENING_PUNCTUATION = new Set(['"', '“', '‘', '(', '[', '{']);
 const CLOSING_PUNCTUATION = new Set([
   '"',
@@ -589,6 +618,102 @@ function chooseBlankFocuses(
   );
 }
 
+function multiBlankFor(
+  drill: EnglishGrammarDrill,
+  focus: BlankFocus,
+  desiredBlankCount: 2 | 3,
+): MultiBlank | undefined {
+  const sentence = sentenceOf(drill.template, drill.answer);
+  const primary = {
+    answer: focus.answer,
+    start: focus.prefix.length,
+    end: sentence.length - focus.suffix.length,
+  };
+  const spans = tokenSpans(sentence).filter(
+    (span) =>
+      /[\p{L}\p{N}]/u.test(span.core) &&
+      (span.coreEnd <= primary.start || span.coreStart >= primary.end),
+  );
+  const ordered = spans
+    .map((span) => ({
+      answer: span.core,
+      end: span.coreEnd,
+      start: span.coreStart,
+      value: normalizedToken(span.core),
+    }))
+    .sort((left, right) => {
+      const information = (value: string) =>
+        LOW_INFORMATION_TOKENS.has(value) ? 1 : 0;
+      const informationDifference =
+        information(left.value) - information(right.value);
+      if (informationDifference) return informationDifference;
+      const leftDistance = Math.min(
+        Math.abs(left.start - primary.end),
+        Math.abs(primary.start - left.end),
+      );
+      const rightDistance = Math.min(
+        Math.abs(right.start - primary.end),
+        Math.abs(primary.start - right.end),
+      );
+      return leftDistance - rightDistance || left.start - right.start;
+    });
+  const before = ordered.filter((span) => span.end <= primary.start);
+  const after = ordered.filter((span) => span.start >= primary.end);
+  const extras =
+    desiredBlankCount === 3 && before.length > 0 && after.length > 0
+      ? [after[0], before[0]]
+      : ordered.slice(0, desiredBlankCount - 1);
+  if (extras.length !== desiredBlankCount - 1) return undefined;
+
+  const blanks = [primary, ...extras].sort(
+    (left, right) => left.start - right.start,
+  );
+  let cursor = 0;
+  let template = '';
+  for (const blank of blanks) {
+    template += `${sentence.slice(cursor, blank.start)}___`;
+    cursor = blank.end;
+  }
+  template += sentence.slice(cursor);
+
+  return {
+    answers: blanks.map((blank) => blank.answer),
+    template,
+  };
+}
+
+function chooseMultiBlanks(
+  unit: EnglishGrammarUnit,
+  drills: readonly EnglishGrammarDrill[],
+  focuses: readonly BlankFocus[],
+): Map<number, MultiBlank> {
+  const selected = new Map<number, MultiBlank>();
+  if (unit.section < 4) return selected;
+
+  const threeBlankIndex = MULTI_BLANK_PRIORITY.find((index) =>
+    Boolean(multiBlankFor(drills[index], focuses[index], 3)),
+  );
+  if (threeBlankIndex !== undefined) {
+    selected.set(
+      threeBlankIndex,
+      multiBlankFor(drills[threeBlankIndex], focuses[threeBlankIndex], 3)!,
+    );
+  }
+  for (const index of MULTI_BLANK_PRIORITY) {
+    if (selected.has(index)) continue;
+    const multiBlank = multiBlankFor(drills[index], focuses[index], 2);
+    if (!multiBlank) continue;
+    selected.set(index, multiBlank);
+    if (selected.size === 3) break;
+  }
+  if (selected.size !== 3) {
+    throw new Error(
+      `section ${unit.section} unit ${unit.unit}: expected three viable multi blanks`,
+    );
+  }
+  return selected;
+}
+
 function blankInstruction(kind: BlankFocus['kind']): LocalizedText {
   if (kind === 'grammar') {
     return L(
@@ -719,10 +844,12 @@ export function buildEnglishGrammarSeeds(units: readonly EnglishGrammarUnit[]) {
 
     unit.specs.forEach((spec, grammarIndex) => {
       const blankFocuses = chooseBlankFocuses(spec.drills);
+      const multiBlanks = chooseMultiBlanks(unit, spec.drills, blankFocuses);
       const preparedDrills = spec.drills.map((drill, drillIndex) => ({
         buildRows: granularBuildRows(drill, corpus),
         drill,
         focus: blankFocuses[drillIndex],
+        multiBlank: multiBlanks.get(drillIndex),
       }));
       const page: EnglishGrammarPageSeed = {
         ...ENGLISH_GRAMMAR_COURSE,
@@ -770,55 +897,72 @@ export function buildEnglishGrammarSeeds(units: readonly EnglishGrammarUnit[]) {
       grammar.push(page);
 
       const prefix = `en-general:gp_s${unit.section}_u${unit.unit}_g${grammarIndex + 1}`;
-      preparedDrills.forEach(({ buildRows, drill, focus }, drillIndex) => {
-        const sentence = sentenceOf(drill.template, drill.answer);
-        const blankCode = `${prefix}_${String(drillIndex + 1).padStart(2, '0')}`;
-        const buildCode = `${prefix}_${String(drillIndex + 11).padStart(2, '0')}`;
+      preparedDrills.forEach(
+        ({ buildRows, drill, focus, multiBlank }, drillIndex) => {
+          const sentence = sentenceOf(drill.template, drill.answer);
+          const blankCode = `${prefix}_${String(drillIndex + 1).padStart(2, '0')}`;
+          const buildCode = `${prefix}_${String(drillIndex + 11).padStart(2, '0')}`;
 
-        questions[blankCode] = {
-          ...ENGLISH_GRAMMAR_COURSE,
-          type: 'grammar_blank',
-          level: unit.level,
-          lessonCategory: 'grammar',
-          instruction: blankInstruction(focus.kind),
-          sentencePrefix: focus.prefix,
-          sentenceSuffix: focus.suffix,
-          answer: focus.answer,
-          answerTranslation: { ...drill.translation, en: sentence },
-          hint: hintForFocus(spec.rule, focus.kind),
-          explanation: spec.summary,
-          tags: [spec.code, `blank-focus-${focus.kind}`],
-          acceptedAnswers:
-            focus.kind === 'grammar'
-              ? acceptedAnswersFor(drill.answer, drill.acceptedAnswers)
-              : acceptedAnswersFor(focus.answer),
-        };
+          questions[blankCode] = {
+            ...ENGLISH_GRAMMAR_COURSE,
+            type: 'grammar_blank',
+            level: unit.level,
+            lessonCategory: 'grammar',
+            instruction: blankInstruction(focus.kind),
+            sentencePrefix: multiBlank ? '' : focus.prefix,
+            sentenceSuffix: multiBlank ? '' : focus.suffix,
+            ...(multiBlank
+              ? {
+                  sentenceTemplate: multiBlank.template,
+                  blankAnswers: multiBlank.answers,
+                }
+              : {}),
+            answer: multiBlank ? sentence : focus.answer,
+            answerTranslation: { ...drill.translation, en: sentence },
+            hint: hintForFocus(spec.rule, focus.kind),
+            explanation: spec.summary,
+            tags: [
+              spec.code,
+              `blank-focus-${focus.kind}`,
+              `blank-count-${multiBlank?.answers.length ?? 1}`,
+            ],
+            acceptedAnswers: multiBlank
+              ? focus.kind === 'grammar'
+                ? acceptedAnswersFor(drill.answer, drill.acceptedAnswers).map(
+                    (answer) => sentenceOf(drill.template, answer),
+                  )
+                : []
+              : focus.kind === 'grammar'
+                ? acceptedAnswersFor(drill.answer, drill.acceptedAnswers)
+                : acceptedAnswersFor(focus.answer),
+          };
 
-        questions[buildCode] = {
-          ...ENGLISH_GRAMMAR_COURSE,
-          type: 'grammar_build',
-          level: unit.level,
-          lessonCategory: 'grammar',
-          instruction: L(
-            '순서에 맞게 영어 문장을 만드세요',
-            "Inglizcha gapni to'g'ri tartibda tuzing",
-            'Build the English sentence in order',
-            'Составьте английское предложение по порядку',
-          ),
-          answer: sentence,
-          buildRows,
-          answerTranslation: { ...drill.translation, en: sentence },
-          hint: spec.rule,
-          explanation: spec.summary,
-          tags: [spec.code, 'build-focus-sentence'],
-          acceptedAnswers: acceptedAnswersFor(
-            sentence,
-            (drill.acceptedAnswers ?? []).map((answer) =>
-              sentenceOf(drill.template, answer),
+          questions[buildCode] = {
+            ...ENGLISH_GRAMMAR_COURSE,
+            type: 'grammar_build',
+            level: unit.level,
+            lessonCategory: 'grammar',
+            instruction: L(
+              '순서에 맞게 영어 문장을 만드세요',
+              "Inglizcha gapni to'g'ri tartibda tuzing",
+              'Build the English sentence in order',
+              'Составьте английское предложение по порядку',
             ),
-          ),
-        };
-      });
+            answer: sentence,
+            buildRows,
+            answerTranslation: { ...drill.translation, en: sentence },
+            hint: spec.rule,
+            explanation: spec.summary,
+            tags: [spec.code, 'build-focus-sentence'],
+            acceptedAnswers: acceptedAnswersFor(
+              sentence,
+              (drill.acceptedAnswers ?? []).map((answer) =>
+                sentenceOf(drill.template, answer),
+              ),
+            ),
+          };
+        },
+      );
 
       lessons.push({
         ...ENGLISH_GRAMMAR_COURSE,

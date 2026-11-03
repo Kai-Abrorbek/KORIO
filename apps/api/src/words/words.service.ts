@@ -111,6 +111,57 @@ export class WordsService {
     );
   }
 
+  /** Read existing words in collection order, with the original shared progress. */
+  async getWordsByIds(
+    userId: string,
+    wordIds: string[],
+    query: ListWordsQueryDto,
+  ) {
+    const scope = resolveCourseScope(query);
+    const ids = [...new Set(wordIds)];
+    if (ids.some((id) => !Types.ObjectId.isValid(id))) {
+      throw new BadRequestException('INVALID_COLLECTION_WORD');
+    }
+    const rows = (await this.wordModel
+      .find({
+        ...this.buildScopeFilter(undefined, undefined, scope),
+        _id: { $in: ids.map((id) => new Types.ObjectId(id)) },
+      })
+      .lean()) as WordRecord[];
+    const byId = new Map(rows.map((word) => [String(word._id), word]));
+    const ordered = ids.flatMap((id) => {
+      const word = byId.get(id);
+      return word ? [word] : [];
+    });
+    let start = 0;
+    if (query.cursor) {
+      const index = ordered.findIndex((word) => word.code === query.cursor);
+      if (index < 0) throw new BadRequestException('INVALID_WORD_CURSOR');
+      start = index + 1;
+    }
+    const page = ordered.slice(start, start + (query.limit ?? 50));
+    const progress = await this.getProgressMap(
+      userId,
+      page.map((word) => word._id),
+    );
+    return {
+      ...scope,
+      items: page.map((word) =>
+        this.serializeWord(
+          word,
+          query.lang,
+          progress.get(String(word._id)),
+          query.section,
+          query.unit,
+          scope,
+        ),
+      ),
+      total: ordered.length,
+      nextCursor:
+        start + page.length < ordered.length ? page.at(-1)?.code || null : null,
+    };
+  }
+
   async getSectionSummaries(userId: string, scope = resolveCourseScope()) {
     const words = await this.wordModel
       .find(this.buildScopeFilter(undefined, undefined, scope))

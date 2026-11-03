@@ -1,5 +1,17 @@
 # Shared learning content
 
+## Word recall progress
+
+Mobile and Telegram save a review, then call the existing word mastery endpoint
+after a correct answer without help. A failed write keeps the card retryable;
+completion and automatic advance wait for the server. Retries reuse acknowledged
+steps within the same card, while wrong/hinted answers must be recalled again.
+Word IDs and the existing per-user progress remain shared across collections.
+
+```powershell
+node --experimental-strip-types --test shared/word-recall-progress.test.mjs
+```
+
 ## Word games
 
 `word-games.ts` adapts scoped server words to the existing game engines. English
@@ -108,3 +120,61 @@ The Telegram phonics test script can also produce bounded SSR previews when
 `KORIO_PHONICS_PREVIEW_DIR` points inside the OS temporary directory. Its localhost
 server serves only generated fixtures; it does not bypass Telegram authentication
 or exercise live TTS. Stop the server after visual QA.
+
+## Word collections
+
+`word-library.ts` defines the shared collection/group contracts, catalog filters,
+and identity-based resume rules used by the mobile and Telegram wordbook pages.
+`word-library.i18n.ts` supplies the same complete ko/en/uz/ru UI copy to both
+clients. Metadata requests use the UI language; word meanings and examples keep
+using the separately selected content language.
+
+Collections reference existing `Word` IDs. The original word documents, course
+placements, seed files, and `UserWordProgress` records are not migrated or copied.
+The original course is exposed as a read-only virtual collection; bookmarks and
+reading positions live in new account-scoped collection records. Removing a
+bookmark preserves its reading position and shared mastery. Browsing previews
+does not mark words as studied or complete guided-path lessons.
+
+The original course picker groups its existing `section`/`unit` metadata on the
+client: choose a section, then see only that section's units. Resuming a word
+selects its section automatically. Group IDs and saved positions stay unchanged;
+unit counts are displayed without incorrectly summing overlapping word counts.
+
+`word-library-theme.ts` keeps the reference-led wordbook palette consistent in
+both clients: warm white surfaces, blue actions, yellow section markers, and pink
+saved bookmarks, with explicit dark variants. These colors apply only to the
+wordbook surface. `dialog-theme.ts` reuses that approved palette for centered
+dialogs without changing the application's global theme.
+
+Native `CenteredModal` and Telegram `CenteredDialog` share the dialog colors,
+action hierarchy, safe-area scrolling and dark variants. Confirmations, errors,
+rewards, tips, support results, practice offers, cosmetic/sticker confirmations
+and game-end overlays use these surfaces. Genuine bottom/side sheets and
+full-screen flows retain their layout. Existing Alert-style callers use queued
+hosts; stale or repeated button events cannot answer the following request.
+
+The native word recall card hides illustration space while typing and keeps the
+focused input inside its measured, keyboard-reduced scroll viewport. Expression
+typing and support forms also adjust their available height on Android.
+
+`word-study-flow.ts` defines the explicit forward boundary for both card decks:
+arriving at the final card leaves it visible, and the next forward action offers
+recall practice. Correct recall answers advance after a short confirmation;
+wrong answers stay on the same card and keep the existing spaced-review rules.
+The completion view reports session-local unique viewed/recalled words without
+inventing mastery, XP, or rewards. Its copy is shared in `word-study.i18n.ts`.
+
+Deploy the additive word-collection API before either client. New textbook,
+exam, level, and topic collections require real word memberships and translations
+published through the admin API; the design mock's sample content is not seeded.
+See `apps/api/src/word-collections/README.md` for the authoring contract.
+
+The mobile changes use existing JavaScript/native APIs and can ship as an OTA
+update to a compatible installed runtime; no new native build is required.
+Publishing an OTA and deploying the API/Telegram client remain separate release
+steps.
+
+```powershell
+pnpm exec node --experimental-strip-types --test shared/word-library.test.mjs
+```

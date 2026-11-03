@@ -1,20 +1,9 @@
-import { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { TouchableOpacity } from "@/components/ui/Pressables";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  withDelay,
-  withSequence,
-} from "react-native-reanimated";
 import { useTranslation } from "react-i18next";
 import HaneulmonMascot from "@/components/home/HaneulmonMascot";
-import PrimaryButton from "@/components/ui/PrimaryButton";
 import { EndReason } from "@/types/word-chain";
-import { useTheme } from "@/hooks/useTheme";
+import { CenteredModal, DialogButton, useDialogTheme } from "@/components/common/CenteredModal";
 import { ThemeColors } from "@/constants/theme";
 
 interface Props {
@@ -36,37 +25,18 @@ export default function EndModal({
   onExit,
 }: Props) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const theme = useDialogTheme();
   const styles = getStyles(theme);
 
   const isWin = reason === "ai-surrender";
-  const sheetY = useSharedValue(800);
-  const backdrop = useSharedValue(0);
-
-  useEffect(() => {
-    backdrop.value = withTiming(1, { duration: 300 });
-    sheetY.value = withDelay(
-      120,
-      withSpring(0, { damping: 13, stiffness: 130 }),
-    );
-  }, []);
-
-  const backdropStyle = useAnimatedStyle(() => ({
-    opacity: backdrop.value,
-  }));
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sheetY.value }],
-  }));
 
   return (
-    <View style={StyleSheet.absoluteFill}>
-      <Animated.View style={[styles.backdrop, backdropStyle]} />
-      <Animated.View style={[styles.sheet, sheetStyle]}>
+    <CenteredModal visible onClose={onExit} backdropDismissible={false}>
         <View style={styles.mascotWrap}>
           <HaneulmonMascot size={100} mood={isWin ? "celebrating" : "wrong"} />
         </View>
 
-        <Text style={[styles.title, { color: isWin ? "#58CC02" : "#FF4B4B" }]}>
+        <Text style={[styles.title, { color: isWin ? theme.primary : theme.error }]}>
           {isWin ? t("wordChain.win") : t("wordChain.lose")}
         </Text>
         <Text style={styles.subtitle}>
@@ -76,7 +46,7 @@ export default function EndModal({
         <View style={styles.statsRow}>
           <Stat
             icon="flash"
-            color="#FFD000"
+            color={theme.onYellow}
             label={t("wordChain.finalScore")}
             value={score.toString()}
             theme={theme}
@@ -84,7 +54,7 @@ export default function EndModal({
           <View style={styles.divider} />
           <Stat
             icon="repeat"
-            color="#1FA9F7"
+            color={theme.primary}
             label={t("wordChain.turns")}
             value={turnCount.toString()}
             theme={theme}
@@ -92,7 +62,7 @@ export default function EndModal({
           <View style={styles.divider} />
           <Stat
             icon="flame"
-            color="#FF6A00"
+            color={theme.onPink}
             label={t("wordChain.maxCombo")}
             value={bestCombo.toString()}
             theme={theme}
@@ -100,19 +70,14 @@ export default function EndModal({
         </View>
 
         {onPlayAgain ? (
-          <PrimaryButton
+          <DialogButton
             label={t("wordChain.playAgain")}
-            color="#776ee2"
-            darkColor="#5448E0"
             onPress={onPlayAgain}
             style={{ marginTop: 8 }}
           />
         ) : null}
-        <TouchableOpacity onPress={onExit} style={styles.exit}>
-          <Text style={styles.exitText}>{t("wordChain.exit")}</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+        <DialogButton variant="secondary" label={t("wordChain.exit")} onPress={onExit} style={{ marginTop: 8 }} />
+    </CenteredModal>
   );
 }
 
@@ -179,7 +144,7 @@ const getStyles = (theme: ThemeColors) =>
       elevation: 16,
     },
     mascotWrap: {
-      marginTop: -60,
+      marginTop: 0,
       marginBottom: 8,
     },
     title: {

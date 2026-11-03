@@ -78,11 +78,19 @@ export const WordService = {
   reviewWord: (
     wordId: string,
     result: WordReviewResult,
+    course: LearnCourse = useSettingsStore.getState().learnCourse,
   ): Promise<{ wordId: string; progress: StudyWord["progress"] }> =>
-    api.post(`/words/${encodeURIComponent(wordId)}/reviews`, { result }),
+    api.post(
+      learningScopePath(`/words/${encodeURIComponent(wordId)}/reviews`, course),
+      { result },
+    ),
 
   masterWord: (
     wordId: string,
+    course: LearnCourse = useSettingsStore.getState().learnCourse,
   ): Promise<{ wordId: string; progress: StudyWord["progress"] }> =>
-    api.post(`/words/${encodeURIComponent(wordId)}/master`, {}),
+    api.post(
+      learningScopePath(`/words/${encodeURIComponent(wordId)}/master`, course),
+      {},
+    ),
 };

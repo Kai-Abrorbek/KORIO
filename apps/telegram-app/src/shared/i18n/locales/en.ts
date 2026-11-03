@@ -1,6 +1,9 @@
 import topik from "./topik/en";
+import { wordLibrary } from "../../../../../../shared/word-library.i18n";
+import { wordStudyFinish, wordRecallPersistence } from "../../../../../../shared/word-study.i18n";
 
 export default {
+  wordLibrary: wordLibrary.en,
   topik,
   learningStreak: {
     title: "Overall learning streak",
@@ -2174,6 +2177,8 @@ export default {
     gamesHint: "Lock in words by playing",
   },
   wordStudy: {
+    ...wordRecallPersistence.en,
+    finish: wordStudyFinish.en,
     finishDay: "Today's words done!",
     eyebrow: "WORD DECK",
     title: "Word cards",
@@ -2212,7 +2217,7 @@ export default {
     recallInputLabel: "Korean word",
     recallCheck: "Check answer",
     recallCorrect: "Correct!",
-    recallCorrectSub: "You can move on to the next word.",
+    recallCorrectSub: "Moving to the next word in a moment.",
     recallWrong: "Try recalling it once more",
     recallWrongSub: "You saw this word recently. Type it again.",
     recallGuide: "Remember the Korean word",
@@ -2220,7 +2225,7 @@ export default {
     recallAnswer: "Answer",
     recallHint: "Show hint",
     recallHintInstruction: "Type the shown answer yourself, then check it.",
-    recallContinue: "Correct! Swipe forward to continue",
+    recallContinue: "Correct! Moving to the next word",
     recallAnswerFirst: "Type the Korean word and check it",
     previous: "Previous word",
     next: "Next word",

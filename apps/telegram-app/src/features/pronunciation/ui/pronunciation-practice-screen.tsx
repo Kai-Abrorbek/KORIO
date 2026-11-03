@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
 import { MobileIcon } from "../../../shared/ui/mobile-icon";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { getPronunciationScores } from "../api/pronunciation";
 import {
   HARD_UNLOCK_SCORE,
@@ -116,6 +117,6 @@ function PronunciationPractice({ targetLanguage }: { targetLanguage:Pronunciatio
         return <article className={styles.stageCard} key={`${tab}-${stage.step}`}><button className={styles.stageHead} onClick={() => setExpanded(isOpen ? null : stage.step)} type="button"><div><span>{`${stage.step}-bosqich`}</span>{cleared ? <MobileIcon name="checkmark-circle" size={20}/> : null}<p><strong data-no-translate>{stage.a}</strong><i>vs</i><strong data-no-translate>{stage.b}</strong><b data-no-translate={targetLanguage==="en" ? true : undefined}>{targetLanguage==="en" ? englishCopy.positions[stage.pos] : stage.pos==="front" ? "So'z boshida" : "So'z oxirida"}</b></p></div><em><MobileIcon name={isOpen ? "chevron-up" : "chevron-down"} size={22}/></em></button>{isOpen ? <div className={styles.stageBody}><section className={styles.scene}><div><div><Bubble text={stage.leftBubble} word={stage.leftWord}/><i/></div><div><Bubble text={stage.rightBubble} word={stage.rightWord}/><i/></div></div><aside><span>🐡</span><span>🍽️</span><span>🦖</span></aside></section><section className={styles.modes}><Mode enabled label="EASY" onStart={() => open(stage,"easy")} score={easy}/><i/><Mode enabled={hardOpen} label="HARD" onStart={() => startHard(stage)} score={hard}/></section></div> : null}</article>;
       })}
     </div>
-    {lockAlert ? <div className={styles.modal} onClick={() => setLockAlert(null)} role="presentation"><section onClick={(event) => event.stopPropagation()}><span><MobileIcon name="lock-closed" size={26}/></span><p>{(() => { const count=correctNeededFor(tab,lockAlert.step,HARD_UNLOCK_SCORE); return `EASY'da ${count.total} tadan ${count.need} tasini to'g'ri qilsangiz HARD ochiladi. (${HARD_UNLOCK_SCORE} ball)`; })()}</p><button onClick={() => setLockAlert(null)} type="button">OK</button></section></div> : null}
+    {lockAlert ? <CenteredDialog onClose={() => setLockAlert(null)}><span className={`${dialogStyles.icon} ${dialogStyles.iconWarning}`}><MobileIcon name="lock-closed" size={32}/></span><p className={dialogStyles.message} style={{ marginTop: 20 }}>{(() => { const count=correctNeededFor(tab,lockAlert.step,HARD_UNLOCK_SCORE); return `EASY'da ${count.total} tadan ${count.need} tasini to'g'ri qilsangiz HARD ochiladi. (${HARD_UNLOCK_SCORE} ball)`; })()}</p><div className={dialogStyles.actions}><button className={dialogStyles.primary} onClick={() => setLockAlert(null)} type="button">OK</button></div></CenteredDialog> : null}
   </main>;
 }

@@ -5,6 +5,7 @@ import type {
 } from '../../expression-seed.types';
 import { ASKING_FOR_AND_UNDERSTANDING_DIRECTIONS_TOPIC } from './topics/asking-for-and-understanding-directions';
 import { ASKING_FOR_CLARIFICATION_TOPIC } from './topics/asking-for-clarification';
+import { ASKING_QUESTIONS_AT_SCHOOL_AND_IN_CLASS_TOPIC } from './topics/asking-questions-at-school-and-in-class';
 import { CALLING_AND_LEAVING_MESSAGES_TOPIC } from './topics/calling-and-leaving-messages';
 import { CHECKING_TIME_AND_DATE_TOPIC } from './topics/checking-time-and-date';
 import { EXPRESSING_FEELINGS_AND_OPINIONS_TOPIC } from './topics/expressing-feelings-and-opinions';
@@ -58,6 +59,7 @@ const EXPRESSION_TOPICS = [
   EXPRESSING_FEELINGS_AND_OPINIONS_TOPIC,
   GIVING_COMPLIMENTS_CONGRATULATIONS_AND_COMFORT_TOPIC,
   TALKING_AT_WORK_AND_PART_TIME_JOBS_TOPIC,
+  ASKING_QUESTIONS_AT_SCHOOL_AND_IN_CLASS_TOPIC,
 ] as const;
 
 export const EXPRESSION_PACK_SEEDS: readonly ExpressionPackSeed[] =

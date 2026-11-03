@@ -11,6 +11,7 @@ import { useGameWords } from "../model/use-game-words";
 import { createGameSession } from "../model/game-session";
 import { useLeagueChallenge } from "../model/use-league-challenge";
 import styles from "./word-rain-screen.module.css";
+import { CenteredDialog, dialogStyles } from "../../../shared/ui/centered-dialog";
 import { useTelegramBackOverride } from "../../../shared/telegram/back-button";
 
 const MAX_HEARTS = 3;
@@ -262,19 +263,17 @@ export function WordRainScreen() {
       </div>
 
       {over ? (
-        <div className={styles.overlay}>
-          <section className={styles.endCard}>
-            <span className={styles.endEmoji}>🌧️</span>
+        <CenteredDialog onClose={exit} backdropDismissible={false} className={styles.endCard}>
+            <span aria-hidden="true" className={`${dialogStyles.icon} `}><MobileIcon name="layers" size={32} /></span>
             <h1>O&apos;yin tugadi!</h1>
-            <div className={styles.endStats}>
+            <div className={dialogStyles.stats}>
               <div><strong>{score}</strong><span>Ball</span></div>
               <div><strong>{caught}</strong><span>Tutilgan so&apos;zlar</span></div>
               <div><strong>x{bestCombo}</strong><span>Eng yaxshi kombo</span></div>
             </div>
-            {!isChallenge ? <button className={styles.again} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
-            <button className={styles.exit} onClick={exit} type="button">Chiqish</button>
-          </section>
-        </div>
+            {!isChallenge ? <button className={dialogStyles.primary} onClick={restart} type="button">Yana o&apos;ynash</button> : null}
+            <button className={dialogStyles.secondary} onClick={exit} type="button">Chiqish</button>
+        </CenteredDialog>
       ) : null}
     </main>
   );

@@ -13,10 +13,10 @@ import Animated, {
   cancelAnimation,
   runOnJS,
   Easing,
-  FadeIn,
   ZoomIn,
 } from "react-native-reanimated";
 import { useTheme } from "@/hooks/useTheme";
+import { CenteredModal, DialogButton, DialogIcon, useDialogTheme } from "@/components/common/CenteredModal";
 import { useLeagueChallenge } from "@/hooks/useLeagueChallenge";
 import { ThemeColors } from "@/constants/theme";
 import {
@@ -40,6 +40,7 @@ export default function WordRainScreen() {
   const session = useGameSession();
   const contentLang = session.contentLanguage;
   const theme = useTheme();
+  const dialog = useDialogTheme();
   const insets = useSafeAreaInsets();
   const s = styles(theme, insets.top, insets.bottom);
 
@@ -275,38 +276,28 @@ export default function WordRainScreen() {
       </View>
 
       {/* 종료 오버레이 */}
-      {over ? (
-        <Animated.View entering={FadeIn.duration(250)} style={s.overlay}>
-          <Animated.View entering={ZoomIn.duration(300)} style={s.endCard}>
-            <Text style={s.endEmoji}>🌧️</Text>
-            <Text style={s.endTitle}>{t("arcade.gameOver")}</Text>
-            <View style={s.endStats}>
+      <CenteredModal visible={over} onClose={exit} backdropDismissible={false}>
+        <DialogIcon name="rainy" tone="warning" />
+        <Text style={[s.endTitle, { color: dialog.text }]}>{t("arcade.gameOver")}</Text>
+            <View style={[s.endStats, { width: "100%", borderColor: dialog.border }]}>
               <View style={s.endStat}>
-                <Text style={s.endStatNum}>{score}</Text>
-                <Text style={s.endStatLabel}>{t("arcade.score")}</Text>
+                <Text style={[s.endStatNum, { color: dialog.text }]}>{score}</Text>
+                <Text style={[s.endStatLabel, { color: dialog.textSecondary }]}>{t("arcade.score")}</Text>
               </View>
               <View style={s.endStat}>
-                <Text style={s.endStatNum}>{caught}</Text>
-                <Text style={s.endStatLabel}>{t("arcade.caught")}</Text>
+                <Text style={[s.endStatNum, { color: dialog.text }]}>{caught}</Text>
+                <Text style={[s.endStatLabel, { color: dialog.textSecondary }]}>{t("arcade.caught")}</Text>
               </View>
               <View style={s.endStat}>
-                <Text style={s.endStatNum}>x{bestCombo}</Text>
-                <Text style={s.endStatLabel}>{t("arcade.bestCombo")}</Text>
+                <Text style={[s.endStatNum, { color: dialog.text }]}>x{bestCombo}</Text>
+                <Text style={[s.endStatLabel, { color: dialog.textSecondary }]}>{t("arcade.bestCombo")}</Text>
               </View>
             </View>
-            {/* 챌린지에서는 다시 하기를 숨긴다 — 에너지 한 번 내고 무한히
-                돌리면 하루 한도까지 XP 를 긁을 수 있다 */}
-            {isChallenge ? null : (
-              <TouchableOpacity style={s.againBtn} onPress={restart}>
-                <Text style={s.againText}>{t("arcade.playAgain")}</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity style={s.exitBtn} onPress={exit}>
-              <Text style={s.exitText}>{t("arcade.exit")}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </Animated.View>
-      ) : null}
+        {isChallenge ? null : (
+          <DialogButton label={t("arcade.playAgain")} onPress={restart} style={{ marginTop: 20 }} />
+        )}
+        <DialogButton label={t("arcade.exit")} onPress={exit} variant={isChallenge ? "primary" : "secondary"} style={{ marginTop: 8 }} />
+      </CenteredModal>
     </View>
   );
 }

@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   AppState,
   Linking,
-  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -24,6 +23,7 @@ import { ApiError } from "@/services/api";
 import { useAuthStore } from "@/store/auth.store";
 import AvatarPreview from "@/components/avatar/AvatarPreview";
 import SwipeSheet from "@/components/common/SwipeSheet";
+import { CenteredModal, DialogButton, useDialogTheme } from "@/components/common/CenteredModal";
 import type { AvatarConfig } from "@/types/avatar";
 import {
   StickersService,
@@ -333,7 +333,7 @@ export default function StickersScreen() {
         waiting={Boolean(state?.busy)}
       />
       {phase === "done" && pack ? (
-        <DoneModal fan={fan} kind={doneKind} onAdd={() => openTelegram(pack.url)} onClose={() => setPhase("idle")} theme={theme} />
+        <DoneModal fan={fan} kind={doneKind} onAdd={() => openTelegram(pack.url)} onClose={() => setPhase("idle")} />
       ) : null}
     </View>
   );
@@ -525,31 +525,20 @@ function LinkSheet({
 
 /* ───────────── 완성 (페이드로만 뜬다) ───────────── */
 
-function DoneModal({ fan, kind, onAdd, onClose, theme }: { fan: string[]; kind: "new" | "refresh"; onAdd: () => void; onClose: () => void; theme: ThemeColors }) {
+function DoneModal({ fan, kind, onAdd, onClose }: { fan: string[]; kind: "new" | "refresh"; onAdd: () => void; onClose: () => void }) {
   const { t } = useTranslation();
+  const theme = useDialogTheme();
   const s = useMemo(() => getStyles(theme), [theme]);
   return (
-    <Modal animationType="fade" navigationBarTranslucent onRequestClose={onClose} statusBarTranslucent transparent visible>
-      <View style={s.center}>
-        <Pressable onPress={onClose} style={StyleSheet.absoluteFill} />
-        <View style={s.done}>
-          <View style={s.doneFan}>
-            {fan.map((src, index) => (
-              <FanCard index={index} key={index} src={src} />
-            ))}
-          </View>
-          <Text style={s.sheetTitle}>{t(kind === "new" ? "stickers.done.title" : "stickers.done.updated")}</Text>
-          <Text style={[s.sheetBody, { marginBottom: 16 }]}>{t("stickers.done.body")}</Text>
-          <Cta color={TG} depth={TG_DARK} onPress={onAdd}>
-            <Ionicons name="paper-plane" size={19} color="#FFFFFF" />
-            <Text style={s.ctaText}>{t("stickers.cta.add")}</Text>
-          </Cta>
-          <Pressable hitSlop={6} onPress={onClose} style={s.later}>
-            <Text style={s.laterText}>{t("stickers.done.later")}</Text>
-          </Pressable>
-        </View>
+    <CenteredModal visible onClose={onClose}>
+      <View style={s.doneFan}>
+        {fan.map((src, index) => <FanCard index={index} key={index} src={src} />)}
       </View>
-    </Modal>
+      <Text style={s.sheetTitle}>{t(kind === "new" ? "stickers.done.title" : "stickers.done.updated")}</Text>
+      <Text style={[s.sheetBody, { marginBottom: 24 }]}>{t("stickers.done.body")}</Text>
+      <DialogButton label={t("stickers.cta.add")} icon="paper-plane" onPress={onAdd} />
+      <DialogButton label={t("stickers.done.later")} variant="secondary" onPress={onClose} style={{ marginTop: 8 }} />
+    </CenteredModal>
   );
 }
 

@@ -284,6 +284,26 @@ The mascot is a 3D clay-style render (PNG mood sheets in `assets/images/characte
 
 ## Do's and Don'ts
 
+### Centered dialogs (approved November 2026)
+
+Centered confirmations, errors, rewards, feature tips and game-end dialogs use
+the word-practice dialog's quieter treatment in both clients. This component
+recipe overrides the general slab-button and violet-action rules below within
+the dialog only. Sheets, navigation and full-screen flows keep their own design.
+
+- Use `shared/dialog-theme.ts`: warm white page (`#FAF9F6`), white surface,
+  vivid blue primary action (`#0066FF`), yellow hints and pink reward accents.
+- Use the explicit dark palette; keep destructive confirmation actions rose.
+- Keep the existing subject art, mascot, icons, labels, counts and callbacks.
+- Center a surface up to 420px wide with 26px corners, 24px inset and one soft
+  shadow. Primary actions are full-width pills with at least 52px height. Other
+  choices use a quiet neutral fill. Avoid slabs on these actions.
+- Fade the overlay. Scroll long content inside safe areas; keep typing visible
+  above the keyboard. Honor each dialog's existing back and dismissal behavior.
+- Native `CenteredModal` and Telegram `CenteredDialog` own layout and colors.
+  Existing imperative alerts pass through queued in-app hosts so they share the
+  same appearance and each request can settle only once.
+
 ### Do:
 - **Do** give every pressable element a same-hue darker slab (3–5px, usually 4px) and sink the face by that depth on press.
 - **Do** route every touchable through `@/components/ui/Pressables` so it gets the click sound.

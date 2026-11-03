@@ -124,12 +124,23 @@ function fixture() {
       chain(rows.find((row) => matches(row, filter)) || null),
     ),
   };
+  const savedProgress: Row[] = [];
   const progress = {
-    find: jest.fn(() => chain([])),
-    findOne: jest.fn(() => chain(null)),
-    findOneAndUpdate: jest.fn((_filter: Row, update: { $set: Row }) =>
-      Promise.resolve(update.$set),
+    find: jest.fn((filter: Row) =>
+      chain(savedProgress.filter((row) => matches(row, filter))),
     ),
+    findOne: jest.fn((filter: Row) =>
+      chain(savedProgress.find((row) => matches(row, filter)) || null),
+    ),
+    findOneAndUpdate: jest.fn((filter: Row, update: { $set: Row }) => {
+      let row = savedProgress.find((item) => matches(item, filter));
+      if (!row) {
+        row = { ...filter };
+        savedProgress.push(row);
+      }
+      Object.assign(row, update.$set);
+      return Promise.resolve(row);
+    }),
     bulkWrite: jest.fn(
       (operations: { updateOne: { filter: Row } }[], options: Row) =>
         Promise.resolve({ operations, options }),
@@ -139,10 +150,46 @@ function fixture() {
     service: new WordsService(words as never, progress as never),
     words,
     progress,
+    rows,
   };
 }
 
 describe('word course isolation', () => {
+  it.each([
+    ['Korean', KO_ID, KO, EN],
+    ['English', EN_ID, EN, KO],
+  ])(
+    '%s recall mastery persists in counts without duplicates or source changes',
+    async (_name, id, scope, otherScope) => {
+      const { service, rows } = fixture();
+      const originalWords = JSON.stringify(rows);
+      await service.reviewWord(
+        USER,
+        id.toString(),
+        WordReviewResult.GOOD,
+        scope,
+      );
+      expect((await service.getSectionSummary(USER, 1, scope)).mastered).toBe(
+        0,
+      );
+      await service.masterWord(USER, id.toString(), scope);
+      await service.masterWord(USER, id.toString(), scope);
+      const summary = await service.getSectionSummary(USER, 1, scope);
+      expect(summary.mastered).toBe(1);
+      expect(summary.units[0].mastered).toBe(1);
+      expect(
+        (await service.getWord(USER, id.toString(), 'ko', scope)).progress,
+      ).toMatchObject({
+        state: 'mastered',
+        correctCount: 1,
+      });
+      expect(
+        (await service.getSectionSummary(USER, 1, otherScope)).mastered,
+      ).toBe(0);
+      expect(JSON.stringify(rows)).toBe(originalWords);
+    },
+  );
+
   it('keeps old requests Korean-only without migrating legacy documents', async () => {
     const { service } = fixture();
     const response = await service.getWords(

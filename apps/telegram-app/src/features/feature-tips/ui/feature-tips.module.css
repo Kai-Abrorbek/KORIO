@@ -6,7 +6,7 @@
 
 .card{position:relative;display:flex;flex-direction:column;width:min(380px,100%);border:1px solid var(--border);border-radius:28px;background:var(--surface);color:var(--text);padding:52px 20px 14px}
 .sky{position:absolute;top:0;left:0;right:0;height:150px;border-radius:27px 27px 0 0;background:linear-gradient(rgb(119 110 226/18%),rgb(119 110 226/0));pointer-events:none}
-.peek{position:absolute;top:-60px;left:50%;transform:translateX(-50%)}
+.peek{position:relative;align-self:center;margin:0 auto 14px}
 .peek img{display:block;width:108px;height:108px;object-fit:contain}
 .card h2{position:relative;margin:0;font-size:22px;font-weight:900;line-height:28px;letter-spacing:-.3px;text-align:center}
 .card>p{position:relative;margin:6px 0 0;color:var(--muted);font-size:14px;font-weight:600;line-height:20px;text-align:center}

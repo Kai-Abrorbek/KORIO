@@ -1,11 +1,11 @@
 import { useCallback, useRef, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, Modal } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Pressable } from "@/components/ui/Pressables";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import Animated, { FadeIn } from "react-native-reanimated";
+import { CenteredModal, DialogButton, DialogIcon, useDialogTheme } from "@/components/common/CenteredModal";
 import { useTranslation } from "react-i18next";
 import * as Haptics from "@/utils/haptics";
 import { UserService } from "@/services/user.service";
@@ -52,6 +52,7 @@ export default function PronunciationPractice() {
 
 function PronunciationPracticeSession({ language }: { language: "ko" | "en" }) {
   const { t } = useTranslation();
+  const dialogTheme = useDialogTheme();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const uiLanguage = useSettingsStore((state) => state.language);
@@ -368,43 +369,16 @@ function PronunciationPracticeSession({ language }: { language: "ko" | "en" }) {
       </ScrollView>
 
       {/* HARD 잠김 안내 */}
-      <Modal
-        transparent
-        visible={!!lockAlert}
-        animationType="fade"
-        onRequestClose={() => setLockAlert(null)}
-      >
-        <View style={st.modalBg}>
-          <Animated.View entering={FadeIn.duration(150)} style={st.modalCard}>
-            <View style={st.modalIcon}>
-              <Ionicons name="lock-closed" size={26} color={C.purpleDk} />
-            </View>
-            <Text style={st.modalText}>
-              {t("pronPractice.hardLocked", {
-                score: HARD_UNLOCK_SCORE,
-                ...(lockAlert
-                  ? correctNeededFor(tab, lockAlert.step, HARD_UNLOCK_SCORE)
-                  : { need: 0, total: 0 }),
-              })}
-            </Text>
-            <Pressable
-              onPress={() => setLockAlert(null)}
-              style={{ width: "100%" }}
-            >
-              {({ pressed }) => (
-                <LinearGradient
-                  colors={[C.purple, C.purpleDk]}
-                  style={[st.modalBtn, pressed && { opacity: 0.9 }]}
-                >
-                  <Text style={st.modalBtnText}>
-                    {t("pronPractice.confirm")}
-                  </Text>
-                </LinearGradient>
-              )}
-            </Pressable>
-          </Animated.View>
-        </View>
-      </Modal>
+      <CenteredModal visible={!!lockAlert} onClose={() => setLockAlert(null)}>
+        <DialogIcon name="lock-closed" tone="warning" />
+        <Text style={[st.modalText, { color: dialogTheme.text }]}>
+          {t("pronPractice.hardLocked", {
+            score: HARD_UNLOCK_SCORE,
+            ...(lockAlert ? correctNeededFor(tab, lockAlert.step, HARD_UNLOCK_SCORE) : { need: 0, total: 0 }),
+          })}
+        </Text>
+        <DialogButton label={t("pronPractice.confirm")} onPress={() => setLockAlert(null)} style={{ marginTop: 20 }} />
+      </CenteredModal>
     </View>
   );
 }

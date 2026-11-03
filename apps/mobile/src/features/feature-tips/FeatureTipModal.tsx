@@ -1,16 +1,12 @@
 import { useRef } from "react";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useTranslation } from "react-i18next";
 import { Pressable } from "@/components/ui/Pressables";
 import HaneulmonMascot, {
   type HaneulmonMood,
 } from "@/components/home/HaneulmonMascot";
-import Button3D from "@/features/retention/components/Button3D";
-import { useTheme } from "@/hooks/useTheme";
-import type { ThemeColors } from "@/constants/theme";
+import { CenteredModal, DialogButton, useDialogTheme } from "@/components/common/CenteredModal";
 import type { FeatureTip } from "./useFeatureTip";
 
 const MOOD: Record<FeatureTip["id"], HaneulmonMood> = {
@@ -18,9 +14,6 @@ const MOOD: Record<FeatureTip["id"], HaneulmonMood> = {
   invite: "cheering",
   stickers: "great",
 };
-const GOLD = "#FFD900";
-const SKY = "#1CB0F6";
-const SKY_DEPTH = "#1899D6";
 
 const n = (value: number) => value.toLocaleString("en-US");
 
@@ -43,7 +36,7 @@ export default function FeatureTipModal({
   onNever: () => void;
 }) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const theme = useDialogTheme();
   const s = getStyles(theme);
   // 닫히는 페이드 동안 마지막 내용을 그린다
   const last = useRef<FeatureTip | null>(tip);
@@ -51,25 +44,12 @@ export default function FeatureTipModal({
   const shown = tip ?? last.current;
 
   return (
-    <Modal
-      transparent
+    <CenteredModal
       visible={!!tip}
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onClose}
+      onClose={onClose}
     >
-      <GestureHandlerRootView style={s.root}>
-        <Pressable
-          style={[StyleSheet.absoluteFill, s.backdrop]}
-          onPress={onClose}
-        />
         {shown ? (
-          <View style={s.card}>
-            <LinearGradient
-              pointerEvents="none"
-              colors={["rgba(119,110,226,0.18)", "rgba(119,110,226,0)"]}
-              style={s.sky}
-            />
+          <View style={s.content}>
             <View style={s.peek}>
               <HaneulmonMascot size={108} mood={MOOD[shown.id]} />
             </View>
@@ -85,11 +65,9 @@ export default function FeatureTipModal({
 
             <Benefit tip={shown} theme={theme} />
 
-            <Button3D
+            <DialogButton
               label={t(`featureTips.${shown.id}.cta`)}
               onPress={() => onGo(shown)}
-              color={shown.id === "stickers" ? SKY : undefined}
-              depthColor={shown.id === "stickers" ? SKY_DEPTH : undefined}
               style={s.cta}
             />
             <View style={s.footer}>
@@ -107,13 +85,12 @@ export default function FeatureTipModal({
             </View>
           </View>
         ) : null}
-      </GestureHandlerRootView>
-    </Modal>
+    </CenteredModal>
   );
 }
 
 /** 혜택 한 덩어리 — 숫자로 바로 보이게 */
-function Benefit({ tip, theme }: { tip: FeatureTip; theme: ThemeColors }) {
+function Benefit({ tip, theme }: { tip: FeatureTip; theme: ReturnType<typeof useDialogTheme> }) {
   const { t } = useTranslation();
   const s = getStyles(theme);
 
@@ -122,7 +99,7 @@ function Benefit({ tip, theme }: { tip: FeatureTip; theme: ThemeColors }) {
     return (
       <View style={s.benefit}>
         <View style={s.payoutRow}>
-          <Ionicons name="diamond" size={16} color="#5CD0F0" />
+          <Ionicons name="diamond" size={16} color={theme.primary} />
           <Text style={s.payoutNow}>{n(tip.gems)}</Text>
           <Text style={s.payoutGoal}>/ {n(tip.minGems)}</Text>
         </View>
@@ -140,7 +117,7 @@ function Benefit({ tip, theme }: { tip: FeatureTip; theme: ThemeColors }) {
     return (
       <View style={s.benefit}>
         <View style={s.bigRow}>
-          <Ionicons name="diamond" size={22} color="#5CD0F0" />
+          <Ionicons name="diamond" size={22} color={theme.primary} />
           <Text style={s.big}>+{n(tip.rewardGems)}</Text>
         </View>
         <Text style={s.caption}>{t("featureTips.invite.each")}</Text>
@@ -177,53 +154,30 @@ function Benefit({ tip, theme }: { tip: FeatureTip; theme: ThemeColors }) {
   );
 }
 
-const getStyles = (theme: ThemeColors) =>
+const getStyles = (theme: ReturnType<typeof useDialogTheme>) =>
   StyleSheet.create({
-    root: { flex: 1, alignItems: "center", justifyContent: "center" },
-    backdrop: { backgroundColor: "rgba(16, 11, 44, 0.74)" },
-    card: {
-      width: "88%",
-      maxWidth: 380,
-      backgroundColor: theme.surface,
-      borderRadius: 28,
-      paddingTop: 52,
-      paddingHorizontal: 20,
-      paddingBottom: 14,
-      borderWidth: 1,
-      borderColor: theme.border,
-    },
-    sky: {
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      height: 150,
-      borderTopLeftRadius: 27,
-      borderTopRightRadius: 27,
-    },
-    peek: { position: "absolute", top: -60, alignSelf: "center" },
+    content: { width: "100%" },
+    peek: { alignSelf: "center", width: 116, height: 116, borderRadius: 40, backgroundColor: theme.yellowWash, alignItems: "center", justifyContent: "center", marginBottom: 18 },
     title: {
-      fontSize: 22,
-      fontWeight: "900",
+      fontSize: 24,
+      fontWeight: "800",
       color: theme.text,
       textAlign: "center",
-      lineHeight: 28,
+      lineHeight: 31,
       letterSpacing: -0.3,
     },
     body: {
-      marginTop: 6,
-      fontSize: 14,
-      fontWeight: "600",
+      marginTop: 10,
+      fontSize: 15,
+      fontWeight: "500",
       color: theme.textSecondary,
       textAlign: "center",
-      lineHeight: 20,
+      lineHeight: 23,
     },
     benefit: {
       marginTop: 16,
       borderRadius: 18,
-      borderWidth: 1,
-      borderColor: theme.border,
-      backgroundColor: theme.bg,
+      backgroundColor: theme.soft,
       paddingVertical: 14,
       paddingHorizontal: 14,
       alignItems: "center",
@@ -239,7 +193,7 @@ const getStyles = (theme: ThemeColors) =>
       backgroundColor: theme.border,
       overflow: "hidden",
     },
-    fill: { height: "100%", borderRadius: 999, backgroundColor: GOLD },
+    fill: { height: "100%", borderRadius: 999, backgroundColor: theme.action },
     caption: {
       marginTop: 8,
       fontSize: 12.5,
@@ -266,30 +220,28 @@ const getStyles = (theme: ThemeColors) =>
       paddingVertical: 4,
       paddingHorizontal: 9,
       borderRadius: 999,
-      backgroundColor: "#FFF1C7",
-      borderWidth: 1,
-      borderColor: "#FFE38A",
+      backgroundColor: theme.yellowWash,
     },
     chipDone: { opacity: 0.5 },
-    chipText: { fontSize: 11.5, fontWeight: "900", color: "#9A6A00" },
+    chipText: { fontSize: 11.5, fontWeight: "700", color: theme.onYellow },
     stickerBenefit: { flexDirection: "row", gap: 12 },
     stickerIcon: {
       width: 46,
       height: 46,
       borderRadius: 14,
-      backgroundColor: SKY,
+      backgroundColor: theme.action,
       alignItems: "center",
       justifyContent: "center",
     },
     stickerFree: { fontSize: 17, fontWeight: "900", color: theme.text },
-    cta: { marginTop: 16 },
+    cta: { marginTop: 24 },
     footer: {
       marginTop: 10,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
     },
-    footBtn: { flex: 1, paddingVertical: 8, alignItems: "center" },
+    footBtn: { flex: 1, minHeight: 44, paddingVertical: 10, alignItems: "center", justifyContent: "center" },
     footText: {
       fontSize: 13,
       fontWeight: "800",

@@ -1,0 +1,226 @@
+.root {
+  align-items: center;
+  animation: dialogFade 180ms ease-out both;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: max(20px, var(--korio-top, 0px)) 20px
+    max(20px, var(--korio-bottom, 0px));
+  position: fixed;
+  transition: opacity 180ms ease-out;
+  z-index: 160;
+}
+.backdrop {
+  background: var(--dialog-backdrop);
+  inset: 0;
+  position: absolute;
+}
+.root .surface {
+  --surface: var(--dialog-bg);
+  --app-bg: var(--dialog-page);
+  --text: var(--dialog-text);
+  --muted: var(--dialog-muted);
+  --border: var(--dialog-border);
+  animation: none;
+  background: var(--dialog-bg);
+  border: 0;
+  border-radius: 26px;
+  box-shadow: 0 16px 38px rgb(15 25 45 / 18%);
+  color: var(--dialog-text);
+  max-height: min(100%, calc(100dvh - 40px));
+  max-width: 420px;
+  outline: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 30px 24px 18px;
+  position: relative;
+  inset: auto;
+  margin: 0;
+  transform: none;
+  scrollbar-color: var(--dialog-border) transparent;
+  scrollbar-width: thin;
+  text-align: center;
+  width: 100%;
+}
+.surface ::selection {
+  background: var(--dialog-wash);
+  color: var(--dialog-accent);
+}
+.root .surface > * {
+  flex-shrink: 0;
+}
+.surface :is(button, input, textarea, select, a):focus-visible {
+  outline: 3px solid var(--dialog-accent);
+  outline-offset: 3px;
+}
+.surface :is(input, textarea) {
+  caret-color: var(--dialog-accent);
+}
+.surface :is(h1, h2, h3) {
+  color: var(--dialog-text);
+  text-wrap: balance;
+}
+.surface p {
+  color: var(--dialog-muted);
+  overflow-wrap: anywhere;
+}
+.title {
+  font-size: 25px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  margin: 18px 0 10px;
+  text-wrap: balance;
+}
+.message {
+  color: var(--dialog-muted);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-line;
+}
+.root .surface .icon {
+  align-items: center;
+  background: var(--dialog-wash);
+  border-radius: 24px;
+  color: var(--dialog-accent);
+  display: flex;
+  height: 76px;
+  justify-content: center;
+  margin: 0 auto;
+  width: 76px;
+}
+.root .surface .iconWarning {
+  background: var(--dialog-yellow-wash);
+  color: var(--dialog-yellow-ink);
+}
+.root .surface .iconDanger {
+  background: var(--dialog-pink-wash);
+  color: var(--dialog-pink-ink);
+}
+.actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  width: 100%;
+}
+.root .surface .primary,
+.root .surface .secondary,
+.root .surface .danger {
+  align-items: center;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  gap: 8px;
+  justify-content: center;
+  line-height: 1.4;
+  min-height: 52px;
+  padding: 13px 18px;
+  width: 100%;
+}
+.root .surface .primary {
+  background: var(--dialog-action);
+  color: var(--dialog-action-text);
+}
+.root .surface .primary:active {
+  background: var(--dialog-action-pressed);
+  transform: scale(0.98);
+}
+.root .surface .primary + .secondary {
+  margin-top: 8px;
+}
+.root .surface .secondary {
+  background: var(--dialog-soft);
+  color: var(--dialog-muted);
+}
+.root .surface .secondary:active {
+  background: var(--dialog-border);
+}
+.root .surface .danger {
+  background: var(--dialog-danger);
+  color: var(--dialog-action-text);
+}
+.root .surface .danger:active {
+  background: var(--dialog-danger-pressed);
+  transform: scale(0.98);
+}
+.root .surface .primary:disabled,
+.root .surface .secondary:disabled,
+.root .surface .danger:disabled {
+  cursor: default;
+  opacity: 0.45;
+  transform: none;
+}
+.close {
+  align-items: center;
+  background: var(--dialog-soft);
+  border: 0;
+  border-radius: 50%;
+  color: var(--dialog-muted);
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 40px;
+}
+.root .surface .mascot {
+  display: block;
+  margin: 0 auto 12px;
+}
+.root .surface .stats {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid var(--dialog-border);
+  border-bottom: 1px solid var(--dialog-border);
+  margin: 24px 0;
+  padding: 16px 0;
+  width: 100%;
+}
+.stats > div {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+.stats > i {
+  display: none;
+}
+.stats strong {
+  color: var(--dialog-accent);
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+.stats span {
+  color: var(--dialog-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.stats > div > span:first-child {
+  color: var(--dialog-accent);
+}
+@keyframes dialogFade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+  .primary:active,
+  .danger:active {
+    transform: none;
+  }
+}

@@ -10,10 +10,10 @@
 
 .form{position:relative;display:flex;flex-direction:column;transition:opacity .2s ease}
 .formHidden{opacity:0;pointer-events:none}
-.peek{position:absolute;top:-112px;left:50%;transform:translateX(-50%)}
+.peek{position:relative;align-self:center;margin:0 auto 12px}
 .peek img{display:block;width:108px;height:108px;object-fit:contain}
 
-.gift{align-self:center;display:inline-flex;align-items:center;gap:6px;border:1px solid #ffe38a;border-radius:999px;background:#fff1c7;padding:5px 12px;color:#9a6a00;font-size:12.5px;font-weight:900}
+.gift{align-self:center;display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;background:var(--dialog-yellow-wash);padding:6px 12px;color:var(--dialog-yellow-ink);font-size:12.5px;font-weight:750}
 .gift svg{color:#5cd0f0}
 .form h2{margin:12px 0 0;font-size:22px;font-weight:900;line-height:28px;letter-spacing:-.3px;text-align:center}
 .form p{margin:6px 0 0;color:var(--muted);font-size:14px;font-weight:600;line-height:20px;text-align:center}
@@ -28,12 +28,12 @@
 .starPicked{animation:starPop .38s ease-out}
 @keyframes starPop{0%{transform:scale(1)}25%{transform:scale(1.22)}60%{transform:scale(.95)}100%{transform:scale(1)}}
 
-.rateLabel{min-height:18px;margin-top:8px;color:#776ee2;font-size:13.5px;font-weight:900;text-align:center}
+.rateLabel{min-height:18px;margin-top:8px;color:var(--dialog-accent);font-size:13.5px;font-weight:750;text-align:center}
 .rateHint{color:var(--muted);font-weight:700}
 
-.input{min-height:84px;max-height:140px;margin-top:14px;border:1.5px solid var(--border);border-radius:16px;background:var(--app-bg);color:var(--text);padding:12px 14px;font:inherit;font-size:14.5px;font-weight:700;line-height:20px;resize:none;outline:0}
-.input:focus{border-color:#776ee2}
-.input::placeholder{color:color-mix(in srgb,var(--muted) 70%,transparent)}
+.input{min-height:84px;max-height:140px;margin-top:14px;border:1px solid var(--dialog-border);border-radius:16px;background:var(--dialog-page);color:var(--dialog-text);padding:12px 14px;font:inherit;font-size:14.5px;font-weight:600;line-height:20px;resize:none}
+.input:focus{border-color:var(--dialog-accent)}
+.input::placeholder{color:var(--dialog-muted)}
 .counter{align-self:flex-end;margin-top:4px;color:var(--muted);font-size:11px;font-weight:800}
 .error{margin-top:10px;color:#ff4b4b;font-size:13px;font-weight:800;text-align:center}
 .submit{margin-top:14px}

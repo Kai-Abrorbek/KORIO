@@ -13,7 +13,7 @@ const when = (value: string | null) => value ? new Date(value).toLocaleString("k
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
 const ratingTone = (n: number) => n >= 4 ? "good" : n === 3 ? "warn" : "bad";
 
-/** 앱 평가 모달(7일에 한 번, 500 보석)로 들어온 별점과 의견 */
+/** 앱 평가 모달(계정당 한 번, 500 보석)로 들어온 별점과 의견 */
 export function ReviewsPage() {
   const { can } = useSession();
   const [rating, setRating] = useState("");
@@ -24,7 +24,7 @@ export function ReviewsPage() {
   const stats = reviews.data?.stats;
   const most = stats ? Math.max(1, ...stats.distribution) : 1;
   return <div className="admin-page">
-    <div className="admin-page-head"><div><h2>앱 평가</h2><p>홈에서 뜨는 평가 모달로 받은 별점과 의견입니다. 유저당 7일에 한 번, 보내면 보석 500개를 받습니다.</p></div><span className="admin-pill blue">{stats ? `전체 ${stats.count}건` : "실데이터"}</span></div>
+    <div className="admin-page-head"><div><h2>앱 평가</h2><p>홈에서 뜨는 평가 모달로 받은 별점과 의견입니다. 유저당 한 번만 뜨고, 보내면 보석 500개를 받습니다.</p></div><span className="admin-pill blue">{stats ? `전체 ${stats.count}건` : "실데이터"}</span></div>
     {stats && <section className="admin-card" style={{ padding: 18, display: "flex", gap: 28, alignItems: "center", flexWrap: "wrap" }}>
       <div><div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1 }}>{stats.count ? stats.average.toFixed(2) : "—"}</div><small>평균 별점</small></div>
       <div style={{ flex: 1, minWidth: 220, display: "grid", gap: 6 }}>{[5, 4, 3, 2, 1].map(n => { const value = stats.distribution[n - 1] ?? 0; return <div key={n} style={{ display: "grid", gridTemplateColumns: "28px 1fr 48px", gap: 8, alignItems: "center", fontSize: 12 }}><span>{n}점</span><div style={{ height: 8, borderRadius: 4, background: "var(--surface-2)" }}><div style={{ width: `${(value / most) * 100}%`, height: "100%", borderRadius: 4, background: n >= 4 ? "#13a754" : n === 3 ? "#ae7d19" : "#d64279" }}/></div><span style={{ textAlign: "right" }}>{value}</span></div>; })}</div>
