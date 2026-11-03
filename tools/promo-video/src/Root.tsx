@@ -1,6 +1,8 @@
 import { Composition } from "remotion";
 import { FOUNDER_TOTAL, FounderIntro } from "./edit/FounderIntro";
 import { IgAvatar, IgHighlight } from "./social/ProfileArt";
+import { TanishCover } from "./tanish/TanishCover";
+import { TANISH_TOTAL, TanishReel } from "./tanish/TanishReel";
 
 /**
  * 영상은 게시가 끝나면 코드째 지운다 — 새 영상은 여기에 등록하고, 올린 뒤 등록도 함께 뺀다.
@@ -10,6 +12,8 @@ export function Root() {
   return (
     <>
       <Composition component={FounderIntro} durationInFrames={FOUNDER_TOTAL} fps={30} height={1920} id="FounderIntro" width={1080} />
+      <Composition component={TanishReel} durationInFrames={TANISH_TOTAL} fps={30} height={1920} id="TanishReel" width={1080} />
+      <Composition component={TanishCover} defaultProps={{ guides: false }} durationInFrames={1} fps={30} height={1920} id="TanishCover" width={1080} />
       <Composition component={IgAvatar} durationInFrames={1} fps={30} height={1080} id="IgAvatar" width={1080} />
       <Composition
         component={IgHighlight}
