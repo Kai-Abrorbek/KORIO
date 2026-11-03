@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { RateLimitGuard } from '../common/rate-limit';
 import { EnergyModule } from '../energy/energy.module';
 import { AnalyticsModule } from '../analytics/analytics.module';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -23,10 +24,7 @@ import { UsersModule } from '../users/users.module';
 
 import { NotificationsModule } from '../notifications/notifications.module';
 import { AnswerGradingService } from './answer-grading.service';
-import {
-  JumpAttempt,
-  JumpAttemptSchema,
-} from './schemas/jump-attempt.schema';
+import { JumpAttempt, JumpAttemptSchema } from './schemas/jump-attempt.schema';
 import {
   PendingChest,
   PendingChestSchema,
@@ -56,7 +54,12 @@ import {
     AnalyticsModule,
   ],
   controllers: [LessonsController],
-  providers: [LessonsService, AnswerGradingService, ChestService],
+  providers: [
+    LessonsService,
+    AnswerGradingService,
+    ChestService,
+    RateLimitGuard,
+  ],
   exports: [LessonsService, ChestService],
 })
 export class LessonsModule {}

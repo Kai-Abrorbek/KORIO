@@ -946,8 +946,14 @@ export class SpeechService {
     }
   }
 
-  /** 0 점이 났을 때 실제 녹음을 파일로 남긴다. 들어보면 원인이 바로 잡힌다. */
+  /**
+   * 0 점이 났을 때 실제 녹음을 파일로 남긴다. 들어보면 원인이 바로 잡힌다.
+   *
+   * 유저 목소리다 — 운영 서버 디스크에 동의 없이 쌓이면 안 된다. 원인을 볼 때만
+   * SPEECH_DEBUG_DUMP=true 로 잠깐 켠다.
+   */
   private dumpAudio(wav: Buffer): string {
+    if (process.env.SPEECH_DEBUG_DUMP?.trim() !== 'true') return '';
     try {
       const dir = path.resolve(process.cwd(), '.speech-debug');
       fs.mkdirSync(dir, { recursive: true });

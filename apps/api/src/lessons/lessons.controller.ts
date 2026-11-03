@@ -12,6 +12,7 @@ import {
 import { LessonsService } from './lessons.service';
 import { ChestService } from './chest.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { CompleteLessonDto } from './dto/complete-lesson.dto';
 import { CompletePracticeDto } from './dto/complete-practice.dto';
 import { ReportProgressDto } from '../analytics/dto/report-answer.dto';
@@ -279,7 +280,9 @@ export class LessonsController {
     return this.lessonsService.completeLegend(req.user._id.toString(), nodeId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // 틀린 타이핑 답마다 Anthropic 을 부른다. 한 레슨의 타이핑 문제는 몇 개뿐이다
+  @UseGuards(JwtAuthGuard, RateLimitGuard)
+  @RateLimit({ windowMs: 60_000, max: 30, perUser: true })
   @Post('questions/:questionId/grade')
   async gradeTypedAnswer(
     @Param('questionId') questionId: string,

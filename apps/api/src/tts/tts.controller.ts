@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtOptionalGuard } from '../auth/jwt-optional.guard';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { ListSpeechVoicesDto } from './dto/list-speech-voices.dto';
 import { SynthesizeSpeechDto } from './dto/synthesize-speech.dto';
 import { RequestQuota } from './guest-speech-quota';
@@ -53,8 +54,11 @@ export class TtsController {
    * 토큰이 없으면 게스트로 보고 상한 안에서만 열어준다. 토큰이 있으면 예전과
    * 완전히 같다. 같은 문장은 캐시라 두 번째부터 업체 요청이 안 나간다.
    */
+  // 로그인한 유저는 상한이 없었다 — 1000자짜리 새 문장을 계속 보내면 그대로 Azure 비용이다.
+  // 레슨이 문장을 한꺼번에 미리 받아 두는 것보다 넉넉하게
   @Post('speech')
-  @UseGuards(JwtOptionalGuard)
+  @UseGuards(JwtOptionalGuard, RateLimitGuard)
+  @RateLimit({ windowMs: 60_000, max: 120, perUser: true })
   prepare(
     @Body() dto: SynthesizeSpeechDto,
     @Req() req: { user?: unknown },

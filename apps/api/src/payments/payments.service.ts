@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { GooglePlayProvider } from './providers/google-play/google-play.provider';
 import type { PaymentProvider } from './providers/payment-provider.interface';
 import { SubscriptionService } from './subscriptions/subscription.service';
@@ -43,6 +48,14 @@ export class PaymentsService {
       productId,
       userId,
     });
+    // 구독은 처음 받은 계정의 것이다. 남의 구매 토큰을 보내서 옮겨 가지 못하게
+    const owner = await this.subscriptions.purchaseOwner(verified);
+    if (owner && owner !== userId) {
+      this.logger.warn(
+        `다른 계정의 결제를 가져가려는 요청 (${providerId}) user=${userId}`,
+      );
+      throw new ConflictException('PURCHASE_OWNED_BY_ANOTHER_ACCOUNT');
+    }
     // 갱신·업그레이드로 토큰이 바뀐 경우 옛 구독을 눕힌다
     await this.subscriptions.supersede(userId, verified);
     return this.subscriptions.applyVerifiedPurchase(userId, verified);
@@ -68,7 +81,9 @@ export class PaymentsService {
         );
         restored++;
       } catch (e) {
-        this.logger.warn(`복원 실패한 항목 하나 건너뜀: ${(e as Error).message}`);
+        this.logger.warn(
+          `복원 실패한 항목 하나 건너뜀: ${(e as Error).message}`,
+        );
       }
     }
     return {
@@ -83,7 +98,11 @@ export class PaymentsService {
    */
   async handleWebhook(
     providerId: PaymentProviderId,
-    input: { headers: Record<string, any>; rawBody: Buffer | string; body: unknown },
+    input: {
+      headers: Record<string, any>;
+      rawBody: Buffer | string;
+      body: unknown;
+    },
   ) {
     const provider = this.get(providerId);
     if (!provider.verifyWebhook) return { ok: true, ignored: true };

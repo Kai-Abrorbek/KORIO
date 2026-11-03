@@ -53,7 +53,11 @@ export class AdminGuard implements CanActivate {
 
     let payload: { sub?: string; scope?: string; tv?: number };
     try {
-      payload = await this.jwt.verifyAsync(token, { secret });
+      // 서명 방식을 못 박는다 — 토큰이 고른 알고리즘을 믿지 않는다
+      payload = await this.jwt.verifyAsync(token, {
+        secret,
+        algorithms: ['HS256'],
+      });
     } catch {
       throw new UnauthorizedException('INVALID_TOKEN');
     }

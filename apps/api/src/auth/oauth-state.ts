@@ -54,9 +54,17 @@ export function unpackState(raw?: string): OAuthState | null {
   }
 }
 
-/** 앱으로 돌아가는 주소만 허용. 외부 URL 로 토큰이 새 나가면 안 된다 */
+/**
+ * 앱으로 돌아가는 주소만 허용. 외부 URL 로 토큰이 새 나가면 안 된다.
+ *
+ * exp:// 는 Expo Go(개발용)다. 운영에서 열어 두면 공격자가 자기 Expo 개발 서버
+ * 주소(exp://공격자/...)로 redirect 를 건 로그인 링크를 보내, 그 폰에 Expo Go 가
+ * 있으면 로그인 직후 토큰을 자기 서버로 받아 갈 수 있다. 개발에서만 받는다.
+ */
 export function safeRedirect(url?: string): string {
   const fallback = 'mobile://social-auth';
   if (!url) return fallback;
-  return /^(mobile|korio|exp):\/\//.test(url) ? url : fallback;
+  const schemes =
+    process.env.NODE_ENV === 'production' ? 'mobile|korio' : 'mobile|korio|exp';
+  return new RegExp(`^(${schemes})://`).test(url) ? url : fallback;
 }

@@ -78,11 +78,27 @@ export class GemPayoutService {
 
   // ───────────────────────── 유저 ─────────────────────────
 
+  /**
+   * 연속 목표를 고를 때 미리 받은 보석. 목표가 끊기면 회수되는데, 그 전에 현금으로
+   * 빼 가면 회수는 잔액만 마이너스로 만들 뿐 돈은 이미 나간 뒤다. 그래서 목표가
+   * 끝날 때까지 출금에 못 쓴다 (MongoDB 조건식 — 차감과 같은 원자 연산 안에서 본다).
+   */
+  private static readonly LOCKED_GOAL_GEMS = {
+    $cond: [
+      { $eq: ['$streakGoal.status', 'active'] },
+      { $max: [0, { $ifNull: ['$streakGoal.gems', 0] }] },
+      0,
+    ],
+  };
+
   /** 상점 출금 칸 — 최소 수량·환율·지금 열린 신청·최근 결과 */
   async overview(userId: string) {
     const uid = new Types.ObjectId(userId);
     const [user, recent] = await Promise.all([
-      this.users.findById(uid).select('gems').lean<{ gems?: number }>(),
+      this.users.findById(uid).select('gems streakGoal').lean<{
+        gems?: number;
+        streakGoal?: { status?: string; gems?: number };
+      }>(),
       this.requests
         .find({ userId: uid })
         .sort({ createdAt: -1 })
@@ -94,6 +110,11 @@ export class GemPayoutService {
       minGems: GEM_PAYOUT.MIN_GEMS,
       somPerGem: SOM_PER_GEM,
       gems: user?.gems ?? 0,
+      // 출금에 못 쓰는 몫 (진행 중인 연속 목표 보석)
+      lockedGems:
+        user?.streakGoal?.status === 'active'
+          ? Math.max(0, user.streakGoal.gems ?? 0)
+          : 0,
       open: open ? this.view(open) : null,
       recent: recent.map((item) => this.view(item)),
     };
@@ -123,10 +144,19 @@ export class GemPayoutService {
       throw new ConflictException('PAYOUT_ALREADY_OPEN');
     }
 
-    // 보석 차감을 조건부·원자적으로 (요청이 겹쳐도 음수가 되지 않게)
+    // 보석 차감을 조건부·원자적으로 (요청이 겹쳐도 음수가 되지 않게).
+    // 진행 중인 연속 목표 보석은 남겨 둬야 한다 — LOCKED_GOAL_GEMS
     const charged = await this.users
       .findOneAndUpdate(
-        { _id: uid, gems: { $gte: gems } },
+        {
+          _id: uid,
+          $expr: {
+            $gte: [
+              '$gems',
+              { $add: [gems, GemPayoutService.LOCKED_GOAL_GEMS] },
+            ],
+          },
+        },
         { $inc: { gems: -gems } },
         { returnDocument: 'after' },
       )

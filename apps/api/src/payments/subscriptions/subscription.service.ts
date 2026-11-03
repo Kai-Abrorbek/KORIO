@@ -15,10 +15,7 @@ import {
   isSuperStale,
   trialDaysLeft,
 } from '../../users/super.util';
-import {
-  Subscription,
-  SubscriptionDocument,
-} from './subscription.schema';
+import { Subscription, SubscriptionDocument } from './subscription.schema';
 import {
   ENTITLED_STATUSES,
   TIER_RANK,
@@ -74,6 +71,32 @@ export class SubscriptionService {
     private readonly subEvents: SubscriptionEventsService,
     @Optional() private readonly gemLedger?: GemLedgerService,
   ) {}
+
+  /**
+   * 이 스토어 결제를 이미 가진 계정 (그 토큰이든, 그 토큰이 이어받은 이전 토큰이든).
+   * 그 계정이 지워졌으면 주인이 없는 것으로 본다.
+   *
+   * 앱이 부르는 검증·복원 경로가 확인한다: 구매 토큰을 다른 KORIO 계정으로 보내면
+   * applyVerifiedPurchase 가 구독의 userId 를 그 계정으로 바꿔 버려서, 결제 한 번으로
+   * 계정 여러 개를 돌려 가며 열 수 있었다.
+   */
+  async purchaseOwner(v: VerifiedPurchase): Promise<string | null> {
+    const tokens = [
+      ...new Set(
+        [v.externalTransactionId, v.externalSubscriptionId].filter(
+          (token): token is string => Boolean(token),
+        ),
+      ),
+    ];
+    if (!tokens.length) return null;
+    const row = await this.subModel
+      .findOne({ provider: v.provider, externalTransactionId: { $in: tokens } })
+      .select('userId')
+      .lean();
+    if (!row?.userId) return null;
+    const alive = await this.userModel.exists({ _id: row.userId });
+    return alive ? String(row.userId) : null;
+  }
 
   /**
    * 검증을 마친 결제를 반영한다. Provider 가 무엇이든 여기로 들어온다.

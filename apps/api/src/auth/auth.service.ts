@@ -17,11 +17,7 @@ import {
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { SocialLoginDto } from './dto/social-login.dto';
-import {
-  OAUTH,
-  callbackUrl,
-  type OAuthProviderKey,
-} from './oauth.providers';
+import { OAUTH, callbackUrl, type OAuthProviderKey } from './oauth.providers';
 import { AuthProvider } from '../common/enums/provider.enum';
 import {
   normalizeEmail,
@@ -83,9 +79,9 @@ export class AuthService {
     // 인증 대기 중에 다른 사람이 같은 번호를 먼저 등록했을 수 있다 — 그럼 번호만 뺀다
     let phone: { phoneHash?: string; phoneLast4?: string } = {};
     if (input.phoneHash) {
-      const taken = await this.userModel
-        .exists({ phoneHash: input.phoneHash });
-      if (!taken) phone = { phoneHash: input.phoneHash, phoneLast4: input.phoneLast4 };
+      const taken = await this.userModel.exists({ phoneHash: input.phoneHash });
+      if (!taken)
+        phone = { phoneHash: input.phoneHash, phoneLast4: input.phoneLast4 };
     }
 
     const user = await this.userModel.create({
@@ -214,11 +210,17 @@ export class AuthService {
       .map((k) => `${k}=${rest[k]}`)
       .join('\n');
     const secret = crypto.createHash('sha256').update(token).digest();
-    const hmac = crypto
+    const expected = crypto
       .createHmac('sha256', secret)
       .update(checkString)
-      .digest('hex');
-    if (hmac !== hash) return false;
+      .digest();
+    // 문자열 !== 은 앞에서부터 틀린 자리에서 멈춘다 — 서명은 상수 시간으로 비교한다
+    const given = Buffer.from(String(hash ?? ''), 'hex');
+    if (
+      given.length !== expected.length ||
+      !crypto.timingSafeEqual(given, expected)
+    )
+      return false;
     // 재사용 방지: 24시간 지난 auth_date 거부
     const authDate = Number(data.auth_date);
     return !!authDate && Date.now() / 1000 - authDate < 86400;
@@ -431,11 +433,7 @@ export class AuthService {
    * OAuth 코드 → 액세스 토큰 → 프로필.
    * 제공자마다 응답 모양만 다르고 절차는 같아서 설정 테이블로 처리한다.
    */
-  async oauthLogin(
-    key: OAuthProviderKey,
-    code: string,
-    sessionId?: string,
-  ) {
+  async oauthLogin(key: OAuthProviderKey, code: string, sessionId?: string) {
     const cfg = OAUTH[key];
     const clientId = cfg.clientId();
     if (!clientId) {
@@ -474,8 +472,7 @@ export class AuthService {
       throw new UnauthorizedException('OAUTH_PROFILE_FAILED');
     }
 
-    const provider =
-      key === 'kakao' ? AuthProvider.KAKAO : AuthProvider.NAVER;
+    const provider = key === 'kakao' ? AuthProvider.KAKAO : AuthProvider.NAVER;
     return this.upsertSocialUser(provider, profile, sessionId);
   }
 

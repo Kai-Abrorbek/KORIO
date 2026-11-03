@@ -32,6 +32,12 @@ export interface RateLimitOptions {
    * 두드리는 것"만 정확히 막힌다.
    */
   keyBody?: string;
+  /**
+   * 로그인한 유저 단위로 센다 (JwtAuthGuard 뒤에 둘 것 — req.user 가 있어야 한다).
+   * AI·TTS 처럼 돈이 나가는 곳은 IP 로 세면 학교·회사 와이파이 하나 뒤의 여러 명이
+   * 서로를 막는다. 토큰이 없는 요청은 IP 로 센다.
+   */
+  perUser?: boolean;
 }
 
 export const RateLimit = (options: RateLimitOptions) =>
@@ -77,13 +83,20 @@ export class RateLimitGuard implements CanActivate {
   ): string {
     const ip = req.ip || req.socket?.remoteAddress || 'unknown';
     const handler = `${context.getClass().name}.${context.getHandler().name}`;
+    const userId = options.perUser
+      ? (
+          req as Request & { user?: { _id?: { toString(): string } } }
+        ).user?._id?.toString()
+      : undefined;
+    if (userId) return `${handler}:user:${userId}`;
     if (!options.keyBody) return `${handler}:${ip}`;
 
     const raw = (req.body as Record<string, unknown> | undefined)?.[
       options.keyBody
     ];
     // 문자열이 아니면(주입 시도 포함) 값 자체는 키에 안 쓴다
-    const extra = typeof raw === 'string' ? raw.toLowerCase().slice(0, 200) : '';
+    const extra =
+      typeof raw === 'string' ? raw.toLowerCase().slice(0, 200) : '';
     return `${handler}:${ip}:${extra}`;
   }
 

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { RateLimitGuard } from '../common/rate-limit';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AiService } from './ai.service';
 import { AiController } from './ai.controller';
@@ -13,7 +14,7 @@ import { User, UserSchema } from '../users/schemas/user.schema';
     ]),
   ],
   controllers: [AiController],
-  providers: [AiService],
+  providers: [AiService, RateLimitGuard],
   exports: [AiService],
 })
 export class AiModule {}
