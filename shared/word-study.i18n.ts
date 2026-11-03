@@ -56,3 +56,22 @@ const ru: Copy = {
 };
 
 export const wordStudyFinish = { ko, en, uz, ru };
+
+export const wordRecallPersistence = {
+  ko: {
+    savePending: "학습 기록을 저장하고 있어요…",
+    saveFailed: "학습 기록을 저장하지 못했어요. 답을 다시 확인해 주세요.",
+  },
+  en: {
+    savePending: "Saving your progress…",
+    saveFailed: "Your progress could not be saved. Check your answer again to retry.",
+  },
+  uz: {
+    savePending: "O‘rganish natijasi saqlanmoqda…",
+    saveFailed: "Natija saqlanmadi. Qayta urinish uchun javobni yana tekshiring.",
+  },
+  ru: {
+    savePending: "Сохраняем результат…",
+    saveFailed: "Не удалось сохранить результат. Проверьте ответ ещё раз, чтобы повторить попытку.",
+  },
+};

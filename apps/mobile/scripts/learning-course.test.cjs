@@ -466,3 +466,28 @@ test("mobile pending seen-word writes preserve the originating course", async ()
   assert.match(calls[0].url, /courseId=ko-general/);
   assert.deepEqual(calls[0].body.ids, ["ko-word"]);
 });
+
+test("mobile recall review and mastery preserve their original course across delayed writes", async () => {
+  const calls = [];
+  const state = { learnCourse: "ko" };
+  const { WordService } = load("../src/services/word.service.ts", {
+    "@/store/settings.store": { useSettingsStore: { getState: () => state } },
+    "@/constants/learnCourses": mobile,
+    "@/services/api": {
+      __esModule: true,
+      default: { post: async (url, body) => { calls.push({ url, body }); } },
+    },
+  });
+  await WordService.reviewWord("word-1", "good", "ko");
+  state.learnCourse = "en";
+  await WordService.masterWord("word-1", "ko");
+  assert.equal(calls.length, 2);
+  for (const call of calls) {
+    assert.match(call.url, /courseId=ko-general/);
+    assert.match(call.url, /targetLanguage=ko/);
+  }
+  assert.deepEqual(calls[0].body, { result: "good" });
+  assert.match(calls[1].url, /\/words\/word-1\/master\?/);
+  await WordService.masterWord("english-word");
+  assert.match(calls[2].url, /courseId=en-general/);
+});

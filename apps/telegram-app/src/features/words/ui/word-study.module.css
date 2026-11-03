@@ -718,6 +718,17 @@
   color: var(--word-muted);
 }
 
+.saveMessage {
+  color: var(--word-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 8px 0 0;
+}
+
+.saveMessage[role="alert"] {
+  color: var(--ws-danger-ink);
+}
+
 .answerShell button {
   align-items: center;
   background: var(--word-accent);

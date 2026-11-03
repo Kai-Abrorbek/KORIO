@@ -1,5 +1,17 @@
 # Shared learning content
 
+## Word recall progress
+
+Mobile and Telegram save a review, then call the existing word mastery endpoint
+after a correct answer without help. A failed write keeps the card retryable;
+completion and automatic advance wait for the server. Retries reuse acknowledged
+steps within the same card, while wrong/hinted answers must be recalled again.
+Word IDs and the existing per-user progress remain shared across collections.
+
+```powershell
+node --experimental-strip-types --test shared/word-recall-progress.test.mjs
+```
+
 ## Word games
 
 `word-games.ts` adapts scoped server words to the existing game engines. English

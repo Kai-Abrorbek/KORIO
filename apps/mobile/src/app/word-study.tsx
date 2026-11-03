@@ -64,6 +64,10 @@ import {
   getWordBrowseAdvance,
   WORD_RECALL_ADVANCE_MS,
 } from "../../../../shared/word-study-flow";
+import {
+  createRecallSaveAttempt,
+  saveRecallProgress,
+} from "../../../../shared/word-recall-progress";
 
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
@@ -391,6 +395,8 @@ function RecallCard({
   theme,
   answer,
   status,
+  saving,
+  saveFailed,
   hintVisible,
   compact,
   isSpeaking,
@@ -404,6 +410,8 @@ function RecallCard({
   theme: ThemeColors;
   answer: string;
   status: RecallStatus;
+  saving: boolean;
+  saveFailed: boolean;
   hintVisible: boolean;
   compact: boolean;
   isSpeaking: boolean;
@@ -547,7 +555,7 @@ function RecallCard({
               autoFocus
               autoCapitalize="none"
               autoCorrect={false}
-              editable={!isCorrect}
+              editable={!isCorrect && !saving}
               returnKeyType="done"
               submitBehavior="submit"
               onFocus={() => {
@@ -574,7 +582,7 @@ function RecallCard({
             <TouchableOpacity
               accessibilityRole="button"
               accessibilityLabel={t("wordStudy.recallCheck")}
-              disabled={!answer.trim() || isCorrect}
+              disabled={!answer.trim() || isCorrect || saving}
               onPress={onSubmit}
               activeOpacity={0.84}
               style={[
@@ -588,15 +596,31 @@ function RecallCard({
                 },
               ]}
             >
-              <Ionicons
-                name={isCorrect ? "checkmark" : "arrow-forward"}
-                size={21}
-                color={
-                  isCorrect || answer.trim() ? "#FFFFFF" : theme.textSecondary
-                }
-              />
+              {saving ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons
+                  name={isCorrect ? "checkmark" : "arrow-forward"}
+                  size={21}
+                  color={
+                    isCorrect || answer.trim() ? "#FFFFFF" : theme.textSecondary
+                  }
+                />
+              )}
             </TouchableOpacity>
           </View>
+
+          {saving || saveFailed ? (
+            <Text
+              accessibilityLiveRegion="polite"
+              style={[
+                styles.recallSaveMessage,
+                { color: saveFailed ? colors.error : theme.textSecondary },
+              ]}
+            >
+              {t(saving ? "wordStudy.savePending" : "wordStudy.saveFailed")}
+            </Text>
+          ) : null}
 
           <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
             {t("wordStudy.meaning")}
@@ -720,6 +744,7 @@ function RecallCard({
               <TouchableOpacity
                 accessibilityRole="button"
                 accessibilityLabel={t("wordStudy.recallHint")}
+                disabled={saving}
                 onPress={onShowHint}
                 activeOpacity={0.82}
                 style={[
@@ -1046,6 +1071,8 @@ function WordStudyScreen() {
   const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
   const [recallAnswer, setRecallAnswer] = useState("");
   const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
+  const [recallSaving, setRecallSaving] = useState(false);
+  const [recallSaveFailed, setRecallSaveFailed] = useState(false);
   const [recallHintVisible, setRecallHintVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [viewedWordIds, setViewedWordIds] = useState<string[]>([]);
@@ -1055,7 +1082,7 @@ function WordStudyScreen() {
     [],
   );
   const lastRecalledWordIdRef = useRef<string | null>(null);
-  const recallResultReportedRef = useRef(false);
+  const recallSaveAttemptRef = useRef(createRecallSaveAttempt());
   const recallHadWrongAttemptRef = useRef(false);
   const recallSolvedRef = useRef(false);
   const sessionExitingRef = useRef(false);
@@ -1224,7 +1251,9 @@ function WordStudyScreen() {
     setCompletedRecall(false);
     sessionExitingRef.current = false;
     lastRecalledWordIdRef.current = null;
-    recallResultReportedRef.current = false;
+    recallSaveAttemptRef.current = createRecallSaveAttempt();
+    setRecallSaving(false);
+    setRecallSaveFailed(false);
     recallHadWrongAttemptRef.current = false;
     recallSolvedRef.current = false;
     setWords([]);
@@ -1306,10 +1335,10 @@ function WordStudyScreen() {
   const nextWord =
     cardIndex < loadedWords.length - 1 ? loadedWords[cardIndex + 1] : undefined;
   const hasPendingRecalls = pendingRecallWordIds.length > 0;
-  const canGoPrevious = recallWord
-    ? Boolean(currentWord)
-    : Boolean(previousWord);
+  const canGoPrevious =
+    !recallSaving && (recallWord ? Boolean(currentWord) : Boolean(previousWord));
   const canGoNext =
+    !recallSaving &&
     Boolean(currentWord) &&
     (recallWord
       ? recallStatus === "correct"
@@ -1430,17 +1459,20 @@ function WordStudyScreen() {
       setRecallAnswer("");
       setRecallStatus("idle");
       setRecallHintVisible(false);
-      recallResultReportedRef.current = false;
+      recallSaveAttemptRef.current = createRecallSaveAttempt();
+      setRecallSaving(false);
+      setRecallSaveFailed(false);
       recallHadWrongAttemptRef.current = false;
       recallSolvedRef.current = false;
     },
     [recallWord],
   );
 
-  const submitRecall = useCallback(() => {
+  const submitRecall = useCallback(async () => {
     if (
       !recallWord ||
       recallSolvedRef.current ||
+      recallSaveAttemptRef.current.pending ||
       recallStatus === "correct" ||
       !recallAnswer.trim()
     ) {
@@ -1448,13 +1480,33 @@ function WordStudyScreen() {
     }
 
     const correct = isAnswerCorrect(recallAnswer, recallWord.headword);
-    if (!recallResultReportedRef.current) {
-      recallResultReportedRef.current = true;
-      const learnedWithoutHelp = correct && !recallHadWrongAttemptRef.current;
-      WordService.reviewWord(
-        recallWord.id,
-        learnedWithoutHelp ? "good" : "again",
-      ).catch(() => {});
+    const attempt = recallSaveAttemptRef.current;
+    const isActive = () =>
+      recallSaveAttemptRef.current === attempt &&
+      activeWordScopeRef.current === activeWordScope &&
+      recallWordIdRef.current === recallWord.id &&
+      screenFocusedRef.current &&
+      !sessionExitingRef.current;
+    if (!isActive()) return;
+    if (!correct) recallHadWrongAttemptRef.current = true;
+    setRecallSaving(true);
+    setRecallSaveFailed(false);
+    try {
+      const saved = await saveRecallProgress({
+        attempt,
+        wordId: recallWord.id,
+        correct,
+        hadHelp: recallHadWrongAttemptRef.current,
+        review: (id, result) => WordService.reviewWord(id, result, learnCourse),
+        master: (id) => WordService.masterWord(id, learnCourse),
+        isActive,
+      });
+      if (!saved || !isActive()) return;
+    } catch {
+      if (isActive()) setRecallSaveFailed(true);
+      return;
+    } finally {
+      if (recallSaveAttemptRef.current === attempt) setRecallSaving(false);
     }
 
     if (correct) {
@@ -1475,21 +1527,22 @@ function WordStudyScreen() {
       return;
     }
 
-    recallHadWrongAttemptRef.current = true;
     setRecallStatus("wrong");
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-  }, [recallAnswer, recallStatus, recallWord]);
+  }, [activeWordScope, learnCourse, recallAnswer, recallStatus, recallWord]);
 
   const changeRecallAnswer = useCallback(
     (value: string) => {
       setRecallAnswer(value);
+      setRecallSaveFailed(false);
       if (recallStatus === "wrong") setRecallStatus("idle");
     },
     [recallStatus],
   );
 
   const showRecallHint = useCallback(() => {
-    if (!recallWord || recallStatus === "correct") return;
+    if (!recallWord || recallStatus === "correct" || recallSaveAttemptRef.current.pending)
+      return;
     recallHadWrongAttemptRef.current = true;
     setRecallHintVisible(true);
     setRecallStatus("idle");
@@ -1506,7 +1559,9 @@ function WordStudyScreen() {
         current.filter((id) => id !== candidate.id),
       );
       lastRecalledWordIdRef.current = candidate.id;
-      recallResultReportedRef.current = false;
+      recallSaveAttemptRef.current = createRecallSaveAttempt();
+      setRecallSaving(false);
+      setRecallSaveFailed(false);
       recallHadWrongAttemptRef.current = false;
       recallSolvedRef.current = false;
       setRecallAnswer("");
@@ -2121,11 +2176,13 @@ function WordStudyScreen() {
                       theme={theme}
                       answer={recallAnswer}
                       status={recallStatus}
+                      saving={recallSaving}
+                      saveFailed={recallSaveFailed}
                       hintVisible={recallHintVisible}
                       compact={keyboardVisible}
                       isSpeaking={isSpeaking}
                       onChangeAnswer={changeRecallAnswer}
-                      onSubmit={submitRecall}
+                      onSubmit={() => { void submitRecall(); }}
                       onShowHint={showRecallHint}
                       onSpeak={() =>
                         speak(
@@ -2412,6 +2469,7 @@ const styles = StyleSheet.create({
     paddingRight: 7,
   },
   recallInputShellCompact: { minHeight: 56 },
+  recallSaveMessage: { fontSize: 12, lineHeight: 18, marginTop: 8 },
   recallInput: {
     flex: 1,
     minWidth: 0,

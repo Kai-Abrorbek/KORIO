@@ -272,43 +272,45 @@ export default function WordLibraryScreen() {
     }, [scopeKey, refresh]),
   );
 
-  useEffect(() => {
-    if (!selectedId) return;
-    let active = true;
-    setDetailLoading(true);
-    setDetailError(false);
-    setSaveFailed(false);
-    WordCollectionsService.get(selectedId)
-      .then((result) => {
-        if (!active || scopeRef.current !== scopeKey) return;
-        setDetailData({ scope: scopeKey, item: result });
-        setGroupId((previous) => {
-          const legacy =
-            result.kind === "course" && !result.lastPosition && legacyPosition
-              ? result.groups.find(
-                  (g) =>
-                    g.section === legacyPosition.section &&
-                    g.unit === legacyPosition.unit,
-                )?.id
-              : undefined;
-          return (
-            getDefaultWordCollectionGroup(result, previous || legacy)?.id ||
-            null
-          );
+  useFocusEffect(
+    useCallback(() => {
+      if (!selectedId) return;
+      let active = true;
+      setDetailLoading(true);
+      setDetailError(false);
+      setSaveFailed(false);
+      WordCollectionsService.get(selectedId)
+        .then((result) => {
+          if (!active || scopeRef.current !== scopeKey) return;
+          setDetailData({ scope: scopeKey, item: result });
+          setGroupId((previous) => {
+            const legacy =
+              result.kind === "course" && !result.lastPosition && legacyPosition
+                ? result.groups.find(
+                    (g) =>
+                      g.section === legacyPosition.section &&
+                      g.unit === legacyPosition.unit,
+                  )?.id
+                : undefined;
+            return (
+              getDefaultWordCollectionGroup(result, previous || legacy)?.id ||
+              null
+            );
+          });
+        })
+        .catch(() => {
+          if (active && scopeRef.current === scopeKey) setDetailError(true);
+        })
+        .finally(() => {
+          if (active && scopeRef.current === scopeKey) setDetailLoading(false);
         });
-      })
-      .catch(() => {
-        if (active && scopeRef.current === scopeKey) setDetailError(true);
-      })
-      .finally(() => {
-        if (active && scopeRef.current === scopeKey) setDetailLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-    // The legacy position is a one-time fallback for the untouched original course.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedId, scopeKey, detailRefresh]);
+      return () => {
+        active = false;
+      };
+      // The legacy position is a one-time fallback for the untouched original course.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedId, scopeKey, detailRefresh]),
+  );
 
   useEffect(() => {
     setPreview([]);

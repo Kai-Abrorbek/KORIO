@@ -1,7 +1,7 @@
 import topik from "./topik/ru";
 import alphabet from "./alphabet";
 import { wordLibrary } from "../../../../shared/word-library.i18n";
-import { wordStudyFinish } from "../../../../shared/word-study.i18n";
+import { wordStudyFinish, wordRecallPersistence } from "../../../../shared/word-study.i18n";
 
 export default {
   wordLibrary: wordLibrary.ru,
@@ -2126,6 +2126,7 @@ export default {
     gamesHint: "Закреплять слова в игре",
   },
   wordStudy: {
+    ...wordRecallPersistence.ru,
     finish: wordStudyFinish.ru,
     finishDay: "Слова на сегодня — всё!",
     eyebrow: "КАРТОЧКИ СЛОВ",

@@ -20,6 +20,7 @@ import {
   getUnitWords,
   getWordSections,
   markSeenWords,
+  masterWord,
   reviewWord,
 } from "../api/words";
 import {
@@ -36,6 +37,7 @@ import { getDefaultWordCollectionGroup, getResumeWordIndex, type WordCollectionD
 import { getWordCollection, getWordCollectionWords, saveWordCollectionPosition } from "../api/word-collections";
 import { getWordLibraryCssVariables } from "../../../../../../shared/word-library-theme";
 import { getWordBrowseAdvance, WORD_RECALL_ADVANCE_MS } from "../../../../../../shared/word-study-flow";
+import { createRecallSaveAttempt, saveRecallProgress } from "../../../../../../shared/word-recall-progress";
 import { useAppTheme } from "../../../shared/theme/theme-context";
 import { WordStudyCompletion } from "./word-study-completion";
 import styles from "./word-study.module.css";
@@ -258,6 +260,8 @@ function RecallCard({
   onSubmit,
   speaking,
   status,
+  saving,
+  saveFailed,
   word,
 }: {
   answer: string;
@@ -271,6 +275,8 @@ function RecallCard({
   onSubmit: () => void;
   speaking: boolean;
   status: RecallStatus;
+  saving: boolean;
+  saveFailed: boolean;
   word: StudyWord;
 }) {
   const palette = paletteFor(word, index);
@@ -306,6 +312,7 @@ function RecallCard({
             autoCapitalize="none"
             autoComplete="off"
             autoCorrect="off"
+            readOnly={saving || isCorrect}
             disabled={isCorrect}
             id="word-recall-answer"
             onBlur={() => onFocusChange(false)}
@@ -327,13 +334,20 @@ function RecallCard({
           />
           <button
             aria-label="Javobni tekshirish"
-            disabled={!answer.trim() || isCorrect}
+            disabled={!answer.trim() || isCorrect || saving}
             onClick={onSubmit}
             type="button"
           >
             <MobileIcon name={isCorrect ? "checkmark" : "arrow-forward"} size={21} />
           </button>
         </div>
+        {saving || saveFailed ? (
+          <p className={styles.saveMessage} role={saveFailed ? "alert" : "status"}>
+            <span data-i18n={saving ? "wordStudy.savePending" : "wordStudy.saveFailed"}>
+              {uzt(saving ? "wordStudy.savePending" : "wordStudy.saveFailed")}
+            </span>
+          </p>
+        ) : null}
         <small className={styles.meaningLabel}>Ma&apos;nosi</small>
         <strong className={styles.meaning}>{word.meaning}</strong>
         <div className={styles.cardDivider} />
@@ -382,7 +396,7 @@ function RecallCard({
               <SpeakerIcon active={speaking} />
             </button>
           ) : !hintVisible ? (
-            <button className={styles.hintButton} onClick={onHint} type="button">
+            <button className={styles.hintButton} disabled={saving} onClick={onHint} type="button">
               <MobileIcon name="bulb-outline" size={16} />Yordam
             </button>
           ) : null}
@@ -558,6 +572,8 @@ export function WordStudyScreen() {
   const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
   const [answer, setAnswer] = useState("");
   const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
+  const [recallSaving, setRecallSaving] = useState(false);
+  const [recallSaveFailed, setRecallSaveFailed] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>(
@@ -589,7 +605,7 @@ export function WordStudyScreen() {
   const activeRecallIdRef = useRef<string | null>(null);
   const finishingRef = useRef(false);
   const lastRecalledWordIdRef = useRef<string | null>(null);
-  const recallResultReportedRef = useRef(false);
+  const recallSaveAttemptRef = useRef(createRecallSaveAttempt());
   const recallHadWrongAttemptRef = useRef(false);
   const animationTimeoutRef = useRef<number | null>(null);
   const animationLockedRef = useRef(false);
@@ -726,7 +742,9 @@ export function WordStudyScreen() {
     recallAdvanceReadyRef.current = false;
     finishingRef.current = false;
     lastRecalledWordIdRef.current = null;
-    recallResultReportedRef.current = false;
+    recallSaveAttemptRef.current = createRecallSaveAttempt();
+    setRecallSaving(false);
+    setRecallSaveFailed(false);
     recallHadWrongAttemptRef.current = false;
     setWords([]);
     setCardIndex(0);
@@ -800,8 +818,9 @@ export function WordStudyScreen() {
   const previousWord = wordsScope === studyScope && cardIndex > 0 ? words[cardIndex - 1] : undefined;
   const nextWord = wordsScope === studyScope && cardIndex < words.length - 1 ? words[cardIndex + 1] : undefined;
   const hasPendingRecalls = pendingRecallWordIds.length > 0;
-  const canGoPrevious = recallWord ? Boolean(currentWord) : Boolean(previousWord);
+  const canGoPrevious = !recallSaving && (recallWord ? Boolean(currentWord) : Boolean(previousWord));
   const canGoNext =
+    !recallSaving &&
     Boolean(currentWord) &&
     (recallWord
       ? recallStatus === "correct"
@@ -975,29 +994,49 @@ export function WordStudyScreen() {
       setAnswer("");
       setRecallStatus("idle");
       setHintVisible(false);
-      recallResultReportedRef.current = false;
+      recallSaveAttemptRef.current = createRecallSaveAttempt();
+      setRecallSaving(false);
+      setRecallSaveFailed(false);
       recallHadWrongAttemptRef.current = false;
     },
     [recallWord],
   );
 
-  const submitRecall = useCallback(() => {
+  const submitRecall = useCallback(async () => {
     if (
       !recallWord ||
       recallStatus === "correct" ||
       recallAdvanceReadyRef.current ||
+      recallSaveAttemptRef.current.pending ||
       !answer.trim()
     )
       return;
     const correct = isWordAnswerCorrect(answer, recallWord.headword);
-    if (!recallResultReportedRef.current) {
-      recallResultReportedRef.current = true;
-      const learnedWithoutHelp = correct && !recallHadWrongAttemptRef.current;
-      void reviewWord(
-        request,
-        recallWord.id,
-        learnedWithoutHelp ? "good" : "again",
-      ).catch(() => undefined);
+    const attempt = recallSaveAttemptRef.current;
+    const isActive = () =>
+      recallSaveAttemptRef.current === attempt &&
+      currentScopeRef.current === studyScope &&
+      activeRecallIdRef.current === recallWord.id && !finishingRef.current;
+    if (!isActive()) return;
+    if (!correct) recallHadWrongAttemptRef.current = true;
+    setRecallSaving(true);
+    setRecallSaveFailed(false);
+    try {
+      const saved = await saveRecallProgress({
+        attempt,
+        wordId: recallWord.id,
+        correct,
+        hadHelp: recallHadWrongAttemptRef.current,
+        review: (id, result) => reviewWord(request, id, result),
+        master: (id) => masterWord(request, id),
+        isActive,
+      });
+      if (!saved || !isActive()) return;
+    } catch {
+      if (isActive()) setRecallSaveFailed(true);
+      return;
+    } finally {
+      if (recallSaveAttemptRef.current === attempt) setRecallSaving(false);
     }
     if (correct) {
       recallAdvanceReadyRef.current = true;
@@ -1014,13 +1053,12 @@ export function WordStudyScreen() {
       hapticNotification("success");
       return;
     }
-    recallHadWrongAttemptRef.current = true;
     setRecallStatus("wrong");
     hapticNotification("error");
-  }, [answer, recallStatus, recallWord, request]);
+  }, [answer, recallStatus, recallWord, request, studyScope]);
 
   const showRecallHint = useCallback(() => {
-    if (!recallWord || recallStatus === "correct") return;
+    if (!recallWord || recallStatus === "correct" || recallSaveAttemptRef.current.pending) return;
     recallHadWrongAttemptRef.current = true;
     setHintVisible(true);
     setRecallStatus("idle");
@@ -1037,7 +1075,9 @@ export function WordStudyScreen() {
       );
       lastRecalledWordIdRef.current = candidate.id;
       recallAdvanceReadyRef.current = false;
-      recallResultReportedRef.current = false;
+      recallSaveAttemptRef.current = createRecallSaveAttempt();
+      setRecallSaving(false);
+      setRecallSaveFailed(false);
       recallHadWrongAttemptRef.current = false;
       setAnswer("");
       setRecallStatus("idle");
@@ -1236,6 +1276,7 @@ export function WordStudyScreen() {
       }
       animationLockedRef.current = false;
       recallAdvanceReadyRef.current = false;
+      recallSaveAttemptRef.current = createRecallSaveAttempt();
     },
     [studyScope],
   );
@@ -1532,6 +1573,7 @@ export function WordStudyScreen() {
                         key={"recall-" + recallWord.id}
                         onAnswer={(value) => {
                           setAnswer(value);
+                          setRecallSaveFailed(false);
                           if (recallStatus === "wrong") setRecallStatus("idle");
                         }}
                         onFocusChange={setKeyboardVisible}
@@ -1543,9 +1585,11 @@ export function WordStudyScreen() {
                             ),
                           })
                         }
-                        onSubmit={submitRecall}
+                        onSubmit={() => { void submitRecall(); }}
                         speaking={speaking}
                         status={recallStatus}
+                        saving={recallSaving}
+                        saveFailed={recallSaveFailed}
                         word={recallWord}
                       />
                     ) : (

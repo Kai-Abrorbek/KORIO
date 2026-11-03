@@ -1,6 +1,6 @@
 import topik from "./topik/uz";
 import { wordLibrary } from "../../../../../../shared/word-library.i18n";
-import { wordStudyFinish } from "../../../../../../shared/word-study.i18n";
+import { wordStudyFinish, wordRecallPersistence } from "../../../../../../shared/word-study.i18n";
 
 export default {
   wordLibrary: wordLibrary.uz,
@@ -1925,6 +1925,7 @@ export default {
     gamesHint: "O‘ynab so‘zlarni mustahkamlash",
   },
   wordStudy: {
+    ...wordRecallPersistence.uz,
     finish: wordStudyFinish.uz,
     finishDay: "Bugungi so'zlar tugadi!",
     eyebrow: "SO'Z KARTALARI",
