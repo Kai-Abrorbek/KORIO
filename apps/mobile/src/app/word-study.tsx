@@ -1,14 +1,20 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Redirect, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Redirect,
+  useFocusEffect,
+  useLocalSearchParams,
+  useRouter,
+} from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -16,14 +22,11 @@ import {
   View,
 } from "react-native";
 import { Pressable, TouchableOpacity } from "@/components/ui/Pressables";
-import {
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  cancelAnimation,
   Extrapolation,
   FadeIn,
-  FadeInDown,
   interpolate,
   runOnJS,
   useAnimatedStyle,
@@ -33,26 +36,33 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { ThemeColors } from "@/constants/theme";
+import { ThemeColors, themes } from "@/constants/theme";
 import { useSpeech } from "@/hooks/useSpeech";
 import { useTheme } from "@/hooks/useTheme";
 import { WordService } from "@/services/word.service";
 import { WordCollectionsService } from "@/services/word-collections.service";
-import { getResumeWordIndex, type WordCollectionDetail, type WordCollectionPosition } from "../../../../shared/word-library";
+import {
+  getResumeWordIndex,
+  type WordCollectionDetail,
+  type WordCollectionPosition,
+} from "../../../../shared/word-library";
 import type { LearnCourse } from "@/constants/learnCourses";
 import { useSettingsStore, useContentLang } from "@/store/settings.store";
 import { useAvatarStudyStore } from "@/store/avatar-study.store";
 import { useAuthStore } from "@/store/auth.store";
-import type {
-  StudyWord,
-  WordSectionSummary,
-} from "@/types/word-study";
+import type { StudyWord, WordSectionSummary } from "@/types/word-study";
 import * as Haptics from "@/utils/haptics";
 import { useSeenWords } from "@/hooks/useSeenWords";
 import { StudyPathService } from "@/services/study-path.service";
 import { lessonSlice } from "@/types/study-path";
 import { isAnswerCorrect } from "@/utils/answer-check";
 import { DEFAULT_LEARNING_COURSES } from "@/constants/learnCourses";
+import WordStudyCompletion from "@/components/words/WordStudyCompletion";
+import { getWordLibraryPalette } from "../../../../shared/word-library-theme";
+import {
+  getWordBrowseAdvance,
+  WORD_RECALL_ADVANCE_MS,
+} from "../../../../shared/word-study-flow";
 
 const SWIPE_THRESHOLD = 88;
 const SWIPE_VELOCITY = 720;
@@ -119,12 +129,21 @@ const CARD_PALETTES: CardPalette[] = [
   },
 ];
 
-function paletteFor(word: StudyWord, index: number) {
+function paletteFor(word: StudyWord, index: number, theme: ThemeColors) {
   const seed = [...word.headword].reduce(
     (sum, character) => sum + (character.codePointAt(0) ?? 0),
     index,
   );
-  return CARD_PALETTES[seed % CARD_PALETTES.length] ?? CARD_PALETTES[0]!;
+  const palette =
+    CARD_PALETTES[seed % CARD_PALETTES.length] ?? CARD_PALETTES[0]!;
+  if (theme.bg !== getWordLibraryPalette(true).bg) return palette;
+  return {
+    ...palette,
+    gradient: ["#28364C", "#222C3D"] as const,
+    tint: "#27354A",
+    accent: "#336AC1",
+    accentDark: "#B8D3FF",
+  };
 }
 
 function WordVisual({
@@ -213,7 +232,7 @@ function WordCard({
   onSpeak: () => void;
 }) {
   const { t } = useTranslation();
-  const palette = paletteFor(word, index);
+  const palette = paletteFor(word, index, theme);
   const example = word.examples[0];
 
   return (
@@ -227,121 +246,140 @@ function WordCard({
         },
       ]}
     >
-      <WordVisual word={word} palette={palette} theme={theme} />
+      <ScrollView
+        style={styles.cardScroll}
+        contentContainerStyle={styles.cardScrollContent}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+        indicatorStyle={
+          theme.bg === getWordLibraryPalette(true).bg ? "white" : "black"
+        }
+      >
+        <WordVisual word={word} palette={palette} theme={theme} />
 
-      <View style={styles.cardBody}>
-        <View style={styles.wordRow}>
-          <View style={styles.wordHeading}>
-            <Text style={[styles.headword, { color: theme.text }]}>
-              {word.headword}
-            </Text>
-            {word.pronunciation.ipa || word.pronunciation.romanization ? (
-              <Text
-                style={[styles.romanization, { color: theme.textSecondary }]}
-              >
-                {word.pronunciation.ipa || word.pronunciation.romanization}
+        <View style={styles.cardBody}>
+          <View style={styles.wordRow}>
+            <View style={styles.wordHeading}>
+              <Text style={[styles.headword, { color: theme.text }]}>
+                {word.headword}
               </Text>
-            ) : null}
-          </View>
+              {word.pronunciation.ipa || word.pronunciation.romanization ? (
+                <Text
+                  style={[styles.romanization, { color: theme.textSecondary }]}
+                >
+                  {word.pronunciation.ipa || word.pronunciation.romanization}
+                </Text>
+              ) : null}
+            </View>
 
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={t("wordStudy.listenWord")}
-            onPress={onSpeak}
-            activeOpacity={0.82}
-            style={[
-              styles.speakerButton,
-              {
-                backgroundColor: isSpeaking ? palette.accent : palette.tint,
-                borderColor: isSpeaking ? palette.accent : palette.gradient[0],
-              },
-            ]}
-          >
-            <Ionicons
-              name={isSpeaking ? "volume-high" : "volume-medium-outline"}
-              size={25}
-              color={isSpeaking ? "#FFFFFF" : palette.accentDark}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
-          {t("wordStudy.meaning")}
-        </Text>
-        <Text style={[styles.meaning, { color: theme.text }]}>
-          {word.meaning}
-        </Text>
-
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-        <View style={styles.exampleTitleRow}>
-          <View style={[styles.quoteIcon, { backgroundColor: palette.tint }]}>
-            <Ionicons
-              name="chatbubble-ellipses"
-              size={16}
-              color={palette.accent}
-            />
-          </View>
-          <Text style={[styles.exampleLabel, { color: theme.textSecondary }]}>
-            {t("wordStudy.example")}
-          </Text>
-        </View>
-
-        {example ? (
-          <View
-            style={[
-              styles.examplePanel,
-              {
-                backgroundColor: palette.tint,
-                borderColor: palette.gradient[0],
-              },
-            ]}
-          >
-            <Text style={[styles.exampleKorean, { color: theme.text }]}>
-              {example.text ?? example.korean}
-            </Text>
-            <Text
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t("wordStudy.listenWord")}
+              onPress={onSpeak}
+              activeOpacity={0.82}
               style={[
-                styles.exampleTranslation,
-                { color: theme.textSecondary },
+                styles.speakerButton,
+                {
+                  backgroundColor: isSpeaking ? palette.accent : palette.tint,
+                  borderColor: isSpeaking
+                    ? palette.accent
+                    : palette.gradient[0],
+                },
               ]}
             >
-              {example.translation}
-            </Text>
+              <Ionicons
+                name={isSpeaking ? "volume-high" : "volume-medium-outline"}
+                size={25}
+                color={isSpeaking ? "#FFFFFF" : palette.accentDark}
+              />
+            </TouchableOpacity>
           </View>
-        ) : (
-          <View
-            style={[
-              styles.examplePanel,
-              styles.exampleEmpty,
-              {
-                backgroundColor: palette.tint,
-                borderColor: palette.gradient[0],
-              },
-            ]}
-          >
-            <Ionicons name="create-outline" size={18} color={palette.accent} />
-            <Text
-              style={[styles.exampleEmptyText, { color: theme.textSecondary }]}
-            >
-              {t("wordStudy.examplePending")}
-            </Text>
-          </View>
-        )}
 
-        {word.usageNote ? (
-          <View style={styles.noteRow}>
-            <Ionicons
-              name="bulb-outline"
-              size={17}
-              color={palette.accentDark}
-            />
-            <Text style={[styles.noteText, { color: theme.textSecondary }]}>
-              {word.usageNote}
+          <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
+            {t("wordStudy.meaning")}
+          </Text>
+          <Text style={[styles.meaning, { color: theme.text }]}>
+            {word.meaning}
+          </Text>
+
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+          <View style={styles.exampleTitleRow}>
+            <View style={[styles.quoteIcon, { backgroundColor: palette.tint }]}>
+              <Ionicons
+                name="chatbubble-ellipses"
+                size={16}
+                color={palette.accent}
+              />
+            </View>
+            <Text style={[styles.exampleLabel, { color: theme.textSecondary }]}>
+              {t("wordStudy.example")}
             </Text>
           </View>
-        ) : null}
-      </View>
+
+          {example ? (
+            <View
+              style={[
+                styles.examplePanel,
+                {
+                  backgroundColor: palette.tint,
+                  borderColor: palette.gradient[0],
+                },
+              ]}
+            >
+              <Text style={[styles.exampleKorean, { color: theme.text }]}>
+                {example.text ?? example.korean}
+              </Text>
+              <Text
+                style={[
+                  styles.exampleTranslation,
+                  { color: theme.textSecondary },
+                ]}
+              >
+                {example.translation}
+              </Text>
+            </View>
+          ) : (
+            <View
+              style={[
+                styles.examplePanel,
+                styles.exampleEmpty,
+                {
+                  backgroundColor: palette.tint,
+                  borderColor: palette.gradient[0],
+                },
+              ]}
+            >
+              <Ionicons
+                name="create-outline"
+                size={18}
+                color={palette.accent}
+              />
+              <Text
+                style={[
+                  styles.exampleEmptyText,
+                  { color: theme.textSecondary },
+                ]}
+              >
+                {t("wordStudy.examplePending")}
+              </Text>
+            </View>
+          )}
+
+          {word.usageNote ? (
+            <View style={styles.noteRow}>
+              <Ionicons
+                name="bulb-outline"
+                size={17}
+                color={palette.accentDark}
+              />
+              <Text style={[styles.noteText, { color: theme.textSecondary }]}>
+                {word.usageNote}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -374,9 +412,12 @@ function RecallCard({
   onSpeak: () => void;
 }) {
   const { t } = useTranslation();
-  const palette = paletteFor(word, index);
+  const palette = paletteFor(word, index, theme);
   const isCorrect = status === "correct";
   const isWrong = status === "wrong";
+  const colors = getWordLibraryPalette(
+    theme.bg === getWordLibraryPalette(true).bg,
+  );
 
   return (
     <View
@@ -393,239 +434,262 @@ function RecallCard({
         },
       ]}
     >
-      <WordVisual word={word} palette={palette} theme={theme} concealHeadword />
+      <ScrollView
+        style={styles.cardScroll}
+        contentContainerStyle={styles.cardScrollContent}
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
+        automaticallyAdjustKeyboardInsets
+      >
+        <WordVisual
+          word={word}
+          palette={palette}
+          theme={theme}
+          concealHeadword
+        />
 
-      <View style={[styles.cardBody, compact && styles.recallBodyCompact]}>
-        <View style={styles.recallBadgeRow}>
-          <View
-            style={[styles.recallBadge, { backgroundColor: palette.accent }]}
-          >
-            <Ionicons name="sparkles" size={14} color="#FFFFFF" />
-            <Text style={styles.recallBadgeText}>
-              {t("wordStudy.recallBadge")}
-            </Text>
-          </View>
-          {!compact ? (
-            <Text
-              style={[styles.recallCountHint, { color: palette.accentDark }]}
+        <View style={[styles.cardBody, compact && styles.recallBodyCompact]}>
+          <View style={styles.recallBadgeRow}>
+            <View
+              style={[styles.recallBadge, { backgroundColor: palette.accent }]}
             >
-              {t("wordStudy.recallCountHint")}
-            </Text>
-          ) : null}
-        </View>
-        <Text
-          style={[
-            styles.recallInputLabel,
-            compact && styles.recallInputLabelCompact,
-            { color: theme.textSecondary },
-          ]}
-        >
-          {t("wordStudy.recallTargetLabel", { language: t(word.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") })}
-        </Text>
-        <View
-          style={[
-            styles.recallInputShell,
-            compact && styles.recallInputShellCompact,
-            {
-              backgroundColor: palette.tint,
-              borderColor: isCorrect
-                ? "#37B97A"
-                : isWrong
-                  ? "#F06D7A"
-                  : palette.gradient[0],
-            },
-          ]}
-        >
-          <TextInput
-            autoFocus
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!isCorrect}
-            returnKeyType="done"
-            value={answer}
-            onChangeText={onChangeAnswer}
-            onSubmitEditing={onSubmit}
-            placeholder={word.meaning}
-            placeholderTextColor={theme.textSecondary + "88"}
-            selectionColor={palette.accent}
+              <Ionicons name="sparkles" size={14} color="#FFFFFF" />
+              <Text style={styles.recallBadgeText}>
+                {t("wordStudy.recallBadge")}
+              </Text>
+            </View>
+            {!compact ? (
+              <Text
+                style={[styles.recallCountHint, { color: palette.accentDark }]}
+              >
+                {t("wordStudy.recallCountHint")}
+              </Text>
+            ) : null}
+          </View>
+          <Text
             style={[
-              styles.recallInput,
-              compact && styles.recallInputCompact,
+              styles.recallInputLabel,
+              compact && styles.recallInputLabelCompact,
+              { color: theme.textSecondary },
+            ]}
+          >
+            {t("wordStudy.recallTargetLabel", {
+              language: t(
+                word.targetLanguage === "en"
+                  ? "courses.languages.english"
+                  : "courses.languages.korean",
+              ),
+            })}
+          </Text>
+          <View
+            style={[
+              styles.recallInputShell,
+              compact && styles.recallInputShellCompact,
+              {
+                backgroundColor: palette.tint,
+                borderColor: isCorrect
+                  ? "#37B97A"
+                  : isWrong
+                    ? "#F06D7A"
+                    : palette.gradient[0],
+              },
+            ]}
+          >
+            <TextInput
+              autoFocus
+              autoCapitalize="none"
+              autoCorrect={false}
+              editable={!isCorrect}
+              returnKeyType="done"
+              value={answer}
+              onChangeText={onChangeAnswer}
+              onSubmitEditing={onSubmit}
+              placeholder={word.meaning}
+              placeholderTextColor={theme.textSecondary}
+              selectionColor={palette.accent}
+              style={[
+                styles.recallInput,
+                compact && styles.recallInputCompact,
+                { color: theme.text },
+              ]}
+            />
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel={t("wordStudy.recallCheck")}
+              disabled={!answer.trim() || isCorrect}
+              onPress={onSubmit}
+              activeOpacity={0.84}
+              style={[
+                styles.recallCheckButton,
+                {
+                  backgroundColor: isCorrect
+                    ? "#37B97A"
+                    : answer.trim()
+                      ? palette.accent
+                      : theme.border,
+                },
+              ]}
+            >
+              <Ionicons
+                name={isCorrect ? "checkmark" : "arrow-forward"}
+                size={21}
+                color={
+                  isCorrect || answer.trim() ? "#FFFFFF" : theme.textSecondary
+                }
+              />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
+            {t("wordStudy.meaning")}
+          </Text>
+          <Text
+            style={[
+              styles.meaning,
+              compact && styles.recallMeaningCompact,
               { color: theme.text },
             ]}
-          />
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityLabel={t("wordStudy.recallCheck")}
-            disabled={!answer.trim() || isCorrect}
-            onPress={onSubmit}
-            activeOpacity={0.84}
+          >
+            {word.meaning}
+          </Text>
+
+          <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+          <View
             style={[
-              styles.recallCheckButton,
+              styles.recallFeedback,
+              compact && styles.recallFeedbackCompact,
               {
-                backgroundColor: isCorrect
-                  ? "#37B97A"
-                  : answer.trim()
-                    ? palette.accent
+                backgroundColor: theme.bg,
+                borderColor: isCorrect
+                  ? "#BCEBD4"
+                  : isWrong
+                    ? "#FFD0D6"
                     : theme.border,
               },
             ]}
           >
-            <Ionicons
-              name={isCorrect ? "checkmark" : "arrow-forward"}
-              size={21}
-              color={
-                isCorrect || answer.trim() ? "#FFFFFF" : theme.textSecondary
-              }
-            />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={[styles.meaningLabel, { color: palette.accentDark }]}>
-          {t("wordStudy.meaning")}
-        </Text>
-        <Text
-          style={[
-            styles.meaning,
-            compact && styles.recallMeaningCompact,
-            { color: theme.text },
-          ]}
-        >
-          {word.meaning}
-        </Text>
-
-        <View style={[styles.divider, { backgroundColor: theme.border }]} />
-
-        <View
-          style={[
-            styles.recallFeedback,
-            compact && styles.recallFeedbackCompact,
-            {
-              backgroundColor: isCorrect
-                ? "#EAF9F1"
-                : isWrong
-                  ? "#FFF0F2"
-                  : theme.bg,
-              borderColor: isCorrect
-                ? "#BCEBD4"
-                : isWrong
-                  ? "#FFD0D6"
-                  : theme.border,
-            },
-          ]}
-        >
-          <View
-            style={[
-              styles.recallFeedbackIcon,
-              {
-                backgroundColor: isCorrect
-                  ? "#37B97A"
-                  : isWrong
-                    ? "#F06D7A"
-                    : palette.accent,
-              },
-            ]}
-          >
-            <Ionicons
-              name={
-                isCorrect ? "checkmark" : isWrong ? "refresh" : "bulb-outline"
-              }
-              size={18}
-              color="#FFFFFF"
-            />
-          </View>
-          <View style={styles.recallFeedbackTextGroup}>
-            <Text
+            <View
               style={[
-                styles.recallFeedbackTitle,
+                styles.recallFeedbackIcon,
                 {
-                  color: isCorrect
-                    ? "#168658"
+                  backgroundColor: isCorrect
+                    ? "#37B97A"
                     : isWrong
-                      ? "#C74355"
-                      : theme.text,
+                      ? "#F06D7A"
+                      : palette.accent,
                 },
               ]}
             >
-              {hintVisible && !isCorrect
-                ? `${t("wordStudy.recallAnswer")}: ${word.headword}`
-                : t(
-                    isCorrect
-                      ? "wordStudy.recallCorrect"
-                      : isWrong
-                        ? "wordStudy.recallWrong"
-                      : "wordStudy.recallTargetGuide",
-                    { language: t(word.targetLanguage === "en" ? "courses.languages.english" : "courses.languages.korean") },
-                  )}
-            </Text>
-            {!compact ? (
+              <Ionicons
+                name={
+                  isCorrect ? "checkmark" : isWrong ? "refresh" : "bulb-outline"
+                }
+                size={18}
+                color="#FFFFFF"
+              />
+            </View>
+            <View style={styles.recallFeedbackTextGroup}>
               <Text
                 style={[
-                  styles.recallFeedbackDescription,
-                  { color: theme.textSecondary },
+                  styles.recallFeedbackTitle,
+                  {
+                    color: isCorrect
+                      ? colors.success
+                      : isWrong
+                        ? colors.error
+                        : theme.text,
+                  },
                 ]}
               >
                 {hintVisible && !isCorrect
-                  ? t("wordStudy.recallHintInstruction")
+                  ? `${t("wordStudy.recallAnswer")}: ${word.headword}`
                   : t(
                       isCorrect
-                        ? "wordStudy.recallCorrectSub"
+                        ? "wordStudy.recallCorrect"
                         : isWrong
-                          ? "wordStudy.recallWrongSub"
-                          : "wordStudy.recallGuideSub",
+                          ? "wordStudy.recallWrong"
+                          : "wordStudy.recallTargetGuide",
+                      {
+                        language: t(
+                          word.targetLanguage === "en"
+                            ? "courses.languages.english"
+                            : "courses.languages.korean",
+                        ),
+                      },
                     )}
               </Text>
-            ) : null}
-          </View>
-          {isCorrect ? (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={t("wordStudy.listenWord")}
-              onPress={onSpeak}
-              style={[
-                styles.recallSpeaker,
-                {
-                  backgroundColor: isSpeaking ? palette.accent : theme.surface,
-                },
-              ]}
-            >
-              <Ionicons
-                name={isSpeaking ? "volume-high" : "volume-medium-outline"}
-                size={21}
-                color={isSpeaking ? "#FFFFFF" : palette.accentDark}
-              />
-            </TouchableOpacity>
-          ) : !hintVisible ? (
-            <TouchableOpacity
-              accessibilityRole="button"
-              accessibilityLabel={t("wordStudy.recallHint")}
-              onPress={onShowHint}
-              activeOpacity={0.82}
-              style={[
-                styles.recallHintButton,
-                {
-                  backgroundColor: palette.tint,
-                  borderColor: palette.gradient[0],
-                },
-              ]}
-            >
-              <Ionicons
-                name="bulb-outline"
-                size={16}
-                color={palette.accentDark}
-              />
-              <Text
+              {!compact ? (
+                <Text
+                  style={[
+                    styles.recallFeedbackDescription,
+                    { color: theme.textSecondary },
+                  ]}
+                >
+                  {hintVisible && !isCorrect
+                    ? t("wordStudy.recallHintInstruction")
+                    : t(
+                        isCorrect
+                          ? "wordStudy.recallCorrectSub"
+                          : isWrong
+                            ? "wordStudy.recallWrongSub"
+                            : "wordStudy.recallGuideSub",
+                      )}
+                </Text>
+              ) : null}
+            </View>
+            {isCorrect ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t("wordStudy.listenWord")}
+                onPress={onSpeak}
                 style={[
-                  styles.recallHintButtonText,
-                  { color: palette.accentDark },
+                  styles.recallSpeaker,
+                  {
+                    backgroundColor: isSpeaking
+                      ? palette.accent
+                      : theme.surface,
+                  },
                 ]}
               >
-                {t("wordStudy.recallHint")}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
+                <Ionicons
+                  name={isSpeaking ? "volume-high" : "volume-medium-outline"}
+                  size={21}
+                  color={isSpeaking ? "#FFFFFF" : palette.accentDark}
+                />
+              </TouchableOpacity>
+            ) : !hintVisible ? (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t("wordStudy.recallHint")}
+                onPress={onShowHint}
+                activeOpacity={0.82}
+                style={[
+                  styles.recallHintButton,
+                  {
+                    backgroundColor: palette.tint,
+                    borderColor: palette.gradient[0],
+                  },
+                ]}
+              >
+                <Ionicons
+                  name="bulb-outline"
+                  size={16}
+                  color={palette.accentDark}
+                />
+                <Text
+                  style={[
+                    styles.recallHintButtonText,
+                    { color: palette.accentDark },
+                  ]}
+                >
+                  {t("wordStudy.recallHint")}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -639,7 +703,7 @@ function PreviewCard({
   index: number;
   theme: ThemeColors;
 }) {
-  const palette = paletteFor(word, index);
+  const palette = paletteFor(word, index, theme);
   return (
     <View
       style={[
@@ -678,6 +742,9 @@ function RecallOfferModal({
   onSkip: () => void;
 }) {
   const { t } = useTranslation();
+  const colors = getWordLibraryPalette(
+    theme.bg === getWordLibraryPalette(true).bg,
+  );
 
   return (
     <Modal
@@ -689,23 +756,42 @@ function RecallOfferModal({
     >
       <View style={styles.recallOfferRoot}>
         <Pressable style={styles.modalBackdrop} onPress={onClose} />
-        <View
-          style={[
-            styles.recallOfferCard,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={styles.recallOfferContent}
+          style={[styles.recallOfferCard, { backgroundColor: colors.surface }]}
         >
-          <View
-            style={[
-              styles.recallOfferIcon,
-              { backgroundColor: `${theme.primary}18` },
-            ]}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={t("wordStudy.finish.close")}
+            onPress={onClose}
+            style={styles.offerClose}
           >
-            <Ionicons name="sparkles" size={28} color={theme.primary} />
+            <Ionicons name="close" size={22} color={colors.textSecondary} />
+          </Pressable>
+          <View
+            style={styles.offerIllustration}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+          >
+            <View
+              style={[
+                styles.offerMiniCard,
+                styles.offerMiniCardBack,
+                { backgroundColor: colors.yellow },
+              ]}
+            />
+            <View
+              style={[styles.offerMiniCard, { backgroundColor: colors.wash }]}
+            >
+              <Ionicons
+                name="create-outline"
+                size={30}
+                color={colors.primary}
+              />
+            </View>
+            <View style={[styles.offerDot, { backgroundColor: colors.pink }]} />
           </View>
-          <Text style={[styles.recallOfferEyebrow, { color: theme.primary }]}>
-            {t("wordStudy.recallOfferEyebrow")}
-          </Text>
           <Text style={[styles.recallOfferTitle, { color: theme.text }]}>
             {t("wordStudy.recallOfferTitle")}
           </Text>
@@ -724,7 +810,7 @@ function RecallOfferModal({
             activeOpacity={0.88}
             style={[
               styles.recallOfferStartButton,
-              { backgroundColor: theme.primary },
+              { backgroundColor: colors.action },
             ]}
           >
             <Ionicons name="school-outline" size={20} color="#FFFFFF" />
@@ -747,17 +833,28 @@ function RecallOfferModal({
               {t("wordStudy.recallOfferLater")}
             </Text>
           </TouchableOpacity>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
 }
 
 export default function WordStudyRoute() {
-  const params = useLocalSearchParams<{ section?: string; unit?: string; collectionId?: string; groupId?: string }>();
+  const params = useLocalSearchParams<{
+    section?: string;
+    unit?: string;
+    collectionId?: string;
+    groupId?: string;
+  }>();
   const section = Number(params.section);
   const unit = Number(params.unit);
-  if (!(params.collectionId && params.groupId) && (!Number.isInteger(section) || section < 1 || !Number.isInteger(unit) || unit < 1)) {
+  if (
+    !(params.collectionId && params.groupId) &&
+    (!Number.isInteger(section) ||
+      section < 1 ||
+      !Number.isInteger(unit) ||
+      unit < 1)
+  ) {
     return <Redirect href="/word-library" />;
   }
   return <WordStudyScreen />;
@@ -787,23 +884,39 @@ function WordStudyScreen() {
   const uiLanguage = useSettingsStore((state) => state.language);
   const userId = useAuthStore((state) => state.user?.id);
   const collectionScope = Boolean(params.collectionId && params.groupId);
-  const activeWordScope = `${userId || ""}:${learnCourse}:${collectionScope ? `${params.collectionId}:${params.groupId}` : `${params.section}:${params.unit}`}:${contentLang}`;
-  const theme = useTheme();
+  const activeWordScope = `${userId || ""}:${learnCourse}:${collectionScope ? `${params.collectionId}:${params.groupId}` : `${params.section}:${params.unit}`}:${contentLang}:${params.from ?? ""}:${studyLesson}:${studyLessonCount}`;
+  const appTheme = useTheme();
+  const isDark = appTheme.bg === themes.dark.bg;
+  const colors = getWordLibraryPalette(isDark);
+  const theme: ThemeColors = { ...appTheme, ...colors };
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { speak, stop, isSpeaking, prewarm } = useSpeech();
+  const [screenFocused, setScreenFocused] = useState(true);
+  const screenFocusedRef = useRef(true);
   // 카드를 넘겨 본 단어는 "학습 중"으로 올라간다. 학습 로드 모드의 단어 노드가
   // 이걸로 완료 여부를 판단한다.
   const { markSeen, flush: flushSeen } = useSeenWords();
-  useFocusEffect(useCallback(() => () => {
-    stop();
-    flushSeen();
-  }, [flushSeen, stop]));
+  useFocusEffect(
+    useCallback(() => {
+      screenFocusedRef.current = true;
+      setScreenFocused(true);
+      return () => {
+        screenFocusedRef.current = false;
+        setScreenFocused(false);
+        stop();
+        flushSeen();
+      };
+    }, [flushSeen, stop]),
+  );
   const wordStudyAutoPlay = useSettingsStore(
     (state) => state.wordStudyAutoPlay,
   );
   const storedWordStudyLast = useSettingsStore((state) => state.wordStudyLast);
-  const wordStudyLast = userId && storedWordStudyLast?.ownerId === userId ? storedWordStudyLast : null;
+  const wordStudyLast =
+    userId && storedWordStudyLast?.ownerId === userId
+      ? storedWordStudyLast
+      : null;
   const setWordStudyLast = useSettingsStore((state) => state.setWordStudyLast);
   // 첫 진입에 한 번만 이어보기를 적용한다. 이후 범위를 직접 바꾸면 0번부터.
   const resumeIndexRef = useRef<number | null>(null);
@@ -811,13 +924,24 @@ function WordStudyScreen() {
   const resumeWordIdRef = useRef<string | null>(null);
   const scopeRequestRef = useRef(0);
   const wordRequestRef = useRef(0);
-  const cancelScopeRequest = useCallback(() => { scopeRequestRef.current++; }, []);
-  const cancelWordRequest = useCallback(() => { wordRequestRef.current++; }, []);
-  const [collection, setCollection] = useState<WordCollectionDetail | null>(null);
+  const cancelScopeRequest = useCallback(() => {
+    scopeRequestRef.current++;
+  }, []);
+  const cancelWordRequest = useCallback(() => {
+    wordRequestRef.current++;
+  }, []);
+  const [collection, setCollection] = useState<WordCollectionDetail | null>(
+    null,
+  );
   const [positionFailed, setPositionFailed] = useState(false);
   const [loadedWordScope, setLoadedWordScope] = useState("");
   const positionWriteRef = useRef<Promise<void>>(Promise.resolve());
-  const pendingPositionRef = useRef<{ id: string; position: WordCollectionPosition; course: LearnCourse; userId: string | undefined } | null>(null);
+  const pendingPositionRef = useRef<{
+    id: string;
+    position: WordCollectionPosition;
+    course: LearnCourse;
+    userId: string | undefined;
+  } | null>(null);
   const flushCollectionPosition = useCallback((): Promise<void> => {
     const pending = pendingPositionRef.current;
     if (!pending) return positionWriteRef.current;
@@ -825,16 +949,31 @@ function WordStudyScreen() {
     // Serialize writes so a slow older request cannot replace the latest reading position.
     positionWriteRef.current = positionWriteRef.current.then(async () => {
       try {
-        await WordCollectionsService.savePosition(pending.id, pending.position, pending.course, pending.userId);
+        await WordCollectionsService.savePosition(
+          pending.id,
+          pending.position,
+          pending.course,
+          pending.userId,
+        );
         setPositionFailed(false);
       } catch {
-        if (useAuthStore.getState().user?.id === pending.userId && useSettingsStore.getState().learnCourse === pending.course) setPositionFailed(true);
+        if (
+          useAuthStore.getState().user?.id === pending.userId &&
+          useSettingsStore.getState().learnCourse === pending.course
+        )
+          setPositionFailed(true);
       }
     });
     return positionWriteRef.current;
   }, []);
-  useFocusEffect(useCallback(() => () => { void flushCollectionPosition(); }, [flushCollectionPosition]));
-  const screenStyles = useMemo(() => createScreenStyles(theme), [theme]);
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        void flushCollectionPosition();
+      },
+      [flushCollectionPosition],
+    ),
+  );
 
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
   const [section, setSection] = useState(Number(params.section));
@@ -851,16 +990,34 @@ function WordStudyScreen() {
   const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
   const [recallHintVisible, setRecallHintVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [viewedWordIds, setViewedWordIds] = useState<string[]>([]);
+  const [practicedWordIds, setPracticedWordIds] = useState<string[]>([]);
+  const [completedRecall, setCompletedRecall] = useState(false);
   const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>(
     [],
   );
-  const recallOfferShownRef = useRef(false);
   const lastRecalledWordIdRef = useRef<string | null>(null);
   const recallResultReportedRef = useRef(false);
   const recallHadWrongAttemptRef = useRef(false);
+  const recallSolvedRef = useRef(false);
+  const sessionExitingRef = useRef(false);
+  const activeWordScopeRef = useRef(activeWordScope);
+  activeWordScopeRef.current = activeWordScope;
+  const recallWordIdRef = useRef<string | null>(null);
+  recallWordIdRef.current = recallWord?.id ?? null;
 
   const translateX = useSharedValue(0);
   const gestureLocked = useSharedValue(0);
+  useFocusEffect(
+    useCallback(
+      () => () => {
+        cancelAnimation(translateX);
+        translateX.value = 0;
+        gestureLocked.value = 0;
+      },
+      [gestureLocked, translateX],
+    ),
+  );
 
   useEffect(() => {
     const showEvent =
@@ -891,20 +1048,33 @@ function WordStudyScreen() {
       if (collectionScope && params.collectionId && params.groupId) {
         const result = await WordCollectionsService.get(params.collectionId);
         if (scopeRequestRef.current !== request) return;
-        const group = result.groups.find((item) => item.id === params.groupId && item.words > 0);
+        const group = result.groups.find(
+          (item) => item.id === params.groupId && item.words > 0,
+        );
         if (!group) {
-          router.replace({ pathname: "/word-library", params: { collectionId: result.id } });
+          router.replace({
+            pathname: "/word-library",
+            params: { collectionId: result.id },
+          });
           return;
         }
         setCollection(result);
         setSection(group.section || 0);
         setUnit(group.unit || 0);
         if (params.resume === "1") {
-          const saved = result.lastPosition?.groupId === group.id ? result.lastPosition : null;
+          const saved =
+            result.lastPosition?.groupId === group.id
+              ? result.lastPosition
+              : null;
           if (saved) {
             resumeIndexRef.current = saved.cardIndex;
             resumeWordIdRef.current = saved.lastWordId;
-          } else if (result.id.startsWith("course-") && wordStudyLast && group.section === wordStudyLast.section && group.unit === wordStudyLast.unit) {
+          } else if (
+            result.id.startsWith("course-") &&
+            wordStudyLast &&
+            group.section === wordStudyLast.section &&
+            group.unit === wordStudyLast.unit
+          ) {
             resumeIndexRef.current = wordStudyLast.cardIndex;
           }
         }
@@ -913,8 +1083,12 @@ function WordStudyScreen() {
       const result = await WordService.getSectionSummaries();
       if (scopeRequestRef.current !== request) return;
       const available = result.filter((summary) => summary.words > 0);
-      const matchedSummary = available.find((item) => item.section === Number(params.section));
-      const matchedUnit = matchedSummary?.units.find((item) => item.unit === Number(params.unit) && item.words > 0);
+      const matchedSummary = available.find(
+        (item) => item.section === Number(params.section),
+      );
+      const matchedUnit = matchedSummary?.units.find(
+        (item) => item.unit === Number(params.unit) && item.words > 0,
+      );
       if (!matchedSummary || !matchedUnit) {
         router.replace("/word-library");
         return;
@@ -922,7 +1096,13 @@ function WordStudyScreen() {
       setSummaries(result);
       setSection(matchedSummary.section);
       setUnit(matchedUnit.unit);
-      if (params.resume === "1" && params.from !== "studyPath" && wordStudyLast && wordStudyLast.section === matchedSummary.section && wordStudyLast.unit === matchedUnit.unit) {
+      if (
+        params.resume === "1" &&
+        params.from !== "studyPath" &&
+        wordStudyLast &&
+        wordStudyLast.section === matchedSummary.section &&
+        wordStudyLast.unit === matchedUnit.unit
+      ) {
         resumeIndexRef.current = wordStudyLast.cardIndex;
       }
     } catch {
@@ -932,7 +1112,20 @@ function WordStudyScreen() {
     }
     // Saved positions are applied once per route, not on every card-position update.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.section, params.unit, params.resume, params.from, params.collectionId, params.groupId, collectionScope, learnCourse, userId, uiLanguage, router, stop]);
+  }, [
+    params.section,
+    params.unit,
+    params.resume,
+    params.from,
+    params.collectionId,
+    params.groupId,
+    collectionScope,
+    learnCourse,
+    userId,
+    uiLanguage,
+    router,
+    stop,
+  ]);
 
   useEffect(() => {
     resumeConsumedRef.current = false;
@@ -944,7 +1137,13 @@ function WordStudyScreen() {
 
   const activeLanguage = contentLang;
   const loadWords = useCallback(async () => {
-    if (scopeLoading || (collectionScope ? !collection : summaries.length === 0 || !section || !unit)) return;
+    if (
+      scopeLoading ||
+      (collectionScope
+        ? !collection
+        : summaries.length === 0 || !section || !unit)
+    )
+      return;
     const request = ++wordRequestRef.current;
     setLoadedWordScope("");
     // 서비스가 설명 언어로 요청하므로 언어가 바뀌면 이 콜백을 새로 만든다.
@@ -962,19 +1161,28 @@ function WordStudyScreen() {
     setRecallHintVisible(false);
     setKeyboardVisible(false);
     setPendingRecallWordIds([]);
-    recallOfferShownRef.current = false;
+    setViewedWordIds([]);
+    setPracticedWordIds([]);
+    setCompletedRecall(false);
+    sessionExitingRef.current = false;
     lastRecalledWordIdRef.current = null;
     recallResultReportedRef.current = false;
     recallHadWrongAttemptRef.current = false;
+    recallSolvedRef.current = false;
     setWords([]);
     setCardIndex(0);
     stop();
     translateX.value = 0;
+    gestureLocked.value = 0;
 
     try {
-      const all = collectionScope && params.collectionId && params.groupId
-        ? await WordCollectionsService.getWords(params.collectionId, params.groupId)
-        : await WordService.getUnitWords(section, unit);
+      const all =
+        collectionScope && params.collectionId && params.groupId
+          ? await WordCollectionsService.getWords(
+              params.collectionId,
+              params.groupId,
+            )
+          : await WordService.getUnitWords(section, unit);
       if (request !== wordRequestRef.current) return;
       // 학습 로드 모드는 유닛 단어를 여러 레슨으로 나눠서 전부 훑는다.
       // 서버(lessonSlice)와 같은 규칙으로 잘라야 조각이 어긋나지 않는다.
@@ -997,7 +1205,10 @@ function WordStudyScreen() {
       resumeIndexRef.current = null;
       if (!resumeConsumedRef.current && resumeAt != null && result.length > 0) {
         resumeConsumedRef.current = true;
-        const restoredIndex = getResumeWordIndex(result, { cardIndex: resumeAt, lastWordId: resumeWordIdRef.current });
+        const restoredIndex = getResumeWordIndex(result, {
+          cardIndex: resumeAt,
+          lastWordId: resumeWordIdRef.current,
+        });
         resumeWordIdRef.current = null;
         setCardIndex(restoredIndex);
       }
@@ -1022,6 +1233,7 @@ function WordStudyScreen() {
     params.collectionId,
     params.groupId,
     translateX,
+    gestureLocked,
     unit,
   ]);
 
@@ -1052,7 +1264,6 @@ function WordStudyScreen() {
       : undefined
     : nextWord;
   const previousPreviewWord = recallWord ? currentWord : previousWord;
-  const hasFinishedDeck = studyPhase === "complete";
   const currentWordId = currentWord?.id ?? "";
   const currentSpeechText = currentWord
     ? currentWord.pronunciation.ttsText ||
@@ -1062,6 +1273,10 @@ function WordStudyScreen() {
 
   useEffect(() => {
     markSeen(currentWordId);
+    if (currentWordId)
+      setViewedWordIds((current) =>
+        current.includes(currentWordId) ? current : [...current, currentWordId],
+      );
     const userId = useAuthStore.getState().user?.id;
     if (userId && currentWord) {
       useAvatarStudyStore.getState().rememberWord({
@@ -1086,12 +1301,19 @@ function WordStudyScreen() {
     const upcoming = words
       .slice(cardIndex, cardIndex + 4)
       .map(
-        (w) =>
-          w.pronunciation.ttsText || w.pronunciation.hangul || w.headword,
+        (w) => w.pronunciation.ttsText || w.pronunciation.hangul || w.headword,
       )
       .filter(Boolean);
-    if (upcoming.length) prewarm(upcoming, words[cardIndex]?.speechLocale ?? speechLocale);
-  }, [cardIndex, words, prewarm, speechLocale, loadedWordScope, activeWordScope]);
+    if (upcoming.length)
+      prewarm(upcoming, words[cardIndex]?.speechLocale ?? speechLocale);
+  }, [
+    cardIndex,
+    words,
+    prewarm,
+    speechLocale,
+    loadedWordScope,
+    activeWordScope,
+  ]);
 
   useEffect(() => {
     if (
@@ -1152,12 +1374,18 @@ function WordStudyScreen() {
       setRecallHintVisible(false);
       recallResultReportedRef.current = false;
       recallHadWrongAttemptRef.current = false;
+      recallSolvedRef.current = false;
     },
     [recallWord],
   );
 
   const submitRecall = useCallback(() => {
-    if (!recallWord || recallStatus === "correct" || !recallAnswer.trim()) {
+    if (
+      !recallWord ||
+      recallSolvedRef.current ||
+      recallStatus === "correct" ||
+      !recallAnswer.trim()
+    ) {
       return;
     }
 
@@ -1172,6 +1400,10 @@ function WordStudyScreen() {
     }
 
     if (correct) {
+      recallSolvedRef.current = true;
+      setPracticedWordIds((current) =>
+        current.includes(recallWord.id) ? current : [...current, recallWord.id],
+      );
       Keyboard.dismiss();
       if (recallHadWrongAttemptRef.current) {
         setPendingRecallWordIds((current) =>
@@ -1218,6 +1450,7 @@ function WordStudyScreen() {
       lastRecalledWordIdRef.current = candidate.id;
       recallResultReportedRef.current = false;
       recallHadWrongAttemptRef.current = false;
+      recallSolvedRef.current = false;
       setRecallAnswer("");
       setRecallStatus("idle");
       setRecallHintVisible(false);
@@ -1253,42 +1486,23 @@ function WordStudyScreen() {
   const skipRecallPractice = useCallback(async () => {
     setRecallOfferVisible(false);
     stop();
-
-    if (fromStudyPath) {
-      finishStudyPathUnit();
-      return;
-    }
-
+    Keyboard.dismiss();
+    setCompletedRecall(false);
+    setStudyPhase("complete");
     flushSeen();
     await flushCollectionPosition();
-    if (router.canGoBack()) router.back();
-    else router.replace("/");
-  }, [finishStudyPathUnit, flushCollectionPosition, flushSeen, fromStudyPath, router, stop]);
-
-  useEffect(() => {
-    if (
-      studyPhase !== "browse" ||
-      recallWord ||
-      !currentWordId ||
-      nextWord ||
-      recallOfferShownRef.current
-    ) {
-      return;
-    }
-
-    // 마지막 단어를 잠깐 확인한 뒤 선택창을 보여줘 카드 내용을 가리지 않는다.
-    const timeout = setTimeout(() => {
-      recallOfferShownRef.current = true;
-      stop();
-      setRecallOfferVisible(true);
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }, 550);
-
-    return () => clearTimeout(timeout);
-  }, [currentWordId, nextWord, recallWord, stop, studyPhase]);
+  }, [flushCollectionPosition, flushSeen, stop]);
 
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {
+      if (
+        !screenFocusedRef.current ||
+        sessionExitingRef.current ||
+        activeWordScopeRef.current !== activeWordScope
+      ) {
+        gestureLocked.value = 0;
+        return;
+      }
       stop();
 
       if (recallWord) {
@@ -1305,10 +1519,17 @@ function WordStudyScreen() {
           if (showRecall(candidateId)) return;
 
           clearRecall();
+          setCompletedRecall(true);
           setStudyPhase("complete");
         }
       } else if (direction > 0 && currentWord) {
-        if (nextWord) {
+        if (studyPhase === "browse") {
+          const advance = getWordBrowseAdvance(cardIndex, loadedWords.length);
+          if (advance.type === "next") setCardIndex(advance.index);
+          else if (advance.type === "offer") {
+            setRecallOfferVisible(true);
+          }
+        } else if (nextWord) {
           setCardIndex((current) => Math.min(words.length - 1, current + 1));
         } else if (studyPhase === "recall") {
           const candidateId = pickRecallWordId(
@@ -1317,10 +1538,8 @@ function WordStudyScreen() {
             lastRecalledWordIdRef.current,
           );
           if (showRecall(candidateId)) return;
+          setCompletedRecall(true);
           setStudyPhase("complete");
-        } else if (studyPhase === "browse") {
-          recallOfferShownRef.current = true;
-          setRecallOfferVisible(true);
         }
       } else {
         setCardIndex((current) =>
@@ -1338,6 +1557,9 @@ function WordStudyScreen() {
     },
     [
       clearRecall,
+      activeWordScope,
+      cardIndex,
+      loadedWords.length,
       currentWord,
       gestureLocked,
       nextWord,
@@ -1354,7 +1576,12 @@ function WordStudyScreen() {
 
   const animateCardOut = useCallback(
     (direction: -1 | 1) => {
-      if (gestureLocked.value) return;
+      if (
+        !screenFocusedRef.current ||
+        sessionExitingRef.current ||
+        gestureLocked.value
+      )
+        return;
       if ((direction > 0 && !canGoNext) || (direction < 0 && !canGoPrevious)) {
         translateX.value = withSpring(0, { damping: 18, stiffness: 220 });
         return;
@@ -1376,6 +1603,33 @@ function WordStudyScreen() {
     },
     [canGoNext, canGoPrevious, commitSwipe, gestureLocked, translateX, width],
   );
+
+  useEffect(() => {
+    if (
+      !screenFocused ||
+      !recallWord ||
+      recallStatus !== "correct" ||
+      studyPhase !== "recall"
+    )
+      return;
+    const expectedScope = activeWordScope;
+    const expectedWordId = recallWord.id;
+    const timeout = setTimeout(() => {
+      if (
+        activeWordScopeRef.current === expectedScope &&
+        recallWordIdRef.current === expectedWordId
+      )
+        animateCardOut(1);
+    }, WORD_RECALL_ADVANCE_MS);
+    return () => clearTimeout(timeout);
+  }, [
+    activeWordScope,
+    animateCardOut,
+    recallStatus,
+    recallWord,
+    screenFocused,
+    studyPhase,
+  ]);
 
   const panGesture = Gesture.Pan()
     .activeOffsetX([-12, 12])
@@ -1477,6 +1731,9 @@ function WordStudyScreen() {
   }));
 
   const goBack = async () => {
+    if (sessionExitingRef.current) return;
+    sessionExitingRef.current = true;
+    cancelAnimation(translateX);
     stop();
     flushSeen();
     await flushCollectionPosition();
@@ -1484,50 +1741,138 @@ function WordStudyScreen() {
     else router.replace("/");
   };
 
+  const finishSession = async () => {
+    if (sessionExitingRef.current) return;
+    sessionExitingRef.current = true;
+    stop();
+    flushSeen();
+    await flushCollectionPosition();
+    if (fromStudyPath) finishStudyPathUnit();
+    else if (router.canGoBack()) router.back();
+    else router.replace("/");
+  };
+
   const openWordLibrary = async () => {
+    if (sessionExitingRef.current) return;
+    sessionExitingRef.current = true;
+    cancelAnimation(translateX);
     stop();
     flushSeen();
     await flushCollectionPosition();
     router.dismissTo({
       pathname: "/word-library",
-      params: params.collectionId && params.groupId
-        ? { collectionId: params.collectionId, groupId: params.groupId }
-        : { section: String(section), unit: String(unit) },
+      params:
+        params.collectionId && params.groupId
+          ? { collectionId: params.collectionId, groupId: params.groupId }
+          : { section: String(section), unit: String(unit) },
     });
   };
 
   // 보던 지점을 저장한다. 다음 진입 때 여기서 이어간다.
   useEffect(() => {
-    if (loadedWordScope !== activeWordScope || wordsLoading || words.length === 0 || scopeLoading || params.from === "studyPath" || !section || !unit || (collectionScope && !collection?.id.startsWith("course-"))) return;
-    if ((words[0]?.targetLanguage ?? "ko") !== useSettingsStore.getState().learnCourse) return;
+    if (
+      loadedWordScope !== activeWordScope ||
+      wordsLoading ||
+      words.length === 0 ||
+      scopeLoading ||
+      params.from === "studyPath" ||
+      !section ||
+      !unit ||
+      (collectionScope && !collection?.id.startsWith("course-"))
+    )
+      return;
+    if (
+      (words[0]?.targetLanguage ?? "ko") !==
+      useSettingsStore.getState().learnCourse
+    )
+      return;
     setWordStudyLast({ section, unit, cardIndex, ownerId: userId });
-  }, [cardIndex, section, unit, words, wordsLoading, scopeLoading, params.from, collectionScope, collection, loadedWordScope, activeWordScope, userId, setWordStudyLast]);
+  }, [
+    cardIndex,
+    section,
+    unit,
+    words,
+    wordsLoading,
+    scopeLoading,
+    params.from,
+    collectionScope,
+    collection,
+    loadedWordScope,
+    activeWordScope,
+    userId,
+    setWordStudyLast,
+  ]);
 
   useEffect(() => {
-    if (loadedWordScope !== activeWordScope || !collectionScope || !collection || !params.groupId || wordsLoading || scopeLoading || !words[cardIndex]) return;
+    if (
+      loadedWordScope !== activeWordScope ||
+      !collectionScope ||
+      !collection ||
+      !params.groupId ||
+      wordsLoading ||
+      scopeLoading ||
+      !words[cardIndex]
+    )
+      return;
     pendingPositionRef.current = {
-      id: collection.id, course: learnCourse, userId,
-      position: { groupId: params.groupId, cardIndex, lastWordId: words[cardIndex]!.id },
+      id: collection.id,
+      course: learnCourse,
+      userId,
+      position: {
+        groupId: params.groupId,
+        cardIndex,
+        lastWordId: words[cardIndex]!.id,
+      },
     };
-    const timeout = setTimeout(() => { void flushCollectionPosition(); }, 400);
+    const timeout = setTimeout(() => {
+      void flushCollectionPosition();
+    }, 400);
     return () => clearTimeout(timeout);
-  }, [collectionScope, collection, params.groupId, wordsLoading, scopeLoading, words, cardIndex, learnCourse, userId, loadedWordScope, activeWordScope, flushCollectionPosition]);
+  }, [
+    collectionScope,
+    collection,
+    params.groupId,
+    wordsLoading,
+    scopeLoading,
+    words,
+    cardIndex,
+    learnCourse,
+    userId,
+    loadedWordScope,
+    activeWordScope,
+    flushCollectionPosition,
+  ]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
+  const rangeLabel = collection
+    ? `${collection.title} · ${collection.groups.find((group) => group.id === params.groupId)?.title || ""}`
+    : t("wordStudy.range", { section, unit });
+
+  if (studyPhase === "complete" && loadedWords.length > 0) {
+    return (
+      <WordStudyCompletion
+        isDark={isDark}
+        completedRecall={completedRecall}
+        viewedCount={viewedWordIds.length}
+        practicedCount={practicedWordIds.length}
+        words={loadedWords.slice(-3)}
+        rangeLabel={rangeLabel}
+        onContinue={() => {
+          void finishSession();
+        }}
+        onReviewAgain={() => {
+          if (!sessionExitingRef.current) startRecallPractice();
+        }}
+      />
+    );
+  }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       enabled={Platform.OS === "ios" && Boolean(recallWord)}
-      style={screenStyles.container}
+      style={[styles.container, { backgroundColor: colors.bg }]}
     >
-      <LinearGradient
-        colors={screenStyles.backgroundGradient}
-        style={StyleSheet.absoluteFill}
-      />
-      <View style={screenStyles.backgroundOrbOne} pointerEvents="none" />
-      <View style={screenStyles.backgroundOrbTwo} pointerEvents="none" />
-
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           onPress={goBack}
@@ -1537,49 +1882,64 @@ function WordStudyScreen() {
           <Ionicons name="close" size={23} color={theme.text} />
         </TouchableOpacity>
         <View style={styles.headerTitleGroup}>
-          <Text style={[styles.headerEyebrow, { color: theme.primary }]}>
-            {t("wordStudy.eyebrow")}
+          <Text
+            style={[styles.scopeLabel, { color: theme.textSecondary }]}
+            numberOfLines={1}
+          >
+            {t("wordStudy.currentRange")}
           </Text>
-          <Text style={[styles.headerTitle, { color: theme.text }]}>
-            {t("wordStudy.title")}
+          <Text
+            accessibilityLabel={rangeLabel}
+            numberOfLines={2}
+            style={[styles.headerTitle, { color: theme.text }]}
+          >
+            {rangeLabel}
           </Text>
         </View>
-        <View
-          style={[
-            styles.counterPill,
-            { backgroundColor: theme.surface, borderColor: theme.border },
-          ]}
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t("wordStudy.change")}
+          disabled={scopeLoading}
+          onPress={() => {
+            void openWordLibrary();
+          }}
+          style={[styles.changeChip, { backgroundColor: colors.wash }]}
         >
-          {recallWord ? (
-            <>
-              <Ionicons name="sparkles" size={14} color={theme.primary} />
-              <Text style={[styles.counterRecall, { color: theme.primary }]}>
-                {t("wordStudy.recallShort")}
-              </Text>
-            </>
-          ) : (
-            <>
-              <Text style={[styles.counterCurrent, { color: theme.text }]}>
-                {words.length ? cardIndex + 1 : 0}
-              </Text>
-              <Text
-                style={[styles.counterTotal, { color: theme.textSecondary }]}
-              >
-                / {words.length}
-              </Text>
-            </>
-          )}
-        </View>
+          <Text style={[styles.changeChipText, { color: colors.primary }]}>
+            {t("wordStudy.change")}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={colors.primary} />
+        </TouchableOpacity>
       </View>
 
-      {positionFailed && <Text accessibilityRole="alert" style={[styles.positionWarning, { color: theme.textSecondary }]}>{t("wordLibrary.positionFailed")}</Text>}
+      {positionFailed && (
+        <Text
+          accessibilityRole="alert"
+          style={[styles.positionWarning, { color: theme.textSecondary }]}
+        >
+          {t("wordLibrary.positionFailed")}
+        </Text>
+      )}
       <View style={styles.progressWrap}>
+        <View style={styles.progressMeta}>
+          <Text style={[styles.counterTotal, { color: theme.textSecondary }]}>
+            {recallWord ? t("wordStudy.recallShort") : ""}
+          </Text>
+          <Text style={[styles.counterTotal, { color: theme.textSecondary }]}>
+            {recallWord
+              ? practicedWordIds.length
+              : loadedWords.length
+                ? cardIndex + 1
+                : 0}{" "}
+            / {loadedWords.length}
+          </Text>
+        </View>
         <View style={[styles.progressTrack, { backgroundColor: theme.border }]}>
           <Animated.View
             style={[
               styles.progressFill,
               {
-                backgroundColor: theme.primary,
+                backgroundColor: colors.action,
                 width:
                   `${Math.max(0, Math.min(1, progress)) * 100}%` as `${number}%`,
               },
@@ -1588,8 +1948,7 @@ function WordStudyScreen() {
         </View>
       </View>
 
-      {/* 스크롤 없이 한 화면에 담는다. 카드가 남은 높이를 flex 로 채우고
-          하단 네비 버튼은 항상 보이게 고정된다. */}
+      {/* Card contents scroll vertically; navigation remains above the safe area. */}
       <View
         style={[
           styles.screenScroll,
@@ -1597,44 +1956,6 @@ function WordStudyScreen() {
           { paddingBottom: Math.max(insets.bottom, 14) + 10 },
         ]}
       >
-        {!keyboardVisible ? (
-          <Animated.View entering={FadeInDown.duration(320)}>
-            <TouchableOpacity
-              onPress={() => { void openWordLibrary(); }}
-              disabled={scopeLoading}
-              activeOpacity={0.86}
-              style={[
-                styles.scopeButton,
-                { backgroundColor: theme.surface, borderColor: theme.border },
-              ]}
-            >
-              <View
-                style={[styles.scopeIcon, { backgroundColor: theme.primary }]}
-              >
-                <Ionicons name="layers" size={19} color="#FFFFFF" />
-              </View>
-              <View style={styles.scopeTextGroup}>
-                <Text
-                  style={[styles.scopeLabel, { color: theme.textSecondary }]}
-                >
-                  {t("wordStudy.currentRange")}
-                </Text>
-                <Text style={[styles.scopeValue, { color: theme.text }]}>
-                  {collection
-                    ? `${collection.title} · ${collection.groups.find(group => group.id === params.groupId)?.title || ""}`
-                    : t("wordStudy.range", { section, unit })}
-                </Text>
-              </View>
-              <View style={[styles.changeChip, { backgroundColor: theme.bg }]}>
-                <Text style={[styles.changeChipText, { color: theme.primary }]}>
-                  {t("wordStudy.change")}
-                </Text>
-                <Ionicons name="chevron-down" size={15} color={theme.primary} />
-              </View>
-            </TouchableOpacity>
-          </Animated.View>
-        ) : null}
-
         {scopeLoading || wordsLoading ? (
           <View style={styles.centerState}>
             <View
@@ -1778,22 +2099,6 @@ function WordStudyScreen() {
               </GestureDetector>
             </View>
 
-            {fromStudyPath && hasFinishedDeck && words.length > 0 ? (
-              <TouchableOpacity
-                onPress={finishStudyPathUnit}
-                style={[
-                  styles.finishButton,
-                  { backgroundColor: theme.primary },
-                ]}
-                activeOpacity={0.88}
-              >
-                <Text style={styles.finishText}>
-                  {t("wordStudy.finishDay")}
-                </Text>
-                <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
-              </TouchableOpacity>
-            ) : null}
-
             <View
               pointerEvents={keyboardVisible ? "none" : "auto"}
               style={[
@@ -1850,8 +2155,8 @@ function WordStudyScreen() {
                   styles.navButton,
                   styles.navButtonPrimary,
                   {
-                    backgroundColor: canGoNext ? theme.primary : theme.surface,
-                    borderColor: canGoNext ? theme.primary : theme.border,
+                    backgroundColor: canGoNext ? colors.action : theme.surface,
+                    borderColor: canGoNext ? colors.action : theme.border,
                   },
                   !canGoNext && styles.disabled,
                 ]}
@@ -1880,7 +2185,13 @@ function WordStudyScreen() {
 }
 
 const styles = StyleSheet.create({
-  positionWarning: { fontSize: 11, lineHeight: 16, paddingHorizontal: 18, marginBottom: 5 },
+  container: { flex: 1, minHeight: 0 },
+  positionWarning: {
+    fontSize: 11,
+    lineHeight: 16,
+    paddingHorizontal: 18,
+    marginBottom: 5,
+  },
   header: {
     paddingHorizontal: 18,
     paddingBottom: 10,
@@ -1899,68 +2210,37 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 2,
   },
-  headerTitleGroup: { flex: 1, alignItems: "center" },
-  headerEyebrow: {
-    fontSize: 10,
-    lineHeight: 13,
-    fontWeight: "900",
-    letterSpacing: 1.5,
-  },
-  headerTitle: { fontSize: 21, lineHeight: 27, fontWeight: "900" },
-  counterPill: {
-    minWidth: 54,
-    height: 38,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    paddingHorizontal: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-  },
-  counterCurrent: { fontSize: 14, fontWeight: "900" },
+  headerTitleGroup: { flex: 1, minWidth: 0, paddingHorizontal: 12 },
+  headerTitle: { fontSize: 13, lineHeight: 18, fontWeight: "800" },
   counterTotal: { fontSize: 12, fontWeight: "700" },
-  counterRecall: { fontSize: 12, fontWeight: "900" },
-  progressWrap: { paddingHorizontal: 22, paddingBottom: 10 },
+  progressWrap: { paddingHorizontal: 22, paddingBottom: 6 },
+  progressMeta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 7,
+    gap: 10,
+  },
   progressTrack: { height: 5, borderRadius: 99, overflow: "hidden" },
   progressFill: { height: "100%", borderRadius: 99 },
-  screenScroll: { flex: 1 },
+  screenScroll: { flex: 1, minHeight: 0 },
   screenContent: { paddingHorizontal: 18, paddingTop: 6 },
-  scopeButton: {
-    width: "100%",
-    maxWidth: 520,
-    alignSelf: "center",
-    borderRadius: 19,
-    borderWidth: 1.5,
-    padding: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 0,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 1,
-  },
-  scopeIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  scopeTextGroup: { flex: 1, paddingHorizontal: 12 },
   scopeLabel: { fontSize: 11, fontWeight: "700", marginBottom: 2 },
-  scopeValue: { fontSize: 16, fontWeight: "900" },
   changeChip: {
-    height: 34,
-    borderRadius: 12,
+    minHeight: 44,
+    maxWidth: 112,
+    borderRadius: 16,
     paddingHorizontal: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 3,
   },
-  changeChipText: { fontSize: 12, fontWeight: "900" },
+  changeChipText: {
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: "800",
+    flexShrink: 1,
+  },
   centerState: { paddingTop: 34, alignItems: "center" },
   loadingCard: {
     width: "100%",
@@ -2002,13 +2282,16 @@ const styles = StyleSheet.create({
   },
   retryText: { color: "#FFFFFF", fontSize: 14, fontWeight: "900" },
   emptyEmoji: { fontSize: 48 },
-  cardArea: { flex: 1 },
-  cardFill: { flex: 1 },
+  cardArea: { flex: 1, minHeight: 0 },
+  cardFill: { flex: 1, minHeight: 0 },
+  cardScroll: { flex: 1, minHeight: 0 },
+  cardScrollContent: { flexGrow: 1 },
   deck: {
     width: "100%",
     maxWidth: 520,
     alignSelf: "center",
     flex: 1,
+    minHeight: 0,
     marginTop: 12,
   },
   previewLayer: {
@@ -2139,7 +2422,7 @@ const styles = StyleSheet.create({
   visualArea: {
     // 고정 높이였다가 카드가 화면을 넘겼다. 남는 만큼만 차지하고 줄어든다.
     minHeight: 148,
-    flexShrink: 1,
+    flexShrink: 0,
     padding: 18,
     overflow: "hidden",
   },
@@ -2201,7 +2484,8 @@ const styles = StyleSheet.create({
   },
   letterFallbackText: { fontSize: 58, lineHeight: 68, fontWeight: "900" },
   cardBody: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 0,
     paddingHorizontal: 22,
     paddingTop: 16,
     paddingBottom: 18,
@@ -2298,16 +2582,6 @@ const styles = StyleSheet.create({
   previewBody: { padding: 22 },
   previewWord: { fontSize: 28, fontWeight: "900" },
   previewMeaning: { fontSize: 17, fontWeight: "700", marginTop: 7 },
-  finishButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    minHeight: 54,
-    borderRadius: 16,
-    marginBottom: 10,
-  },
-  finishText: { color: "#FFFFFF", fontSize: 16.5, fontWeight: "900" },
   navigationRow: {
     width: "100%",
     maxWidth: 520,
@@ -2334,8 +2608,21 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   disabled: { opacity: 0.38 },
-  swipeHint: { flexDirection: "row", alignItems: "center", gap: 6 },
-  swipeHintText: { fontSize: 12, fontWeight: "800" },
+  swipeHint: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingHorizontal: 8,
+  },
+  swipeHintText: {
+    flexShrink: 1,
+    fontSize: 11,
+    lineHeight: 16,
+    fontWeight: "700",
+    textAlign: "center",
+  },
   recallOfferRoot: {
     flex: 1,
     alignItems: "center",
@@ -2345,37 +2632,20 @@ const styles = StyleSheet.create({
   recallOfferCard: {
     width: "100%",
     maxWidth: 420,
+    maxHeight: "90%",
+    flexGrow: 0,
     borderRadius: 28,
-    borderWidth: 1.5,
+  },
+  recallOfferContent: {
     paddingHorizontal: 24,
     paddingTop: 26,
     paddingBottom: 16,
     alignItems: "center",
-    shadowColor: "#000000",
-    shadowOpacity: 0.18,
-    shadowRadius: 28,
-    shadowOffset: { width: 0, height: 14 },
-    elevation: 12,
-  },
-  recallOfferIcon: {
-    width: 62,
-    height: 62,
-    borderRadius: 21,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  recallOfferEyebrow: {
-    fontSize: 11,
-    lineHeight: 15,
-    fontWeight: "900",
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
   },
   recallOfferTitle: {
-    fontSize: 25,
-    lineHeight: 33,
-    fontWeight: "900",
+    fontSize: 26,
+    lineHeight: 34,
+    fontWeight: "800",
     textAlign: "center",
     marginTop: 5,
   },
@@ -2390,7 +2660,7 @@ const styles = StyleSheet.create({
   recallOfferStartButton: {
     width: "100%",
     minHeight: 54,
-    borderRadius: 17,
+    borderRadius: 28,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -2408,6 +2678,42 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   recallOfferSkipText: { fontSize: 13, fontWeight: "800" },
+  offerClose: {
+    width: 44,
+    height: 44,
+    position: "absolute",
+    top: 8,
+    right: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  offerIllustration: {
+    width: 140,
+    height: 112,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  offerMiniCard: {
+    width: 64,
+    height: 83,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ rotate: "8deg" }],
+  },
+  offerMiniCardBack: {
+    position: "absolute",
+    transform: [{ translateX: -27 }, { rotate: "-16deg" }],
+  },
+  offerDot: {
+    position: "absolute",
+    right: 23,
+    bottom: 12,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
   modalBackdrop: {
     position: "absolute",
     top: 0,
@@ -2416,33 +2722,4 @@ const styles = StyleSheet.create({
     left: 0,
     backgroundColor: "#11121A99",
   },
-
 });
-
-const createScreenStyles = (theme: ThemeColors) => {
-  const isDark = theme.bg === "#15151D";
-  return {
-    container: { flex: 1, backgroundColor: theme.bg },
-    backgroundGradient: (isDark
-      ? ["#171522", "#15151D", "#1C1A27"]
-      : ["#F7F5FF", "#FFFFFF", "#F3FAFF"]) as readonly [string, string, string],
-    backgroundOrbOne: {
-      position: "absolute" as const,
-      width: 220,
-      height: 220,
-      borderRadius: 999,
-      backgroundColor: isDark ? "#776EE21C" : "#BEB7FF2B",
-      right: -100,
-      top: 84,
-    },
-    backgroundOrbTwo: {
-      position: "absolute" as const,
-      width: 180,
-      height: 180,
-      borderRadius: 999,
-      backgroundColor: isDark ? "#45B7D114" : "#BFEFFF38",
-      left: -100,
-      bottom: 80,
-    },
-  };
-};

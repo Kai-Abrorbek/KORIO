@@ -1,6 +1,7 @@
 import topik from "./topik/ru";
 import alphabet from "./alphabet";
 import { wordLibrary } from "../../../../shared/word-library.i18n";
+import { wordStudyFinish } from "../../../../shared/word-study.i18n";
 
 export default {
   wordLibrary: wordLibrary.ru,
@@ -2125,6 +2126,7 @@ export default {
     gamesHint: "Закреплять слова в игре",
   },
   wordStudy: {
+    finish: wordStudyFinish.ru,
     finishDay: "Слова на сегодня — всё!",
     eyebrow: "КАРТОЧКИ СЛОВ",
     title: "Карточки слов",
@@ -2165,7 +2167,7 @@ export default {
     recallTargetGuide: "Вспомните слово. Язык: {{language}}",
     recallCheck: "Проверить ответ",
     recallCorrect: "Верно!",
-    recallCorrectSub: "Теперь можно перейти к следующему слову.",
+    recallCorrectSub: "Сейчас появится следующее слово.",
     recallWrong: "Попробуйте вспомнить ещё раз",
     recallWrongSub: "Вы недавно видели это слово. Введите его снова.",
     recallGuide: "Вспомните корейское слово",
@@ -2173,7 +2175,7 @@ export default {
     recallAnswer: "Ответ",
     recallHint: "Подсказка",
     recallHintInstruction: "Введите показанный ответ самостоятельно и проверьте его.",
-    recallContinue: "Верно! Листайте дальше",
+    recallContinue: "Верно! Переходим к следующему слову",
     recallAnswerFirst: "Введите корейское слово и проверьте",
     previous: "Предыдущее слово",
     next: "Следующее слово",

@@ -1,6 +1,7 @@
 import topik from "./topik/uz";
 import alphabet from "./alphabet";
 import { wordLibrary } from "../../../../shared/word-library.i18n";
+import { wordStudyFinish } from "../../../../shared/word-study.i18n";
 
 export default {
   wordLibrary: wordLibrary.uz,
@@ -1867,6 +1868,7 @@ export default {
     gamesHint: "O‘ynab so‘zlarni mustahkamlash",
   },
   wordStudy: {
+    finish: wordStudyFinish.uz,
     finishDay: "Bugungi so'zlar tugadi!",
     eyebrow: "SO'Z KARTALARI",
     title: "So'z kartalari",
@@ -1907,7 +1909,7 @@ export default {
     recallTargetGuide: "{{language}} tilidagi so'zni eslang",
     recallCheck: "Javobni tekshirish",
     recallCorrect: "To'g'ri!",
-    recallCorrectSub: "Endi keyingi so'zga o'tishingiz mumkin.",
+    recallCorrectSub: "Birozdan so‘ng keyingi so‘zga o‘tamiz.",
     recallWrong: "Yana bir bor eslang",
     recallWrongSub: "Bu yaqinda ko'rgan so'zingiz. Qayta yozib ko'ring.",
     recallGuide: "Koreyschasini eslang",
@@ -1915,7 +1917,7 @@ export default {
     recallAnswer: "Javob",
     recallHint: "Yordam",
     recallHintInstruction: "Ko'rsatilgan javobni o'zingiz yozib tekshiring.",
-    recallContinue: "To'g'ri! Davom etish uchun suring",
+    recallContinue: "To‘g‘ri! Keyingi so‘zga o‘tilmoqda",
     recallAnswerFirst: "Koreyscha so'zni yozib tekshiring",
     previous: "Oldingi so'z",
     next: "Keyingi so'z",

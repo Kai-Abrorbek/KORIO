@@ -1,6 +1,7 @@
 import topik from "./topik/ko";
 import alphabet from "./alphabet";
 import { wordLibrary } from "../../../../shared/word-library.i18n";
+import { wordStudyFinish } from "../../../../shared/word-study.i18n";
 
 export default {
   wordLibrary: wordLibrary.ko,
@@ -1858,6 +1859,7 @@ export default {
     gamesHint: "놀면서 단어 굳히기",
   },
   wordStudy: {
+    finish: wordStudyFinish.ko,
     finishDay: "오늘 단어 끝! 로드맵으로",
     eyebrow: "WORD DECK",
     title: "단어 카드",
@@ -1898,7 +1900,7 @@ export default {
     recallTargetGuide: "{{language}} 단어를 기억해 보세요",
     recallCheck: "정답 확인",
     recallCorrect: "정답이에요!",
-    recallCorrectSub: "이제 다음 단어로 넘어가도 좋아요.",
+    recallCorrectSub: "잠시 후 다음 단어로 넘어가요.",
     recallWrong: "한 번 더 떠올려 볼까요?",
     recallWrongSub: "조금 전 본 단어예요. 다시 입력해 보세요.",
     recallGuide: "한국어 단어를 기억해 보세요",
@@ -1906,7 +1908,7 @@ export default {
     recallAnswer: "정답",
     recallHint: "힌트 보기",
     recallHintInstruction: "보이는 정답을 직접 입력해 확인하세요.",
-    recallContinue: "정답! 앞으로 밀어 계속하기",
+    recallContinue: "정답! 다음 단어로 이동 중",
     recallAnswerFirst: "한국어 단어를 입력해 확인하세요",
     previous: "이전 단어",
     next: "다음 단어",

@@ -1,0 +1,302 @@
+.complete {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0 auto;
+  max-width: 520px;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 22px max(18px, var(--korio-bottom));
+  scrollbar-color: var(--border) transparent;
+  scrollbar-width: thin;
+  text-align: center;
+  width: 100%;
+}
+.art {
+  flex: 0 0 auto;
+  height: clamp(190px, 30dvh, 260px);
+  isolation: isolate;
+  margin: auto 0 14px;
+  position: relative;
+  width: min(100%, 330px);
+}
+.orbit {
+  animation: orbitAppear 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: var(--wl-yellow-wash);
+  border-radius: 50%;
+  height: 170px;
+  left: calc(50% - 85px);
+  position: absolute;
+  top: calc(50% - 85px);
+  width: 170px;
+  z-index: -1;
+}
+.cards {
+  inset: 0;
+  position: absolute;
+}
+.word {
+  --fan: calc(var(--card) - (var(--count) - 1) / 2);
+  animation: collectCard 950ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--card) * 75ms);
+  background: var(--surface);
+  border-radius: 18px;
+  box-shadow: 0 12px 25px rgb(20 33 60 / 15%);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 164px;
+  justify-content: center;
+  left: calc(50% - 66px);
+  padding: 15px;
+  position: absolute;
+  text-align: start;
+  top: calc(50% - 82px);
+  transform: translate(calc(var(--fan) * 50px), var(--fan-distance))
+    rotate(calc(var(--fan) * 14deg));
+  width: 132px;
+  z-index: calc(3 + var(--card));
+}
+.word:nth-child(2) {
+  background: var(--wl-pink-wash);
+  color: var(--wl-pink-ink);
+}
+.word:nth-child(3) {
+  background: var(--wl-wash);
+  color: var(--wl-accent);
+}
+.cardMark {
+  align-items: center;
+  display: flex;
+  height: 25px;
+  margin-bottom: auto;
+}
+.word strong {
+  display: -webkit-box;
+  font-size: 23px;
+  font-weight: 850;
+  line-height: 1.25;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.word small {
+  display: -webkit-box;
+  font-size: 11px;
+  line-height: 1.4;
+  margin-top: 6px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+.cardRule {
+  background: currentColor;
+  border-radius: 3px;
+  height: 3px;
+  margin-top: auto;
+  opacity: 0.18;
+  width: 34px;
+}
+.seal {
+  align-items: center;
+  animation: sealLand 620ms 430ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: var(--wl-action);
+  border: 5px solid var(--wl-bg);
+  border-radius: 50%;
+  bottom: calc(50% - 109px);
+  color: var(--wl-action-text);
+  display: flex;
+  height: 70px;
+  justify-content: center;
+  position: absolute;
+  right: calc(50% - 104px);
+  width: 70px;
+  z-index: 8;
+}
+.particle {
+  --angle: calc(var(--particle) * 30deg);
+  animation: particleFly 1100ms 460ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  background: var(--wl-action);
+  border-radius: 3px;
+  height: 9px;
+  left: calc(50% - 3px);
+  position: absolute;
+  top: calc(50% - 3px);
+  width: 6px;
+  z-index: 7;
+}
+.particle:nth-of-type(3n) {
+  background: var(--wl-yellow);
+}
+.particle:nth-of-type(3n + 1) {
+  background: var(--wl-pink);
+}
+.result {
+  flex-shrink: 0;
+  animation: resultArrive 600ms 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  width: 100%;
+}
+.result h1 {
+  color: var(--text);
+  font-size: clamp(26px, 7vw, 34px);
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  margin: 0;
+  outline: none;
+  text-wrap: balance;
+}
+.result p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 12px auto 0;
+  max-width: 34ch;
+  text-wrap: pretty;
+}
+.range {
+  color: var(--muted);
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 14px;
+  overflow-wrap: anywhere;
+}
+.stats {
+  border-bottom: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  margin: 24px 0;
+  padding: 18px 0;
+}
+.stats > div {
+  flex: 1;
+  padding: 0 10px;
+}
+.stats > div + div {
+  border-inline-start: 1px solid var(--border);
+}
+.stats dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.stats dd {
+  align-items: center;
+  color: var(--wl-accent);
+  display: flex;
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  gap: 8px;
+  justify-content: center;
+  margin: 7px 0 0;
+}
+.actions {
+  flex-shrink: 0;
+  margin: auto 0 0;
+  width: 100%;
+}
+.actions button {
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+  min-height: 52px;
+}
+.actions button:focus-visible {
+  outline: 3px solid var(--wl-accent);
+  outline-offset: 4px;
+}
+.continue {
+  align-items: center;
+  background: var(--wl-action);
+  border: 0;
+  border-radius: 999px;
+  color: var(--wl-action-text);
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding: 13px 20px;
+  width: 100%;
+}
+.continue:active {
+  background: var(--wl-depth);
+  transform: scale(0.98);
+}
+.again {
+  background: none;
+  border: 0;
+  color: var(--wl-accent);
+  margin-top: 5px;
+  padding: 10px 20px;
+}
+@keyframes collectCard {
+  from {
+    opacity: 0;
+    transform: translate(calc(var(--fan) * 125px), 65px)
+      rotate(calc(var(--fan) * 34deg));
+  }
+}
+@keyframes sealLand {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(1.4) rotate(-18deg);
+  }
+  65% {
+    opacity: 1;
+  }
+}
+@keyframes orbitAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+@keyframes resultArrive {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes particleFly {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(25px);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(-135px) rotate(150deg);
+  }
+}
+@media (max-height: 680px) {
+  .art {
+    height: 195px;
+    margin-top: 0;
+  }
+  .stats {
+    margin: 18px 0;
+    padding: 13px 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .word,
+  .seal,
+  .orbit,
+  .result {
+    animation: none;
+  }
+  .particle {
+    display: none;
+  }
+  .continue:active {
+    transform: none;
+  }
+}

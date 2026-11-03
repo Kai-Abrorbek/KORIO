@@ -134,6 +134,13 @@ both clients: warm white surfaces, blue actions, yellow section markers, and pin
 saved bookmarks, with explicit dark variants. These colors apply only to the
 wordbook surface, not to the rest of the application.
 
+`word-study-flow.ts` defines the explicit forward boundary for both card decks:
+arriving at the final card leaves it visible, and the next forward action offers
+recall practice. Correct recall answers advance after a short confirmation;
+wrong answers stay on the same card and keep the existing spaced-review rules.
+The completion view reports session-local unique viewed/recalled words without
+inventing mastery, XP, or rewards. Its copy is shared in `word-study.i18n.ts`.
+
 Deploy the additive word-collection API before either client. New textbook,
 exam, level, and topic collections require real word memberships and translations
 published through the admin API; the design mock's sample content is not seeded.

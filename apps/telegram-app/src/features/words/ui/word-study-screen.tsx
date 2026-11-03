@@ -34,6 +34,10 @@ import { readWordAutoPlay, readWordPreferences, saveWordPreferences } from "../m
 import { uzt } from "../../../shared/i18n/uz-text";
 import { getDefaultWordCollectionGroup, getResumeWordIndex, type WordCollectionDetail, type WordCollectionGroup, type WordCollectionPosition } from "../../../../../../shared/word-library";
 import { getWordCollection, getWordCollectionWords, saveWordCollectionPosition } from "../api/word-collections";
+import { getWordLibraryCssVariables } from "../../../../../../shared/word-library-theme";
+import { getWordBrowseAdvance, WORD_RECALL_ADVANCE_MS } from "../../../../../../shared/word-study-flow";
+import { useAppTheme } from "../../../shared/theme/theme-context";
+import { WordStudyCompletion } from "./word-study-completion";
 import styles from "./word-study.module.css";
 
 type AuthenticatedRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
@@ -316,7 +320,7 @@ function RecallCard({
               );
             }}
             onKeyDown={(event) => {
-              if (event.key === "Enter") onSubmit();
+              if (event.key === "Enter" && !event.nativeEvent.isComposing) onSubmit();
             }}
             placeholder={word.meaning}
             value={answer}
@@ -361,7 +365,7 @@ function RecallCard({
                 {hintVisible && !isCorrect
                   ? "Ko'rsatilgan javobni o'zingiz yozib tekshiring."
                   : isCorrect
-                    ? "Endi keyingi so'zga o'tishingiz mumkin."
+                    ? uzt("wordStudy.recallCorrectSub")
                     : isWrong
                       ? "Bu yaqinda ko'rgan so'zingiz. Qayta yozib ko'ring."
                       : "Bo'shliq va tinish belgilaridagi farq qabul qilinadi."}
@@ -414,26 +418,92 @@ function RecallOffer({
   onSkip: () => void;
   onStart: () => void;
 }) {
+  const panel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const previous =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const dialog = panel.current;
+    dialog?.querySelector<HTMLButtonElement>("button[data-primary]")?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+      if (event.key !== "Tab" || !dialog) return;
+      const controls = dialog.querySelectorAll<HTMLButtonElement>(
+        "button:not(:disabled)",
+      );
+      const first = controls[0];
+      const last = controls[controls.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      if (previous?.isConnected) previous.focus({ preventScroll: true });
+    };
+  }, [onClose]);
   return (
     <div className={styles.offerBackdrop} onClick={onClose} role="presentation">
       <section
-        aria-label="Yodlash mashqi"
+        aria-labelledby="recall-offer-title"
+        aria-describedby="recall-offer-description"
         aria-modal="true"
         className={styles.offerCard}
         onClick={(event) => event.stopPropagation()}
+        ref={panel}
         role="dialog"
       >
-        <span className={styles.offerIcon}>
-          <MobileIcon name="sparkles" size={28} />
-        </span>
-        <small>Barcha so&apos;zlarni ko&apos;rdingiz</small>
-        <h2>Endi eslab ko&apos;ramizmi?</h2>
-        <p>{`Hozirgina ko'rgan ${count} ta so'zni ma'nosiga qarab yozib, xotirangizni tekshiring.`}</p>
-        <button className={styles.offerStart} onClick={onStart} type="button">
-          <MobileIcon name="school-outline" size={20} />Mashqni boshlash
+        <button
+          className={styles.offerClose}
+          aria-label={uzt("wordStudy.finish.close")}
+          onClick={onClose}
+          type="button"
+        >
+          <MobileIcon name="close" size={20} />
         </button>
-        <button className={styles.offerSkip} onClick={onSkip} type="button">
-          Keyinroq
+        <div className={styles.offerArt} aria-hidden="true">
+          <span />
+          <span />
+          <span>
+            <MobileIcon name="create-outline" size={32} />
+          </span>
+        </div>
+        <h2 id="recall-offer-title" data-i18n="wordStudy.recallOfferTitle">
+          {uzt("wordStudy.recallOfferTitle")}
+        </h2>
+        <p
+          id="recall-offer-description"
+          data-i18n="wordStudy.recallOfferDescription"
+        >
+          {uzt("wordStudy.recallOfferDescription", { count })}
+        </p>
+        <button
+          className={styles.offerStart}
+          data-primary
+          onClick={onStart}
+          type="button"
+        >
+          <span data-i18n="wordStudy.recallOfferStart">
+            {uzt("wordStudy.recallOfferStart")}
+          </span>
+          <MobileIcon name="arrow-forward" size={20} />
+        </button>
+        <button
+          className={styles.offerSkip}
+          onClick={onSkip}
+          type="button"
+          data-i18n="wordStudy.recallOfferLater"
+        >
+          {uzt("wordStudy.recallOfferLater")}
         </button>
       </section>
     </div>
@@ -441,13 +511,17 @@ function RecallOffer({
 }
 
 export function WordStudyScreen() {
+  const { resolvedTheme } = useAppTheme();
   const router = useRouter();
   const params = useSearchParams();
   const { request, user } = useTelegramAuth();
   const course = learnCourseOf(user?.learnCourse);
   const speechLocale = DEFAULT_LEARNING_COURSES[course].speechLocale;
   const contentLanguage = useContentLanguage();
-  const { flush: flushSeen, markSeen } = useSeenWords(request, `${user?.id ?? ""}:${course}`);
+  const { flush: flushSeen, markSeen } = useSeenWords(
+    request,
+    `${user?.id ?? ""}:${course}`,
+  );
   const { language } = useAppLanguage();
   const { prewarm, speak, speaking, stop } = useKoreanSpeech(request);
   const requestedSection = Number(params.get("section")) || 0;
@@ -464,7 +538,9 @@ export function WordStudyScreen() {
   currentScopeRef.current = studyScope;
   const [scopeReadyFor, setScopeReadyFor] = useState("");
   const [wordsScope, setWordsScope] = useState("");
-  const [collection, setCollection] = useState<WordCollectionDetail | null>(null);
+  const [collection, setCollection] = useState<WordCollectionDetail | null>(
+    null,
+  );
   const [collectionGroup, setCollectionGroup] = useState<WordCollectionGroup | null>(null);
   const [positionFailed, setPositionFailed] = useState(false);
   const [summaries, setSummaries] = useState<WordSectionSummary[]>([]);
@@ -478,19 +554,40 @@ export function WordStudyScreen() {
   const [autoPlay, setAutoPlay] = useState(true);
   const [studyPhase, setStudyPhase] = useState<StudyPhase>("browse");
   const [offerOpen, setOfferOpen] = useState(false);
+  const [didPractice, setDidPractice] = useState(false);
   const [recallWord, setRecallWord] = useState<StudyWord | null>(null);
   const [answer, setAnswer] = useState("");
   const [recallStatus, setRecallStatus] = useState<RecallStatus>("idle");
   const [hintVisible, setHintVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>([]);
+  const [pendingRecallWordIds, setPendingRecallWordIds] = useState<string[]>(
+    [],
+  );
   const [dragX, setDragX] = useState(0);
   const [cardMotion, setCardMotion] = useState<CardMotion>("idle");
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    const resize = () =>
+      setViewportHeight(Math.round(viewport?.height ?? window.innerHeight));
+    resize();
+    viewport?.addEventListener("resize", resize);
+    window.addEventListener("resize", resize);
+    return () => {
+      viewport?.removeEventListener("resize", resize);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
 
   const resumePositionRef = useRef<WordCollectionPosition | null>(null);
   const resumeIndexRef = useRef<number | null>(null);
   const resumeConsumedRef = useRef(false);
-  const recallOfferShownRef = useRef(false);
+  const seenThisSessionRef = useRef(new Set<string>());
+  const recalledThisSessionRef = useRef(new Set<string>());
+  const recallAdvanceReadyRef = useRef(false);
+  const activeRecallIdRef = useRef<string | null>(null);
+  const finishingRef = useRef(false);
   const lastRecalledWordIdRef = useRef<string | null>(null);
   const recallResultReportedRef = useRef(false);
   const recallHadWrongAttemptRef = useRef(false);
@@ -507,26 +604,43 @@ export function WordStudyScreen() {
     setAutoPlay(readWordAutoPlay(course, user?.id));
     try {
       if (collectionId) {
-        const detail = await getWordCollection(request, course, language, collectionId);
+        const detail = await getWordCollection(
+          request,
+          course,
+          language,
+          collectionId,
+        );
         if (currentScopeRef.current !== requestScope) return;
-        if (detail.targetLanguage !== course || detail.courseId !== DEFAULT_LEARNING_COURSES[course].courseId) throw new Error("WORD_COLLECTION_SCOPE_CHANGED");
+        if (
+          detail.targetLanguage !== course ||
+          detail.courseId !== DEFAULT_LEARNING_COURSES[course].courseId
+        )
+          throw new Error("WORD_COLLECTION_SCOPE_CHANGED");
         const group = requestedGroupId
           ? detail.groups.find((item) => item.id === requestedGroupId)
           : getDefaultWordCollectionGroup(detail);
-        if (requestedGroupId && !group) throw new Error("WORD_COLLECTION_GROUP_NOT_FOUND");
+        if (requestedGroupId && !group)
+          throw new Error("WORD_COLLECTION_GROUP_NOT_FOUND");
         setCollection(detail);
         setCollectionGroup(group ?? null);
         setSection(group?.section ?? 0);
         setUnit(group?.unit ?? 0);
         setSummaries([]);
-        resumePositionRef.current = shouldResume && detail.lastPosition?.groupId === group?.id ? detail.lastPosition : null;
+        resumePositionRef.current =
+          shouldResume && detail.lastPosition?.groupId === group?.id
+            ? detail.lastPosition
+            : null;
         setScopeReadyFor(requestScope);
       } else {
         const result = await getWordSections(request);
         if (currentScopeRef.current !== requestScope) return;
         const available = result.filter((summary) => summary.words > 0);
-        const matchedSummary = available.find((item) => item.section === requestedSection);
-        const matchedUnit = matchedSummary?.units.find((item) => item.unit === requestedUnit)?.unit;
+        const matchedSummary = available.find(
+          (item) => item.section === requestedSection,
+        );
+        const matchedUnit = matchedSummary?.units.find(
+          (item) => item.unit === requestedUnit,
+        )?.unit;
         setCollection(null);
         setCollectionGroup(null);
         setSummaries(result);
@@ -534,7 +648,13 @@ export function WordStudyScreen() {
           setSection(matchedSummary.section);
           setUnit(matchedUnit);
           const saved = readWordPreferences(course, user?.id);
-          if (shouldResume && !fromStudyPath && saved?.section === matchedSummary.section && saved.unit === matchedUnit) resumeIndexRef.current = saved.cardIndex;
+          if (
+            shouldResume &&
+            !fromStudyPath &&
+            saved?.section === matchedSummary.section &&
+            saved.unit === matchedUnit
+          )
+            resumeIndexRef.current = saved.cardIndex;
           setScopeReadyFor(requestScope);
         } else if (available.length) {
           router.replace("/word-library");
@@ -549,7 +669,20 @@ export function WordStudyScreen() {
     } finally {
       if (currentScopeRef.current === requestScope) setScopeLoading(false);
     }
-  }, [studyScope, request, course, user?.id, collectionId, requestedGroupId, language, shouldResume, requestedSection, requestedUnit, fromStudyPath, router]);
+  }, [
+    studyScope,
+    request,
+    course,
+    user?.id,
+    collectionId,
+    requestedGroupId,
+    language,
+    shouldResume,
+    requestedSection,
+    requestedUnit,
+    fromStudyPath,
+    router,
+  ]);
 
   useEffect(() => {
     if (!collectionId && (!requestedSection || !requestedUnit)) {
@@ -564,7 +697,12 @@ export function WordStudyScreen() {
 
   const loadWords = useCallback(async () => {
     if (scopeLoading || scopeReadyFor !== studyScope) return;
-    if (collectionId ? !collectionGroup : summaries.length === 0 || !section || !unit) return;
+    if (
+      collectionId
+        ? !collectionGroup
+        : summaries.length === 0 || !section || !unit
+    )
+      return;
     const requestScope = studyScope;
     if (animationTimeoutRef.current !== null) {
       window.clearTimeout(animationTimeoutRef.current);
@@ -582,7 +720,11 @@ export function WordStudyScreen() {
     setHintVisible(false);
     setKeyboardVisible(false);
     setPendingRecallWordIds([]);
-    recallOfferShownRef.current = false;
+    setDidPractice(false);
+    seenThisSessionRef.current.clear();
+    recalledThisSessionRef.current.clear();
+    recallAdvanceReadyRef.current = false;
+    finishingRef.current = false;
     lastRecalledWordIdRef.current = null;
     recallResultReportedRef.current = false;
     recallHadWrongAttemptRef.current = false;
@@ -593,9 +735,16 @@ export function WordStudyScreen() {
     setCardMotion("idle");
 
     try {
-      const all = collectionId && collectionGroup
-        ? await getWordCollectionWords(request, course, contentLanguage, collectionId, collectionGroup.id)
-        : await getUnitWords(request, section, unit);
+      const all =
+        collectionId && collectionGroup
+          ? await getWordCollectionWords(
+              request,
+              course,
+              contentLanguage,
+              collectionId,
+              collectionGroup.id,
+            )
+          : await getUnitWords(request, section, unit);
       if (currentScopeRef.current !== requestScope) return;
       const result =
         fromStudyPath && lessonCount > 1
@@ -681,27 +830,75 @@ export function WordStudyScreen() {
     if (!pending) return positionQueueRef.current;
     pendingPositionRef.current = null;
     positionQueueRef.current = positionQueueRef.current
-      .then(() => saveWordCollectionPosition(pending.request, pending.course, pending.language, pending.collectionId, pending.position))
-      .then(() => { if (reportFailure && currentScopeRef.current === pending.scope) setPositionFailed(false); })
-      .catch(() => { if (reportFailure && currentScopeRef.current === pending.scope) setPositionFailed(true); });
+      .then(() =>
+        saveWordCollectionPosition(
+          pending.request,
+          pending.course,
+          pending.language,
+          pending.collectionId,
+          pending.position,
+        ),
+      )
+      .then(() => {
+        if (reportFailure && currentScopeRef.current === pending.scope)
+          setPositionFailed(false);
+      })
+      .catch(() => {
+        if (reportFailure && currentScopeRef.current === pending.scope)
+          setPositionFailed(true);
+      });
     return positionQueueRef.current;
   }, []);
 
   useEffect(() => {
-    if (!collectionId || !collectionGroup || !currentWord || wordsLoading || scopeLoading) return;
+    if (
+      !collectionId ||
+      !collectionGroup ||
+      !currentWord ||
+      wordsLoading ||
+      scopeLoading
+    )
+      return;
     pendingPositionRef.current = {
-      scope: studyScope, request, course, language, collectionId,
-      position: { groupId: collectionGroup.id, cardIndex, lastWordId: currentWord.id },
+      scope: studyScope,
+      request,
+      course,
+      language,
+      collectionId,
+      position: {
+        groupId: collectionGroup.id,
+        cardIndex,
+        lastWordId: currentWord.id,
+      },
     };
     const timeout = window.setTimeout(() => flushPosition(), 350);
     return () => window.clearTimeout(timeout);
-  }, [cardIndex, collectionGroup, collectionId, course, currentWord, flushPosition, language, request, scopeLoading, studyScope, wordsLoading]);
+  }, [
+    cardIndex,
+    collectionGroup,
+    collectionId,
+    course,
+    currentWord,
+    flushPosition,
+    language,
+    request,
+    scopeLoading,
+    studyScope,
+    wordsLoading,
+  ]);
 
-  useEffect(() => () => { void flushPosition(false); }, [flushPosition, studyScope]);
-
+  useEffect(
+    () => () => {
+      void flushPosition(false);
+    },
+    [flushPosition, studyScope],
+  );
 
   useEffect(() => {
     markSeen(currentWordId);
+    if (currentWordId && studyPhase === "browse" && !recallWord) {
+      seenThisSessionRef.current.add(currentWordId);
+    }
     if (user?.id && currentWord) {
       rememberAvatarWord({
         userId: user.id,
@@ -710,21 +907,46 @@ export function WordStudyScreen() {
         language: contentLanguage,
       });
     }
-  }, [contentLanguage, currentWord, currentWordId, markSeen, user?.id]);
+  }, [
+    contentLanguage,
+    currentWord,
+    currentWordId,
+    markSeen,
+    recallWord,
+    studyPhase,
+    user?.id,
+  ]);
 
   // 모바일처럼 지금 카드부터 4장을 미리 받아 둔다 — 넘기는 즉시 소리가 나게
   useEffect(() => {
     const upcoming = words.slice(cardIndex, cardIndex + 4).map(speechText);
-    if (upcoming.length) prewarm(upcoming, speechLanguageOf(words[cardIndex]?.speechLocale ?? speechLocale));
+    if (upcoming.length)
+      prewarm(
+        upcoming,
+        speechLanguageOf(words[cardIndex]?.speechLocale ?? speechLocale),
+      );
   }, [cardIndex, prewarm, words, speechLocale]);
 
   useEffect(() => {
     if (recallWord || !currentWordId || !currentSpeechText || !autoPlay) return;
-    speak(currentSpeechText, { language: speechLanguageOf(currentWord?.speechLocale ?? speechLocale) });
+    speak(currentSpeechText, {
+      language: speechLanguageOf(currentWord?.speechLocale ?? speechLocale),
+    });
     return stop;
-  }, [autoPlay, currentSpeechText, currentWordId, currentWord?.speechLocale, recallWord, speak, stop, speechLocale]);
+  }, [
+    autoPlay,
+    currentSpeechText,
+    currentWordId,
+    currentWord?.speechLocale,
+    recallWord,
+    speak,
+    stop,
+    speechLocale,
+  ]);
 
   const finishStudyPathUnit = useCallback(() => {
+    if (finishingRef.current) return;
+    finishingRef.current = true;
     flushSeen();
     if (section > 0 && unit > 0) {
       void completeStudyNode(request, {
@@ -741,9 +963,12 @@ export function WordStudyScreen() {
   const clearRecall = useCallback(
     (requeue = false) => {
       setKeyboardVisible(false);
+      recallAdvanceReadyRef.current = false;
       if (requeue && recallWord) {
         setPendingRecallWordIds((current) =>
-          current.includes(recallWord.id) ? current : [...current, recallWord.id],
+          current.includes(recallWord.id)
+            ? current
+            : [...current, recallWord.id],
         );
       }
       setRecallWord(null);
@@ -757,7 +982,13 @@ export function WordStudyScreen() {
   );
 
   const submitRecall = useCallback(() => {
-    if (!recallWord || recallStatus === "correct" || !answer.trim()) return;
+    if (
+      !recallWord ||
+      recallStatus === "correct" ||
+      recallAdvanceReadyRef.current ||
+      !answer.trim()
+    )
+      return;
     const correct = isWordAnswerCorrect(answer, recallWord.headword);
     if (!recallResultReportedRef.current) {
       recallResultReportedRef.current = true;
@@ -769,9 +1000,13 @@ export function WordStudyScreen() {
       ).catch(() => undefined);
     }
     if (correct) {
+      recallAdvanceReadyRef.current = true;
+      recalledThisSessionRef.current.add(recallWord.id);
       if (recallHadWrongAttemptRef.current) {
         setPendingRecallWordIds((current) =>
-          current.includes(recallWord.id) ? current : [...current, recallWord.id],
+          current.includes(recallWord.id)
+            ? current
+            : [...current, recallWord.id],
         );
       }
       setKeyboardVisible(false);
@@ -801,6 +1036,7 @@ export function WordStudyScreen() {
         current.filter((id) => id !== candidate.id),
       );
       lastRecalledWordIdRef.current = candidate.id;
+      recallAdvanceReadyRef.current = false;
       recallResultReportedRef.current = false;
       recallHadWrongAttemptRef.current = false;
       setAnswer("");
@@ -814,6 +1050,7 @@ export function WordStudyScreen() {
   );
 
   const startRecallPractice = useCallback(() => {
+    if (finishingRef.current) return;
     const wordIds = words.map((word) => word.id);
     const candidateId = pickRecallWordId(
       wordIds,
@@ -823,41 +1060,45 @@ export function WordStudyScreen() {
     if (!candidateId) return;
     setOfferOpen(false);
     setStudyPhase("recall");
+    setDidPractice(true);
+    recalledThisSessionRef.current.clear();
     setPendingRecallWordIds(wordIds);
     showRecall(candidateId);
   }, [currentWord?.id, showRecall, words]);
 
-  const skipRecallPractice = useCallback(async () => {
+  const skipRecallPractice = useCallback(() => {
     setOfferOpen(false);
     stop();
-    if (fromStudyPath) {
-      finishStudyPathUnit();
-      return;
-    }
     flushSeen();
-    await flushPosition();
-    if (window.history.length > 1) router.back();
-    else router.replace("/");
-  }, [finishStudyPathUnit, flushPosition, flushSeen, fromStudyPath, router, stop]);
+    void flushPosition();
+    setDidPractice(false);
+    setStudyPhase("complete");
+  }, [flushPosition, flushSeen, stop]);
 
-  useEffect(() => {
-    if (
-      studyPhase !== "browse" ||
-      recallWord ||
-      !currentWordId ||
-      nextWord ||
-      recallOfferShownRef.current
-    ) {
-      return;
-    }
-    const timeout = window.setTimeout(() => {
-      recallOfferShownRef.current = true;
-      stop();
-      setOfferOpen(true);
-      hapticNotification("success");
-    }, 550);
-    return () => window.clearTimeout(timeout);
-  }, [currentWordId, nextWord, recallWord, stop, studyPhase]);
+  const advanceRecall = useCallback(() => {
+    // A timer and a manual swipe can meet here; consume this answer only once.
+    if (!recallAdvanceReadyRef.current) return;
+    recallAdvanceReadyRef.current = false;
+    const candidateId = pickRecallWordId(
+      pendingRecallWordIds,
+      currentWord?.id,
+      lastRecalledWordIdRef.current,
+    );
+    if (showRecall(candidateId)) return;
+    clearRecall();
+    stop();
+    flushSeen();
+    void flushPosition();
+    setStudyPhase("complete");
+  }, [
+    clearRecall,
+    currentWord?.id,
+    flushPosition,
+    flushSeen,
+    pendingRecallWordIds,
+    showRecall,
+    stop,
+  ]);
 
   const commitSwipe = useCallback(
     (direction: -1 | 1) => {
@@ -866,18 +1107,12 @@ export function WordStudyScreen() {
         if (direction < 0) {
           clearRecall(true);
         } else if (recallStatus === "correct") {
-          const candidateId = pickRecallWordId(
-            pendingRecallWordIds,
-            currentWord?.id,
-            lastRecalledWordIdRef.current,
-          );
-          if (showRecall(candidateId)) return;
-          clearRecall();
-          setStudyPhase("complete");
+          advanceRecall();
         }
       } else if (direction > 0 && currentWord) {
-        if (nextWord) {
-          setCardIndex((current) => Math.min(words.length - 1, current + 1));
+        const action = getWordBrowseAdvance(cardIndex, words.length);
+        if (action.type === "next") {
+          setCardIndex(action.index);
         } else if (studyPhase === "recall") {
           const candidateId = pickRecallWordId(
             pendingRecallWordIds,
@@ -886,8 +1121,7 @@ export function WordStudyScreen() {
           );
           if (showRecall(candidateId)) return;
           setStudyPhase("complete");
-        } else if (studyPhase === "browse") {
-          recallOfferShownRef.current = true;
+        } else if (studyPhase === "browse" && action.type === "offer") {
           setOfferOpen(true);
         }
       } else {
@@ -898,9 +1132,10 @@ export function WordStudyScreen() {
       hapticSelection();
     },
     [
+      advanceRecall,
+      cardIndex,
       clearRecall,
       currentWord,
-      nextWord,
       pendingRecallWordIds,
       recallStatus,
       recallWord,
@@ -929,10 +1164,7 @@ export function WordStudyScreen() {
   const animateCardOut = useCallback(
     (direction: -1 | 1) => {
       if (animationLockedRef.current) return;
-      if (
-        (direction > 0 && !canGoNext) ||
-        (direction < 0 && !canGoPrevious)
-      ) {
+      if ((direction > 0 && !canGoNext) || (direction < 0 && !canGoPrevious)) {
         resetCardPosition();
         return;
       }
@@ -942,28 +1174,54 @@ export function WordStudyScreen() {
       }
       animationLockedRef.current = true;
       setCardMotion("out");
+      const scope = studyScope;
       const width = Math.max(window.innerWidth, 320);
       setDragX(direction > 0 ? -width * 1.18 : width * 1.18);
       animationTimeoutRef.current = window.setTimeout(() => {
+        if (currentScopeRef.current !== scope || finishingRef.current) return;
         commitSwipe(direction);
         setCardMotion("in");
         setDragX(direction > 0 ? 42 : -42);
         window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => setDragX(0));
+          window.requestAnimationFrame(() => {
+            if (currentScopeRef.current === scope) setDragX(0);
+          });
         });
         animationTimeoutRef.current = window.setTimeout(() => {
+          if (currentScopeRef.current !== scope) return;
           animationLockedRef.current = false;
           setCardMotion("idle");
           animationTimeoutRef.current = null;
         }, 320);
       }, 245);
     },
-    [canGoNext, canGoPrevious, commitSwipe, resetCardPosition],
+    [canGoNext, canGoPrevious, commitSwipe, resetCardPosition, studyScope],
   );
+
+  activeRecallIdRef.current = recallWord?.id ?? null;
+  useEffect(() => {
+    if (recallStatus !== "correct" || !recallWord || studyPhase !== "recall")
+      return;
+    const scope = studyScope;
+    const wordId = recallWord.id;
+    const timer = window.setTimeout(() => {
+      if (
+        currentScopeRef.current !== scope ||
+        activeRecallIdRef.current !== wordId
+      )
+        return;
+      animateCardOut(1);
+    }, WORD_RECALL_ADVANCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [animateCardOut, recallStatus, recallWord, studyPhase, studyScope]);
 
   const cardDeckRef = useWordCardSwipe({
     disabled:
-      cardMotion !== "idle" || offerOpen || scopeLoading || wordsLoading,
+      cardMotion !== "idle" ||
+      offerOpen ||
+      scopeLoading ||
+      wordsLoading ||
+      studyPhase === "complete",
     canGoNext,
     canGoPrevious,
     onOffset: setDragX,
@@ -976,11 +1234,16 @@ export function WordStudyScreen() {
       if (animationTimeoutRef.current !== null) {
         window.clearTimeout(animationTimeoutRef.current);
       }
+      animationLockedRef.current = false;
+      recallAdvanceReadyRef.current = false;
     },
-    [],
+    [studyScope],
   );
 
   const goBack = async () => {
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    recallAdvanceReadyRef.current = false;
     stop();
     flushSeen();
     await flushPosition();
@@ -989,14 +1252,25 @@ export function WordStudyScreen() {
   };
 
   const openScopePicker = async () => {
+    if (finishingRef.current) return;
+    finishingRef.current = true;
+    recallAdvanceReadyRef.current = false;
     stop();
     flushSeen();
     await flushPosition();
     if (!fromStudyPath && !collectionId) {
-      saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
+      saveWordPreferences(course, user?.id, {
+        autoPlay,
+        cardIndex,
+        section,
+        unit,
+      });
     }
     const libraryParams = collectionId
-      ? new URLSearchParams({ collectionId, ...(collectionGroup ? { groupId: collectionGroup.id } : {}) })
+      ? new URLSearchParams({
+          collectionId,
+          ...(collectionGroup ? { groupId: collectionGroup.id } : {}),
+        })
       : new URLSearchParams({ section: String(section), unit: String(unit) });
     router.push(`/word-library?${libraryParams.toString()}`);
   };
@@ -1004,8 +1278,25 @@ export function WordStudyScreen() {
   useEffect(() => {
     if (wordsLoading || words.length === 0) return;
     if ((words[0]?.targetLanguage ?? "ko") !== course) return;
-    if (!fromStudyPath && !collectionId) saveWordPreferences(course, user?.id, { autoPlay, cardIndex, section, unit });
-  }, [autoPlay, cardIndex, section, unit, words, wordsLoading, course, user?.id, fromStudyPath, collectionId]);
+    if (!fromStudyPath && !collectionId)
+      saveWordPreferences(course, user?.id, {
+        autoPlay,
+        cardIndex,
+        section,
+        unit,
+      });
+  }, [
+    autoPlay,
+    cardIndex,
+    section,
+    unit,
+    words,
+    wordsLoading,
+    course,
+    user?.id,
+    fromStudyPath,
+    collectionId,
+  ]);
 
   const progress = words.length > 0 ? (cardIndex + 1) / words.length : 0;
   const cardWidth =
@@ -1025,242 +1316,317 @@ export function WordStudyScreen() {
   );
 
   return (
-    <main className={styles.wordPage}>
-      <header className={styles.header}>
-        <button
-          aria-label="Yopish"
-          className={styles.closeButton}
-          onClick={goBack}
-          type="button"
-        >
-          <MobileIcon name="close" size={23} />
-        </button>
-        <span className={styles.headerTitle}>
-          <small>SO&apos;Z KARTALARI</small>
-          <strong>So&apos;z kartalari</strong>
-        </span>
-        <span className={styles.counter}>
-          {recallWord ? (
-            <>
-              <MobileIcon name="sparkles" size={14} /><b>Takror</b>
-            </>
-          ) : (
-            <>
-              <b>{words.length ? cardIndex + 1 : 0}</b>
-              <small>/ {words.length}</small>
-            </>
-          )}
-        </span>
-      </header>
-      <div className={styles.progressWrap}>
-        <div className={styles.progressTrack}>
-          <i
-            style={{
-              width: String(Math.max(0, Math.min(1, progress)) * 100) + "%",
-            }}
+    <main
+      className={styles.wordPage}
+      style={
+        {
+          ...getWordLibraryCssVariables(resolvedTheme === "dark"),
+          ...(viewportHeight
+            ? { "--study-viewport-height": `${viewportHeight}px` }
+            : {}),
+        } as CSSProperties
+      }
+    >
+      {studyPhase === "complete" && wordsScope === studyScope ? (
+        <>
+          <header className={styles.completionHeader}>
+            <button
+              aria-label={uzt("wordStudy.finish.close")}
+              className={styles.closeButton}
+              type="button"
+              onClick={fromStudyPath ? finishStudyPathUnit : goBack}
+            >
+              <MobileIcon name="close" size={23} />
+            </button>
+          </header>
+          <WordStudyCompletion
+            words={words}
+            viewed={seenThisSessionRef.current.size}
+            practiced={recalledThisSessionRef.current.size}
+            didPractice={didPractice}
+            range={
+              collection
+                ? `${collection.title}${collectionGroup?.title ? ` · ${collectionGroup.title}` : ""}`
+                : uzt("wordStudy.range", { section, unit })
+            }
+            rangeI18nKey={!collection ? "wordStudy.range" : undefined}
+            onContinue={fromStudyPath ? finishStudyPathUnit : goBack}
+            onReviewAgain={startRecallPractice}
           />
-        </div>
-      </div>
-
-      <div className={styles.content}>
-        {!keyboardVisible ? (
-          <button
-            className={styles.scopeButton}
-            disabled={scopeLoading || (!collectionId && summaries.every((item) => !item.words))}
-            onClick={openScopePicker}
-            type="button"
-          >
-            <span className={styles.scopeIcon}>
-              <MobileIcon name="layers" size={19} />
-            </span>
-            <span className={styles.scopeCopy}>
-              <small>Hozirgi o&apos;quv doirasi</small>
-              <strong data-no-translate={Boolean(collection) || undefined}>{collection ? collection.title : `${section}-bo'lim · ${unit}-unit`}</strong>
-            </span>
-            <em data-i18n="wordLibrary.change">
-              {uzt("wordLibrary.change")}
-              <MobileIcon name="chevron-forward" size={15} />
-            </em>
-          </button>
-        ) : null}
-
-        {positionFailed ? <p className={styles.positionError} data-i18n="wordLibrary.positionFailed" role="status">{uzt("wordLibrary.positionFailed")}</p> : null}
-        {scopeLoading || (!loadFailed && scopeReadyFor !== studyScope) || wordsLoading ? (
-          <section className={styles.centerState}>
-            <div className={styles.stateCard}>
-              <span className={styles.spinner} />
-              <strong>So&apos;z kartalari tayyorlanmoqda</strong>
-              <p>Tanlangan unitdagi so&apos;zlarni tartiblayapmiz.</p>
-            </div>
-          </section>
-        ) : loadFailed ? (
-          <section className={styles.centerState}>
-            <div className={styles.stateCard}>
-              <span className={styles.errorIcon}>
-                <MobileIcon name="cloud-offline-outline" size={30} />
-              </span>
-              <strong>So&apos;zlarni yuklab bo&apos;lmadi</strong>
-              <p>Ulanishni tekshirib, qayta urinib ko&apos;ring.</p>
-              <button
-                onClick={() => {
-                  if (summaries.length) void loadWords();
-                  else void loadSummaries();
-                }}
-                type="button"
-              >
-                Qayta urinish
-              </button>
-            </div>
-          </section>
-        ) : !currentWord ? (
-          <section className={styles.centerState}>
-            <div className={styles.stateCard}>
-              <span className={styles.stateEmoji}>🗂️</span>
-              <strong>Bu doirada hali so&apos;zlar yo&apos;q</strong>
-              <p>
-                Yuqoridagi o&apos;quv doirasini bosib, boshqa unitni tanlang.
-              </p>
-            </div>
-          </section>
-        ) : (
-          <section
-            className={[
-              styles.cardArea,
-              keyboardVisible ? styles.cardAreaKeyboard : "",
-            ].filter(Boolean).join(" ")}
-          >
-            <div
-              className={styles.deck}
-              ref={cardDeckRef}
+        </>
+      ) : (
+        <>
+          <header className={styles.header}>
+            <button
+              aria-label="Yopish"
+              className={styles.closeButton}
+              onClick={goBack}
+              type="button"
             >
-              {nextPreviewWord ? (
-                <div
-                  aria-hidden="true"
-                  className={styles.previewLayer}
-                  style={{
-                    opacity: nextPreviewOpacity,
-                    transform:
-                      "scale(" + String(0.96 + nextPreviewOpacity * 0.04) + ")",
-                  }}
-                >
-                  <PreviewCard index={cardIndex + 1} word={nextPreviewWord} />
-                </div>
-              ) : null}
-              {previousPreviewWord ? (
-                <div
-                  aria-hidden="true"
-                  className={styles.previewLayer}
-                  style={{
-                    opacity: previousPreviewOpacity,
-                    transform:
-                      "scale(" + String(0.96 + previousPreviewOpacity * 0.04) + ")",
-                  }}
-                >
-                  <PreviewCard
-                    index={recallWord ? cardIndex : cardIndex - 1}
-                    word={previousPreviewWord}
-                  />
-                </div>
-              ) : null}
-              <div
-                className={[
-                  styles.currentCard,
-                  cardMotion === "out" ? styles.cardMotionOut : "",
-                  cardMotion === "in" ? styles.cardMotionIn : "",
-                ].filter(Boolean).join(" ")}
+              <MobileIcon name="close" size={23} />
+            </button>
+            <span className={styles.headerTitle}>
+              <span
+                className={styles.rangeLabel}
+                data-i18n="wordStudy.currentRange"
+              >
+                {uzt("wordStudy.currentRange")}
+              </span>
+              <strong data-no-translate={Boolean(collection) || undefined} data-i18n={!collection ? "wordStudy.range" : undefined} title={collection?.title}>
+                {collection
+                  ? collection.title
+                  : uzt("wordStudy.range", { section, unit })}
+              </strong>
+              {collectionGroup && (
+                <span className={styles.headerUnit} data-no-translate={Boolean(collectionGroup.title) || undefined} data-i18n={!collectionGroup.title ? "wordStudy.range" : undefined}>
+                  {collectionGroup.title ||
+                    uzt("wordStudy.range", { section, unit })}
+                </span>
+              )}
+            </span>
+            <button
+              className={styles.changeButton}
+              disabled={
+                scopeLoading ||
+                (!collectionId && summaries.every((item) => !item.words))
+              }
+              onClick={openScopePicker}
+              type="button"
+            >
+              <span data-i18n="wordStudy.change">
+                {uzt("wordStudy.change")}
+              </span>
+              <MobileIcon name="chevron-down" size={15} />
+            </button>
+          </header>
+          <div className={styles.progressWrap}>
+            <div className={styles.progressTrack}>
+              <i
                 style={{
-                  opacity: currentOpacity,
-                  transform:
-                    "translateX(" + String(dragX) + "px) rotate(" +
-                    String(rotation) + "deg)",
+                  width: String(Math.max(0, Math.min(1, progress)) * 100) + "%",
                 }}
-              >
-                {recallWord ? (
-                  <RecallCard
-                    answer={answer}
-                    compact={keyboardVisible}
-                    hintVisible={hintVisible}
-                    index={cardIndex}
-                    key={"recall-" + recallWord.id}
-                    onAnswer={(value) => {
-                      setAnswer(value);
-                      if (recallStatus === "wrong") setRecallStatus("idle");
-                    }}
-                    onFocusChange={setKeyboardVisible}
-                    onHint={showRecallHint}
-                    onSpeak={() => speak(speechText(recallWord), { language: speechLanguageOf(recallWord.speechLocale ?? speechLocale) })}
-                    onSubmit={submitRecall}
-                    speaking={speaking}
-                    status={recallStatus}
-                    word={recallWord}
-                  />
-                ) : (
-                  <WordCard
-                    index={cardIndex}
-                    key={currentWord.id}
-                    onSpeak={() => speak(speechText(currentWord), { language: speechLanguageOf(currentWord.speechLocale ?? speechLocale) })}
-                    speaking={speaking}
-                    word={currentWord}
-                  />
-                )}
-              </div>
+              />
             </div>
+          </div>
 
-            {fromStudyPath && studyPhase === "complete" && words.length > 0 ? (
-              <button
-                className={styles.finishButton}
-                onClick={finishStudyPathUnit}
-                type="button"
+          <div className={styles.content}>
+            {positionFailed ? (
+              <p
+                className={styles.positionError}
+                data-i18n="wordLibrary.positionFailed"
+                role="status"
               >
-                Bugungi so&apos;zlar tugadi!
-                <MobileIcon name="arrow-forward" size={20} />
-              </button>
+                {uzt("wordLibrary.positionFailed")}
+              </p>
             ) : null}
+            {scopeLoading ||
+            (!loadFailed && scopeReadyFor !== studyScope) ||
+            wordsLoading ? (
+              <section className={styles.centerState}>
+                <div className={styles.stateCard}>
+                  <span className={styles.spinner} />
+                  <strong>So&apos;z kartalari tayyorlanmoqda</strong>
+                  <p>Tanlangan unitdagi so&apos;zlarni tartiblayapmiz.</p>
+                </div>
+              </section>
+            ) : loadFailed ? (
+              <section className={styles.centerState}>
+                <div className={styles.stateCard}>
+                  <span className={styles.errorIcon}>
+                    <MobileIcon name="cloud-offline-outline" size={30} />
+                  </span>
+                  <strong>So&apos;zlarni yuklab bo&apos;lmadi</strong>
+                  <p>Ulanishni tekshirib, qayta urinib ko&apos;ring.</p>
+                  <button
+                    onClick={() => {
+                      if (summaries.length) void loadWords();
+                      else void loadSummaries();
+                    }}
+                    type="button"
+                  >
+                    Qayta urinish
+                  </button>
+                </div>
+              </section>
+            ) : !currentWord ? (
+              <section className={styles.centerState}>
+                <div className={styles.stateCard}>
+                  <span className={styles.stateEmoji}>🗂️</span>
+                  <strong>Bu doirada hali so&apos;zlar yo&apos;q</strong>
+                  <p>
+                    Yuqoridagi o&apos;quv doirasini bosib, boshqa unitni
+                    tanlang.
+                  </p>
+                </div>
+              </section>
+            ) : (
+              <section
+                className={[
+                  styles.cardArea,
+                  keyboardVisible ? styles.cardAreaKeyboard : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              >
+                <div className={styles.deck} ref={cardDeckRef}>
+                  {nextPreviewWord ? (
+                    <div
+                      aria-hidden="true"
+                      className={styles.previewLayer}
+                      style={{
+                        opacity: nextPreviewOpacity,
+                        transform:
+                          "scale(" +
+                          String(0.96 + nextPreviewOpacity * 0.04) +
+                          ")",
+                      }}
+                    >
+                      <PreviewCard
+                        index={cardIndex + 1}
+                        word={nextPreviewWord}
+                      />
+                    </div>
+                  ) : null}
+                  {previousPreviewWord ? (
+                    <div
+                      aria-hidden="true"
+                      className={styles.previewLayer}
+                      style={{
+                        opacity: previousPreviewOpacity,
+                        transform:
+                          "scale(" +
+                          String(0.96 + previousPreviewOpacity * 0.04) +
+                          ")",
+                      }}
+                    >
+                      <PreviewCard
+                        index={recallWord ? cardIndex : cardIndex - 1}
+                        word={previousPreviewWord}
+                      />
+                    </div>
+                  ) : null}
+                  <div
+                    className={[
+                      styles.currentCard,
+                      cardMotion === "out" ? styles.cardMotionOut : "",
+                      cardMotion === "in" ? styles.cardMotionIn : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    style={{
+                      opacity: currentOpacity,
+                      transform:
+                        "translateX(" +
+                        String(dragX) +
+                        "px) rotate(" +
+                        String(rotation) +
+                        "deg)",
+                    }}
+                  >
+                    {recallWord ? (
+                      <RecallCard
+                        answer={answer}
+                        compact={keyboardVisible}
+                        hintVisible={hintVisible}
+                        index={cardIndex}
+                        key={"recall-" + recallWord.id}
+                        onAnswer={(value) => {
+                          setAnswer(value);
+                          if (recallStatus === "wrong") setRecallStatus("idle");
+                        }}
+                        onFocusChange={setKeyboardVisible}
+                        onHint={showRecallHint}
+                        onSpeak={() =>
+                          speak(speechText(recallWord), {
+                            language: speechLanguageOf(
+                              recallWord.speechLocale ?? speechLocale,
+                            ),
+                          })
+                        }
+                        onSubmit={submitRecall}
+                        speaking={speaking}
+                        status={recallStatus}
+                        word={recallWord}
+                      />
+                    ) : (
+                      <WordCard
+                        index={cardIndex}
+                        key={currentWord.id}
+                        onSpeak={() =>
+                          speak(speechText(currentWord), {
+                            language: speechLanguageOf(
+                              currentWord.speechLocale ?? speechLocale,
+                            ),
+                          })
+                        }
+                        speaking={speaking}
+                        word={currentWord}
+                      />
+                    )}
+                  </div>
+                </div>
 
-            <nav
-              className={[
-                styles.navigation,
-                keyboardVisible ? styles.navigationHidden : "",
-              ].filter(Boolean).join(" ")}
-            >
-              <button
-                aria-label="Oldingi so'z"
-                disabled={!canGoPrevious}
-                onClick={() => animateCardOut(-1)}
-                type="button"
-              >
-                <MobileIcon name="arrow-back" size={21} />
-              </button>
-              <span>
-                <MobileIcon
-                  name={
-                    recallWord
-                      ? recallStatus === "correct"
-                        ? "arrow-forward"
-                        : "create-outline"
-                      : "swap-horizontal"
-                  }
-                  size={18}
-                />
-                {recallWord
-                  ? recallStatus === "correct"
-                    ? "To'g'ri! Davom etish uchun suring"
-                    : course === "en" ? "Inglizcha so'zni yozib tekshiring" : "Koreyscha so'zni yozib tekshiring"
-                  : "Kartalarni suring"}
-              </span>
-              <button
-                aria-label="Keyingi so'z"
-                className={styles.nextButton}
-                disabled={!canGoNext}
-                onClick={() => animateCardOut(1)}
-                type="button"
-              >
-                <MobileIcon name="arrow-forward" size={21} />
-              </button>
-            </nav>
-          </section>
-        )}
-      </div>
+                <nav
+                  className={[
+                    styles.navigation,
+                    keyboardVisible ? styles.navigationHidden : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+                  <button
+                    aria-label="Oldingi so'z"
+                    disabled={!canGoPrevious}
+                    onClick={() => animateCardOut(-1)}
+                    type="button"
+                  >
+                    <MobileIcon name="arrow-back" size={21} />
+                  </button>
+                  <span>
+                    <MobileIcon
+                      name={
+                        recallWord
+                          ? recallStatus === "correct"
+                            ? "arrow-forward"
+                            : "create-outline"
+                          : "swap-horizontal"
+                      }
+                      size={18}
+                    />
+                    {recallWord ? (
+                      recallStatus === "correct" ? (
+                        uzt("wordStudy.recallContinue")
+                      ) : course === "en" ? (
+                        "Inglizcha so'zni yozib tekshiring"
+                      ) : (
+                        "Koreyscha so'zni yozib tekshiring"
+                      )
+                    ) : (
+                      <>
+                        <span data-no-translate>
+                          {cardIndex + 1} / {words.length}
+                        </span>
+                        <span data-i18n="wordStudy.swipeHint">
+                          {uzt("wordStudy.swipeHint")}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                  <button
+                    aria-label="Keyingi so'z"
+                    className={styles.nextButton}
+                    disabled={!canGoNext}
+                    onClick={() => animateCardOut(1)}
+                    type="button"
+                  >
+                    <MobileIcon name="arrow-forward" size={21} />
+                  </button>
+                </nav>
+              </section>
+            )}
+          </div>
+        </>
+      )}
 
       {offerOpen ? (
         <RecallOffer
