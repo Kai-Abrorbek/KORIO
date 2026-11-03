@@ -6,7 +6,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from '../users/schemas/user.schema';
@@ -481,6 +481,16 @@ export class AuthService {
 
     const provider = key === 'kakao' ? AuthProvider.KAKAO : AuthProvider.NAVER;
     return this.upsertSocialUser(provider, profile, sessionId);
+  }
+
+  /** 소셜 로그인 일회용 코드를 토큰으로 바꿀 때 (auth.controller oauth/exchange) */
+  async tokenForUser(userId: string) {
+    const user = Types.ObjectId.isValid(userId)
+      ? await this.userModel.findById(userId)
+      : null;
+    // 코드를 받은 뒤 2분 안에 탈퇴했으면 여기서 끝난다
+    if (!user) throw new BadRequestException('INVALID_LOGIN_CODE');
+    return this.generateToken(user);
   }
 
   // JWT 토큰 생성

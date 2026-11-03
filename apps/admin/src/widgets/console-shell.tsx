@@ -134,12 +134,12 @@ function ShellContent({ children }: { children: React.ReactNode }) {
         <div className="flyout-group-label">{flyout.label === "Control Center" ? "OVERVIEW" : flyout.label.toUpperCase()}</div>
         {flyout.children.map(child => <Link key={child.href} href={child.href} className={`flyout-link${child.href === (typeof window === "undefined" ? path : path + window.location.search) ? " is-active" : ""}`} onClick={() => setOpen(null)}>{child.label}{child.href === "/payouts" && payoutAlert && <span aria-hidden="true" className={`flyout-count${payoutAlerts.error ? " is-error" : ""}`}>{payoutAlert}</span>}</Link>)}
       </div>}
-      {open === "account" && <div className="account-popover"><strong>{me?.email}</strong><span>{ROLE_LABEL[me?.role ?? ""] ?? me?.role}</span><ThemeToggle/>{!isMockAuthMode && <button className="btn btn-ghost" onClick={logout}>로그아웃</button>}</div>}
+      {open === "account" && <div className="account-popover"><strong>{me?.email}</strong><span>{ROLE_LABEL[me?.role ?? ""] ?? me?.role}</span><ThemeToggle/>{!isMockAuthMode && <Link className="btn btn-ghost" href="/security" onClick={() => setOpen(null)}>내 보안 · 비밀번호 · 2단계 인증{me?.twoFactorEnabled === false ? " ⚠️" : ""}</Link>}{!isMockAuthMode && <button className="btn btn-ghost" onClick={logout}>로그아웃</button>}</div>}
       {open && <button className="flyout-scrim" aria-label="메뉴 닫기" onClick={() => setOpen(null)}/>}
 
       <div className="console-main">
         <header className="console-topbar">
-          <div className="console-title"><span className="title-avatar"><Image src="/korio-mascot.png" alt="" width={62} height={62} priority unoptimized /></span><div><span className="title-eyebrow">KORIO ADMIN</span><h1>{active?.label ?? "Control Center"}</h1></div>{isMockMode && <span className="mock-tag">MOCK DATA</span>}</div>
+          <div className="console-title"><span className="title-avatar"><Image src="/korio-mascot.png" alt="" width={62} height={62} priority unoptimized /></span><div><span className="title-eyebrow">KORIO ADMIN</span><h1>{path === "/security" ? "내 보안" : active?.label ?? "Control Center"}</h1></div>{isMockMode && <span className="mock-tag">MOCK DATA</span>}</div>
           <div className="console-actions">
             <button className="top-control search-control" type="button" onClick={() => setSearch(true)}><span aria-hidden>⌕</span> 검색 <kbd>Ctrl K</kbd></button>
             <select className="top-control view-control" aria-label="보기 선택" value={active?.href ?? "/"} onChange={e => router.push(e.target.value)}>{permitted.map(item => <option key={item.href} value={item.href}>{item.label}</option>)}</select>

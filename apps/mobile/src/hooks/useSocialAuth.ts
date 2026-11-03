@@ -5,10 +5,11 @@ import { useRouter } from "expo-router";
 
 import { BASE_URL } from "@/services/api";
 import {
-  completeSocialAuth,
+  completeSocialAuthCallback,
   getSocialAuthDestination,
   parseSocialAuthCallbackUrl,
 } from "@/services/social-auth.service";
+import { beginSocialAuthPkce } from "@/services/social-auth-pkce";
 
 /**
  * 카카오·네이버·텔레그램 로그인.
@@ -58,8 +59,11 @@ export function useSocialAuth(
         provider === "telegram"
           ? "/auth/telegram/widget"
           : `/auth/${provider}/start`;
+      // 서버가 토큰 대신 이 challenge 에 묶인 일회용 코드를 돌려준다
+      const challenge = await beginSocialAuthPkce();
       const url =
         `${API_BASE}${path}?redirect=${encodeURIComponent(redirectUrl)}` +
+        `&code_challenge=${encodeURIComponent(challenge)}` +
         (sessionId ? `&session=${encodeURIComponent(sessionId)}` : "");
 
       const result = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
@@ -70,16 +74,15 @@ export function useSocialAuth(
 
       const callback = parseSocialAuthCallbackUrl(result.url);
       const err = callback?.error;
-      const token = callback?.token;
 
-      if (err || !token) {
+      if (err || !(callback?.token || callback?.loginCode)) {
         // 서버가 왜 실패했는지 붙여 보내준다. 설정 누락이면 바로 드러난다
         onError?.(err || "SOCIAL_LOGIN_FAILED");
         setLoading(false);
         return;
       }
 
-      const user = await completeSocialAuth(token);
+      const user = await completeSocialAuthCallback(callback);
       router.replace(getSocialAuthDestination(user));
     } catch (e: any) {
       onError?.(e?.message ?? "SOCIAL_LOGIN_FAILED");

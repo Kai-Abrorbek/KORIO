@@ -51,7 +51,7 @@ export class AdminGuard implements CanActivate {
     const token = raw.startsWith('Bearer ') ? raw.slice(7).trim() : '';
     if (!token) throw new UnauthorizedException('NO_TOKEN');
 
-    let payload: { sub?: string; scope?: string; tv?: number };
+    let payload: { sub?: string; scope?: string; tv?: number; atv?: number };
     try {
       // 서명 방식을 못 박는다 — 토큰이 고른 알고리즘을 믿지 않는다
       payload = await this.jwt.verifyAsync(token, {
@@ -69,12 +69,16 @@ export class AdminGuard implements CanActivate {
     // 남은 유효기간 동안 그대로 통한다
     const user = await this.userModel
       .findById(payload.sub)
-      .select('email adminRole tokenVersion')
+      .select('email adminRole tokenVersion +adminTokenVersion')
       .lean();
     if (!user) throw new UnauthorizedException('USER_NOT_FOUND');
 
     // 비밀번호를 바꾸거나 전체 로그아웃하면 어드민 토큰도 같이 죽는다
     if ((payload.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+      throw new UnauthorizedException('TOKEN_REVOKED');
+    }
+    // 어드민 비밀번호 변경·2단계 켜기/끄기 → 다른 어드민 세션도 죽는다
+    if ((payload.atv ?? 0) !== (user.adminTokenVersion ?? 0)) {
       throw new UnauthorizedException('TOKEN_REVOKED');
     }
 

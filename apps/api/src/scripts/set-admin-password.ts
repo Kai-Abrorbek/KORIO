@@ -10,8 +10,10 @@
  * 경로를 하나 더 여는 셈**이 된다. 어드민 문은 이미 따로다(다른 시크릿, 다른
  * 만료, 다른 권한 필드) — 비밀번호만 공유할 이유가 없다.
  *
- * ⚠️ 화면에서 바꾸는 경로는 없다. 첫 어드민을 웹에서 만들 수 없는 것과 같은
- *    이유다 — 아무나 만들 수 있으면 그건 문이 아니다.
+ * ⚠️ **처음 설정**은 여기서만 된다. 첫 어드민을 웹에서 만들 수 없는 것과 같은
+ *    이유다 — 아무나 만들 수 있으면 그건 문이 아니다. 이미 있는 비밀번호는
+ *    운영 콘솔 "내 보안" 에서 지금 비밀번호(+2단계 코드)로 바꿀 수도 있다.
+ *    비밀번호를 잊었을 때는 여기서 새로 만든다 (열려 있던 콘솔 세션은 끊긴다).
  */
 import { randomInt } from 'crypto';
 import { NestFactory } from '@nestjs/core';
@@ -20,10 +22,14 @@ import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { AppModule } from '../app.module';
 import { User, UserDocument } from '../users/schemas/user.schema';
-import { ADMIN_ROLES, type AdminRole } from '../admin/admin.const';
+import {
+  ADMIN_PASSWORD_MIN_LENGTH,
+  ADMIN_ROLES,
+  type AdminRole,
+} from '../admin/admin.const';
 
 /** 짧은 비밀번호는 bcrypt 로도 못 막는다. 운영 도구 문이라 더 길게 잡는다 */
-const MIN_LENGTH = 12;
+const MIN_LENGTH = ADMIN_PASSWORD_MIN_LENGTH;
 
 /**
  * 헷갈리는 글자(0/O, 1/l/I)를 뺀 알파벳.
@@ -83,7 +89,13 @@ async function main() {
 
     await userModel.updateOne(
       { _id: user._id },
-      { $set: { adminPassword: revoking ? null : await bcrypt.hash(password, 12) } },
+      {
+        $set: {
+          adminPassword: revoking ? null : await bcrypt.hash(password, 12),
+        },
+        // 비밀번호를 바꾸거나 회수하면 이미 열려 있던 운영 콘솔 세션도 끊는다
+        $inc: { adminTokenVersion: 1 },
+      },
     );
 
     if (revoking) {

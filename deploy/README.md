@@ -106,6 +106,21 @@ chmod 600 agent.env             # 🔴 시크릿이다
 **첫 배포 뒤에는 반드시 `./smoke.sh` 를 한 번 돌려라.** 무중단이 진짜인지
 숫자로 확인하는 유일한 방법이다.
 
+## Redis (`korio_redis`)
+
+로그인·인증 코드 대입을 막는 요청 한도와 소셜 로그인 일회용 코드를 둔다.
+blue/green 두 API 가 같은 숫자를 세야 해서 API 밖에 있다. `deploy.sh` 가
+알아서 띄우고, 밖으로 포트를 열지 않는다. 디스크에 안 쓴다 — 재시작하면
+한도가 한 번 풀릴 뿐이다.
+
+`api.env` 에 `REDIS_URL=redis://redis:6379` 를 넣어야 쓴다. 없으면 API 가
+서버 메모리로 세고 부팅 로그에 경고를 남긴다.
+
+```bash
+docker exec korio_redis redis-cli ping        # PONG
+docker exec korio_redis redis-cli dbsize      # 지금 세고 있는 한도 개수
+```
+
 ## AI Voice Tutor Agent (`korio_voice_tutor_agent`)
 
 `agent.env` 의 `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`,

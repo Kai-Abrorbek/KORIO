@@ -7,17 +7,18 @@ import {
   SetMetadata,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import * as crypto from 'crypto';
 import type { Request } from 'express';
+import type Redis from 'ioredis';
+import { redis } from './redis';
 
 /**
- * 데코레이터 하나로 거는 요청 제한.
+ * 데코레이터 하나로 거는 요청 제한 (슬라이딩 윈도우).
  *
- * @nestjs/throttler 를 안 쓴 이유: 지금 필요한 건 로그인·가입 몇 곳뿐이고,
- * speech.service 가 이미 같은 방식(메모리 슬라이딩 윈도우)으로 Azure 호출을
- * 막고 있어서 패턴을 맞췄다.
- *
- * ⚠️ 상태가 프로세스 메모리에 있다. 서버를 여러 대로 늘리면 대당 한도가 되므로
- * 그때는 Redis 로 옮겨야 한다. 한 대로 시작하는 지금은 이걸로 충분하다.
+ * 기록은 Redis 에 둔다 (REDIS_URL). 그래야 배포해도 한도가 안 풀리고,
+ * blue/green 이 겹치거나 서버를 늘려도 모든 서버가 같은 숫자를 센다.
+ * REDIS_URL 이 없거나 Redis 가 잠깐 죽으면 서버 메모리로 센다 — 막는 걸
+ * 멈추는 것보다 서버별로라도 막는 게 낫다.
  */
 export const RATE_LIMIT_KEY = 'korio:rate-limit';
 
@@ -52,9 +53,37 @@ export interface RateLimitOptions {
 export const RateLimit = (...options: RateLimitOptions[]) =>
   SetMetadata(RATE_LIMIT_KEY, options);
 
+/**
+ * 여러 한도를 **한 번에** 검사하고, 전부 통과할 때만 기록한다 (원자적).
+ * 막힌 요청은 어디에도 안 쌓인다 — 메모리 쪽과 같은 규칙.
+ *
+ * KEYS = 한도별 키, ARGV = [지금(ms), 이번 요청 id, 창1, 최대1, 창2, 최대2, …]
+ */
+const SLIDING_WINDOW_LUA = `
+local now = tonumber(ARGV[1])
+for i, key in ipairs(KEYS) do
+  local window = tonumber(ARGV[1 + i * 2])
+  local max = tonumber(ARGV[2 + i * 2])
+  redis.call('ZREMRANGEBYSCORE', key, '-inf', now - window)
+  if redis.call('ZCARD', key) >= max then return 0 end
+end
+for i, key in ipairs(KEYS) do
+  redis.call('ZADD', key, now, ARGV[2])
+  redis.call('PEXPIRE', key, tonumber(ARGV[1 + i * 2]))
+end
+return 1
+`;
+
+type RedisWithRateLimit = Redis & {
+  korioRateLimit(
+    numKeys: number,
+    ...args: (string | number)[]
+  ): Promise<number>;
+};
+
 @Injectable()
 export class RateLimitGuard implements CanActivate {
-  /** key → 그 한도의 창 길이와 창 안에 든 요청 시각들 */
+  /** key → 그 한도의 창 길이와 창 안에 든 요청 시각들 (Redis 를 못 쓸 때만) */
   private readonly hits = new Map<
     string,
     { windowMs: number; times: number[] }
@@ -64,7 +93,7 @@ export class RateLimitGuard implements CanActivate {
 
   constructor(private readonly reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const raw = this.reflector.get<
       RateLimitOptions | RateLimitOptions[] | undefined
     >(RATE_LIMIT_KEY, context.getHandler());
@@ -72,22 +101,63 @@ export class RateLimitGuard implements CanActivate {
     if (!limits.length) return true;
 
     const req = context.switchToHttp().getRequest<Request>();
+    const checks = limits.map((options, index) => ({
+      key: this.buildKey(context, req, options, index),
+      options,
+    }));
+
+    const allowed =
+      (await this.takeFromRedis(checks)) ?? this.takeFromMemory(checks);
+    if (!allowed) {
+      throw new HttpException(
+        'TOO_MANY_REQUESTS',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+    return true;
+  }
+
+  /** 통과면 true, 막히면 false, Redis 를 못 쓰면 null (메모리로 넘긴다) */
+  private async takeFromRedis(
+    checks: { key: string; options: RateLimitOptions }[],
+  ): Promise<boolean | null> {
+    const client = redis();
+    if (!client || client.status !== 'ready') return null;
+    const scripted = client as RedisWithRateLimit;
+    if (typeof scripted.korioRateLimit !== 'function') {
+      client.defineCommand('korioRateLimit', { lua: SLIDING_WINDOW_LUA });
+    }
+    try {
+      const now = Date.now();
+      const result = await scripted.korioRateLimit(
+        checks.length,
+        // 이메일이 Redis 에 그대로 남지 않게 키는 해시한다
+        ...checks.map(({ key }) => `rl:${hashKey(key)}`),
+        now,
+        `${now}:${crypto.randomBytes(6).toString('hex')}`,
+        ...checks.flatMap(({ options }) => [options.windowMs, options.max]),
+      );
+      return result === 1;
+    } catch {
+      return null;
+    }
+  }
+
+  private takeFromMemory(
+    checks: { key: string; options: RateLimitOptions }[],
+  ): boolean {
     const now = Date.now();
     // 전부 먼저 검사하고 나서 기록한다 — 막힌 요청은 어느 한도에도 안 쌓인다.
     // 그래야 막힌 동안 두드린 것 때문에 풀릴 때가 계속 밀리지 않고, 막힌
     // 요청이 새 키를 만들어 맵을 키우지도 않는다
-    const checked = limits.map((options, index) => {
-      const key = this.buildKey(context, req, options, index);
+    const checked = checks.map(({ key, options }) => {
       const since = now - options.windowMs;
       const times = (this.hits.get(key)?.times ?? []).filter((t) => t > since);
       return { key, times, options };
     });
 
     if (checked.some(({ times, options }) => times.length >= options.max)) {
-      throw new HttpException(
-        'TOO_MANY_REQUESTS',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
+      return false;
     }
 
     for (const { key, times, options } of checked) {
@@ -97,7 +167,6 @@ export class RateLimitGuard implements CanActivate {
     this.sweep(now);
     return true;
   }
-
   private buildKey(
     context: ExecutionContext,
     req: Request,
@@ -148,4 +217,8 @@ export class RateLimitGuard implements CanActivate {
       else this.hits.delete(key);
     }
   }
+}
+
+function hashKey(key: string): string {
+  return crypto.createHash('sha256').update(key).digest('base64url');
 }

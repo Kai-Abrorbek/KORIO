@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuthHydrated } from "@/hooks/useAuthGuard";
 import {
   clearStagedSocialAuthCallback,
-  completeSocialAuth,
+  completeSocialAuthCallback,
   getSocialAuthDestination,
   normalizeSocialAuthError,
   peekStagedSocialAuthCallback,
@@ -22,9 +22,11 @@ export default function SocialAuthCallbackScreen() {
   const theme = useTheme();
   const params = useLocalSearchParams<{
     token?: string | string[];
+    login_code?: string | string[];
     error?: string | string[];
   }>();
   const tokenParam = firstString(params.token);
+  const loginCodeParam = firstString(params.login_code);
   const errorParam = firstString(params.error);
 
   useEffect(() => {
@@ -35,10 +37,11 @@ export default function SocialAuthCallbackScreen() {
     let active = true;
     const staged = peekStagedSocialAuthCallback();
     const token = tokenParam ?? staged?.token;
+    const loginCode = loginCodeParam ?? staged?.loginCode;
     const callbackError = errorParam ?? staged?.error;
 
     const finish = async () => {
-      if (callbackError || !token) {
+      if (callbackError || !(token || loginCode)) {
         clearStagedSocialAuthCallback(staged);
         router.replace({
           pathname: "/auth/login",
@@ -50,7 +53,7 @@ export default function SocialAuthCallbackScreen() {
       }
 
       try {
-        const user = await completeSocialAuth(token);
+        const user = await completeSocialAuthCallback({ token, loginCode });
         if (active) {
           router.replace(getSocialAuthDestination(user));
         }
@@ -73,7 +76,7 @@ export default function SocialAuthCallbackScreen() {
     return () => {
       active = false;
     };
-  }, [errorParam, hydrated, router, tokenParam]);
+  }, [errorParam, hydrated, loginCodeParam, router, tokenParam]);
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>

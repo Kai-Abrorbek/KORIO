@@ -58,14 +58,14 @@ export const ROLE_PERMISSIONS: Record<AdminRole, readonly AdminPermission[]> = {
     'content:write',
     'users:read',
   ],
-  support: [
+  support: ['analytics:read', 'users:read', 'users:write', 'subscription:read'],
+  // 분석가는 **아무것도 못 바꾼다.** 읽기만 한다
+  analyst: [
     'analytics:read',
     'users:read',
-    'users:write',
+    'content:read',
     'subscription:read',
   ],
-  // 분석가는 **아무것도 못 바꾼다.** 읽기만 한다
-  analyst: ['analytics:read', 'users:read', 'content:read', 'subscription:read'],
 };
 
 export function permissionsFor(role: AdminRole): readonly AdminPermission[] {
@@ -87,6 +87,9 @@ export function hasPermission(
  * 일주일씩 살아 있으면 안 된다. 8시간이면 하루 일과를 덮는다.
  */
 export const ADMIN_TOKEN_TTL = '8h';
+
+/** 어드민 비밀번호 최소 길이 (set-admin-password 스크립트·콘솔 비밀번호 변경 공통) */
+export const ADMIN_PASSWORD_MIN_LENGTH = 12;
 
 /**
  * 토큰 종류 표식.

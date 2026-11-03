@@ -247,6 +247,9 @@ cmd_deploy() {
 
   log "Caddy 기동 (인증서 발급이 빌드와 함께 돈다)"
   "${COMPOSE[@]}" up -d caddy
+  # 요청 한도를 두는 곳. 새 API 가 뜨기 전에 있어야 한다 (이미 떠 있으면 no-op)
+  log "Redis 기동"
+  "${COMPOSE[@]}" up -d redis
 
   # ⚠️ Caddyfile 은 **바인드 마운트**라 파일만 바꾸면 compose 는 "변경 없음" 으로
   # 보고 컨테이너를 다시 만들지 않는다. 이미 떠 있는 Caddy 는 옛 설정을 메모리에

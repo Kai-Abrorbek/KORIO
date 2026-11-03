@@ -17,6 +17,7 @@ const MESSAGES: Record<string, string> = {
   ADMIN_NOT_CONFIGURED:
     "서버에 ADMIN_JWT_SECRET 이 설정되지 않아 어드민 로그인이 꺼져 있습니다.",
   TOO_MANY_REQUESTS: "시도가 너무 많습니다. 15분 뒤에 다시 시도하세요.",
+  INVALID_OTP: "인증 코드가 맞지 않습니다. 앱에 표시된 새 코드를 넣어 주세요.",
   HTTP_403: "이 출처에서는 API 를 호출할 수 없습니다 (ALLOWED_ORIGINS 확인).",
 };
 
@@ -26,6 +27,9 @@ export function LoginScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // 비밀번호가 맞고 2단계가 켜진 계정이면 서버가 OTP_REQUIRED 를 준다 → 6자리 칸
+  const [needsOtp, setNeedsOtp] = useState(false);
+  const [otp, setOtp] = useState("");
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,9 +37,14 @@ export function LoginScreen() {
     setBusy(true);
     setError(null);
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password, needsOtp ? otp.trim() : undefined);
     } catch (err) {
       const code = err instanceof ApiError ? err.code : "UNKNOWN";
+      if (code === "OTP_REQUIRED") {
+        setNeedsOtp(true);
+        return;
+      }
+      if (code === "INVALID_OTP") setOtp("");
       // 매핑이 없으면 코드를 그대로 보여준다. 숨기면 원인을 알 수 없다
       setError(MESSAGES[code] ?? `로그인하지 못했습니다 · ${code}`);
     } finally {
@@ -63,7 +72,10 @@ export function LoginScreen() {
             type="email"
             autoComplete="username"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setNeedsOtp(false);
+            }}
             required
           />
 
@@ -76,9 +88,32 @@ export function LoginScreen() {
             type="password"
             autoComplete="current-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setNeedsOtp(false);
+            }}
             required
           />
+
+          {needsOtp && (
+            <>
+              <label className="field-label" htmlFor="admin-otp">
+                인증 코드 (인증 앱의 6자리)
+              </label>
+              <input
+                id="admin-otp"
+                className="input"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9 ]{6,7}"
+                maxLength={7}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/[^\d ]/g, ""))}
+                autoFocus
+                required
+              />
+            </>
+          )}
 
           {error && (
             <div className="alert" role="alert">
@@ -86,7 +121,10 @@ export function LoginScreen() {
             </div>
           )}
 
-          <button className="btn btn-primary btn-block" disabled={busy || !email || !password}>
+          <button
+            className="btn btn-primary btn-block"
+            disabled={busy || !email || !password || (needsOtp && otp.replace(/\s/g, "").length !== 6)}
+          >
             {busy ? "확인 중…" : "로그인"}
           </button>
         </form>

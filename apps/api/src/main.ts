@@ -12,9 +12,19 @@ import {
 } from './config/secrets';
 import { securityHeaders } from './common/security-headers';
 import { markShuttingDown } from './health/health.controller';
+import { redis } from './common/redis';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // 요청 한도·일회용 로그인 코드를 둘 Redis 에 미리 붙어 둔다. 첫 요청 때
+  // 붙기 시작하면 그 사이 몇 개는 서버 메모리로 세진다
+  if (!redis()) {
+    Logger.warn(
+      'REDIS_URL 이 없다 — 요청 한도를 서버 메모리로 센다 (배포하면 초기화되고, ' +
+        'blue/green 이 겹치는 동안 한도가 두 배가 된다)',
+      'Bootstrap',
+    );
+  }
 
   // 리버스 프록시(Nginx/로드밸런서) 뒤에서 req.ip 가 프록시 IP 로 고정되면
   // 요청 제한이 전 세계를 한 명으로 묶어 버린다. X-Forwarded-For 를 믿게 한다.

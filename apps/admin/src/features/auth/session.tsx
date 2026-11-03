@@ -32,6 +32,14 @@ export interface AdminMe {
   nickname?: string;
   role: "super_admin" | "content_admin" | "support" | "analyst";
   permissions: AdminPermission[];
+  /** 2단계 인증(인증 앱 6자리)이 켜져 있는가 — /admin/auth/me 만 준다 */
+  twoFactorEnabled?: boolean;
+}
+
+/** 로그인·보안 설정 변경이 돌려주는 모양. 보안 설정을 바꾸면 새 토큰이 온다 */
+export interface AdminSession {
+  accessToken: string;
+  admin: AdminMe;
 }
 
 type Status = "loading" | "authenticated" | "anonymous";
@@ -53,7 +61,13 @@ interface SessionValue {
   me: AdminMe | null;
   /** 화면이 메뉴·버튼을 그릴 때 쓴다. **서버가 다시 검사하므로 이건 표시용이다** */
   can: (permission: AdminPermission) => boolean;
-  login: (email: string, password: string) => Promise<void>;
+  /** 2단계가 켜진 계정은 otp 없이 부르면 OTP_REQUIRED 로 실패한다 */
+  login: (email: string, password: string, otp?: string) => Promise<void>;
+  /**
+   * 비밀번호·2단계 설정을 바꾸면 서버가 다른 세션을 전부 끊고 새 토큰을 준다.
+   * 그걸 받아 지금 화면을 이어 간다.
+   */
+  adoptSession: (session: AdminSession, twoFactorEnabled: boolean) => void;
   logout: () => void;
 }
 
@@ -110,15 +124,29 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api.post<{ accessToken: string; admin: AdminMe }>(
-      "/admin/auth/login",
-      { email, password },
-    );
-    AdminToken.set(res.accessToken);
-    setMe(res.admin);
-    setStatus("authenticated");
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string, otp?: string) => {
+      const res = await api.post<AdminSession>("/admin/auth/login", {
+        email,
+        password,
+        ...(otp ? { otp } : {}),
+      });
+      AdminToken.set(res.accessToken);
+      // 로그인 응답엔 2단계 상태가 없다 — 코드를 넣고 들어왔으면 켜진 것이다
+      setMe({ ...res.admin, twoFactorEnabled: !!otp });
+      setStatus("authenticated");
+    },
+    [],
+  );
+
+  const adoptSession = useCallback(
+    (session: AdminSession, twoFactorEnabled: boolean) => {
+      AdminToken.set(session.accessToken);
+      setMe({ ...session.admin, twoFactorEnabled });
+      setStatus("authenticated");
+    },
+    [],
+  );
 
   const can = useCallback(
     (permission: AdminPermission) => !!me?.permissions?.includes(permission),
@@ -126,7 +154,9 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <SessionContext.Provider value={{ status, me, can, login, logout }}>
+    <SessionContext.Provider
+      value={{ status, me, can, login, adoptSession, logout }}
+    >
       {children}
     </SessionContext.Provider>
   );

@@ -20,6 +20,13 @@ import type { Response } from 'express';
 import { OAUTH, callbackUrl, type OAuthProviderKey } from './oauth.providers';
 import { packState, unpackState, safeRedirect } from './oauth-state';
 import { TelegramMiniAppLoginDto } from './dto/telegram-mini-app-login.dto';
+import { ExchangeLoginCodeDto } from './dto/exchange-login-code.dto';
+import {
+  isCodeChallenge,
+  issueLoginCode,
+  legacyTokenRedirectAllowed,
+  redeemLoginCode,
+} from './login-code';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -150,10 +157,23 @@ export class AuthController {
     return this.passwordReset.reset(dto);
   }
 
+  /**
+   * 소셜 로그인으로 받은 일회용 코드를 토큰으로 바꾼다 (PKCE, login-code.ts).
+   * 로그인을 시작한 앱만 verifier 를 알아서, 주소를 가로챈 앱은 못 바꾼다.
+   */
+  @RateLimit({ windowMs: MINUTE, max: 20 })
+  @Post('oauth/exchange')
+  async exchangeLoginCode(@Body() dto: ExchangeLoginCodeDto) {
+    const userId = await redeemLoginCode(dto.loginCode, dto.codeVerifier);
+    if (!userId) throw new BadRequestException('INVALID_LOGIN_CODE');
+    return this.authService.tokenForUser(userId);
+  }
+
   @Get('telegram/widget')
   telegramWidget(
     @Query('redirect') redirect: string,
     @Query('session') session: string,
+    @Query('code_challenge') challenge: string,
     @Res() res: Response,
   ) {
     const botUser = process.env.TELEGRAM_BOT_USERNAME;
@@ -161,7 +181,8 @@ export class AuthController {
     const target = safeRedirect(redirect);
     const authUrl =
       `${base}/auth/telegram/callback?redirect=${encodeURIComponent(target)}` +
-      (session ? `&session=${encodeURIComponent(session)}` : '');
+      (session ? `&session=${encodeURIComponent(session)}` : '') +
+      (isCodeChallenge(challenge) ? `&code_challenge=${challenge}` : '');
 
     const html = `<!DOCTYPE html><html><head>
         <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -187,8 +208,9 @@ export class AuthController {
   async telegramCallback(@Query() q: any, @Res() res: Response) {
     const target = safeRedirect(q.redirect);
     try {
-      const { accessToken } = await this.authService.telegramLogin(q);
-      return res.redirect(`${target}?token=${encodeURIComponent(accessToken)}`);
+      const login = await this.authService.telegramLogin(q);
+      const challenge: unknown = (q as Record<string, unknown>).code_challenge;
+      return res.redirect(appReturnUrl(target, login, challenge));
     } catch {
       // 앱은 token 이 없으면 실패로 처리한다
       return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
@@ -201,6 +223,7 @@ export class AuthController {
     @Param('provider') provider: string,
     @Query('redirect') redirect: string,
     @Query('session') session: string,
+    @Query('code_challenge') challenge: string,
     @Res() res: Response,
   ) {
     const key = provider as OAuthProviderKey;
@@ -218,7 +241,11 @@ export class AuthController {
       response_type: 'code',
       client_id: clientId,
       redirect_uri: callbackUrl(provider),
-      state: packState({ redirect: safeRedirect(redirect), session }),
+      state: packState({
+        redirect: safeRedirect(redirect),
+        session,
+        cc: isCodeChallenge(challenge) ? challenge : undefined,
+      }),
       ...(cfg.extraAuthParams ?? {}),
     });
     return res.redirect(`${cfg.authorizeUrl}?${params.toString()}`);
@@ -243,16 +270,35 @@ export class AuthController {
     if (!code) return res.redirect(`${target}?error=SOCIAL_LOGIN_CANCELLED`);
 
     try {
-      const { accessToken } = await this.authService.oauthLogin(
-        key,
-        code,
-        state.session,
-      );
-      return res.redirect(`${target}?token=${encodeURIComponent(accessToken)}`);
+      const login = await this.authService.oauthLogin(key, code, state.session);
+      return res.redirect(appReturnUrl(target, login, state.cc));
     } catch {
       // 내부 예외 메시지(제공자 응답, 스택, 키 일부)가 리다이렉트 URL 을 타고
       // 브라우저 히스토리·로그에 남지 않게 고정 코드만 내보낸다.
       return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
     }
   }
+}
+
+/**
+ * 로그인을 끝낸 앱으로 돌아갈 주소.
+ *
+ * 앱이 challenge 를 보냈으면 토큰 대신 그 challenge 에 묶인 2분짜리 일회용
+ * 코드를 싣는다 — 주소를 가로챈 앱은 verifier 가 없어 쓸 수 없다.
+ * 옛 앱(challenge 없음)은 OAUTH_LEGACY_TOKEN_REDIRECT 가 켜져 있는 동안만
+ * 예전처럼 토큰을 받는다.
+ */
+function appReturnUrl(
+  target: string,
+  login: { accessToken: string; user: { id: unknown } },
+  challenge: unknown,
+): string {
+  if (isCodeChallenge(challenge)) {
+    const code = issueLoginCode(String(login.user.id), challenge);
+    return `${target}?login_code=${encodeURIComponent(code)}`;
+  }
+  if (!legacyTokenRedirectAllowed()) {
+    return `${target}?error=APP_UPDATE_REQUIRED`;
+  }
+  return `${target}?token=${encodeURIComponent(login.accessToken)}`;
 }

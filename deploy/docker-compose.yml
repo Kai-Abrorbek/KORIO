@@ -45,6 +45,36 @@ services:
       - caddy_config:/config
     networks: [korio_net]
 
+  # 요청 한도(로그인·인증 코드 대입 방지)와 일회용 로그인 코드를 두는 곳.
+  # blue/green 두 API 가 **같은 숫자를 세야** 해서 API 밖에 있다. 메모리에 두면
+  # 배포할 때마다 한도가 풀리고, 두 색이 겹치는 동안엔 한도가 두 배가 된다.
+  #
+  # ⚠️ 밖으로 포트를 열지 않는다 — korio_net 안의 API 만 붙는다.
+  #    전부 몇 분~하루짜리 값이라 디스크에 안 쓴다 (꺼지면 한도가 한 번 풀릴 뿐).
+  #    메모리가 차면 만료가 가까운 것부터 버린다 (전부 TTL 이 있다).
+  redis:
+    image: redis:7.4-alpine
+    container_name: korio_redis
+    logging: *logging
+    restart: unless-stopped
+    command:
+      [
+        "redis-server",
+        "--save", "",
+        "--appendonly", "no",
+        "--maxmemory", "128mb",
+        "--maxmemory-policy", "volatile-ttl",
+        # 도커 네트워크 안에서만 닿으므로 끈다 (켜 두면 비밀번호 없는 접속을
+        # 같은 네트워크의 API 에서도 막는다). 공식 이미지 기본값과 같다 — 명시만 한다
+        "--protected-mode", "no",
+      ]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks: [korio_net]
+
   api_blue:
     image: ${IMAGE:-korio-api}:${TAG:-latest}
     container_name: korio_api_blue

@@ -83,8 +83,9 @@ export class User {
    *   · 어드민 문은 이미 따로다 (다른 시크릿, 다른 만료, 다른 권한 필드).
    *     비밀번호만 공유할 이유가 없다.
    *
-   * `pnpm --filter api admin:password <email>` 로만 설정된다. 화면에서 바꾸는
-   * 경로는 없다 — 첫 어드민을 웹에서 만들 수 없는 것과 같은 이유다.
+   * **처음 설정**은 `pnpm --filter api admin:password <email>` 로만 된다 — 첫
+   * 어드민을 웹에서 만들 수 없는 것과 같은 이유다. 이미 있는 비밀번호는 운영
+   * 콘솔 "내 보안" 에서 지금 비밀번호(+2단계 코드)를 넣고 바꿀 수 있다.
    */
   @Prop({ type: String, default: null, select: false })
   adminPassword: string | null;
@@ -92,6 +93,33 @@ export class User {
   /** 어드민 도구에 마지막으로 들어온 시각 */
   @Prop({ type: Date, default: null })
   adminLastLoginAt: Date | null;
+
+  /**
+   * 어드민 2단계 인증(TOTP) 비밀 — **암호화돼 있다** (admin/totp.ts).
+   * 있으면 어드민 로그인 때 인증 앱의 6자리를 같이 받는다.
+   */
+  @Prop({ type: String, default: null, select: false })
+  adminTotpSecret: string | null;
+
+  /** 등록하는 중(아직 코드로 확인 전)인 비밀. 확인되면 adminTotpSecret 으로 옮긴다 */
+  @Prop({ type: String, default: null, select: false })
+  adminTotpPending: string | null;
+
+  /** 마지막으로 받은 코드의 시간 칸 — 같은 6자리를 두 번 못 쓰게 */
+  @Prop({ type: Number, default: null, select: false })
+  adminTotpLastStep: number | null;
+
+  @Prop({ type: Date, default: null, select: false })
+  adminTotpEnabledAt: Date | null;
+
+  /**
+   * 어드민 토큰만 끊는 카운터. 어드민 비밀번호를 바꾸거나 2단계를 켜고 끌 때
+   * 올린다 — 비밀번호만 아는 사람이 이미 들어와 있던 세션도 그 자리에서 죽는다.
+   * tokenVersion 과 따로인 이유: 운영 콘솔 보안을 손봤다고 **앱** 로그인까지
+   * 풀리면 안 된다.
+   */
+  @Prop({ type: Number, default: 0, select: false })
+  adminTokenVersion: number;
 
   /**
    * 발급된 토큰을 한 번에 무효화하기 위한 카운터.

@@ -14,6 +14,8 @@ const secret = () => jwtSecret();
 export interface OAuthState {
   redirect: string;
   session?: string;
+  /** PKCE code_challenge — 있으면 토큰 대신 일회용 코드로 돌려보낸다 (login-code.ts) */
+  cc?: string;
   /** 재사용·지연 공격 방지 */
   ts: number;
 }
