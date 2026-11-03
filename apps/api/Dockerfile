@@ -1,4 +1,5 @@
-# syntax=docker/dockerfile:1.7
+# (syntax 줄을 뺐다 — 빌드마다 Docker Hub 에서 해석기를 확인해서, 서버가 Docker Hub 에
+#  못 닿으면 빌드가 멈췄다. RUN --mount 캐시는 Docker 기본 해석기로 된다. 2026-11-03)
 #
 # KORIO API 이미지. 빌드 컨텍스트는 **레포 루트**다 (pnpm 워크스페이스라
 # 루트의 lockfile·워크스페이스 정의가 필요하다).
