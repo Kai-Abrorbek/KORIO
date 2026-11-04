@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="768" height="512" viewBox="0 0 768 512">
+  <defs>
+    <linearGradient id="sky" x2="1" y2="1">
+      <stop stop-color="#FFC97B"/>
+      <stop offset=".53" stop-color="#F47C87"/>
+      <stop offset="1" stop-color="#C34788"/>
+    </linearGradient>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h768v512H0z"/>
+  <g fill="#FFD8A9" opacity=".14">
+    <path d="M0 81c95-25 127 7 191-18s124-77 228-55c-98 43-97 111-209 128S76 112 0 157z"/>
+    <path d="M494 95c89-79 177-32 274-81v191c-85-39-150 13-230-3s-119-50-44-107z"/>
+    <path d="M482 392c89-64 192-22 286-81v201H425c56-39-8-81 57-120z"/>
+  </g>
+  <path fill="#AA3977" opacity=".21" d="M430 0h338v512H460c75-108 7-137 92-231 63-70-63-101-53-169 8-53-42-75-69-112z"/>
+  <circle cx="427" cy="93" r="10" fill="#FFEBA8" opacity=".95"/>
+  <path fill="#FFEBA8" d="M353 58l9 17 19 3-14 15 4 20-18-9-18 9 4-20-14-15 19-3z"/>
+  <path fill="#FFF5D2" d="M506 50l5 10 12 2-9 9 2 12-10-6-11 6 2-12-9-9 12-2z"/>
+  <circle cx="512" cy="187" r="6" fill="#FFDC8A"/>
+  <ellipse cx="214" cy="500" rx="208" ry="32" fill="#88345F" opacity=".25"/>
+  <!-- The bear's body and ears -->
+  <path fill="#A65028" d="M87 338c20-55 75-75 152-70 95 5 149 52 169 145l25 99H57l10-94c4-34 10-59 20-80z"/>
+  <circle cx="120" cy="136" r="29" fill="#A65028"/>
+  <circle cx="329" cy="123" r="29" fill="#A65028"/>
+  <path fill="#AC582C" d="M100 188c-3-69 45-114 116-119 90-6 150 29 157 106l5 87c3 53-62 91-137 93-84 2-148-39-148-102z"/>
+  <path fill="#985027" opacity=".44" d="M105 251c13 60 71 104 149 104 61 0 104-25 124-63-21 47-69 82-141 82-87 0-132-45-132-123z"/>
+  <!-- Thoughtful eyes and muzzle -->
+  <path fill="#FFF5E8" d="M152 208c8-12 29-16 43-8 10 5 12 19 7 29-17 12-35 10-49-2-4-6-5-13-1-19zm80-5c11-11 32-11 45-2 8 7 9 19 4 29-15 10-36 8-49-2-5-8-6-17 0-25z"/>
+  <path fill="#37241E" d="M183 212c8 0 11 7 10 13-1 7-5 12-12 12-6-1-9-5-9-11s5-14 11-14zm78-5c7 1 10 7 9 14-1 8-5 12-12 12-7-1-10-7-9-13 1-8 5-13 12-13z"/>
+  <path fill="#A65028" d="M147 203c14-11 32-16 51-13l1 9c-18-1-32 4-45 14zm83-8c19-8 36-7 55 3l-7 11c-14-9-28-11-44-4z"/>
+  <path fill="#E7A64D" d="M205 220c17-16 60-15 77 4 15 16 19 56 13 79-5 22-19 37-50 37-37 0-53-23-55-53-2-27 2-53 15-67z"/>
+  <ellipse cx="245" cy="238" rx="12" ry="8" fill="#38231F"/>
+  <path d="M224 279c10 13 30 17 45 6" fill="none" stroke="#5C2C24" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="169" cy="271" r="13" fill="#C86B4C" opacity=".5"/>
+  <circle cx="312" cy="266" r="13" fill="#C86B4C" opacity=".45"/>
+  <!-- Signature cyan scarf -->
+  <path fill="#0ED4DD" d="M119 305c48 33 157 56 245 7l-10 49c-73 42-175 25-238-13z"/>
+  <path fill="#06B8CC" d="M121 318c-22 7-51 29-61 63l-30 90 67 8 33-92 24-42z"/>
+  <path fill="#1FE2E2" d="M120 313c58 29 137 39 211 19-69 35-151 39-218 10z"/>
+  <!-- Paw over heart, and paw explaining a point -->
+  <path d="M95 371c-32 29-35 70-8 96 21 19 50 13 67-10l75-78-39-47z" fill="#A65028"/>
+  <path d="M341 365c33-27 71-29 87-6 16 24 5 50-21 63l-64 34-39-54z" fill="#A65028"/>
+  <ellipse cx="192" cy="384" rx="51" ry="39" transform="rotate(-24 192 384)" fill="#B96535"/>
+  <path d="M202 375c16 13 34 19 51 18" fill="none" stroke="#8F4728" stroke-linecap="round" stroke-width="5" opacity=".5"/>
+  <!-- The bear celebrates and comforts a smaller fox friend -->
+  <path fill="#DC743A" d="M361 402c7-49 36-79 81-81 50-2 79 37 82 91l9 100H345z"/>
+  <path fill="#E3803F" d="M358 257l-22-76 65 43c15-7 45-7 60 0l64-43-22 80c17 24 24 51 18 79-9 42-47 65-96 65s-86-25-94-65c-6-30 2-58 27-83z"/>
+  <path fill="#F2B56E" d="M374 226l-18-29 35 26zm98-3 34-26-17 31z"/>
+  <path fill="#FFF0D9" d="M366 320c24-16 44-12 59 5 14-17 37-21 60-6 15 10 23 28 19 43-12 22-38 32-79 32-40 0-69-12-80-33-3-16 5-32 21-41z"/>
+  <ellipse cx="403" cy="302" rx="8" ry="11" fill="#3A2A27"/>
+  <ellipse cx="465" cy="302" rx="8" ry="11" fill="#3A2A27"/>
+  <ellipse cx="432" cy="337" rx="9" ry="7" fill="#3A2A27"/>
+  <path d="M413 356c9 8 26 10 38 0" fill="none" stroke="#985340" stroke-linecap="round" stroke-width="5"/>
+  <path fill="#EE657C" d="M376 387c35 17 82 17 116-2l-1 23c-42 18-77 18-114 0z"/>
+  <path d="M310 385c35 24 58 22 81 5" fill="none" stroke="#A65028" stroke-linecap="round" stroke-width="31"/>
+  <ellipse cx="386" cy="390" rx="21" ry="17" fill="#B96535"/>
+  <path fill="#FFDD66" d="M431 409l10 20 22 3-16 16 4 22-20-10-20 10 4-22-16-16 22-3z"/>
+  <path fill="#FFECA9" d="M419 407l12-23 12 23z"/>
+  <path fill="#FFF5E8" d="M465 91c-11-18-36-8-33 11 3 17 28 32 39 41 12-9 37-24 40-41 3-19-23-29-33-11l-7 9z"/>
+</svg>
