@@ -48,6 +48,7 @@ export const PERSONALITY_LABELS: Record<VoiceTutorPersonality, { name: string; d
     name: "Keskin va jo‘shqin",
     description: "Juda kuchli reaksiya va qo‘pol so‘zlar bilan ham o‘rgatadi.",
   },
+  scripted: { name: "Suratga olish ssenariysi", description: "Tayyor gaplarni navbat bilan aytadi. Suratga olish uchun." },
 };
 
 /** 모바일 voiceTutor.level.* */

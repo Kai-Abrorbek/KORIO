@@ -16,7 +16,7 @@ export class VoiceTutorSettings {
   @Prop({ default: 'beginner' }) koreanLevel: string;
   @Prop({
     type: String,
-    enum: ['friendly', 'close_friend', 'savage', 'chaotic_savage'],
+    enum: ['friendly', 'close_friend', 'savage', 'chaotic_savage', 'scripted'],
     default: 'friendly',
   })
   personality: TutorPersonality;

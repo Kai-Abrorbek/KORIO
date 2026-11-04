@@ -32,6 +32,7 @@ const PERSONALITY_EMOJI: Record<VoiceTutorPersonality, string> = {
   close_friend: "🤙",
   savage: "🔥",
   chaotic_savage: "💥",
+  scripted: "🎬",
 };
 
 const ADDRESS_EXAMPLE: Record<string, string> = {

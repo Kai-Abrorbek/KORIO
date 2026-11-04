@@ -19,7 +19,9 @@ export type VoiceTutorPersonality =
   | "friendly"
   | "close_friend"
   | "savage"
-  | "chaotic_savage";
+  | "chaotic_savage"
+  /** 촬영용 대본 — 서버가 super_admin 에게만 목록에 넣어 준다 */
+  | "scripted";
 export type VoiceTutorCharacterId = "female_01" | "male_01";
 
 export type VoiceTutorEmotion =

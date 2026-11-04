@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
@@ -17,6 +18,8 @@ import type { UpdateVoiceTutorSettingsDto } from './dto/voice-tutor.dto';
 import type { VoiceTutorAgentTurnDto } from './dto/voice-tutor.dto';
 import { detectTranscriptLanguage } from './language/detect-transcript-language';
 import { voiceTutorGreeting } from './personality/greeting';
+import { SCRIPTED_PERSONALITY } from './personality/voice-tutor-personalities';
+import { FILMING_SCRIPT, filmingScriptReply } from './script/filming-script';
 import { VoiceTutorProfileService } from './memory/voice-tutor-profile.service';
 import { ElevenLabsTutorTtsProvider } from './providers/elevenlabs-tts.provider';
 import { OpenAiSttProvider } from './providers/openai-stt.provider';
@@ -103,8 +106,8 @@ export class VoiceTutorService {
     return this.quota.getQuota(userId);
   }
 
-  options(targetLanguage: TutorTargetLanguage = 'ko') {
-    return this.profile.options(targetLanguage);
+  options(targetLanguage: TutorTargetLanguage = 'ko', allowScripted = false) {
+    return this.profile.options(targetLanguage, allowScripted);
   }
   settings(userId: string, targetLanguage?: TutorTargetLanguage) {
     return this.profile.getSettings(userId, targetLanguage);
@@ -113,7 +116,9 @@ export class VoiceTutorService {
     userId: string,
     patch: UpdateVoiceTutorSettingsDto,
     targetLanguage?: TutorTargetLanguage,
+    allowScripted = false,
   ) {
+    this.assertPersonalityAllowed(patch, allowScripted);
     return this.profile.updateSettings(userId, patch, targetLanguage);
   }
 
@@ -122,12 +127,18 @@ export class VoiceTutorService {
     overrides?: UpdateVoiceTutorSettingsDto,
     topicId?: string,
     targetLanguage: TutorTargetLanguage = 'ko',
+    allowScripted = false,
   ) {
-    const settings =
+    this.assertPersonalityAllowed(overrides, allowScripted);
+    let settings =
       overrides && Object.keys(overrides).length
         ? await this.profile.updateSettings(userId, overrides, targetLanguage)
         : await this.profile.getSettings(userId, targetLanguage);
-    const voice = this.assertVoice(settings);
+    // Saved while the account was super_admin and no longer is: a normal lesson.
+    if (settings.personality === SCRIPTED_PERSONALITY && !allowScripted)
+      settings = { ...settings, personality: 'friendly' };
+    const scripted = settings.personality === SCRIPTED_PERSONALITY;
+    const providerVoiceId = this.providerVoiceId(settings);
     // 가장 비싼 기능 — 한도는 세션 발급 지점에서 막는다 (한국어·영어 튜터가 같이 쓴다)
     const quota = await this.quota.assertCanStart(userId);
     const memory = await this.profile.getMemory(userId, targetLanguage);
@@ -151,13 +162,15 @@ export class VoiceTutorService {
     let opening: TutorReaction;
     try {
       // Generate before creating the timed session, without fabricating a user turn.
-      opening = await this.agents.lesson(
-        settings,
-        plan,
-        memory,
-        [],
-        lessonProgress(0, []),
-      );
+      opening = scripted
+        ? filmingScriptReply(0, settings.explanationLanguage)
+        : await this.agents.lesson(
+            settings,
+            plan,
+            memory,
+            [],
+            lessonProgress(0, []),
+          );
     } catch {
       const text = voiceTutorGreeting(
         settings,
@@ -198,7 +211,7 @@ export class VoiceTutorService {
     try {
       livekit = await this.livekit.prepareRoom(
         sessionId,
-        voice.providerVoiceId,
+        providerVoiceId,
         {
           displayText: initialMessage.displayText ?? initialMessage.text,
           speechText: initialMessage.speechText ?? initialMessage.text,
@@ -282,10 +295,9 @@ export class VoiceTutorService {
         // Temporary MP3 expired; this message remains replayable on demand.
       }
     }
-    const voice = this.assertVoice(session.settings);
     const data = await this.tts.synthesize(
       row.speechText ?? row.text,
-      voice.providerVoiceId,
+      this.providerVoiceId(session.settings),
       {
         displayText: row.displayText ?? row.text,
         speechText: row.speechText ?? row.text,
@@ -501,25 +513,36 @@ export class VoiceTutorService {
             })),
           { role: 'user' as const, text: userMessage.text },
         ];
-        reply =
-          live && onSpeech
-            ? await this.agents.lessonStream(
-                session.settings,
-                session.plan,
-                memory,
-                recent,
-                onSpeech,
-                live.signal,
-                live.onMeta,
-                lessonProgress(turnCount, session.taughtItems ?? []),
-              )
-            : await this.agents.lesson(
-                session.settings,
-                session.plan,
-                memory,
-                recent,
-                lessonProgress(turnCount, session.taughtItems ?? []),
-              );
+        if (session.settings.personality === SCRIPTED_PERSONALITY) {
+          // Filming: the next line of the script, whatever the learner said.
+          reply = filmingScriptReply(
+            turnCount,
+            session.settings.explanationLanguage,
+          );
+          const { emotion, delivery, intensity, gesture } = reply;
+          live?.onMeta?.({ emotion, delivery, intensity, gesture });
+          onSpeech?.(reply.speechText);
+        } else {
+          reply =
+            live && onSpeech
+              ? await this.agents.lessonStream(
+                  session.settings,
+                  session.plan,
+                  memory,
+                  recent,
+                  onSpeech,
+                  live.signal,
+                  live.onMeta,
+                  lessonProgress(turnCount, session.taughtItems ?? []),
+                )
+              : await this.agents.lesson(
+                  session.settings,
+                  session.plan,
+                  memory,
+                  recent,
+                  lessonProgress(turnCount, session.taughtItems ?? []),
+                );
+        }
       } catch (error) {
         if (live?.signal?.aborted) {
           // Cancelled before the learner heard anything (preemptive draft
@@ -606,7 +629,11 @@ export class VoiceTutorService {
       }
       if (synthesizeAudio && !teacherMessage.audioUrl)
         warning ??= 'VOICE_TUTOR_TTS_UNAVAILABLE';
-      if (turnCount % VOICE_TUTOR_PROGRESS_INTERVAL === 0) {
+      // A filming script is not the learner's real Korean: keep it out of memory.
+      if (
+        turnCount % VOICE_TUTOR_PROGRESS_INTERVAL === 0 &&
+        session.settings.personality !== SCRIPTED_PERSONALITY
+      ) {
         this.scheduleProgress(userId, sessionId, turnCount);
       }
       return {
@@ -665,6 +692,26 @@ export class VoiceTutorService {
       };
     }
     try {
+      if (session.settings.personality === SCRIPTED_PERSONALITY) {
+        // Filming take: no progress, plan or lesson credit from a script.
+        await this.sessions.updateOne(
+          { _id: session._id },
+          {
+            $set: {
+              status: 'ended',
+              endedAt: new Date(),
+              processing: false,
+              processingAt: null,
+            },
+          },
+        );
+        return {
+          sessionId,
+          status: 'ended' as const,
+          progress: await this.profile.latestProgress(sessionId),
+          plan: session.plan,
+        };
+      }
       await this.progressTasks.get(sessionId)?.catch(() => undefined);
       if (session.userTurnCount > 0) {
         await this.runProgress(userId, sessionId, session.userTurnCount).catch(
@@ -793,14 +840,14 @@ export class VoiceTutorService {
     turnId?: string,
     synthesizeAudio = true,
   ): Promise<TutorMessage> {
-    const voice = this.assertVoice(settings);
+    const providerVoiceId = this.providerVoiceId(settings);
     let audioId: Types.ObjectId | null = null;
     let audioUrl: string | null = null;
     if (synthesizeAudio) {
       try {
         const data = await this.tts.synthesize(
           reaction.speechText,
-          voice.providerVoiceId,
+          providerVoiceId,
           reaction,
         );
         audioUrl = await this.audio.store(userId, data);
@@ -828,6 +875,21 @@ export class VoiceTutorService {
       audioId,
     });
     return { ...this.presentMessage(row), audioUrl };
+  }
+
+  /** The filming script may pin its own voice; everyone else uses the chosen one. */
+  private providerVoiceId(settings: TutorSettings) {
+    if (settings.personality === SCRIPTED_PERSONALITY && FILMING_SCRIPT.voiceId)
+      return FILMING_SCRIPT.voiceId;
+    return this.assertVoice(settings).providerVoiceId;
+  }
+
+  private assertPersonalityAllowed(
+    patch: UpdateVoiceTutorSettingsDto | undefined,
+    allowScripted: boolean,
+  ) {
+    if (patch?.personality === SCRIPTED_PERSONALITY && !allowScripted)
+      throw new ForbiddenException('VOICE_TUTOR_PERSONALITY_NOT_ALLOWED');
   }
 
   private assertVoice(settings: TutorSettings) {

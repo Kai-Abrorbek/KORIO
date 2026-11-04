@@ -3035,6 +3035,7 @@ export default {
       close_friend: { name: "Yaqin do‘st", description: "Erkin hazillashadi va rost gapiradi." },
       savage: { name: "Keskin do‘st", description: "Xatolar ustidan o‘tkir hazil qiladi va to‘g‘rilaydi." },
       chaotic_savage: { name: "Keskin va jo‘shqin", description: "Juda kuchli reaksiya va qo‘pol so‘zlar bilan ham o‘rgatadi." },
+      scripted: { name: "Suratga olish ssenariysi", description: "Tayyor gaplarni navbat bilan aytadi. Suratga olish uchun." },
     },
     koreanLevel: "Koreys tili darajasi",
     english: {

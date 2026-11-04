@@ -3025,6 +3025,7 @@ export default {
       close_friend: { name: "Close Friend", description: "Relaxed, playful, and honest." },
       savage: { name: "Savage Friend", description: "Sharp jokes about your mistakes, with real corrections." },
       chaotic_savage: { name: "Chaotic Savage", description: "Loud, unpredictable reactions and strong language while teaching." },
+      scripted: { name: "Filming script", description: "Says the prepared lines in order, one per reply. For filming." },
     },
     koreanLevel: "Korean level",
     english: {

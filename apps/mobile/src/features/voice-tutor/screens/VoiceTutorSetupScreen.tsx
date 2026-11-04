@@ -59,6 +59,7 @@ const PERSONALITY_EMOJI: Record<VoiceTutorPersonality, string> = {
   close_friend: "🤙",
   savage: "🔥",
   chaotic_savage: "💥",
+  scripted: "🎬",
 };
 
 export interface VoiceTutorSetupScreenProps {

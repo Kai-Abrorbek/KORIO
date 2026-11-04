@@ -3,7 +3,11 @@ import {
   CHAOTIC_SAVAGE_STYLE_EN,
 } from '../prompts/chaotic-savage.prompt';
 import type { TutorTargetLanguage } from '../voice-tutor.config';
-import type { TutorPersonality } from './voice-tutor-personalities';
+import {
+  SCRIPTED_PERSONALITY,
+  type PublicTutorPersonality,
+  type TutorPersonality,
+} from './voice-tutor-personalities';
 
 /**
  * Characters described by what they do and why, decided by the model each turn.
@@ -12,7 +16,7 @@ import type { TutorPersonality } from './voice-tutor-personalities';
  * swears) came back verbatim as a formula — the same swears in rotation, in the
  * same place, every turn. No numbers or lists here on purpose.
  */
-const KOREAN_RULES: Record<TutorPersonality, string> = {
+const KOREAN_RULES: Record<PublicTutorPersonality, string> = {
   friendly: `SELECTED PERSONALITY: WARM TEACHER WITH A SENSE OF HUMOUR
 Kind, patient and genuinely interested in the learner — but alive, not customer service. Every reaction is about what they just said: you laugh easily, get properly excited about their wins, crack gentle jokes and tease lightly ("또 라면이에요? 오늘 벌써 두 번째 아니에요? 하하"). Real feelings come out: 아이고, 헐, 세상에, 대박, oh no, wow. Your voice moves — a delighted gasp, a laugh, a sympathetic sigh, mock shock — never a flat narrator reading the next exercise. No swearing and no insults; the teasing stays affectionate. A big moment still gets a big reaction.`,
   close_friend: `SELECTED PERSONALITY: CLOSE FRIEND WHO TEACHES
@@ -27,7 +31,7 @@ Same lesson, retry right: "배고파요." → "Look who learned something. So wh
 };
 
 /** Same characters teaching English: their slang, swearing and jokes are English. */
-const ENGLISH_RULES: Record<TutorPersonality, string> = {
+const ENGLISH_RULES: Record<PublicTutorPersonality, string> = {
   friendly: `SELECTED PERSONALITY: WARM TEACHER WITH A SENSE OF HUMOUR
 Kind, patient and genuinely interested in the learner — but alive, not customer service. Every reaction is about what they just said: you laugh easily, get properly excited about their wins, crack gentle jokes and tease lightly ("Noodles again? That's the second time today, haha"). Real feelings come out: oh no, wow, no way, oh my god, aww. Your voice moves — a delighted gasp, a laugh, a sympathetic sigh, mock shock — never a flat narrator reading the next exercise. No swearing and no insults; the teasing stays affectionate. A big moment still gets a big reaction.`,
   close_friend: `SELECTED PERSONALITY: CLOSE FRIEND WHO TEACHES
@@ -43,7 +47,7 @@ Korean teaching language; learner: "I am boring." → "[laughs] 너 지금 '나�
 
 const PERSONALITY_RULES: Record<
   TutorTargetLanguage,
-  Record<TutorPersonality, string>
+  Record<PublicTutorPersonality, string>
 > = {
   ko: KOREAN_RULES,
   en: ENGLISH_RULES,
@@ -65,7 +69,9 @@ export function personalityInstructions(
   targetLanguage: TutorTargetLanguage = 'ko',
 ): string {
   const byPersonality = PERSONALITY_RULES[targetLanguage] ?? KOREAN_RULES;
-  const rules = byPersonality[personality] ?? byPersonality.friendly;
+  // The scripted tutor never reaches the model; friendly is only a safe default.
+  const key = personality === SCRIPTED_PERSONALITY ? 'friendly' : personality;
+  const rules = byPersonality[key] ?? byPersonality.friendly;
   return `${rules}
 ${PERSONALITY_TAIL[targetLanguage] ?? PERSONALITY_TAIL.ko}
 ${format === 'stream' ? STREAM_META_RULES : JSON_OUTPUT_RULES}`;

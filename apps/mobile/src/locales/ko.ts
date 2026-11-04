@@ -3036,6 +3036,7 @@ export default {
       close_friend: { name: "친한 친구", description: "편하고 장난스럽지만 솔직해요." },
       savage: { name: "독설 친구", description: "실수를 날카롭게 놀리면서 정확히 고쳐줘요." },
       chaotic_savage: { name: "카오틱 독설", description: "과격한 반응과 욕설도 섞지만 배울 내용은 놓치지 않아요." },
+      scripted: { name: "촬영 대본", description: "써 둔 대사를 한 줄씩 순서대로 말해요. 촬영용이에요." },
     },
     koreanLevel: "한국어 수준",
     english: {

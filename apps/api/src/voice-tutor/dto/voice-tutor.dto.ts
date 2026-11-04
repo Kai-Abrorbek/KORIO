@@ -15,7 +15,10 @@ import {
   type ExplanationLanguage,
   type TutorTargetLanguage,
 } from '../voice-tutor.config';
-import { VOICE_TUTOR_PERSONALITY_IDS } from '../personality/voice-tutor-personalities';
+import {
+  VOICE_TUTOR_ALL_PERSONALITY_IDS,
+  type TutorPersonality,
+} from '../personality/voice-tutor-personalities';
 import { VOICE_TUTOR_TOPIC_IDS } from '../topics/voice-tutor-topics';
 
 export class UpdateVoiceTutorSettingsDto {
@@ -38,8 +41,9 @@ export class UpdateVoiceTutorSettingsDto {
   koreanLevel?: string;
 
   @IsOptional()
-  @IsIn(VOICE_TUTOR_PERSONALITY_IDS)
-  personality?: 'friendly' | 'close_friend' | 'savage' | 'chaotic_savage';
+  /** 'scripted' passes validation here; the service allows it for super_admin only. */
+  @IsIn(VOICE_TUTOR_ALL_PERSONALITY_IDS)
+  personality?: TutorPersonality;
 
   @IsOptional()
   @IsIn(['female_01', 'male_01'])

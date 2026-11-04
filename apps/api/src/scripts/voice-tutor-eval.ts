@@ -23,7 +23,7 @@ import {
 import type { StudentMemorySnapshot } from '../voice-tutor/memory/voice-tutor-profile.service';
 import {
   VOICE_TUTOR_PERSONALITY_IDS,
-  type TutorPersonality,
+  type PublicTutorPersonality,
 } from '../voice-tutor/personality/voice-tutor-personalities';
 import { stripAudioTags } from '../voice-tutor/personality/speech-performance';
 import { lastTargetPhrase } from '../voice-tutor/agents/lesson-context';
@@ -114,7 +114,7 @@ const PASSES_BALL =
  * bigOnProvoke = 도발 턴의 최소 리액션 강도, calmSwearMax = 평범한 턴에서 욕한 비율 상한
  */
 const TARGETS: Record<
-  TutorPersonality,
+  PublicTutorPersonality,
   { bigOnProvoke: number; calmSwearMax: number }
 > = {
   friendly: { bigOnProvoke: 0.6, calmSwearMax: 0 },
@@ -143,7 +143,7 @@ function args() {
       `수업 언어는 ${VOICE_TUTOR_LANGUAGES.join(' | ')} 중 하나 (받은 값: ${teach})`,
     );
   return {
-    personality: personality as TutorPersonality,
+    personality: personality as PublicTutorPersonality,
     teach: teach as ExplanationLanguage,
     learn: tutorTargetLanguage(learn),
   };

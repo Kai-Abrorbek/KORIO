@@ -1,4 +1,6 @@
 import { Types } from 'mongoose';
+import { canUseScriptedTutor } from './personality/voice-tutor-personalities';
+import { FILMING_SCRIPT, filmingScriptReply } from './script/filming-script';
 import { VoiceTutorService } from './voice-tutor.service';
 import type { TutorReaction, TutorSettings } from './voice-tutor.types';
 
@@ -578,5 +580,141 @@ describe('VoiceTutorService lifecycle', () => {
       progress,
       'ko',
     );
+  });
+});
+
+describe('VoiceTutorService filming script', () => {
+  const originalVoice = process.env.ELEVENLABS_DEFAULT_VOICE_ID;
+  beforeEach(() => {
+    process.env.ELEVENLABS_DEFAULT_VOICE_ID = 'testVoice123';
+  });
+  afterEach(() => {
+    if (originalVoice === undefined)
+      delete process.env.ELEVENLABS_DEFAULT_VOICE_ID;
+    else process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
+  });
+  const scriptedSettings: TutorSettings = {
+    ...settings,
+    voiceId: 'default',
+    personality: 'scripted',
+  };
+
+  function scriptedService() {
+    const session = {
+      _id: new Types.ObjectId(sessionId),
+      userId: new Types.ObjectId(userId),
+      status: 'active',
+      userTurnCount: 0,
+      createdAt: new Date(),
+      settings: scriptedSettings,
+      plan,
+    };
+    const rows: Array<Record<string, unknown>> = [];
+    const sessions = {
+      findById: jest.fn().mockImplementation(() => ({
+        then: (resolve: (value: typeof session) => unknown) =>
+          Promise.resolve(session).then(resolve),
+        select: () => ({
+          lean: () => Promise.resolve({ endRequested: false }),
+        }),
+      })),
+      findOneAndUpdate: jest.fn().mockResolvedValue(session),
+      updateOne: jest
+        .fn()
+        .mockImplementation(
+          (_filter: unknown, update: { $set?: { userTurnCount?: number } }) => {
+            if (update.$set?.userTurnCount !== undefined)
+              session.userTurnCount = update.$set.userTurnCount;
+            return Promise.resolve({});
+          },
+        ),
+    };
+    const messages = {
+      findOne: jest.fn().mockResolvedValue(null),
+      create: jest.fn().mockImplementation((row: Record<string, unknown>) => {
+        const saved = {
+          ...row,
+          _id: new Types.ObjectId(),
+          createdAt: new Date(),
+        };
+        rows.push(saved);
+        return Promise.resolve(saved);
+      }),
+      find: jest.fn().mockReturnValue({
+        sort: () => ({ limit: () => ({ lean: () => Promise.resolve([]) }) }),
+      }),
+    };
+    const profile = {
+      getMemory: jest.fn().mockResolvedValue(memory),
+      latestProgress: jest.fn().mockResolvedValue(null),
+      updateSettings: jest.fn(),
+    };
+    const agents = { lesson: jest.fn(), lessonStream: jest.fn() };
+    const service = new VoiceTutorService(
+      sessions as never,
+      messages as never,
+      profile as never,
+      agents as never,
+      {} as never,
+      { synthesize: jest.fn() } as never,
+      {} as never,
+      { verifyAgentToken: jest.fn() } as never,
+      {} as never,
+    );
+    return { service, agents, profile };
+  }
+
+  it('speaks the script line by line without asking the model', async () => {
+    const { service, agents } = scriptedService();
+    const spoken: string[] = [];
+    const order: string[] = [];
+    for (const [turnId, transcript] of [
+      ['turn-1', 'How do you say eighteen in Korean?'],
+      ['turn-2', '씨발?'],
+    ]) {
+      await service.agentTurnStream(
+        sessionId,
+        'Bearer signed-token',
+        { turnId, transcript },
+        (delta) => {
+          order.push('speech');
+          spoken.push(delta);
+        },
+        undefined,
+        () => order.push('meta'),
+      );
+    }
+    expect(spoken).toEqual([
+      FILMING_SCRIPT.lines[1].speech,
+      FILMING_SCRIPT.lines[2].speech,
+    ]);
+    expect(order).toEqual(['meta', 'speech', 'meta', 'speech']);
+    expect(agents.lesson).not.toHaveBeenCalled();
+    expect(agents.lessonStream).not.toHaveBeenCalled();
+  });
+
+  it('lets only super_admin choose the scripted tutor', () => {
+    const { service, profile } = scriptedService();
+    expect(() =>
+      service.updateSettings(userId, { personality: 'scripted' }, 'ko', false),
+    ).toThrow('VOICE_TUTOR_PERSONALITY_NOT_ALLOWED');
+    expect(profile.updateSettings).not.toHaveBeenCalled();
+    void service.updateSettings(
+      userId,
+      { personality: 'scripted' },
+      'ko',
+      true,
+    );
+    expect(profile.updateSettings).toHaveBeenCalledTimes(1);
+    expect(canUseScriptedTutor({ adminRole: 'super_admin' })).toBe(true);
+    expect(canUseScriptedTutor({ adminRole: 'support' })).toBe(false);
+    expect(canUseScriptedTutor({ adminRole: null })).toBe(false);
+  });
+
+  it('repeats the last line once the script runs out', () => {
+    const last = FILMING_SCRIPT.lines.at(-1)!;
+    const reply = filmingScriptReply(FILMING_SCRIPT.lines.length + 5, 'en');
+    expect(reply.speechText).toBe(last.speech);
+    expect(reply.displayText).not.toMatch(/\[[a-z]/i);
   });
 });
