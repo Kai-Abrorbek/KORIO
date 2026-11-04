@@ -22,32 +22,27 @@ export interface FilmingScriptLine {
 
 export const FILMING_SCRIPT: { voiceId?: string; lines: FilmingScriptLine[] } =
   {
-    voiceId: undefined,
+    // 원본 voice ID는 미상. 사용 허가를 확인한 참고 영상의 튜터 구간으로 만든 ElevenLabs IVC.
+    voiceId: 'XrPtD1684URZ3JtoyTor',
     lines: [
-      // 수업을 열 때
-      {
-        speech: '안녕! 오늘은 뭐가 궁금해? Ask me anything!',
-        emotion: 'happy',
-      },
-      // 학습자: "How do you say eighteen in Korean?"
-      {
-        speech: '[thinking] Hmm... eighteen? 십팔. 십-팔. Now you try!',
-        emotion: 'explaining',
-        gesture: 'hand_raise_1',
-      },
-      // 학습자: (틀리게) "씨발?"
+      // 참고: https://www.instagram.com/reel/Dd_4_eGp5n4/
+      // 학습자(먼저 촬영): "How do you say eighteen in Korean? Um... 씨발?" (00:00–00:07)
+      // 수업을 열면 첫 튜터 반응부터 나온다. 원본에 없는 인사나 설명은 넣지 않는다.
+      // 튜터: 웃음 → 놀라서 되묻기 → 웃음 섞인 호통 (약 00:09–00:21)
       {
         speech:
-          '[gasps] [laughs hard] 잠깐, 잠깐!!! 뭐라고 했어?! Did you just swear at me?! [shouts] 그건 욕이야!!! Eighteen is 십팔, not 씨발! 십! 팔! Again!',
+          "[laughs hard] 뭐?! 뭐라고?! [laughs] [shouts] Are you crazy?! 나한테 욕했어?! It's 십팔, not 씨발! Don't you ever make that mistake again! 말해 봐!!!",
         emotion: 'shocked',
+        delivery: 'shout',
         intensity: 1,
         gesture: 'both_explain_1',
       },
-      // 학습자: "십팔?"
+      // 학습자: "Sounds the same. 십팔?" (약 00:22–00:26)
+      // 튜터: 웃음 → 안도하며 확인 → 웃음 (약 00:27–00:35)
       {
-        speech:
-          '[sighs] 그래!!! 드디어!!! That is eighteen. [laughs] And please, never say the other one to a Korean grandma.',
+        speech: '[laughs] 그래, 드디어 맞았어... 아까 깜짝 놀랐어... [laughs]',
         emotion: 'laughing',
+        delivery: 'laugh',
         intensity: 0.8,
         gesture: 'hand_raise_2',
       },

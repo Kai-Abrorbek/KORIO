@@ -666,13 +666,13 @@ describe('VoiceTutorService filming script', () => {
     return { service, agents, profile };
   }
 
-  it('speaks the script line by line without asking the model', async () => {
+  it('speaks the reference reply and repeats its final line without asking the model', async () => {
     const { service, agents } = scriptedService();
     const spoken: string[] = [];
     const order: string[] = [];
     for (const [turnId, transcript] of [
-      ['turn-1', 'How do you say eighteen in Korean?'],
-      ['turn-2', '씨발?'],
+      ['turn-1', 'Sounds the same. 십팔?'],
+      ['turn-2', '십팔!'],
     ]) {
       await service.agentTurnStream(
         sessionId,
@@ -688,7 +688,7 @@ describe('VoiceTutorService filming script', () => {
     }
     expect(spoken).toEqual([
       FILMING_SCRIPT.lines[1].speech,
-      FILMING_SCRIPT.lines[2].speech,
+      FILMING_SCRIPT.lines[1].speech,
     ]);
     expect(order).toEqual(['meta', 'speech', 'meta', 'speech']);
     expect(agents.lesson).not.toHaveBeenCalled();
