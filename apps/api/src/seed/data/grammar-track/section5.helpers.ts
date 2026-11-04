@@ -3,6 +3,7 @@ import type {
   Section5GrammarDefinition,
   Section5GrammarExample,
   Section5LocalizedText,
+  Section5UnitDefinition,
 } from '../grammar/section5.types';
 import type {
   Section5BuildPractice,
@@ -440,9 +441,11 @@ function assertTrackDefinition(
       );
     }
     buildSentences.add(build.ko);
-    if (/\s/u.test(build.target)) {
+    if (
+      [build.target, ...build.distractors].some((token) => /\s/u.test(token))
+    ) {
       throw new Error(
-        `${grammar.code}: build target must stay inside one token`,
+        `${grammar.code}: build target choices must each stay inside one token`,
       );
     }
     if (new Set([build.target, ...build.distractors]).size !== 3) {
@@ -451,10 +454,18 @@ function assertTrackDefinition(
   }
 }
 
-export function buildSection5GrammarTrack(
-  definitions: readonly Section5GrammarTrackDefinition[],
-) {
-  const grammarDefinitions = SECTION5_UNITS.flatMap((unit) =>
+export function buildKoreanGrammarTrack({
+  section,
+  level,
+  units,
+  definitions,
+}: {
+  section: 5 | 6;
+  level: '5' | '6';
+  units: readonly Section5UnitDefinition[];
+  definitions: readonly Section5GrammarTrackDefinition[];
+}) {
+  const grammarDefinitions = units.flatMap((unit) =>
     unit.grammars.map((grammar, grammarIndex) => ({
       grammar,
       grammarIndex,
@@ -465,32 +476,34 @@ export function buildSection5GrammarTrack(
     definitions.map((definition) => [definition.grammarCode, definition]),
   );
   if (trackByCode.size !== definitions.length) {
-    throw new Error('section 5 grammar track contains duplicate grammar codes');
+    throw new Error(
+      `section ${section} grammar track contains duplicate grammar codes`,
+    );
   }
   if (definitions.length !== grammarDefinitions.length) {
     throw new Error(
-      `section 5 grammar track has ${definitions.length} definitions; expected ${grammarDefinitions.length}`,
+      `section ${section} grammar track has ${definitions.length} definitions; expected ${grammarDefinitions.length}`,
     );
   }
 
   const questions: Record<string, Section5TrackQuestion> = {};
   const nodes: Section5TrackNode[] = [];
 
-  for (const unit of SECTION5_UNITS) {
+  for (const unit of units) {
     const lessons: Section5TrackLesson[] = [];
     unit.grammars.forEach((grammar, grammarIndex) => {
       const track = trackByCode.get(grammar.code);
       if (!track) throw new Error(`${grammar.code}: missing track definition`);
       assertTrackDefinition(grammar, track);
       const corpus = buildTokenCorpus(track.builds);
-      const prefix = `gp_s5_u${unit.unit}_g${grammarIndex + 1}`;
+      const prefix = `gp_s${section}_u${unit.unit}_g${grammarIndex + 1}`;
 
       grammar.examples.forEach((example, blankIndex) => {
         const prepared = prepareBlank(example, blankIndex);
         const code = `${prefix}_${String(blankIndex + 1).padStart(2, '0')}`;
         questions[code] = {
           type: 'grammar_blank',
-          level: '5',
+          level,
           lessonCategory: 'grammar',
           instruction: BLANK_INSTRUCTION[prepared.focus.kind],
           sentencePrefix: prepared.sentencePrefix,
@@ -518,7 +531,7 @@ export function buildSection5GrammarTrack(
         const code = `${prefix}_${String(buildIndex + 11).padStart(2, '0')}`;
         questions[code] = {
           type: 'grammar_build',
-          level: '5',
+          level,
           lessonCategory: 'grammar',
           instruction: BUILD_INSTRUCTION,
           answer: build.ko,
@@ -535,7 +548,7 @@ export function buildSection5GrammarTrack(
         title: grammar.title,
         description: grammar.summary,
         category: 'grammar',
-        level: '5',
+        level,
         order: grammarIndex + 1,
         grammarCode: grammar.code,
         questions: mixedQuestionCodes(prefix, unit.unit * 5 + grammarIndex),
@@ -543,10 +556,10 @@ export function buildSection5GrammarTrack(
     });
 
     nodes.push({
-      code: `gt_s5_u${unit.unit}_o1`,
+      code: `gt_s${section}_u${unit.unit}_o1`,
       title: unit.title,
       description: nodeDescription(unit.title),
-      section: 5,
+      section,
       unit: unit.unit,
       order: unit.unit,
       category: 'grammar',
@@ -560,9 +573,20 @@ export function buildSection5GrammarTrack(
   );
   if (unknownCodes.length) {
     throw new Error(
-      `unknown section 5 grammar codes: ${unknownCodes.join(', ')}`,
+      `unknown section ${section} grammar codes: ${unknownCodes.join(', ')}`,
     );
   }
 
   return { nodes, questions };
+}
+
+export function buildSection5GrammarTrack(
+  definitions: readonly Section5GrammarTrackDefinition[],
+) {
+  return buildKoreanGrammarTrack({
+    section: 5,
+    level: '5',
+    units: SECTION5_UNITS,
+    definitions,
+  });
 }

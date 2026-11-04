@@ -205,8 +205,8 @@ for (const node of nodes) {
   }
   for (const lesson of node.lessons ?? []) {
     const grammarCode = lesson.grammarCode;
-    const isKoreanSection5 =
-      scope.targetLanguage === DEFAULT_TARGET_LANGUAGE && node.section === 5;
+    const usesExpandedKoreanPracticeRules =
+      scope.targetLanguage === DEFAULT_TARGET_LANGUAGE && node.section >= 5;
     trackedGrammarCodes.add(grammarCode);
     let grammarFocusBlanks = 0;
     let contextFocusBlanks = 0;
@@ -380,7 +380,7 @@ for (const node of nodes) {
         );
       }
     }
-    if (isKoreanSection5) {
+    if (usesExpandedKoreanPracticeRules) {
       const counts = countsByGrammar.get(grammarCode) ?? { blank: 0, build: 0 };
       if (counts.blank !== 10 || counts.build !== 10) {
         fail(

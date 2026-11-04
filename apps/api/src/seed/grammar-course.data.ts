@@ -54,6 +54,7 @@ import { GT_S2_NODES, GT_S2_QUESTIONS } from './data/grammar-track/section2';
 import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
 import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { GT_S5_NODES, GT_S5_QUESTIONS } from './data/grammar-track/section5';
+import { GT_S6_NODES, GT_S6_QUESTIONS } from './data/grammar-track/section6';
 
 const KOREAN_TRACK = {
   nodes: [
@@ -62,6 +63,7 @@ const KOREAN_TRACK = {
     ...GT_S3_NODES,
     ...GT_S4_NODES,
     ...GT_S5_NODES,
+    ...GT_S6_NODES,
   ],
   questions: {
     ...GT_S1_QUESTIONS,
@@ -69,6 +71,7 @@ const KOREAN_TRACK = {
     ...GT_S3_QUESTIONS,
     ...GT_S4_QUESTIONS,
     ...GT_S5_QUESTIONS,
+    ...GT_S6_QUESTIONS,
   },
 };
 

@@ -3,6 +3,7 @@ import { GRAMMAR_SEED_S2 } from './section2';
 import { GRAMMAR_SEED_S3 } from './section3';
 import { GRAMMAR_SEED_S4 } from './section4';
 import { GRAMMAR_SEED_S5 } from './section5';
+import { GRAMMAR_SEED_S6 } from './section6';
 
 export const GRAMMAR_SEED: any[] = [
   ...GRAMMAR_SEED_S1,
@@ -10,4 +11,5 @@ export const GRAMMAR_SEED: any[] = [
   ...GRAMMAR_SEED_S3,
   ...GRAMMAR_SEED_S4,
   ...GRAMMAR_SEED_S5,
+  ...GRAMMAR_SEED_S6,
 ];

@@ -21,7 +21,7 @@ export interface Section5BuildRow {
 }
 
 interface Section5TrackQuestionBase {
-  level: '5';
+  level: '5' | '6';
   lessonCategory: 'grammar';
   instruction: Section5LocalizedText;
   answer: string;
@@ -53,7 +53,7 @@ export interface Section5TrackLesson {
   title: Section5LocalizedText;
   description: Section5LocalizedText;
   category: 'grammar';
-  level: '5';
+  level: '5' | '6';
   order: number;
   grammarCode: string;
   questions: string[];
@@ -63,7 +63,7 @@ export interface Section5TrackNode {
   code: string;
   title: Section5LocalizedText;
   description: Section5LocalizedText;
-  section: 5;
+  section: 5 | 6;
   unit: number;
   order: number;
   category: 'grammar';

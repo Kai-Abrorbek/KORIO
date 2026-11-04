@@ -12,10 +12,11 @@ const INTERMEDIATE_TAG: Section5LocalizedText = {
 };
 
 function assertDefinition(
+  section: number,
   unit: Section5UnitDefinition,
   grammar: Section5GrammarDefinition,
 ) {
-  const label = `section 5 unit ${unit.unit} grammar ${grammar.code}`;
+  const label = `section ${section} unit ${unit.unit} grammar ${grammar.code}`;
 
   if (grammar.examples.length !== 10) {
     throw new Error(`${label}: examples must contain exactly 10 items`);
@@ -76,18 +77,19 @@ function quizOptions(
   return orderedChoices.map((text) => ({ text, correct: text === answer }));
 }
 
-export function buildSection5GrammarSeed(
+export function buildKoreanGrammarSeed(
+  section: number,
   units: readonly Section5UnitDefinition[],
 ) {
   return units.flatMap((unit) =>
     unit.grammars.map((grammar, grammarIndex) => {
-      assertDefinition(unit, grammar);
+      assertDefinition(section, unit, grammar);
 
       return {
         code: grammar.code,
         pattern: grammar.pattern,
         sourceUnit: unit.unit,
-        section: 5,
+        section,
         unit: unit.unit,
         order: grammarIndex + 1,
         isActive: true,
@@ -123,4 +125,10 @@ export function buildSection5GrammarSeed(
       };
     }),
   );
+}
+
+export function buildSection5GrammarSeed(
+  units: readonly Section5UnitDefinition[],
+) {
+  return buildKoreanGrammarSeed(5, units);
 }
