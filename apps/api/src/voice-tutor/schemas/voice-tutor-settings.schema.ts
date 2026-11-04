@@ -19,7 +19,8 @@ export class VoiceTutorSettings {
     enum: ['friendly', 'close_friend', 'savage', 'chaotic_savage', 'scripted'],
     default: 'friendly',
   })
-  personality: TutorPersonality;
+  // Keep the stored legacy value readable; settings resolve it to friendly.
+  personality: TutorPersonality | 'scripted';
   @Prop({ type: String, enum: ['female_01', 'male_01'], default: 'female_01' })
   characterId: 'female_01' | 'male_01';
   /**

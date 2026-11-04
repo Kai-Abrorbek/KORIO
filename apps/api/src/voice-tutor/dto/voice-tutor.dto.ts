@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsIn,
   IsNotEmpty,
@@ -16,7 +16,7 @@ import {
   type TutorTargetLanguage,
 } from '../voice-tutor.config';
 import {
-  VOICE_TUTOR_ALL_PERSONALITY_IDS,
+  VOICE_TUTOR_PERSONALITY_IDS,
   type TutorPersonality,
 } from '../personality/voice-tutor-personalities';
 import { VOICE_TUTOR_TOPIC_IDS } from '../topics/voice-tutor-topics';
@@ -41,8 +41,11 @@ export class UpdateVoiceTutorSettingsDto {
   koreanLevel?: string;
 
   @IsOptional()
-  /** 'scripted' passes validation here; the service allows it for super_admin only. */
-  @IsIn(VOICE_TUTOR_ALL_PERSONALITY_IDS)
+  // Older installed clients can still submit the retired selection.
+  @Transform(({ value }: { value: unknown }) =>
+    value === 'scripted' ? 'friendly' : value,
+  )
+  @IsIn(VOICE_TUTOR_PERSONALITY_IDS)
   personality?: TutorPersonality;
 
   @IsOptional()

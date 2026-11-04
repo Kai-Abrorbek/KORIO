@@ -45,6 +45,7 @@ import SwipeSlides, {
 import { useSwipeTabs } from "@/components/common/useSwipeTabs";
 import { englishPronunciationCopy } from "@/constants/pronunciation-curriculum";
 import { ENGLISH_CATEGORY_CARDS } from "@/constants/learnCourses";
+import { useGrokPromoAccess } from "@/features/grok-promo-tutor/useGrokPromoAccess";
 
 /** 세그먼트 순서 = 옆으로 넘기는 순서 */
 const STUDY_MODES: StudyMode[] = ["guided", "free"];
@@ -235,6 +236,10 @@ function makeGo(
   language: string,
 ): () => void {
   return () => {
+    if (c.category === "grokPromo") {
+      router.push("/grok-promo-tutor");
+      return;
+    }
     if (c.category === "hangul") {
       // 영어 코스의 글자 학습은 그 코스의 학습 모드다 — 홈 "이어서 학습하기" 가 여기로 온다.
       // 한국어 한글은 아직 단발 바로가기라 모드로 저장하지 않는다
@@ -411,6 +416,7 @@ export default function CourseCategories() {
   const s = getStyles(theme);
   const [topikModalVisible, setTopikModalVisible] = useState(false);
   const { canUse, requirePremium } = useFeatureAccess();
+  const grokPromoAccess = useGrokPromoAccess();
   const studyMode = useSettingsStore((st) => st.studyMode);
   const modeIndex = Math.max(0, STUDY_MODES.indexOf(studyMode));
   // 아래 내용을 옆으로 밀어도 학습 방식이 바뀐다 (세그먼트를 누른 것과 같다)
@@ -494,6 +500,19 @@ export default function CourseCategories() {
             language={language}
           />
         ))}
+        {!!grokPromoAccess.options && (
+          <CategoryCard
+            c={{ key: "grokPromo", category: "grokPromo", icon: "videocam", color: theme.primary, guided: true, feature: "tutor" }}
+            index={0}
+            s={s}
+            label={t("grokPromoTutor.title")}
+            desc={t("grokPromoTutor.cardDescription")}
+            onTopikPress={() => undefined}
+            requirePremium={(_feature, onAllowed) => { onAllowed(); return true; }}
+            locked={false}
+            language={language}
+          />
+        )}
       </View>
     </View>
   );

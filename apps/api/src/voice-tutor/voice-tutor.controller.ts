@@ -27,7 +27,6 @@ import {
   UpdateVoiceTutorSettingsDto,
   VoiceTutorAgentTurnDto,
 } from './dto/voice-tutor.dto';
-import { canUseScriptedTutor } from './personality/voice-tutor-personalities';
 import { supportedAudioMime } from './providers/openai-stt.provider';
 import {
   VOICE_TUTOR_MAX_AUDIO_BYTES,
@@ -57,14 +56,8 @@ export class VoiceTutorController {
 
   /** targetLanguage only picks the language of each voice's preview clip. */
   @Get('options')
-  options(
-    @Request() request: { user: { adminRole?: string | null } },
-    @Query('targetLanguage') targetLanguage?: string,
-  ) {
-    return this.tutor.options(
-      tutorTargetLanguage(targetLanguage),
-      canUseScriptedTutor(request.user),
-    );
+  options(@Query('targetLanguage') targetLanguage?: string) {
+    return this.tutor.options(tutorTargetLanguage(targetLanguage));
   }
 
   /** 오늘·이번 달 남은 시간. 설정 화면이 시작 전에 보여 준다 */
@@ -105,7 +98,7 @@ export class VoiceTutorController {
   updateSettings(
     @Request()
     request: {
-      user: { _id: { toString(): string }; adminRole?: string | null };
+      user: { _id: { toString(): string } };
     },
     @Body() dto: UpdateVoiceTutorSettingsDto,
     @Query('targetLanguage') targetLanguage?: string,
@@ -114,7 +107,6 @@ export class VoiceTutorController {
       request.user._id.toString(),
       dto,
       tutorTargetLanguage(targetLanguage),
-      canUseScriptedTutor(request.user),
     );
   }
 
@@ -123,7 +115,7 @@ export class VoiceTutorController {
   start(
     @Request()
     request: {
-      user: { _id: { toString(): string }; adminRole?: string | null };
+      user: { _id: { toString(): string } };
     },
     @Body() dto?: CreateVoiceTutorSessionDto,
   ) {
@@ -132,7 +124,6 @@ export class VoiceTutorController {
       dto?.settings,
       dto?.topicId,
       dto?.targetLanguage,
-      canUseScriptedTutor(request.user),
     );
   }
 

@@ -67,3 +67,11 @@ export async function activateUiSoundAudio() {
 
 /** Drain pending Expo configuration before a different audio library takes ownership. */
 export const waitForAudioSessionIdle = () => audioSessionQueue;
+
+/**
+ * Reserve teardown already in flight before another screen takes audio ownership.
+ * Register only after that operation has taken its initial queue snapshot.
+ */
+export function holdAudioSessionUntil(teardown: Promise<void>) {
+  audioSessionQueue = Promise.allSettled([audioSessionQueue, teardown]).then(() => undefined);
+}

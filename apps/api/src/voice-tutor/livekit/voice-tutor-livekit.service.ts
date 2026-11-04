@@ -34,8 +34,6 @@ export interface VoiceTutorDispatchMetadata {
   sttKeywords?: string[];
   /** 배우는 언어. 영어 튜터만 보낸다 — 없으면 한국어 (옛 워커도 한국어 수업은 그대로 받는다) */
   targetLanguage?: 'en';
-  /** 촬영 대본 수업만 보낸다 — 워커가 웃음·고함 연기를 하는 v3 로 말한다 */
-  ttsModel?: 'eleven_v3';
 }
 
 export interface VoiceTutorLiveKitGrant {
@@ -56,7 +54,6 @@ export class VoiceTutorLiveKitService {
     sttKeywords: string[] = [],
     maxDurationSec: number = VOICE_TUTOR_MAX_DURATION_SEC,
     targetLanguage: TutorTargetLanguage = 'ko',
-    ttsModel?: 'eleven_v3',
   ): Promise<VoiceTutorLiveKitGrant> {
     const env = liveKitEnv();
     if (!env.url || !env.apiKey || !env.apiSecret) {
@@ -82,7 +79,6 @@ export class VoiceTutorLiveKitService {
       ...(explanationLanguage ? { explanationLanguage } : {}),
       ...(sttKeywords.length ? { sttKeywords } : {}),
       ...(targetLanguage === 'en' ? { targetLanguage } : {}),
-      ...(ttsModel ? { ttsModel } : {}),
     };
     try {
       const dispatch = new AgentDispatchClient(

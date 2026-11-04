@@ -4,8 +4,8 @@ import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import type { UpdateVoiceTutorSettingsDto } from '../dto/voice-tutor.dto';
 import {
-  VOICE_TUTOR_ALL_PERSONALITY_IDS,
   VOICE_TUTOR_PERSONALITY_IDS,
+  resolveTutorPersonality,
 } from '../personality/voice-tutor-personalities';
 import {
   VoiceTutorMemory,
@@ -82,7 +82,7 @@ export class VoiceTutorProfileService {
     private readonly progress: Model<VoiceTutorProgressDocument>,
   ) {}
 
-  options(targetLanguage: TutorTargetLanguage = 'ko', allowScripted = false) {
+  options(targetLanguage: TutorTargetLanguage = 'ko') {
     const voices = voiceTutorVoices();
     return {
       voices: voices.map((voice) => ({
@@ -104,9 +104,7 @@ export class VoiceTutorProfileService {
         enabled: tutorLanguageEnabled(id),
       })),
       speechStyles: [...VOICE_TUTOR_STYLES],
-      personalities: allowScripted
-        ? [...VOICE_TUTOR_ALL_PERSONALITY_IDS]
-        : [...VOICE_TUTOR_PERSONALITY_IDS],
+      personalities: [...VOICE_TUTOR_PERSONALITY_IDS],
       characters: [
         { id: 'female_01', name: 'Female Tutor', enabled: true },
         { id: 'male_01', name: 'Male Tutor', enabled: true },
@@ -152,11 +150,7 @@ export class VoiceTutorProfileService {
           : (voices[0]?.id ?? ''),
         speechStyle: stored.speechStyle,
         ...learning,
-        personality: VOICE_TUTOR_ALL_PERSONALITY_IDS.includes(
-          stored.personality,
-        )
-          ? stored.personality
-          : 'friendly',
+        personality: resolveTutorPersonality(stored.personality),
         characterId: stored.characterId === 'male_01' ? 'male_01' : 'female_01',
         targetLanguage,
       };
@@ -220,6 +214,7 @@ export class VoiceTutorProfileService {
       ...patch,
       targetLanguage,
     };
+    merged.personality = resolveTutorPersonality(merged.personality);
     const { explanationLanguage, koreanLevel, ...shared } = merged;
     delete shared.targetLanguage;
     const update =

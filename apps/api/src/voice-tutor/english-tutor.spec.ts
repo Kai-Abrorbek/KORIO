@@ -6,7 +6,11 @@ jest.mock('@nestjs/mongoose', () => ({
   InjectModel: () => () => undefined,
 }));
 
+import 'reflect-metadata';
 import { Types } from 'mongoose';
+import { plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
+import { UpdateVoiceTutorSettingsDto } from './dto/voice-tutor.dto';
 import { VoiceTutorProfileService } from './memory/voice-tutor-profile.service';
 import {
   lessonAgentInstructions,
@@ -203,6 +207,48 @@ describe('English tutor storage', () => {
     expect(update.$set).not.toHaveProperty('koreanLevel');
     expect(update.$set).not.toHaveProperty('targetLanguage');
   });
+
+  it('offers only ordinary personalities and accepts an older client selection as friendly', () => {
+    const { service } = setup({});
+    expect(service.options().personalities).toEqual([
+      'friendly',
+      'close_friend',
+      'savage',
+      'chaotic_savage',
+    ]);
+    const dto = plainToInstance(UpdateVoiceTutorSettingsDto, {
+      personality: 'scripted',
+    });
+    expect(validateSync(dto)).toEqual([]);
+    expect(dto.personality).toBe('friendly');
+    expect(
+      validateSync(
+        plainToInstance(UpdateVoiceTutorSettingsDto, {
+          personality: 'unknown',
+        }),
+      ),
+    ).not.toEqual([]);
+  });
+
+  it.each(['ko', 'en'] as const)(
+    'reads retired %s tutor settings as friendly without migrating stored data',
+    async (targetLanguage) => {
+      const stored = {
+        voiceId: 'missing-voice',
+        speechStyle: 'casual',
+        explanationLanguage: 'en',
+        koreanLevel: 'beginner',
+        personality: 'scripted',
+        characterId: 'female_01',
+      };
+      const { service, models } = setup({ settings: stored });
+      expect(
+        (await service.getSettings(userId, targetLanguage)).personality,
+      ).toBe('friendly');
+      expect(stored.personality).toBe('scripted');
+      expect(models.settings.findOneAndUpdate).not.toHaveBeenCalled();
+    },
+  );
 
   it('reads and writes English memory under courses.en, leaving Korean memory alone', async () => {
     const { models, service } = setup({

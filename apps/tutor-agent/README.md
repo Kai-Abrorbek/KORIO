@@ -3,6 +3,11 @@
 AI 음성 튜터의 음성 구간을 담당하는 long-running LiveKit worker (`src/voice-tutor-agent.ts`).
 (옛 Gemini Live 튜터 worker `src/agent.ts` 는 2026-09-30 에 뺐다 — 앱·텔레그램 미니앱 모두 이 튜터를 쓴다.)
 
+관리자 촬영용 `src/grok-promo-agent.ts` 는 별도 worker 다. 일반 수업의 STT·GPT·TTS
+설정을 바꾸지 않고, Grok native speech-to-speech 한 연결로 듣기·대화·목소리를 처리한다.
+고정 대본이나 미리 만든 음성은 없다. API 가 보내는 성격 지침에 따라 첫 질문부터 생성한다.
+운영 설정·기동은 [배포 가이드](../../deploy/README.md#관리자-촬영용-grok-튜터)를 참고한다.
+
 ```
 KORIO 앱 / 텔레그램 미니앱
       │  WebRTC (마이크 ↑ / 선생님 목소리 ↓)
@@ -16,7 +21,7 @@ KORIO 앱 / 텔레그램 미니앱
    선생님 목소리
 ```
 
-## 이 앱이 하지 않는 일
+## 일반 Voice Tutor worker 가 하지 않는 일
 
 - **DB 를 안 본다.** 수업 판단·기억·저장은 전부 API(`/voice-tutor/agent/...`)가 한다.
 - **프롬프트를 안 만든다.** 턴마다 API 에 받아쓴 말을 보내고, API 가 스트리밍으로 돌려준 말을 읽는다.
@@ -47,6 +52,22 @@ pnpm --filter tutor-agent build
 pnpm --filter tutor-agent start   # Docker 가 이걸 돌린다
 pnpm --filter tutor-agent test    # 메타데이터·말소리 단위 테스트
 ```
+
+촬영용 worker 만 개발하려면 같은 LiveKit 프로젝트와 `XAI_API_KEY` 를 `.env` 에 설정한 뒤
+`pnpm --filter tutor-agent grok-promo:dev` 를 실행한다. 빌드 후 실행은
+`pnpm --filter tutor-agent grok-promo:start`, 전용 검증은 `pnpm --filter tutor-agent grok-promo:test`.
+같은 `GROK_PROMO_LIVEKIT_AGENT_NAME` 으로 로컬과 서버 worker 를 동시에 띄우지 않는다.
+
+촬영용 dispatch 는 `grok-promo-metadata.ts` 에서 HMAC·만료 시간·전용 방/참가자를
+검증한다. 개인 정보가 들어 있는 전체 metadata 는 로그로 출력하지 않는다.
+한 세션은 서버·worker 모두 최대 10분이며, 소유자가 나가거나 공급자 연결이 실패하면
+Grok 연결과 방을 닫는다. 대화와 음성은 일반 튜터의 학습 기록·설정에 저장하지 않는다.
+끼어들기는 xAI VAD 취소와 RTC 출력 큐 비우기를 함께 하고, 듣지 못한 음성은 서버
+대화 기록에서도 truncate/delete 한다. 자막은 실제 화자 identity 로 `lk.transcription` 에 전달한다.
+
+프로토콜 근거: [xAI Speech to Speech](https://docs.x.ai/developers/model-capabilities/audio/speech-to-speech),
+[xAI Ephemeral Tokens](https://docs.x.ai/developers/model-capabilities/audio/ephemeral-tokens).
+Node 22의 기본 WebSocket 과 짧은 수명의 토큰을 사용하므로 새 운영 의존성은 없다.
 
 `dev` / `start` 는 LiveKit Agents CLI 의 서브커맨드다. worker 가 LiveKit 에 붙어서
 대기하다가, API 가 `createDispatch(room, 'korio-voice-tutor')` 를 부르면 그 방으로 들어간다.

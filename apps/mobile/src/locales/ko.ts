@@ -4,6 +4,26 @@ import { wordLibrary } from "../../../../shared/word-library.i18n";
 import { wordStudyFinish, wordRecallPersistence } from "../../../../shared/word-study.i18n";
 
 export default {
+  grokPromoTutor: {
+    title: "Grok 촬영 튜터",
+    cardDescription: "관리자 전용 · 대본 없는 즉흥 대화",
+    description: "장난과 리액션이 살아 있는 나만의 한국어 튜터와 홍보 영상을 찍어 보세요.",
+    adminOnly: "관리자 전용 촬영 공간",
+    spontaneous: "대본 없이, 내 말을 듣고 즉흥적으로 대화해요.",
+    limit: "한 번에 최대 {{min}}분",
+    start: "촬영 대화 시작",
+    again: "새 대화 시작",
+    finished: "대화가 끝났어요",
+    loading: "접근 권한을 확인하고 있어요.",
+    forbidden: "관리자 전용 튜터입니다.",
+    loadError: "튜터 정보를 불러오지 못했어요. 다시 시도해 주세요.",
+    notConfigured: "아직 촬영 튜터가 준비되지 않았어요. 서버 설정을 완료한 뒤 다시 열어 주세요.",
+    connectionError: "음성 연결이 원활하지 않아요. 새 대화를 시작해 주세요.",
+    connecting: "음성 연결 중…",
+    stopping: "음성 연결 정리 중…",
+    cancel: "연결 취소",
+    close: "닫기",
+  },
   wordLibrary: wordLibrary.ko,
   alphabet: alphabet.ko,
   topik,
@@ -3036,7 +3056,6 @@ export default {
       close_friend: { name: "친한 친구", description: "편하고 장난스럽지만 솔직해요." },
       savage: { name: "독설 친구", description: "실수를 날카롭게 놀리면서 정확히 고쳐줘요." },
       chaotic_savage: { name: "카오틱 독설", description: "과격한 반응과 욕설도 섞지만 배울 내용은 놓치지 않아요." },
-      scripted: { name: "촬영 대본", description: "써 둔 대사를 한 줄씩 순서대로 말해요. 촬영용이에요." },
     },
     koreanLevel: "한국어 수준",
     english: {

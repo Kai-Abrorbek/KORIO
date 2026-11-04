@@ -55,6 +55,7 @@ deploy/.env
 deploy/api.env
 # 🔴 GOOGLE_API_KEY / LIVEKIT_API_SECRET 가 들어간다
 deploy/agent.env
+deploy/grok-promo-agent.env
 # 서비스 계정 키 (푸시 발송 권한 — 절대 커밋 금지)
 *firebase-adminsdk*.json
 *-serviceaccount*.json

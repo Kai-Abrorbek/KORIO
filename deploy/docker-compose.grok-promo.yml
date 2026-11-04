@@ -1,0 +1,33 @@
+# Explicit opt-in extension; ordinary ./deploy.sh never starts this worker.
+# docker compose -f docker-compose.yml -f docker-compose.grok-promo.yml \
+#   --env-file .env --profile grok-promo up -d --no-deps grok_promo_agent
+services:
+  grok_promo_agent:
+    image: ${AGENT_IMAGE:-korio-tutor-agent}:${TAG:-latest}
+    container_name: korio_grok_promo_agent
+    profiles: [grok-promo]
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+    env_file:
+      - ./grok-promo-agent.env
+    environment:
+      NODE_ENV: production
+    command: ["node", "dist/grok-promo-agent.js", "start"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:8081/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+    stop_grace_period: 30s
+    networks: [korio_net]

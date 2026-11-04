@@ -122,10 +122,13 @@ export function useVoiceTutor(target: VoiceTutorTarget = "ko") {
       void VoiceTutorApi.quota()
         .then((q) => { if (mounted.current) setQuota(q); })
         .catch(() => undefined);
+      const personality = saved.personality ?? available.defaults.personality ?? "friendly";
       setSettings({
         ...available.defaults,
         ...saved,
-        personality: saved.personality ?? available.defaults.personality ?? "friendly",
+        personality: ["friendly", "close_friend", "savage", "chaotic_savage"].includes(personality)
+          ? personality
+          : "friendly",
         characterId: saved.characterId ?? available.defaults.characterId ?? "female_01",
       });
     } catch (cause) {

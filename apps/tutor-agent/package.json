@@ -9,7 +9,10 @@
     "check-types": "tsc --noEmit -p tsconfig.json",
     "dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "start": "node dist/voice-tutor-agent.js start",
-    "test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts",
+    "test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts src/grok-promo-metadata.test.ts src/grok-promo-protocol.test.ts",
+    "grok-promo:dev": "tsx --env-file-if-exists=.env src/grok-promo-agent.ts dev",
+    "grok-promo:start": "node dist/grok-promo-agent.js start",
+    "grok-promo:test": "tsx --test src/grok-promo-metadata.test.ts src/grok-promo-protocol.test.ts",
     "voice-tutor:dev": "tsx --env-file-if-exists=.env src/voice-tutor-agent.ts dev",
     "voice-tutor:start": "node dist/voice-tutor-agent.js start",
     "voice-tutor:test": "tsx --test src/voice-tutor-metadata.test.ts src/voice-tutor-speech.test.ts src/voice-tutor-stt.test.ts src/voice-tutor-provider.test.ts"

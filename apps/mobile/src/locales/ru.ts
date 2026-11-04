@@ -4,6 +4,26 @@ import { wordLibrary } from "../../../../shared/word-library.i18n";
 import { wordStudyFinish, wordRecallPersistence } from "../../../../shared/word-study.i18n";
 
 export default {
+  grokPromoTutor: {
+    title: "Grok для съёмки",
+    cardDescription: "Для администратора · Без сценария",
+    description: "Снимайте видео со своим преподавателем корейского: шутки и реакции рождаются в разговоре.",
+    adminOnly: "Личное пространство администратора",
+    spontaneous: "Слушает вас и отвечает без готового сценария.",
+    limit: "До {{min}} минут за разговор",
+    start: "Начать разговор для съёмки",
+    again: "Начать новый разговор",
+    finished: "Разговор завершён",
+    loading: "Проверяем доступ…",
+    forbidden: "Этот преподаватель доступен только администраторам.",
+    loadError: "Не удалось загрузить преподавателя. Попробуйте ещё раз.",
+    notConfigured: "Преподаватель для съёмки ещё не готов. Завершите настройку сервера и откройте снова.",
+    connectionError: "Возникла проблема с голосовой связью. Начните новый разговор.",
+    connecting: "Подключаем голос…",
+    stopping: "Завершаем голосовое подключение…",
+    cancel: "Отменить подключение",
+    close: "Закрыть",
+  },
   wordLibrary: wordLibrary.ru,
   alphabet: alphabet.ru,
   topik,
@@ -3030,7 +3050,6 @@ export default {
       close_friend: { name: "Близкий друг", description: "Общается легко, шутит и говорит честно." },
       savage: { name: "Язвительный друг", description: "Остро шутит над ошибками и исправляет их." },
       chaotic_savage: { name: "Безумно язвительный", description: "Бурно реагирует и может ругаться, но всё равно учит." },
-      scripted: { name: "Сценарий для съёмки", description: "Говорит заготовленные реплики по порядку. Для съёмки." },
     },
     koreanLevel: "Уровень корейского",
     english: {

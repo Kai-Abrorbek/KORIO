@@ -44,11 +44,12 @@ test("Voice Tutor dispatch rejects unknown fields and invalid voice IDs", () => 
   );
 });
 
-test("Voice Tutor dispatch lets the filming script pin eleven_v3 only", () => {
-  const scripted = { ...valid, ttsModel: "eleven_v3" };
+test("Voice Tutor dispatch ignores retired model overrides from an older API", () => {
   assert.deepEqual(
-    decodeVoiceTutorDispatchMetadata(JSON.stringify(scripted)),
-    scripted,
+    decodeVoiceTutorDispatchMetadata(
+      JSON.stringify({ ...valid, ttsModel: "eleven_v3" }),
+    ),
+    valid,
   );
   assert.throws(() =>
     decodeVoiceTutorDispatchMetadata(

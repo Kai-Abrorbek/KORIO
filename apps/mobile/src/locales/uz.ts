@@ -4,6 +4,26 @@ import { wordLibrary } from "../../../../shared/word-library.i18n";
 import { wordStudyFinish, wordRecallPersistence } from "../../../../shared/word-study.i18n";
 
 export default {
+  grokPromoTutor: {
+    title: "Grok video o‘qituvchi",
+    cardDescription: "Faqat admin · Ssenariysiz suhbat",
+    description: "Hazil va jonli reaksiyalar bilan koreys tilidagi videolarni shaxsiy o‘qituvchingiz bilan oling.",
+    adminOnly: "Administrator uchun shaxsiy video maydoni",
+    spontaneous: "Sizni tinglab, tayyor ssenariysiz javob beradi.",
+    limit: "Har bir suhbat {{min}} daqiqagacha",
+    start: "Video uchun suhbatni boshlash",
+    again: "Yangi suhbat boshlash",
+    finished: "Suhbat tugadi",
+    loading: "Ruxsat tekshirilmoqda…",
+    forbidden: "Bu o‘qituvchi faqat administratorlar uchun.",
+    loadError: "O‘qituvchini yuklab bo‘lmadi. Qayta urinib ko‘ring.",
+    notConfigured: "Video o‘qituvchi hali tayyor emas. Server sozlamalarini tugatib, qayta oching.",
+    connectionError: "Ovozli aloqada muammo yuz berdi. Yangi suhbat boshlang.",
+    connecting: "Ovoz ulanmoqda…",
+    stopping: "Ovozli aloqa yopilmoqda…",
+    cancel: "Ulanishni bekor qilish",
+    close: "Yopish",
+  },
   wordLibrary: wordLibrary.uz,
   alphabet: alphabet.uz,
   topik,
@@ -3035,7 +3055,6 @@ export default {
       close_friend: { name: "Yaqin do‘st", description: "Erkin hazillashadi va rost gapiradi." },
       savage: { name: "Keskin do‘st", description: "Xatolar ustidan o‘tkir hazil qiladi va to‘g‘rilaydi." },
       chaotic_savage: { name: "Keskin va jo‘shqin", description: "Juda kuchli reaksiya va qo‘pol so‘zlar bilan ham o‘rgatadi." },
-      scripted: { name: "Suratga olish ssenariysi", description: "Tayyor gaplarni navbat bilan aytadi. Suratga olish uchun." },
     },
     koreanLevel: "Koreys tili darajasi",
     english: {

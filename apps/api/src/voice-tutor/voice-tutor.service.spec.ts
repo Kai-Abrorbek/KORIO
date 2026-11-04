@@ -1,6 +1,4 @@
 import { Types } from 'mongoose';
-import { canUseScriptedTutor } from './personality/voice-tutor-personalities';
-import { FILMING_SCRIPT, filmingScriptReply } from './script/filming-script';
 import { VoiceTutorService } from './voice-tutor.service';
 import type { TutorReaction, TutorSettings } from './voice-tutor.types';
 
@@ -57,7 +55,12 @@ describe('VoiceTutorService lifecycle', () => {
     else process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
   });
 
-  it.each(['generated', 'fallback', 'room failure'] as const)(
+  it.each([
+    'generated',
+    'fallback',
+    'room failure',
+    'legacy personality',
+  ] as const)(
     'preserves the start lifecycle with a %s opening',
     async (mode) => {
       const session = { _id: new Types.ObjectId(sessionId) };
@@ -76,9 +79,12 @@ describe('VoiceTutorService lifecycle', () => {
         ),
       };
       const profile = {
-        getSettings: jest
-          .fn()
-          .mockResolvedValue({ ...settings, voiceId: 'default' }),
+        getSettings: jest.fn().mockResolvedValue({
+          ...settings,
+          voiceId: 'default',
+          personality:
+            mode === 'legacy personality' ? 'scripted' : settings.personality,
+        }),
         getMemory: jest.fn().mockResolvedValue(memory),
         latestPlan: jest.fn().mockResolvedValue(plan),
       };
@@ -146,15 +152,18 @@ describe('VoiceTutorService lifecycle', () => {
       );
       expect(sessions.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          taughtItems: mode === 'generated' ? opening.taught : [],
+          taughtItems: mode !== 'fallback' ? opening.taught : [],
         }),
       );
-      if (mode === 'generated') {
+      if (mode !== 'fallback') {
         expect(result.initialMessage.text).toBe(opening.displayText);
       } else {
         expect(result.initialMessage.text).toContain('Korean');
         expect(result.initialMessage.text).not.toContain('야아');
       }
+      expect(result.settings.personality).toBe(
+        mode === 'legacy personality' ? 'friendly' : settings.personality,
+      );
       expect(result.livekit).toEqual(grant);
       expect(result.initialMessage.audioUrl).toBeNull();
       expect(tts.synthesize).not.toHaveBeenCalled();
@@ -166,124 +175,131 @@ describe('VoiceTutorService lifecycle', () => {
           speechText: result.initialMessage.speechText,
         },
         result.settings.explanationLanguage,
-        mode === 'generated'
+        mode !== 'fallback'
           ? expect.arrayContaining(['물 주세요'])
           : expect.any(Array),
         1200,
         'ko',
-        // Only the filming script pins a TTS model.
-        undefined,
       );
     },
   );
 
-  it('saves an agent turn once and returns the saved reply on retry without TTS', async () => {
-    const session = {
-      _id: new Types.ObjectId(sessionId),
-      userId: new Types.ObjectId(userId),
-      status: 'active',
-      userTurnCount: 0,
-      createdAt: new Date(),
-      settings: { ...settings, voiceId: 'default' },
-      plan,
-    };
-    const rows: Array<Record<string, unknown>> = [];
-    const sessions = {
-      findById: jest.fn().mockImplementation(() => ({
-        then: (resolve: (value: typeof session) => unknown) =>
-          Promise.resolve(session).then(resolve),
-        select: () => ({
-          lean: () => Promise.resolve({ endRequested: false }),
+  it.each(['chaotic_savage', 'scripted'])(
+    'saves a %s agent turn once and returns the saved reply on retry without TTS',
+    async (personality) => {
+      const session = {
+        _id: new Types.ObjectId(sessionId),
+        userId: new Types.ObjectId(userId),
+        status: 'active',
+        userTurnCount: 0,
+        createdAt: new Date(),
+        settings: { ...settings, voiceId: 'default', personality },
+        plan,
+      };
+      const rows: Array<Record<string, unknown>> = [];
+      const sessions = {
+        findById: jest.fn().mockImplementation(() => ({
+          then: (resolve: (value: typeof session) => unknown) =>
+            Promise.resolve(session).then(resolve),
+          select: () => ({
+            lean: () => Promise.resolve({ endRequested: false }),
+          }),
+        })),
+        findOneAndUpdate: jest.fn().mockResolvedValue(session),
+        updateOne: jest.fn().mockResolvedValue({}),
+      };
+      const messages = {
+        findOne: jest
+          .fn()
+          .mockImplementation(
+            ({ role, turnId }: { role: string; turnId: string }) =>
+              Promise.resolve(
+                rows.find(
+                  (row) => row.role === role && row.turnId === turnId,
+                ) ?? null,
+              ),
+          ),
+        create: jest.fn().mockImplementation((row: Record<string, unknown>) => {
+          const saved = {
+            ...row,
+            _id: new Types.ObjectId(),
+            createdAt: new Date(),
+          };
+          rows.push(saved);
+          return Promise.resolve(saved);
         }),
-      })),
-      findOneAndUpdate: jest.fn().mockResolvedValue(session),
-      updateOne: jest.fn().mockResolvedValue({}),
-    };
-    const messages = {
-      findOne: jest
-        .fn()
-        .mockImplementation(
-          ({ role, turnId }: { role: string; turnId: string }) =>
-            Promise.resolve(
-              rows.find((row) => row.role === role && row.turnId === turnId) ??
-                null,
-            ),
-        ),
-      create: jest.fn().mockImplementation((row: Record<string, unknown>) => {
-        const saved = {
-          ...row,
-          _id: new Types.ObjectId(),
-          createdAt: new Date(),
-        };
-        rows.push(saved);
-        return Promise.resolve(saved);
-      }),
-      find: jest.fn().mockReturnValue({
-        sort: () => ({ limit: () => ({ lean: () => Promise.resolve(rows) }) }),
-      }),
-    };
-    const profile = {
-      getMemory: jest.fn().mockResolvedValue(memory),
-      latestProgress: jest.fn().mockResolvedValue(null),
-    };
-    const reaction: TutorReaction = {
-      displayText: '좋아요!',
-      speechText: '좋아요!',
-      language: 'ko',
-      emotion: 'happy',
-      delivery: 'normal',
-      intensity: 0.2,
-      gesture: 'none',
-    };
-    const agents = { lesson: jest.fn().mockResolvedValue(reaction) };
-    const tts = { synthesize: jest.fn() };
-    const livekit = { verifyAgentToken: jest.fn() };
-    const service = new VoiceTutorService(
-      sessions as never,
-      messages as never,
-      profile as never,
-      agents as never,
-      {} as never,
-      tts as never,
-      {} as never,
-      livekit as never,
-      {} as never,
-    );
-    const dto = { turnId: 'turn-1', transcript: '안녕하세요' };
-    const first = await service.agentTurn(
-      sessionId,
-      'Bearer signed-token',
-      dto,
-    );
-    const second = await service.agentTurn(
-      sessionId,
-      'Bearer signed-token',
-      dto,
-    );
+        find: jest.fn().mockReturnValue({
+          sort: () => ({
+            limit: () => ({ lean: () => Promise.resolve(rows) }),
+          }),
+        }),
+      };
+      const profile = {
+        getMemory: jest.fn().mockResolvedValue(memory),
+        latestProgress: jest.fn().mockResolvedValue(null),
+      };
+      const reaction: TutorReaction = {
+        displayText: '좋아요!',
+        speechText: '좋아요!',
+        language: 'ko',
+        emotion: 'happy',
+        delivery: 'normal',
+        intensity: 0.2,
+        gesture: 'none',
+      };
+      const agents = { lesson: jest.fn().mockResolvedValue(reaction) };
+      const tts = { synthesize: jest.fn() };
+      const livekit = { verifyAgentToken: jest.fn() };
+      const service = new VoiceTutorService(
+        sessions as never,
+        messages as never,
+        profile as never,
+        agents as never,
+        {} as never,
+        tts as never,
+        {} as never,
+        livekit as never,
+        {} as never,
+      );
+      const dto = { turnId: 'turn-1', transcript: '안녕하세요' };
+      const first = await service.agentTurn(
+        sessionId,
+        'Bearer signed-token',
+        dto,
+      );
+      const second = await service.agentTurn(
+        sessionId,
+        'Bearer signed-token',
+        dto,
+      );
 
-    expect(first.teacherMessage.speechText).toBe('좋아요!');
-    expect(second.teacherMessage.id).toBe(first.teacherMessage.id);
-    expect(agents.lesson).toHaveBeenCalledTimes(1);
-    expect(agents.lesson).toHaveBeenCalledWith(
-      session.settings,
-      plan,
-      memory,
-      expect.any(Array),
-      { turn: 1, alreadyTaught: [] },
-    );
-    expect(tts.synthesize).not.toHaveBeenCalled();
-    expect(rows).toHaveLength(2);
-    expect(livekit.verifyAgentToken).toHaveBeenCalledWith(
-      sessionId,
-      'Bearer signed-token',
-    );
-    await expect(
-      service.agentTurn(sessionId, 'Bearer signed-token', {
-        turnId: 'turn-1',
-        transcript: '다른 말',
-      }),
-    ).rejects.toThrow('VOICE_TUTOR_TURN_ID_REUSED');
-  });
+      expect(first.teacherMessage.speechText).toBe('좋아요!');
+      expect(second.teacherMessage.id).toBe(first.teacherMessage.id);
+      expect(agents.lesson).toHaveBeenCalledTimes(1);
+      expect(session.settings.personality).toBe(
+        personality === 'scripted' ? 'friendly' : personality,
+      );
+      expect(agents.lesson).toHaveBeenCalledWith(
+        session.settings,
+        plan,
+        memory,
+        expect.any(Array),
+        { turn: 1, alreadyTaught: [] },
+      );
+      expect(tts.synthesize).not.toHaveBeenCalled();
+      expect(rows).toHaveLength(2);
+      expect(livekit.verifyAgentToken).toHaveBeenCalledWith(
+        sessionId,
+        'Bearer signed-token',
+      );
+      await expect(
+        service.agentTurn(sessionId, 'Bearer signed-token', {
+          turnId: 'turn-1',
+          transcript: '다른 말',
+        }),
+      ).rejects.toThrow('VOICE_TUTOR_TURN_ID_REUSED');
+    },
+  );
 
   it('synthesizes replay audio only when requested and caches concurrent requests', async () => {
     const session = {
@@ -582,192 +598,5 @@ describe('VoiceTutorService lifecycle', () => {
       progress,
       'ko',
     );
-  });
-});
-
-describe('VoiceTutorService filming script', () => {
-  const originalVoice = process.env.ELEVENLABS_DEFAULT_VOICE_ID;
-  beforeEach(() => {
-    process.env.ELEVENLABS_DEFAULT_VOICE_ID = 'testVoice123';
-  });
-  afterEach(() => {
-    if (originalVoice === undefined)
-      delete process.env.ELEVENLABS_DEFAULT_VOICE_ID;
-    else process.env.ELEVENLABS_DEFAULT_VOICE_ID = originalVoice;
-  });
-  const scriptedSettings: TutorSettings = {
-    ...settings,
-    voiceId: 'default',
-    personality: 'scripted',
-  };
-
-  function scriptedService() {
-    const session = {
-      _id: new Types.ObjectId(sessionId),
-      userId: new Types.ObjectId(userId),
-      status: 'active',
-      userTurnCount: 0,
-      createdAt: new Date(),
-      settings: scriptedSettings,
-      plan,
-    };
-    const rows: Array<Record<string, unknown>> = [];
-    const sessions = {
-      create: jest.fn().mockResolvedValue(session),
-      findById: jest.fn().mockImplementation(() => ({
-        then: (resolve: (value: typeof session) => unknown) =>
-          Promise.resolve(session).then(resolve),
-        select: () => ({
-          lean: () => Promise.resolve({ endRequested: false }),
-        }),
-      })),
-      findOneAndUpdate: jest.fn().mockResolvedValue(session),
-      updateOne: jest
-        .fn()
-        .mockImplementation(
-          (_filter: unknown, update: { $set?: { userTurnCount?: number } }) => {
-            if (update.$set?.userTurnCount !== undefined)
-              session.userTurnCount = update.$set.userTurnCount;
-            return Promise.resolve({});
-          },
-        ),
-    };
-    const messages = {
-      findOne: jest.fn().mockResolvedValue(null),
-      create: jest.fn().mockImplementation((row: Record<string, unknown>) => {
-        const saved = {
-          ...row,
-          _id: new Types.ObjectId(),
-          createdAt: new Date(),
-        };
-        rows.push(saved);
-        return Promise.resolve(saved);
-      }),
-      find: jest.fn().mockReturnValue({
-        sort: () => ({ limit: () => ({ lean: () => Promise.resolve([]) }) }),
-      }),
-    };
-    const profile = {
-      getSettings: jest.fn().mockResolvedValue(scriptedSettings),
-      getMemory: jest.fn().mockResolvedValue(memory),
-      latestPlan: jest.fn().mockResolvedValue(plan),
-      latestProgress: jest.fn().mockResolvedValue(null),
-      updateSettings: jest.fn(),
-    };
-    const agents = { lesson: jest.fn(), lessonStream: jest.fn() };
-    const livekit = {
-      prepareRoom: jest.fn().mockResolvedValue({
-        serverUrl: 'wss://livekit.example',
-        roomName: `voice-tutor-${sessionId}`,
-        participantToken: 'participant-token',
-      }),
-      verifyAgentToken: jest.fn(),
-    };
-    const quota = {
-      assertCanStart: jest.fn().mockResolvedValue({ allowedSec: 1200 }),
-    };
-    const service = new VoiceTutorService(
-      sessions as never,
-      messages as never,
-      profile as never,
-      agents as never,
-      {} as never,
-      { synthesize: jest.fn() } as never,
-      {} as never,
-      livekit as never,
-      quota as never,
-    );
-    return { service, agents, profile, livekit };
-  }
-
-  it('opens with a question, then reacts only after each learner turn', async () => {
-    const { service, agents, livekit } = scriptedService();
-    const result = await service.start(
-      userId,
-      undefined,
-      undefined,
-      'ko',
-      true,
-    );
-    expect(result.initialMessage.speechText).toBe(
-      'How do you say eighteen in Korean?',
-    );
-    expect(result.initialMessage.displayText).toBe(
-      'How do you say eighteen in Korean?',
-    );
-    expect(livekit.prepareRoom).toHaveBeenCalledWith(
-      sessionId,
-      FILMING_SCRIPT.voiceId,
-      {
-        displayText: 'How do you say eighteen in Korean?',
-        speechText: 'How do you say eighteen in Korean?',
-      },
-      'en',
-      expect.any(Array),
-      1200,
-      'ko',
-      'eleven_v3',
-    );
-    const spoken: string[] = [];
-    const order: string[] = [];
-    for (const [turnId, transcript] of [
-      ['turn-1', '씨발?'],
-      ['turn-2', '십팔?'],
-      ['turn-3', '십팔!'],
-    ]) {
-      await service.agentTurnStream(
-        sessionId,
-        'Bearer signed-token',
-        { turnId, transcript },
-        (delta) => {
-          order.push('speech');
-          spoken.push(delta);
-        },
-        undefined,
-        () => order.push('meta'),
-      );
-    }
-    expect(spoken).toEqual([
-      FILMING_SCRIPT.lines[1].speech,
-      FILMING_SCRIPT.lines[2].speech,
-      FILMING_SCRIPT.lines[2].speech,
-    ]);
-    expect(spoken[0]).toContain('나한테 욕했어?!');
-    expect(spoken[1]).toContain('그래, 드디어 맞았어');
-    expect(order).toEqual([
-      'meta',
-      'speech',
-      'meta',
-      'speech',
-      'meta',
-      'speech',
-    ]);
-    expect(agents.lesson).not.toHaveBeenCalled();
-    expect(agents.lessonStream).not.toHaveBeenCalled();
-  });
-
-  it('lets only super_admin choose the scripted tutor', () => {
-    const { service, profile } = scriptedService();
-    expect(() =>
-      service.updateSettings(userId, { personality: 'scripted' }, 'ko', false),
-    ).toThrow('VOICE_TUTOR_PERSONALITY_NOT_ALLOWED');
-    expect(profile.updateSettings).not.toHaveBeenCalled();
-    void service.updateSettings(
-      userId,
-      { personality: 'scripted' },
-      'ko',
-      true,
-    );
-    expect(profile.updateSettings).toHaveBeenCalledTimes(1);
-    expect(canUseScriptedTutor({ adminRole: 'super_admin' })).toBe(true);
-    expect(canUseScriptedTutor({ adminRole: 'support' })).toBe(false);
-    expect(canUseScriptedTutor({ adminRole: null })).toBe(false);
-  });
-
-  it('repeats the last line once the script runs out', () => {
-    const last = FILMING_SCRIPT.lines.at(-1)!;
-    const reply = filmingScriptReply(FILMING_SCRIPT.lines.length + 5, 'en');
-    expect(reply.speechText).toBe(last.speech);
-    expect(reply.displayText).not.toMatch(/\[[a-z]/i);
   });
 });

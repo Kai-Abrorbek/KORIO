@@ -32,7 +32,6 @@ const PERSONALITY_EMOJI: Record<VoiceTutorPersonality, string> = {
   close_friend: "🤙",
   savage: "🔥",
   chaotic_savage: "💥",
-  scripted: "🎬",
 };
 
 const ADDRESS_EXAMPLE: Record<string, string> = {
@@ -102,6 +101,13 @@ export function TutorSetup(p: TutorSetupProps) {
 
   useEffect(load, [load]);
 
+  const { onChange } = p;
+  const savedPersonality = p.settings.personality;
+  useEffect(() => {
+    // Older API instances can still return a retired saved selection.
+    if (!PERSONALITIES.includes(savedPersonality)) onChange("personality", "friendly");
+  }, [onChange, savedPersonality]);
+
   const pick = (key: keyof VoiceTutorSettings, value: string) => {
     window.Telegram?.WebApp.HapticFeedback?.selectionChanged();
     p.onChange(key, value);
@@ -111,7 +117,8 @@ export function TutorSetup(p: TutorSetupProps) {
     .filter((language) => language.enabled !== false)
     .sort((a, b) => LANG_ORDER.indexOf(a.id) - LANG_ORDER.indexOf(b.id));
   const voices = p.options.voices.filter((voice) => voice.enabled !== false);
-  const personalities = p.options.personalities?.length ? p.options.personalities : PERSONALITIES;
+  const offeredPersonalities = p.options.personalities?.filter((id) => PERSONALITIES.includes(id));
+  const personalities = offeredPersonalities?.length ? offeredPersonalities : PERSONALITIES;
   const levels = p.options.koreanLevels ?? ["beginner", "intermediate", "advanced"];
 
   const voice = voices.find((item) => item.id === p.settings.voiceId) ?? null;

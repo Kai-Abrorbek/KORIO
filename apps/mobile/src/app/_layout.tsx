@@ -236,6 +236,10 @@ export default function RootLayout() {
               }}
             />
             <Stack.Screen
+              name="grok-promo-tutor"
+              options={{ animation: "slide_from_bottom", gestureEnabled: false }}
+            />
+            <Stack.Screen
               name="expressions"
               options={{ animation: "slide_from_right" }}
             />

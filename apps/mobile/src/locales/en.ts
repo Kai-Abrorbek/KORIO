@@ -4,6 +4,26 @@ import { wordLibrary } from "../../../../shared/word-library.i18n";
 import { wordStudyFinish, wordRecallPersistence } from "../../../../shared/word-study.i18n";
 
 export default {
+  grokPromoTutor: {
+    title: "Grok filming tutor",
+    cardDescription: "Admin only · Unscripted conversation",
+    description: "Film with your own playful Korean tutor, with spontaneous jokes and reactions.",
+    adminOnly: "Private admin filming space",
+    spontaneous: "Listens and responds naturally, without a script.",
+    limit: "Up to {{min}} minutes per conversation",
+    start: "Start filming conversation",
+    again: "Start a new conversation",
+    finished: "Conversation ended",
+    loading: "Checking your access…",
+    forbidden: "This tutor is for administrators only.",
+    loadError: "Could not load the tutor. Please try again.",
+    notConfigured: "The filming tutor is not ready yet. Complete the server setup and open it again.",
+    connectionError: "The voice connection had a problem. Please start a new conversation.",
+    connecting: "Connecting voice…",
+    stopping: "Closing voice connection…",
+    cancel: "Cancel connection",
+    close: "Close",
+  },
   wordLibrary: wordLibrary.en,
   alphabet: alphabet.en,
   topik,
@@ -3025,7 +3045,6 @@ export default {
       close_friend: { name: "Close Friend", description: "Relaxed, playful, and honest." },
       savage: { name: "Savage Friend", description: "Sharp jokes about your mistakes, with real corrections." },
       chaotic_savage: { name: "Chaotic Savage", description: "Loud, unpredictable reactions and strong language while teaching." },
-      scripted: { name: "Filming script", description: "Says the prepared lines in order, one per reply. For filming." },
     },
     koreanLevel: "Korean level",
     english: {

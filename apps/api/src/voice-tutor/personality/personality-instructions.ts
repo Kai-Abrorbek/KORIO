@@ -4,7 +4,7 @@ import {
 } from '../prompts/chaotic-savage.prompt';
 import type { TutorTargetLanguage } from '../voice-tutor.config';
 import {
-  SCRIPTED_PERSONALITY,
+  resolveTutorPersonality,
   type PublicTutorPersonality,
   type TutorPersonality,
 } from './voice-tutor-personalities';
@@ -69,8 +69,7 @@ export function personalityInstructions(
   targetLanguage: TutorTargetLanguage = 'ko',
 ): string {
   const byPersonality = PERSONALITY_RULES[targetLanguage] ?? KOREAN_RULES;
-  // The scripted tutor never reaches the model; friendly is only a safe default.
-  const key = personality === SCRIPTED_PERSONALITY ? 'friendly' : personality;
+  const key = resolveTutorPersonality(personality);
   const rules = byPersonality[key] ?? byPersonality.friendly;
   return `${rules}
 ${PERSONALITY_TAIL[targetLanguage] ?? PERSONALITY_TAIL.ko}

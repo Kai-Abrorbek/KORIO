@@ -59,7 +59,6 @@ const PERSONALITY_EMOJI: Record<VoiceTutorPersonality, string> = {
   close_friend: "🤙",
   savage: "🔥",
   chaotic_savage: "💥",
-  scripted: "🎬",
 };
 
 export interface VoiceTutorSetupScreenProps {
@@ -117,9 +116,9 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
     .filter((language) => language.enabled !== false)
     .sort((a, b) => LANG_ORDER.indexOf(a.id) - LANG_ORDER.indexOf(b.id));
   const voices = p.options.voices.filter((voice) => voice.enabled !== false);
-  const personalities = p.options.personalities?.length
-    ? p.options.personalities
-    : PERSONALITIES;
+  // Rolling deployments can still return the retired filming personality.
+  const personalities = p.options.personalities?.filter((id) => PERSONALITIES.includes(id));
+  const availablePersonalities = personalities?.length ? personalities : PERSONALITIES;
   const levels = p.options.koreanLevels ?? ["beginner", "intermediate", "advanced"];
 
   const voiceIndex = voices.findIndex((voice) => voice.id === p.settings.voiceId);
@@ -272,7 +271,7 @@ export function VoiceTutorSetupScreen(p: VoiceTutorSetupScreenProps) {
         {/* ── 4. 성격 ── Voice Tutor 에만 있다 */}
         <Section title={t("voiceTutor.personalityTitle")} theme={theme}>
           <View style={s.grid}>
-            {personalities.map((id) => {
+            {availablePersonalities.map((id) => {
               const on = p.settings.personality === id;
               return (
                 <Pressable

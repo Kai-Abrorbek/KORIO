@@ -22,10 +22,11 @@ const dispatchMetadataSchema = z
     sttKeywords: z.array(z.string().min(1).max(40)).max(30).optional(),
     // 배우는 언어. 영어 튜터만 보낸다 — 없으면 한국어
     targetLanguage: z.enum(["en"]).optional(),
-    // 촬영 대본 수업만 보낸다 — [laughs] 같은 연기를 하는 v3 로 말한다 (v4 Turbo 는 안 한다)
+    // Accept and discard this retired field during rolling API/worker upgrades.
     ttsModel: z.literal("eleven_v3").optional(),
   })
-  .strict();
+  .strict()
+  .transform(({ ttsModel: _legacyTtsModel, ...metadata }) => metadata);
 
 export type VoiceTutorDispatchMetadata = z.infer<typeof dispatchMetadataSchema>;
 

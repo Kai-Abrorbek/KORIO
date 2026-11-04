@@ -3,6 +3,44 @@
 blue/green 무중단. 서버에 도커만 있으면 된다. MongoDB 는 Atlas(외부)를 쓰므로
 DB 컨테이너도 볼륨도 없다.
 
+## 관리자 촬영용 Grok 튜터
+
+일반 튜터와 별도인 관리자 전용 기능이다. 새 API 와 모바일 화면 외에
+`grok_promo_agent` worker 가 필요하다. 기존 `voice_tutor_agent` 는 그대로 실행한다.
+이 기능은 기본 비활성이며 `./deploy.sh` 에서 자동으로 시작하거나 교체하지 않는다.
+
+1. 아래 설정 후 평소대로 `./deploy.sh` 로 새 API 와 agent 이미지를 빌드한다.
+   `api.env` 에 `GROK_PROMO_TUTOR_ENABLED=true` 와
+   `GROK_PROMO_LIVEKIT_AGENT_NAME=korio-grok-promo` 를 설정한다.
+2. `grok-promo-agent.env.example` 를 `grok-promo-agent.env` 로 복사하고 `chmod 600` 한다.
+   API 와 같은 `LIVEKIT_*`, API 와 같은 전용 agent 이름, `XAI_API_KEY` 를 입력한다.
+   API 나 앱에 xAI 키를 넣지 않는다. 일반 `agent.env` 도 바꾸지 않는다.
+3. **촬영용 서비스 하나만** 시작한다. 일반 API·worker 를 compose 로 직접 교체하지 않는다.
+
+```bash
+cd deploy
+docker compose -f docker-compose.yml -f docker-compose.grok-promo.yml \
+  --env-file .env --profile grok-promo up -d --no-deps --force-recreate grok_promo_agent
+docker compose -f docker-compose.yml -f docker-compose.grok-promo.yml \
+  --env-file .env --profile grok-promo logs --tail=50 grok_promo_agent
+```
+
+`./deploy.sh` 는 agent 이미지를 `latest` 로도 빌드한다. 후속 배포에서 촬영용 worker 를
+업데이트할 때도 위의 `up` 명령을 따로 실행한다. 이미지 태그를 고정했다면 같은 `TAG` 로
+실행한다. `grok-promo-agent.env` 는 비밀 파일이며 git 에 올리지 않는다.
+
+앱의 관리자 전용 학습 카드에서 시작해 첫 질문·마이크 응답·끼어들기·세션 종료를
+실기기로 확인한다. Native Grok 음성 모델과 연결하므로 OpenAI·ElevenLabs 키는
+촬영용 worker 에 필요 없다. 원래 튜터의 목소리 ID 를 Grok 에 넘기지는 않는다.
+모바일 JavaScript 화면 변경은 호환되는 기존 빌드에 OTA 로 반영하고, OTA 발행은 직접 진행한다.
+
+끄려면 API 의 `GROK_PROMO_TUTOR_ENABLED=false` 로 배포하고 아래 서비스만 멈춘다.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.grok-promo.yml \
+  --env-file .env --profile grok-promo stop grok_promo_agent
+```
+
 ## 어떻게 무중단이 되나
 
 ```
