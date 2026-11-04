@@ -613,6 +613,7 @@ describe('VoiceTutorService filming script', () => {
     };
     const rows: Array<Record<string, unknown>> = [];
     const sessions = {
+      create: jest.fn().mockResolvedValue(session),
       findById: jest.fn().mockImplementation(() => ({
         then: (resolve: (value: typeof session) => unknown) =>
           Promise.resolve(session).then(resolve),
@@ -647,11 +648,24 @@ describe('VoiceTutorService filming script', () => {
       }),
     };
     const profile = {
+      getSettings: jest.fn().mockResolvedValue(scriptedSettings),
       getMemory: jest.fn().mockResolvedValue(memory),
+      latestPlan: jest.fn().mockResolvedValue(plan),
       latestProgress: jest.fn().mockResolvedValue(null),
       updateSettings: jest.fn(),
     };
     const agents = { lesson: jest.fn(), lessonStream: jest.fn() };
+    const livekit = {
+      prepareRoom: jest.fn().mockResolvedValue({
+        serverUrl: 'wss://livekit.example',
+        roomName: `voice-tutor-${sessionId}`,
+        participantToken: 'participant-token',
+      }),
+      verifyAgentToken: jest.fn(),
+    };
+    const quota = {
+      assertCanStart: jest.fn().mockResolvedValue({ allowedSec: 1200 }),
+    };
     const service = new VoiceTutorService(
       sessions as never,
       messages as never,
@@ -660,19 +674,46 @@ describe('VoiceTutorService filming script', () => {
       {} as never,
       { synthesize: jest.fn() } as never,
       {} as never,
-      { verifyAgentToken: jest.fn() } as never,
-      {} as never,
+      livekit as never,
+      quota as never,
     );
-    return { service, agents, profile };
+    return { service, agents, profile, livekit };
   }
 
-  it('speaks the reference reply and repeats its final line without asking the model', async () => {
-    const { service, agents } = scriptedService();
+  it('opens with a question, then reacts only after each learner turn', async () => {
+    const { service, agents, livekit } = scriptedService();
+    const result = await service.start(
+      userId,
+      undefined,
+      undefined,
+      'ko',
+      true,
+    );
+    expect(result.initialMessage.speechText).toBe(
+      'How do you say eighteen in Korean?',
+    );
+    expect(result.initialMessage.displayText).toBe(
+      'How do you say eighteen in Korean?',
+    );
+    expect(livekit.prepareRoom).toHaveBeenCalledWith(
+      sessionId,
+      FILMING_SCRIPT.voiceId,
+      {
+        displayText: 'How do you say eighteen in Korean?',
+        speechText: 'How do you say eighteen in Korean?',
+      },
+      'en',
+      expect.any(Array),
+      1200,
+      'ko',
+      'eleven_v3',
+    );
     const spoken: string[] = [];
     const order: string[] = [];
     for (const [turnId, transcript] of [
-      ['turn-1', 'Sounds the same. 십팔?'],
-      ['turn-2', '십팔!'],
+      ['turn-1', '씨발?'],
+      ['turn-2', '십팔?'],
+      ['turn-3', '십팔!'],
     ]) {
       await service.agentTurnStream(
         sessionId,
@@ -688,9 +729,19 @@ describe('VoiceTutorService filming script', () => {
     }
     expect(spoken).toEqual([
       FILMING_SCRIPT.lines[1].speech,
-      FILMING_SCRIPT.lines[1].speech,
+      FILMING_SCRIPT.lines[2].speech,
+      FILMING_SCRIPT.lines[2].speech,
     ]);
-    expect(order).toEqual(['meta', 'speech', 'meta', 'speech']);
+    expect(spoken[0]).toContain('나한테 욕했어?!');
+    expect(spoken[1]).toContain('그래, 드디어 맞았어');
+    expect(order).toEqual([
+      'meta',
+      'speech',
+      'meta',
+      'speech',
+      'meta',
+      'speech',
+    ]);
     expect(agents.lesson).not.toHaveBeenCalled();
     expect(agents.lessonStream).not.toHaveBeenCalled();
   });
