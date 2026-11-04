@@ -752,6 +752,11 @@ pnpm --filter api seed:validate-grammar-track -- --courseId=en-general
 `getRoadmap(category='grammar')` 이 읽는 별도 로드맵. 어휘 트랙과 구조는 같지만
 `gt_` 접두사로 code 가 갈려서 서로 안 섞인다.
 
+한국어 문법 트랙의 레벨은 두 Section씩 묶는다. Section 1~2는 Level 1,
+Section 3~4는 Level 2, Section 5~6은 Level 3, Section 7~8은 Level 4,
+Section 9~10은 Level 5, Section 11~12는 Level 6이다. 원본 데이터의 과거 level
+값과 관계없이 `getGrammarTrackSeed()`에서 이 규칙으로 레슨과 문항을 정규화한다.
+
 ```
 노드 = 교재 1과   →  레슨 = 문법 1개   →  레슨당 문제 20개
                                         (grammar_blank 10 + grammar_build 10, 번갈아)

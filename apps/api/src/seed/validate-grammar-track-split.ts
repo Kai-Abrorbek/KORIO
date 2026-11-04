@@ -3,6 +3,8 @@
  * MongoDB or writes data.
  */
 import { parseSeedCourseScope } from './course-seed.options';
+import { DEFAULT_COURSE_ID } from '../common/learning-course';
+import { koreanGrammarLevelForSection } from './data/grammar-track/levels';
 import { getGrammarTrackSeed } from './grammar-course.data';
 import {
   GRAMMAR_QUESTIONS_PER_NODE,
@@ -10,12 +12,13 @@ import {
 } from './grammar-track.util';
 
 const scope = parseSeedCourseScope();
-const { nodes } = getGrammarTrackSeed(scope) as {
+const { nodes, questions } = getGrammarTrackSeed(scope) as {
   nodes: {
     section: number;
     unit: number;
-    lessons: { questions: string[] }[];
+    lessons: { level: string; questions: string[] }[];
   }[];
+  questions: Record<string, { level: string }>;
 };
 const errors: string[] = [];
 let sourceLessons = 0;
@@ -27,6 +30,10 @@ for (const node of nodes) {
   const before = node.lessons.flatMap((lesson) => lesson.questions);
   const after = parts.flatMap((part) => part.lesson.questions);
   const label = `s${node.section}u${node.unit}`;
+  const expectedLevel =
+    scope.courseId === DEFAULT_COURSE_ID
+      ? koreanGrammarLevelForSection(node.section)
+      : undefined;
 
   sourceLessons += node.lessons.length;
   splitLessons += parts.length;
@@ -45,6 +52,23 @@ for (const node of nodes) {
       errors.push(
         `${label}#${index + 1}: ${part.lesson.questions.length}문항으로 상한을 넘었다`,
       );
+    }
+  }
+  if (expectedLevel) {
+    for (const [lessonIndex, lesson] of node.lessons.entries()) {
+      if (lesson.level !== expectedLevel) {
+        errors.push(
+          `${label} 문법 ${lessonIndex + 1}: 레슨 level ${lesson.level} (필요 ${expectedLevel})`,
+        );
+      }
+      for (const questionCode of lesson.questions) {
+        const questionLevel = questions[questionCode]?.level;
+        if (questionLevel !== expectedLevel) {
+          errors.push(
+            `${questionCode}: 문항 level ${questionLevel ?? '없음'} (필요 ${expectedLevel})`,
+          );
+        }
+      }
     }
   }
   for (const [sourceIndex, sizes] of sizesBySource) {

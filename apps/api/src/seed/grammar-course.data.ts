@@ -55,25 +55,30 @@ import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
 import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { GT_S5_NODES, GT_S5_QUESTIONS } from './data/grammar-track/section5';
 import { GT_S6_NODES, GT_S6_QUESTIONS } from './data/grammar-track/section6';
+import {
+  normalizeKoreanGrammarTrackLevels,
+  type KoreanGrammarTrackNode,
+  type KoreanGrammarTrackQuestion,
+} from './data/grammar-track/levels';
 
-const KOREAN_TRACK = {
-  nodes: [
+const KOREAN_TRACK = normalizeKoreanGrammarTrackLevels(
+  [
     ...GT_S1_NODES,
     ...GT_S2_NODES,
     ...GT_S3_NODES,
     ...GT_S4_NODES,
     ...GT_S5_NODES,
     ...GT_S6_NODES,
-  ],
-  questions: {
+  ] as KoreanGrammarTrackNode[],
+  {
     ...GT_S1_QUESTIONS,
     ...GT_S2_QUESTIONS,
     ...GT_S3_QUESTIONS,
     ...GT_S4_QUESTIONS,
     ...GT_S5_QUESTIONS,
     ...GT_S6_QUESTIONS,
-  },
-};
+  } as Record<string, KoreanGrammarTrackQuestion>,
+);
 
 const ENGLISH_TRACK = {
   nodes: [
