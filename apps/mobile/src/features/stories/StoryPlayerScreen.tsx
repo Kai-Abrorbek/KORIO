@@ -8,8 +8,9 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
-import { useIsFocused } from "@react-navigation/native";
+// ⚠️ useIsFocused 는 expo-router 것. @react-navigation/native 것은 다른 컨텍스트라
+// 화면을 여는 순간 "Couldn't find a navigation object" 로 앱이 꺼진다 (eslint 가 막는다)
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -101,14 +102,18 @@ export default function StoryPlayerScreen() {
   const sceneHeight = Math.round(Math.min(300, Math.max(210, height * 0.36)));
   const listBottom = DOCK_HEIGHT + insets.bottom + 40 + (shadowing.active ? 84 : 0);
 
-  // "다음 이야기" 로 넘어왔으면 장면이 그려질 틈을 주고 바로 튼다
+  // "다음 이야기" 로 넘어왔으면 장면이 그려질 틈을 주고 바로 튼다.
+  // 표시는 실제로 틀 때 한다 — 그 전에 다시 그려져 타이머가 지워지면 다시 건다
   const autoplayedRef = useRef(false);
+  const { play: playStory } = player;
   useEffect(() => {
     if (!story || params.autoplay !== "1" || autoplayedRef.current) return;
-    autoplayedRef.current = true;
-    const timer = setTimeout(() => player.play(), 700);
+    const timer = setTimeout(() => {
+      autoplayedRef.current = true;
+      playStory();
+    }, 700);
     return () => clearTimeout(timer);
-  }, [params.autoplay, player, story]);
+  }, [params.autoplay, playStory, story]);
 
   // 다른 화면(축하·도장)으로 가면 멈춘다
   const { pause, status } = player;
