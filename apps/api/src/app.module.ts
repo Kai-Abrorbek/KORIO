@@ -28,6 +28,7 @@ import { WordCollectionsModule } from './word-collections/word-collections.modul
 import { ExpressionsModule } from './expressions/expressions.module';
 import { StudyPathModule } from './study-path/study-path.module';
 import { ReadingLessonsModule } from './reading-lessons/reading-lessons.module';
+import { StoriesModule } from './stories/stories.module';
 import { HealthModule } from './health/health.module';
 import { AppReleaseModule } from './app-release/app-release.module';
 import { PushModule } from './push/push.module';
@@ -83,6 +84,7 @@ import { LearningCoursesModule } from './learning-courses/learning-courses.modul
     ExpressionsModule,
     StudyPathModule,
     ReadingLessonsModule,
+    StoriesModule,
     HealthModule,
     AppReleaseModule,
     PushModule,

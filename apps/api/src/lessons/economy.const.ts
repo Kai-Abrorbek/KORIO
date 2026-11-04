@@ -14,6 +14,7 @@ import { registerRuntimeScalar } from '../app-settings/runtime-values';
  *   LEVEL_EXAM_XP       급수 졸업 시험
  *   GRAMMAR_QUIZ_XP     문법 퀴즈
  *   READING_*           읽기·듣기 레슨
+ *   STORY_*             듣기 이야기 (영어)
  *   SPEAKING_SENTENCE_XP 말하기 문장 하나
  *
  * 여기 없는 XP 숫자:
@@ -129,6 +130,19 @@ export const READING_PRONUNCIATION_XP = 25;
 export const READING_WRITING_XP = 15;
 /** 이미 끝낸 지문을 다시 할 때의 배율 */
 export const READING_REPEAT_XP_RATE = 0.3;
+
+// 듣기 이야기(Stories) — 한 편이 1분이 안 된다. 다 하면(듣기·문제·따라 읽기) 70 근처.
+/** 이야기 한 편을 끝까지 들었을 때 */
+export const STORY_LISTEN_XP = 15;
+/** 확인 문제 1개 정답당 */
+export const STORY_QUIZ_XP_PER_CORRECT = 10;
+/**
+ * 따라 읽기를 처음 통과한 문장 하나당. 서버가 발음 평가 중에 직접 준다.
+ * 같은 문장은 평생 한 번 — 한 문장을 반복해서 리그를 사지 못하게.
+ */
+export const STORY_SHADOW_XP_PER_SENTENCE = 3;
+/** 이미 끝낸 이야기를 다시 들을 때의 배율 */
+export const STORY_REPEAT_XP_RATE = 0.3;
 
 /** 문제 한 개의 XP. 시드가 레슨 기본 XP 를 합산할 때 쓴다. */
 export function questionXp(q: { xpReward?: number; type?: string }): number {

@@ -13,6 +13,7 @@ import {
   ReadingLessonSchema,
 } from '../reading-lessons/schemas/reading-lesson.schema';
 import { ReadingLessonsModule } from '../reading-lessons/reading-lessons.module';
+import { StoriesModule } from '../stories/stories.module';
 import { LessonsModule } from '../lessons/lessons.module';
 import { UsersModule } from '../users/users.module';
 import {
@@ -40,6 +41,8 @@ import {
     // (LessonsModule 은 SpeechModule 을 import 하지 않아 순환은 없다)
     LessonsModule,
     UsersModule,
+    // 듣기 이야기 따라 읽기 — 참조 문장 조회와 통과 기록
+    StoriesModule,
   ],
   controllers: [SpeechController],
   providers: [SpeechService],

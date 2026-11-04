@@ -118,6 +118,20 @@ export const SttService = {
       WAV_CONTENT_TYPE,
     ),
 
+  /** 듣기 이야기 따라 읽기 — 참조 문장은 storyCode + sentenceId 로 서버가 찾는다 */
+  assessStory: (
+    storyCode: string,
+    sentenceId: string,
+    wav: ArrayBuffer,
+  ): Promise<AssessResult> =>
+    api.postBinary(
+      `/speech/assess-story?storyCode=${encodeURIComponent(
+        storyCode,
+      )}&sentenceId=${encodeURIComponent(sentenceId)}`,
+      wav,
+      WAV_CONTENT_TYPE,
+    ),
+
   /** 마이크 받아쓰기 — 발음 평가 없이 인식 결과만 */
   transcribe: (wav: ArrayBuffer): Promise<TranscribeResult> =>
     api.postBinary("/speech/transcribe", wav, WAV_CONTENT_TYPE),

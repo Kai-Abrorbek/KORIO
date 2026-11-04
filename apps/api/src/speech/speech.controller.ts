@@ -56,6 +56,24 @@ export class SpeechController {
     );
   }
 
+  /** 듣기 이야기 따라 읽기 — 참조 문장은 storyCode + sentenceId 로 서버가 찾는다 */
+  @Post('assess-story')
+  assessStory(
+    @Req() req: Request,
+    @Query('storyCode') storyCode: string,
+    @Query('sentenceId') sentenceId: string,
+  ) {
+    if (!storyCode?.trim() || !sentenceId?.trim()) {
+      throw new BadRequestException('STORY_SENTENCE_REQUIRED');
+    }
+    return this.speechService.assessStory(
+      this.userId(req),
+      storyCode.trim(),
+      sentenceId.trim(),
+      this.readAudio(req),
+    );
+  }
+
   @Post('assess-reading')
   assessReading(
     @Req() req: Request,

@@ -23,6 +23,7 @@ import {
   ReadingLessonDocument,
 } from '../reading-lessons/schemas/reading-lesson.schema';
 import { ReadingLessonsService } from '../reading-lessons/reading-lessons.service';
+import { StoriesService } from '../stories/stories.service';
 import { LessonsService } from '../lessons/lessons.service';
 import { UsersService } from '../users/users.service';
 import { SPEAKING_SENTENCE_XP } from '../lessons/economy.const';
@@ -116,6 +117,7 @@ export class SpeechService {
     private readonly readingLessons: ReadingLessonsService,
     private readonly lessonsService: LessonsService,
     private readonly usersService: UsersService,
+    private readonly storiesService: StoriesService,
   ) {}
 
   /** Speaking 문제: 참조 문장 대비 발음 평가 */
@@ -167,6 +169,64 @@ export class SpeechService {
       );
     });
     return result;
+  }
+
+  /**
+   * 듣기 이야기의 따라 읽기: 한 문장을 들은 뒤 그대로 말한다.
+   * 참조 문장은 storyCode + sentenceId 로 서버가 DB 에서 찾는다 (클라가 못 정함).
+   */
+  async assessStory(
+    userId: string,
+    storyCode: string,
+    sentenceId: string,
+    wav: Buffer,
+  ): Promise<AssessResult> {
+    this.consumeRateLimit(userId);
+    this.validateWav(wav);
+    const reference = await this.storiesService.resolveSentence(
+      storyCode,
+      sentenceId,
+    );
+    const result = await this.assessReference(
+      wav,
+      reference.referenceText,
+      undefined,
+      '이야기 따라 읽기',
+      reference.targetLanguage,
+    );
+    // 기록은 뒤에서 끝낸다 — 채점 결과를 DB 쓰기 여러 번이 붙잡을 이유가 없다
+    void this.recordStoryShadow(userId, reference, result).catch((error) => {
+      this.logger.warn(
+        `따라 읽기 기록 실패: story=${storyCode}/${sentenceId} ${String(error)}`,
+      );
+    });
+    return result;
+  }
+
+  /**
+   * 따라 읽기 한 문장의 기록. 말하기(recordSpeakingStudy)와 같은 이유로 서버가
+   * 직접 남긴다 — 통계는 conversation 버킷, XP 는 처음 통과한 문장에만.
+   */
+  private async recordStoryShadow(
+    userId: string,
+    reference: {
+      storyCode: string;
+      courseId: string;
+      sentenceId: string;
+      targetLanguage: string;
+    },
+    result: AssessResult,
+  ): Promise<void> {
+    if (result.status !== 'success') return;
+    await this.lessonsService.recordStudy(userId, {
+      targetLanguage: reference.targetLanguage,
+      questionCount: 1,
+      wrongCount: result.passed ? 0 : 1,
+      overrideCategory: StudyCategory.CONVERSATION,
+    });
+    await this.usersService.syncStreak(userId).catch(() => undefined);
+    if (!result.passed) return;
+    await this.storiesService.recordShadowPass(userId, reference);
   }
 
   /**
