@@ -460,8 +460,8 @@ export function buildKoreanGrammarTrack({
   units,
   definitions,
 }: {
-  section: 5 | 6;
-  level: '5' | '6';
+  section: 5 | 6 | 7;
+  level: '4' | '5' | '6';
   units: readonly Section5UnitDefinition[];
   definitions: readonly Section5GrammarTrackDefinition[];
 }) {

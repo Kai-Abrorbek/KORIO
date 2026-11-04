@@ -55,6 +55,7 @@ import { GT_S3_NODES, GT_S3_QUESTIONS } from './data/grammar-track/section3';
 import { GT_S4_NODES, GT_S4_QUESTIONS } from './data/grammar-track/section4';
 import { GT_S5_NODES, GT_S5_QUESTIONS } from './data/grammar-track/section5';
 import { GT_S6_NODES, GT_S6_QUESTIONS } from './data/grammar-track/section6';
+import { GT_S7_NODES, GT_S7_QUESTIONS } from './data/grammar-track/section7';
 import {
   normalizeKoreanGrammarTrackLevels,
   type KoreanGrammarTrackNode,
@@ -69,6 +70,7 @@ const KOREAN_TRACK = normalizeKoreanGrammarTrackLevels(
     ...GT_S4_NODES,
     ...GT_S5_NODES,
     ...GT_S6_NODES,
+    ...GT_S7_NODES,
   ] as KoreanGrammarTrackNode[],
   {
     ...GT_S1_QUESTIONS,
@@ -77,6 +79,7 @@ const KOREAN_TRACK = normalizeKoreanGrammarTrackLevels(
     ...GT_S4_QUESTIONS,
     ...GT_S5_QUESTIONS,
     ...GT_S6_QUESTIONS,
+    ...GT_S7_QUESTIONS,
   } as Record<string, KoreanGrammarTrackQuestion>,
 );
 
