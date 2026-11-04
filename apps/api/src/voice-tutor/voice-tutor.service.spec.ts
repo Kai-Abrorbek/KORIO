@@ -171,6 +171,8 @@ describe('VoiceTutorService lifecycle', () => {
           : expect.any(Array),
         1200,
         'ko',
+        // Only the filming script pins a TTS model.
+        undefined,
       );
     },
   );

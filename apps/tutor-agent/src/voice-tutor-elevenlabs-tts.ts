@@ -23,13 +23,15 @@ export class VoiceTutorElevenLabsTTS extends tts.TTS {
   constructor(
     private readonly apiKey: string,
     private readonly voiceId: string,
+    /** Pins the model for this session (the filming script uses eleven_v3). */
+    private readonly modelOverride?: string,
   ) {
     // LiveKit's StreamAdapter splits LLM output into sentences and calls synthesize().
     super(SAMPLE_RATE, 1, { streaming: false });
   }
 
   get model(): string {
-    return activeModel;
+    return this.modelOverride ?? activeModel;
   }
 
   get provider(): string {
@@ -48,6 +50,7 @@ export class VoiceTutorElevenLabsTTS extends tts.TTS {
       this.voiceId,
       connOptions,
       abortSignal,
+      this.modelOverride,
     );
   }
 
@@ -68,13 +71,14 @@ class ElevenLabsV3ChunkedStream extends tts.ChunkedStream {
     private readonly voiceId: string,
     connOptions?: APIConnectOptions,
     abortSignal?: AbortSignal,
+    private readonly modelOverride?: string,
   ) {
     super(text, owner, connOptions, abortSignal);
   }
 
   private request(
     path: "stream" | "plain",
-    model = activeModel,
+    model = this.modelOverride ?? activeModel,
   ): Promise<Response> {
     const suffix = path === "stream" ? "/stream" : "";
     return fetch(

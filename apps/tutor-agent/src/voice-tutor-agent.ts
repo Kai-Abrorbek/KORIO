@@ -581,7 +581,11 @@ export default defineAgent({
     const session = new voice.AgentSession({
       stt,
       llm: new ApiDelegatedLLM(),
-      tts: new VoiceTutorElevenLabsTTS(elevenLabsKey, metadata.voiceId),
+      tts: new VoiceTutorElevenLabsTTS(
+        elevenLabsKey,
+        metadata.voiceId,
+        metadata.ttsModel,
+      ),
       // 말이 끝나고 이만큼 조용하면 턴을 넘긴다. 레퍼런스 튜터는 학습자가 멈추고
       // ~1.5초 안에 말을 시작한다 — 0.8초 대기만으로 예산 절반이 날아갔다.
       // 학습자가 말하다 자주 끊긴다면 VOICE_TUTOR_ENDPOINTING_MIN_MS 를 올릴 것

@@ -221,6 +221,8 @@ export class VoiceTutorService {
         sttKeywordsFromPlan(plan, opening.taught, targetLanguage),
         quota.allowedSec,
         targetLanguage,
+        // v4 Turbo reads [laughs] flat; the filming script needs the acting.
+        scripted ? 'eleven_v3' : undefined,
       );
     } catch (error) {
       await Promise.all([
