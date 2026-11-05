@@ -19,6 +19,8 @@ export interface TopikSpeechSegment {
   transcript: TopikAudioLine[];
   questionNumber?: number;
   pauseAfterMs?: number;
+  /** 대본 TTS 속도 (audio.speechRate). 없으면 문항 번호 기본값 */
+  speechRate?: number;
 }
 
 export interface TopikPlaybackRequest {
@@ -27,6 +29,8 @@ export interface TopikPlaybackRequest {
   transcript: TopikAudioLine[];
   speechSegments?: TopikSpeechSegment[];
   questionNumber?: number;
+  /** 대본 TTS 속도 (audio.speechRate). 녹음 파일 재생 속도에는 쓰지 않는다 */
+  speechRate?: number;
   repeatCount?: number;
   repeatPauseMs?: number;
   fallbackToSpeech?: boolean;
@@ -50,6 +54,7 @@ function soundBlocked() {
   }
 }
 
+/** 예비 속도 — 서버가 문항 음성마다 주는 speechRate(원본 기출 빠르기)가 없을 때만 (앱과 같음) */
 function listeningRate(questionNumber?: number) {
   if (!questionNumber) return 1;
   if (questionNumber <= 20) return 0.82;
@@ -112,6 +117,7 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
         : [{
             questionNumber: playback.questionNumber,
             transcript: playback.transcript,
+            speechRate: playback.speechRate,
           }];
       setActiveKey(playback.key);
       setStatus("playing");
@@ -150,9 +156,9 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
               respectSoundSettings: respectSettings,
               volume: playback.volume,
               onEnd: () => speakLine(repeatIndex, segmentIndex, lineIndex + 1),
-              rate: listeningRate(
-                segment.questionNumber ?? playback.questionNumber,
-              ),
+              rate:
+                segment.speechRate ??
+                listeningRate(segment.questionNumber ?? playback.questionNumber),
             });
             return;
           }

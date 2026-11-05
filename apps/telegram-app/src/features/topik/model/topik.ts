@@ -47,6 +47,8 @@ export interface TopikAudio {
   guidedPlaybackLimit: number;
   guidedAutoRepeatCount?: number;
   speechFallback: boolean;
+  /** 대본 TTS 속도 — 원본 기출 음원의 이 문항 빠르기에 맞춘 값 (없으면 문항 번호 기본값) */
+  speechRate?: number;
 }
 
 export interface TopikTextSegment {

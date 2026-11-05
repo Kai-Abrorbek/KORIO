@@ -132,6 +132,14 @@ export class TopikAudio {
 
   @Prop({ default: true })
   speechFallback: boolean;
+
+  /**
+   * 대본을 TTS(Azure)로 읽을 때의 속도 배율. 공개 기출 원본 음원에서 이 문항의 말
+   * 빠르기를 재서 같은 빠르기가 되게 맞춘 값이다 (topik-listening-rates.generated.ts).
+   * 없으면 앱이 문항 번호로 정한 기본 속도를 쓴다.
+   */
+  @Prop({ type: Number, min: 0.5, max: 1.6 })
+  speechRate?: number;
 }
 
 export const TopikAudioSchema = SchemaFactory.createForClass(TopikAudio);

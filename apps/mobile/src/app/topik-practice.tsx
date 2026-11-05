@@ -147,6 +147,7 @@ export default function TopikPracticeScreen() {
       audioUrl: audio.audioUrl,
       transcript: audio.transcript,
       questionNumber: question.number,
+      speechRate: audio.speechRate,
       fallbackToSpeech: audio.speechFallback,
     });
   };

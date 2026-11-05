@@ -75,6 +75,7 @@ import {
   TOPIK_WRITING_MOCK_2_SEED,
   TopikExamSeed,
 } from './data/topik';
+import { withTopikListeningRates } from './data/topik/topik-listening-rates';
 import {
   validateTopikII35ReadingSeed,
   validateTopikII83ReadingSeed,
@@ -384,14 +385,22 @@ async function seedTopik() {
       for (const groupData of groups) {
         const group = await groupModel.findOneAndUpdate(
           { examId: exam._id, code: groupData.code },
-          { $set: { ...groupData, examId: exam._id } },
+          {
+            $set: {
+              ...withTopikListeningRates(groupData, examData.examType),
+              examId: exam._id,
+            },
+          },
           { upsert: true, returnDocument: 'after', runValidators: true },
         );
         groupIdByCode.set(group.code, group._id);
       }
 
       for (const questionData of questions) {
-        const { groupCode, ...content } = questionData;
+        const { groupCode, ...content } = withTopikListeningRates(
+          questionData,
+          examData.examType,
+        );
         const groupId = groupIdByCode.get(groupCode);
 
         if (!groupId) {

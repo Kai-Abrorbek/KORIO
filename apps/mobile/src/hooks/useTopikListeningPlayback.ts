@@ -49,7 +49,8 @@ interface ResolvedPlaybackRun {
   speechSegments: ResolvedTopikListeningSpeechSegment[];
   repeatCount: number;
   repeatPauseMs: number;
-  speechRate: number;
+  /** 녹음 파일(audioUrl) 재생 속도. 대본 TTS 속도(speechRate)와 따로 둔다 */
+  nativeRate: number;
   volume: number;
   fallbackToSpeech: boolean;
 }
@@ -286,7 +287,7 @@ export function useTopikListeningPlayback() {
         speechSegments,
         repeatCount: Math.max(1, request.repeatCount ?? 1),
         repeatPauseMs: Math.max(0, request.repeatPauseMs ?? 0),
-        speechRate: defaultSpeechRate,
+        nativeRate: getTopikListeningRate(request.questionNumber),
         volume,
         fallbackToSpeech: request.fallbackToSpeech ?? false,
       };
@@ -312,7 +313,7 @@ export function useTopikListeningPlayback() {
         try {
           audioPlayer.volume = run.volume;
           // expo-audio 56 Android 는 playbackRate 대입 시 던진다 (setter 미구현)
-          audioPlayer.setPlaybackRate(run.speechRate);
+          audioPlayer.setPlaybackRate(run.nativeRate);
           audioPlayer.replace(run.audioUrl);
           audioPlayer.play();
         } catch {

@@ -233,6 +233,7 @@ export function TopikExamScreen() {
         const repeat = Math.max(1, audio.guidedAutoRepeatCount ?? (startNumber >= 21 ? 2 : 1));
         return Array.from({ length: repeat }, (_, repeatIndex) => ({
           questionNumber: startNumber,
+          speechRate: audio.speechRate,
           transcript: [
             ...(repeatIndex === 0 ? [{ speaker: "안내", text: startNumber === endNumber ? `${startNumber}번 문제입니다.` : `${startNumber}번과 ${endNumber}번 문제입니다.` }] : []),
             ...audio.transcript,
@@ -262,6 +263,7 @@ export function TopikExamScreen() {
       audioUrl: audio.audioUrl,
       transcript: audio.transcript,
       questionNumber,
+      speechRate: audio.speechRate,
       repeatCount,
       repeatPauseMs: repeatCount > 1 ? 900 : 0,
       fallbackToSpeech: audio.speechFallback,

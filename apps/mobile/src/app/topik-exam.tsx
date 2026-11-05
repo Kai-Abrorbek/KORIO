@@ -181,6 +181,7 @@ export default function TopikExamScreen() {
                 ...audio.transcript,
               ],
               questionNumber: startNumber,
+              speechRate: audio.speechRate,
               pauseAfterMs:
                 repeatIndex === repeatCount - 1
                   ? questionCount * TOPIK_ANSWER_TIME_PER_QUESTION_MS
@@ -301,6 +302,7 @@ export default function TopikExamScreen() {
         audioUrl: audio.audioUrl,
         transcript: audio.transcript,
         questionNumber,
+        speechRate: audio.speechRate,
         repeatCount,
         repeatPauseMs: repeatCount > 1 ? 900 : 0,
         fallbackToSpeech: audio.speechFallback,

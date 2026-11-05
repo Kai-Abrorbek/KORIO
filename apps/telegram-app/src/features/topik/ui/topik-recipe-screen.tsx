@@ -88,6 +88,7 @@ export function TopikRecipeScreen() {
       audioUrl: question.audio.audioUrl,
       transcript: question.audio.transcript,
       questionNumber: question.number,
+      speechRate: question.audio.speechRate,
       fallbackToSpeech: question.audio.speechFallback,
     });
   };
