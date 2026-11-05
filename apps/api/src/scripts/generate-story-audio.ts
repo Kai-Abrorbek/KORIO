@@ -356,7 +356,7 @@ function writeMobileRegistry(map: GeneratedStoryAudioMap) {
     [
       '// 자동 생성 파일 — 손으로 고치지 않는다.',
       '// pnpm --filter api story:audio 가 내레이션 mp3 를 만들고 이 표를 다시 쓴다.',
-      '// 서버가 주는 audio.key 가 여기 없으면(앱이 오래됨) 문장별 TTS 로 대신 읽는다.',
+      '// 서버가 주는 audio.key 가 여기 없으면 그 이야기는 잠긴다 (storyAudio.ts).',
       '',
       'export const STORY_AUDIO_FILES: Record<string, number> = {',
       ...keys.map(

@@ -29,6 +29,7 @@ import {
 import { StoriesService } from "@/services/stories.service";
 import { StoryScene } from "./StoryScene";
 import { sceneOf, withAlpha } from "./scenes";
+import { storyAudioState, type StoryAudioState } from "./storyAudio";
 import { formatClock, useStoriesCopy, type StoriesCopy } from "./stories.copy";
 import type {
   StoryLevelGroup,
@@ -75,7 +76,10 @@ export default function StoryLibraryScreen() {
           (group) => group.level === lastLevel.get(course),
         );
         const open = response.levels.findIndex((group) =>
-          group.stories.some((story) => !story.progress.completed),
+          group.stories.some(
+            (story) =>
+              !story.progress.completed && storyAudioState(story) === "ready",
+          ),
         );
         const start = remembered >= 0 ? remembered : Math.max(0, open);
         setIndex(start);
@@ -345,17 +349,23 @@ function LevelPage({
     );
   }
 
-  const hero = group.stories.find((story) => !story.progress.completed) ?? group.stories[0];
-  const rest = group.stories.filter((story) => story.code !== hero.code);
+  // 낭독 파일이 없는 이야기는 잠가서 맨 아래에 둔다 — 크게 보여 주는 건 들을 수 있는 것만
+  const ready = group.stories.filter((story) => storyAudioState(story) === "ready");
+  const locked = group.stories.filter((story) => storyAudioState(story) !== "ready");
+  const hero = ready.find((story) => !story.progress.completed) ?? ready[0];
+  const rest = [...ready.filter((story) => story.code !== hero?.code), ...locked];
 
   return (
     <View>
-      <HeroCard story={hero} copy={copy} width={width - 32} onPress={() => onOpen(hero)} />
+      {hero && (
+        <HeroCard story={hero} copy={copy} width={width - 32} onPress={() => onOpen(hero)} />
+      )}
       <View style={styles.list}>
         {rest.map((story) => (
           <StoryRow
             key={story.code}
             story={story}
+            audioState={storyAudioState(story)}
             copy={copy}
             isDark={isDark}
             textColor={textColor}
@@ -455,6 +465,7 @@ function HeroCard({
 
 function StoryRow({
   story,
+  audioState,
   copy,
   isDark,
   textColor,
@@ -464,6 +475,7 @@ function StoryRow({
   onPress,
 }: {
   story: StorySummary;
+  audioState: StoryAudioState;
   copy: StoriesCopy;
   isDark: boolean;
   textColor: string;
@@ -474,19 +486,32 @@ function StoryRow({
 }) {
   const sink = useSink(4);
   const slab = isDark ? "#0F0F15" : "#DAD6EE";
+  const locked = audioState !== "ready";
+  const lockedLabel = audioState === "update" ? copy.lockedUpdateShort : copy.lockedSoon;
 
   return (
     <Pressable
       onPress={onPress}
       onPressIn={sink.onPressIn}
       onPressOut={sink.onPressOut}
+      disabled={locked}
       accessibilityRole="button"
-      accessibilityLabel={`${story.title}, ${story.topic}`}
+      accessibilityState={{ disabled: locked }}
+      accessibilityLabel={
+        locked
+          ? `${story.title}, ${story.topic}, ${lockedLabel}`
+          : `${story.title}, ${story.topic}`
+      }
       style={styles.rowWrap}
     >
       <View style={[styles.rowSlab, { backgroundColor: slab }]} />
       <Animated.View
-        style={[styles.row, { backgroundColor: surface, borderColor: border }, sink.style]}
+        style={[
+          styles.row,
+          { backgroundColor: surface, borderColor: border },
+          locked && styles.rowLocked,
+          sink.style,
+        ]}
       >
         <View style={styles.thumb}>
           <StoryScene scene={story.scene} width={64} height={64} animated={false} />
@@ -498,11 +523,15 @@ function StoryRow({
           <Text numberOfLines={1} style={[styles.rowTopic, { color: mutedColor }]}>
             {story.topic}
           </Text>
-          <Text style={[styles.rowMeta, { color: mutedColor }]}>
-            {`${story.narrator.name}  ·  ${formatClock(story.audio.durationMs)}`}
+          <Text numberOfLines={1} style={[styles.rowMeta, { color: mutedColor }]}>
+            {locked
+              ? `${story.narrator.name}  ·  ${lockedLabel}`
+              : `${story.narrator.name}  ·  ${formatClock(story.audio.durationMs)}`}
           </Text>
         </View>
-        {story.progress.completed ? (
+        {locked ? (
+          <Ionicons name="lock-closed" size={20} color={mutedColor} />
+        ) : story.progress.completed ? (
           <View style={styles.done} accessibilityLabel={copy.done}>
             <Ionicons name="checkmark" size={15} color="#FFFFFF" />
           </View>
@@ -595,6 +624,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
   },
+  rowLocked: { opacity: 0.55 },
   thumb: { width: 64, height: 64, borderRadius: 14, overflow: "hidden" },
   rowTitle: { fontSize: 15, lineHeight: 20, fontWeight: "900" },
   rowTopic: { marginTop: 1, fontSize: 12.5, fontWeight: "700" },

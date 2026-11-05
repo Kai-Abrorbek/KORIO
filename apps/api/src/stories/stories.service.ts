@@ -303,14 +303,20 @@ export class StoriesService {
     return result.added;
   }
 
+  /**
+   * 다음에 저절로 틀 이야기. 낭독이 아직 없는 이야기(audio.key 가 빔)는 앱이 잠그니까
+   * 건너뛰고 그다음 들을 수 있는 이야기로 넘긴다.
+   */
   private async nextStoryCode(story: StoryLean): Promise<string | null> {
     const siblings = await this.storyModel
       .find({ courseId: story.courseId, isActive: true })
-      .select({ code: 1, level: 1, order: 1 })
+      .select({ code: 1, level: 1, order: 1, 'audio.key': 1 })
       .lean<StoryLean[]>();
     const sorted = siblings.sort(byLevelThenOrder(story.courseId));
     const index = sorted.findIndex((item) => item.code === story.code);
-    return index >= 0 ? (sorted[index + 1]?.code ?? null) : null;
+    if (index < 0) return null;
+    const next = sorted.slice(index + 1).find((item) => !!item.audio?.key);
+    return next?.code ?? null;
   }
 
   private toSummary(

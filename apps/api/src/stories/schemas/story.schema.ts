@@ -66,7 +66,7 @@ export class StorySentence {
   @Prop({ type: StoryTranslationSchema, required: true })
   translation: StoryTranslation;
 
-  /** 오디오 타이밍. 오디오가 아직 없으면 0 이고 앱은 문장별 TTS 로 대신 읽는다 */
+  /** 오디오 타이밍. 오디오가 아직 없으면 0 이고 앱은 그 이야기를 잠근다 */
   @Prop({ default: 0, min: 0 })
   startMs: number;
 
@@ -112,8 +112,9 @@ export const StoryQuestionSchema = SchemaFactory.createForClass(StoryQuestion);
  * 내레이션 오디오.
  *
  * `key` 는 앱 번들 파일 이름이다 (`<code>-<본문 해시 8자>`). 본문이 바뀌면 해시가
- * 바뀌어서, 새 오디오가 안 실린 옛 앱은 그 키를 못 찾고 TTS 로 대신 읽는다 —
- * 엉뚱한 오디오에 엉뚱한 단어가 켜지는 일이 없다.
+ * 바뀌어서, 새 오디오가 안 실린 옛 앱은 그 키를 못 찾고 "업데이트하면 열려요" 로
+ * 잠근다 — 엉뚱한 오디오에 엉뚱한 단어가 켜지는 일이 없다. 듣는 중에 음성 합성
+ * API 를 부르는 길은 없다. 키가 비어 있으면(낭독 전) 다음 이야기로도 넘기지 않는다.
  */
 @Schema({ _id: false })
 export class StoryAudio {

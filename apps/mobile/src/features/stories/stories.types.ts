@@ -15,7 +15,7 @@ export interface StoryProgressSummary {
 
 export interface StorySummary {
   code: string;
-  /** 이야기 언어 ("en") — 기기 TTS 로케일·설명 언어를 고를 때 */
+  /** 이야기 언어 ("en") — 설명 언어를 고를 때 */
   targetLanguage: string;
   level: StoryLevel;
   order: number;
@@ -25,6 +25,7 @@ export interface StorySummary {
   topic: string;
   scene: SceneKey;
   narrator: { name: string };
+  /** key 가 비었거나 이 앱에 그 낭독 파일이 없으면 잠근다 (storyAudio.ts) */
   audio: { key: string; durationMs: number };
   sentenceCount: number;
   progress: StoryProgressSummary;
@@ -42,7 +43,7 @@ export interface StorySentence {
   translation: string;
   startMs: number;
   endMs: number;
-  /** 오디오가 없으면 비어 온다 (TTS 로 읽는다) */
+  /** 오디오가 없으면 비어 온다 (그 이야기는 잠긴다) */
   words: StoryWord[];
 }
 

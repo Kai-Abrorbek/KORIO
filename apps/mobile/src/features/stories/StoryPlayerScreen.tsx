@@ -37,6 +37,7 @@ import {
   translationBadge,
   useStoriesCopy,
 } from "./stories.copy";
+import { storyAudioState } from "./storyAudio";
 import { useStoryPlayer } from "./useStoryPlayer";
 import { useStoryShadowing } from "./useStoryShadowing";
 import type { StoryDetail } from "./stories.types";
@@ -101,8 +102,13 @@ export default function StoryPlayerScreen() {
     void load();
   }, [load]);
 
-  const player = useStoryPlayer(story, { onEnded: () => setFinished(true) });
-  const shadowing = useStoryShadowing(story, player, {
+  // 낭독 파일이 이 앱에 없는 이야기는 잠근다 — 재생·따라 읽기 엔진에 아예 넘기지 않는다
+  const audioState = story ? storyAudioState(story) : null;
+  const locked = audioState !== null && audioState !== "ready";
+  const playable = locked ? null : story;
+
+  const player = useStoryPlayer(playable, { onEnded: () => setFinished(true) });
+  const shadowing = useStoryShadowing(playable, player, {
     onFinished: () => setFinished(true),
   });
 
@@ -141,14 +147,10 @@ export default function StoryPlayerScreen() {
   );
 
   const ticks = useMemo(() => {
-    if (!story) return [];
+    if (!story || !player.ready) return [];
     const total = player.durationMs || 1;
-    return story.sentences.map((sentence, index) =>
-      player.mode === "audio"
-        ? sentence.startMs / total
-        : index / story.sentences.length,
-    );
-  }, [player.durationMs, player.mode, story]);
+    return story.sentences.map((sentence) => sentence.startMs / total);
+  }, [player.durationMs, player.ready, story]);
 
   /* ── 지금 문장을 따라 스크롤 ── */
   const scrollRef = useRef<ScrollView>(null);
@@ -253,9 +255,14 @@ export default function StoryPlayerScreen() {
     return () => sub.remove();
   }, [closeWordSheet, finished, shadowActive, stopShadowing, wordSheet]);
 
+  const goBack = useCallback(() => {
+    if (router.canGoBack()) router.back();
+    else router.replace({ pathname: "/stories", params: { course } });
+  }, [course]);
+
   const title = story?.title ?? params.title ?? "";
   const meta = story
-    ? [story.topic, story.narrator.name, formatClock(player.durationMs)]
+    ? [story.topic, story.narrator.name, locked ? "" : formatClock(player.durationMs)]
         .filter(Boolean)
         .join("  ·  ")
     : "";
@@ -274,11 +281,7 @@ export default function StoryPlayerScreen() {
         />
         <View style={[styles.topBar, { top: insets.top + 6 }]}>
           <Pressable
-            onPress={() =>
-              router.canGoBack()
-                ? router.back()
-                : router.replace({ pathname: "/stories", params: { course } })
-            }
+            onPress={goBack}
             accessibilityRole="button"
             accessibilityLabel={copy.close}
             hitSlop={8}
@@ -326,7 +329,21 @@ export default function StoryPlayerScreen() {
         </View>
       )}
 
-      {loadState === "ready" && story && (
+      {loadState === "ready" && story && locked && (
+        <Animated.View entering={FadeIn.duration(260)} style={styles.center}>
+          <View style={[styles.lockBadge, { backgroundColor: withAlpha(palette.ink, 0.1) }]}>
+            <Ionicons name="lock-closed" size={26} color={palette.ink} />
+          </View>
+          <Text style={[styles.stateText, { color: palette.ink }]}>
+            {audioState === "update" ? copy.lockedUpdate : copy.lockedPending}
+          </Text>
+          <Pressable onPress={goBack} accessibilityRole="button" style={styles.retry}>
+            <Text style={styles.retryText}>{copy.backToList}</Text>
+          </Pressable>
+        </Animated.View>
+      )}
+
+      {loadState === "ready" && story && !locked && (
         <Animated.View entering={FadeIn.duration(260)} style={styles.flex}>
           <ScrollView
             ref={scrollRef}
@@ -338,11 +355,6 @@ export default function StoryPlayerScreen() {
               manualUntilRef.current = Date.now() + 4000;
             }}
           >
-            {player.mode === "tts" && (
-              <Text style={[styles.ttsNote, { color: withAlpha(palette.ink, 0.55) }]}>
-                {copy.ttsNote}
-              </Text>
-            )}
             {story.sentences.map((sentence, index) => {
               const state =
                 activeSentence < 0
@@ -384,7 +396,7 @@ export default function StoryPlayerScreen() {
         </Animated.View>
       )}
 
-      {story && (
+      {story && !locked && (
         <>
           <StoryShadowPanel
             palette={palette}
@@ -397,12 +409,7 @@ export default function StoryPlayerScreen() {
             copy={copy}
             playing={player.status === "playing" && !shadowing.active}
             progress={player.progress}
-            elapsedMs={
-              player.mode === "audio"
-                ? player.elapsedMs
-                : (Math.max(0, activeSentence) / Math.max(1, story.sentences.length)) *
-                  player.durationMs
-            }
+            elapsedMs={player.elapsedMs}
             durationMs={player.durationMs}
             ticks={ticks}
             rate={player.rate}
@@ -442,12 +449,12 @@ export default function StoryPlayerScreen() {
           word={wordSheet.word}
           meaning={wordSheet.meaning}
           bottomInset={insets.bottom}
-          onHear={() => playWord(wordSheet.sentenceIndex, wordSheet.wordIndex, wordSheet.word)}
+          onHear={() => playWord(wordSheet.sentenceIndex, wordSheet.wordIndex)}
           onClose={closeWordSheet}
         />
       )}
 
-      {finished && story && (
+      {finished && story && !locked && (
         <StoryFinishSheet
           story={story}
           palette={palette}
@@ -516,12 +523,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   retryText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
-  ttsNote: {
-    marginHorizontal: 24,
-    marginBottom: 6,
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: "700",
+  lockBadge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
   },
   bottomFade: { position: "absolute", left: 0, right: 0, bottom: 0 },
 });

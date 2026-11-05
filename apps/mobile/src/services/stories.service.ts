@@ -31,14 +31,6 @@ export function storyContentLang(targetLanguage: string): string {
   );
 }
 
-/** 이야기 언어 → 기기 TTS 로케일 (번들 오디오가 없을 때만 쓴다) */
-export function storySpeechLocale(targetLanguage: string | undefined): string {
-  const course = Object.values(DEFAULT_LEARNING_COURSES).find(
-    (entry) => entry.targetLanguage === targetLanguage,
-  );
-  return course?.speechLocale ?? "en-US";
-}
-
 export const StoriesService = {
   list: (course: LearnCourse): Promise<StoryLibraryResponse> => {
     const scope = DEFAULT_LEARNING_COURSES[course];
