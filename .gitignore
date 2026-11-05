@@ -75,3 +75,6 @@ apps/mobile/assets/images/reading-listening/lessons/_png-원본/
 
 # Claude 가 채팅으로 보낸 파일이 데스크톱 앱을 통해 여기 떨어진다
 Claude outputs/
+
+# Claude Code 개인 설정 (훅·언어 등 — 공개 저장소에 올리지 않는다)
+.claude/settings.local.json
