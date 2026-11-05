@@ -13,8 +13,9 @@ import {
   STORY_REPEAT_XP_RATE,
   STORY_SHADOW_XP_PER_SENTENCE,
 } from '../lessons/economy.const';
-import { STORY_LEVELS, type StoryQueryLanguage } from './stories.const';
+import type { StoryContentLanguage } from './stories.const';
 import { pickStoryTranslation } from './story-content.util';
+import { storyCourseOf } from './story-courses';
 import {
   StoryProgress,
   StoryProgressDocument,
@@ -24,16 +25,16 @@ import { Story, StoryDocument } from './schemas/story.schema';
 type StoryLean = Story & { _id: Types.ObjectId };
 type ProgressLean = StoryProgress & { _id: Types.ObjectId };
 
-const LEVEL_RANK = new Map<string, number>(
-  STORY_LEVELS.map((level, index) => [level, index]),
-);
-
-/** 레벨 → 순서로 정렬 (A1 1편, A1 2편, … A2 1편 …) */
-function byLevelThenOrder(a: StoryLean, b: StoryLean) {
-  return (
-    (LEVEL_RANK.get(a.level) ?? 99) - (LEVEL_RANK.get(b.level) ?? 99) ||
-    a.order - b.order
+/** 코스 레벨 순서 → 편 순서로 정렬 (A1 1편, A1 2편, … A2 1편 …). 모르는 레벨은 뒤로 */
+function byLevelThenOrder(courseId: string) {
+  const rank = new Map(
+    (storyCourseOf(courseId)?.levels ?? []).map((level, index) => [
+      level.key,
+      index,
+    ]),
   );
+  return (a: StoryLean, b: StoryLean) =>
+    (rank.get(a.level) ?? 99) - (rank.get(b.level) ?? 99) || a.order - b.order;
 }
 
 @Injectable()
@@ -51,13 +52,18 @@ export class StoriesService {
     private readonly usersService: UsersService,
   ) {}
 
-  /** 코스의 이야기 전부를 레벨별로. 목록은 가볍게 — 본문·타이밍은 안 보낸다 */
-  async list(scope: CourseScope, lang: StoryQueryLanguage, userId: string) {
+  /**
+   * 코스의 이야기 전부를 레벨별로. 목록은 가볍게 — 본문·타이밍은 안 보낸다.
+   * 레벨 탭(이름까지)은 코스 표에서 온다 — 아직 이야기가 없는 레벨도 빈 탭으로 내려간다.
+   */
+  async list(scope: CourseScope, lang: StoryContentLanguage, userId: string) {
     const [stories, progressRows] = await Promise.all([
       this.storyModel
         .find({ courseId: scope.courseId, isActive: true })
         .select({
           code: 1,
+          courseId: 1,
+          targetLanguage: 1,
           level: 1,
           order: 1,
           title: 1,
@@ -79,23 +85,27 @@ export class StoriesService {
     const progressByCode = new Map(
       progressRows.map((row) => [row.storyCode, row]),
     );
-    const sorted = [...stories].sort(byLevelThenOrder);
+    const sorted = [...stories].sort(byLevelThenOrder(scope.courseId));
+    const course = storyCourseOf(scope.courseId);
+    const levels = course?.levels ?? [];
 
     return {
       courseId: scope.courseId,
-      levels: STORY_LEVELS.map((level) => ({
-        level,
+      targetLanguage: scope.targetLanguage,
+      levels: levels.map((level) => ({
+        level: level.key,
+        label: level.label[lang] || level.label.en,
         stories: sorted
-          .filter((story) => story.level === level)
+          .filter((story) => story.level === level.key)
           .map((story) =>
             this.toSummary(story, lang, progressByCode.get(story.code)),
           ),
-      })).filter((group) => group.stories.length > 0),
+      })),
     };
   }
 
   /** 한 편 전체. 번역은 요청한 설명 언어 하나만 보낸다 (느린 망에서 3배 아낀다) */
-  async getByCode(code: string, lang: StoryQueryLanguage, userId: string) {
+  async getByCode(code: string, lang: StoryContentLanguage, userId: string) {
     const story = await this.storyModel
       .findOne({ code, isActive: true })
       .lean<StoryLean>();
@@ -113,7 +123,11 @@ export class StoriesService {
       sentences: story.sentences.map((sentence) => ({
         id: sentence.id,
         text: sentence.text,
-        translation: pickStoryTranslation(sentence.translation, lang),
+        translation: pickStoryTranslation(
+          sentence.translation,
+          lang,
+          story.courseId,
+        ),
         startMs: sentence.startMs,
         endMs: sentence.endMs,
         words: sentence.words.map((word) => ({
@@ -124,7 +138,7 @@ export class StoriesService {
       })),
       vocabulary: story.vocabulary.map((item) => ({
         word: item.word,
-        meaning: pickStoryTranslation(item.meaning, lang),
+        meaning: pickStoryTranslation(item.meaning, lang, story.courseId),
       })),
       questions: story.questions.map((question) => ({
         id: question.id,
@@ -294,22 +308,23 @@ export class StoriesService {
       .find({ courseId: story.courseId, isActive: true })
       .select({ code: 1, level: 1, order: 1 })
       .lean<StoryLean[]>();
-    const sorted = siblings.sort(byLevelThenOrder);
+    const sorted = siblings.sort(byLevelThenOrder(story.courseId));
     const index = sorted.findIndex((item) => item.code === story.code);
     return index >= 0 ? (sorted[index + 1]?.code ?? null) : null;
   }
 
   private toSummary(
     story: StoryLean,
-    lang: StoryQueryLanguage,
+    lang: StoryContentLanguage,
     progress: ProgressLean | undefined,
   ) {
     return {
       code: story.code,
+      targetLanguage: story.targetLanguage,
       level: story.level,
       order: story.order,
       title: story.title,
-      topic: pickStoryTranslation(story.topic, lang),
+      topic: pickStoryTranslation(story.topic, lang, story.courseId),
       scene: story.scene,
       narrator: { name: story.narrator?.name ?? '' },
       audio: {

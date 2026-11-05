@@ -79,3 +79,8 @@ test("tokens match the server's split and vocabulary normalisation", () => {
   assert.equal(timing.normalizeToken("“Brave”,"), "brave");
   assert.equal(timing.normalizeToken("o’clock."), "o'clock");
 });
+
+test("key words survive in any script (other language courses)", () => {
+  assert.equal(timing.normalizeToken("«Привет!»"), "привет");
+  assert.equal(timing.normalizeToken("“학교에서,”"), "학교에서");
+});

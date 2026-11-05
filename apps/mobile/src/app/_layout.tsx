@@ -163,7 +163,7 @@ export default function RootLayout() {
               options={{ animation: "slide_from_right", gestureEnabled: false }}
             />
             <Stack.Screen
-              name="english-stories"
+              name="stories"
               options={{ animation: "slide_from_right" }}
             />
             <Stack.Screen

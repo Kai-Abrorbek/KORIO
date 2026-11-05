@@ -1,9 +1,10 @@
 /**
- * 영어 듣기 이야기 내레이션을 ElevenLabs 로 만든다 — 오디오 + 단어별 타이밍.
+ * 듣기 이야기 내레이션을 ElevenLabs 로 만든다 — 오디오 + 단어별 타이밍 (모든 코스).
  *
  *   pnpm --filter api story:audio                       없거나 낡은 것만
  *   pnpm --filter api story:audio --only=en-story-a1-01 한 편만 (쉼표로 여러 편)
  *   pnpm --filter api story:audio --force               전부 다시
+ *   pnpm --filter api story:audio --prune               API 안 부르고 정리만 (낡은 표·고아 mp3 제거)
  *
  * 문장마다 따로 만들고(앞뒤 문장을 previous_text/next_text 로 넘겨 억양을 잇는다)
  * 사이에 쉼을 넣어 한 파일로 붙인다. 문장 단위로 만들어야 쉼 길이를 우리가 정하고,
@@ -12,8 +13,10 @@
  * 결과:
  *   apps/mobile/assets/audio/stories/<code>-<해시>.mp3        앱 번들 (모노 48kbps)
  *   apps/mobile/src/features/stories/storyAudio.generated.ts   앱이 키로 파일을 찾는 표
- *   apps/api/src/seed/data/english-stories/story-audio.generated.ts  문장·단어 타이밍
+ *   apps/api/src/seed/data/stories/story-audio.generated.ts    문장·단어 타이밍
  * 그다음 seed:validate-stories → seed:stories → 앱은 OTA.
+ *
+ * 언어·말 빠르기는 코스 표(stories/story-courses.ts), 목소리는 seed/data/stories/narrators.ts.
  *
  * 필요: ffmpeg (PATH), ELEVENLABS_API_KEY (환경 변수 또는 apps/api/.env — 화면에 안 찍는다).
  */
@@ -29,9 +32,14 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import {
-  ENGLISH_STORY_AUDIO,
-  ENGLISH_STORY_SEEDS,
-} from '../seed/data/english-stories';
+  STORY_AUDIO,
+  STORY_NARRATORS,
+  STORY_SEED_SETS,
+} from '../seed/data/stories';
+import {
+  storyCourseOf,
+  type StoryCourseConfig,
+} from '../stories/story-courses';
 import {
   isGeneratedAudioFresh,
   storyAudioKey,
@@ -50,20 +58,16 @@ const MOBILE_REGISTRY = join(
 );
 const API_TIMINGS = join(
   ROOT,
-  'apps/api/src/seed/data/english-stories/story-audio.generated.ts',
+  'apps/api/src/seed/data/stories/story-audio.generated.ts',
 );
 
-/** 주인공 → ElevenLabs 기본 목소리 (계정 premade). 바꾸면 그 주인공 이야기를 다시 만든다 */
-const NARRATOR_VOICES: Record<string, { voiceId: string; label: string }> = {
-  rustam: { voiceId: 'pqHfZKP75CvOlQylNhV4', label: 'Bill — wise, old' },
-  malika: { voiceId: 'cgSgspJ2msm6clMCkdW9', label: 'Jessica — bright, warm' },
-  jasur: { voiceId: 'bIHbv24MWmeRgasZH58o', label: 'Will — relaxed, young' },
-  dilnoza: { voiceId: 'EXAVITQu4vr4xnSDxMaL', label: 'Sarah — calm, mature' },
-  aziz: { voiceId: 'iP95p4xoKVk53GoZ742B', label: 'Chris — down-to-earth' },
-};
-
-/** 레벨별 말 빠르기. 앱에서 0.75배로 더 늦출 수 있다 */
-const LEVEL_SPEED: Record<string, number> = { A1: 0.9, A2: 0.95, B1: 1 };
+/** 모든 코스의 이야기를 한 줄로 (코스 정보와 함께) */
+const ALL_STORIES = STORY_SEED_SETS.flatMap((set) => {
+  const course = storyCourseOf(set.courseId);
+  if (!course)
+    throw new Error(`story-courses.ts 에 없는 코스: ${set.courseId}`);
+  return set.stories.map((seed) => ({ course, seed }));
+});
 /** 문장 사이 쉼 */
 const SENTENCE_GAP_MS = 650;
 const MODEL_ID = 'eleven_multilingual_v2';
@@ -99,6 +103,7 @@ async function speakSentence(
   previousText: string | undefined,
   nextText: string | undefined,
   speed: number,
+  languageCode: string,
 ): Promise<{ mp3: Buffer; alignment: Alignment }> {
   const url = `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/with-timestamps?output_format=mp3_44100_128`;
   const response = await fetch(url, {
@@ -107,7 +112,7 @@ async function speakSentence(
     body: JSON.stringify({
       text,
       model_id: MODEL_ID,
-      language_code: 'en',
+      language_code: languageCode,
       previous_text: previousText,
       next_text: nextText,
       voice_settings: {
@@ -210,16 +215,19 @@ function wordTimings(text: string, alignment: Alignment, offsetMs: number) {
 
 async function generateStory(
   apiKey: string,
+  course: StoryCourseConfig,
   seed: StorySeed,
 ): Promise<GeneratedStoryAudio> {
-  const narrator = NARRATOR_VOICES[seed.narrator.id];
+  const narrator = STORY_NARRATORS[seed.narrator.id];
   if (!narrator) throw new Error(`목소리가 없는 주인공: ${seed.narrator.id}`);
   const textHash = storyTextHash(seed);
   const key = storyAudioKey(seed.code, textHash);
-  const workDir = join(tmpdir(), `korio-story-${key}`);
+  const workDir = join(tmpdir(), `korio-story-${process.pid}-${key}`);
   mkdirSync(workDir, { recursive: true });
 
-  const speed = LEVEL_SPEED[seed.level] ?? 1;
+  const speed =
+    course.levels.find((level) => level.key === seed.level)?.narrationSpeed ??
+    1;
   const gap = Buffer.alloc(
     Math.round((SENTENCE_GAP_MS / 1000) * SAMPLE_RATE) * 2,
   );
@@ -236,6 +244,7 @@ async function generateStory(
         seed.sentences[index - 1]?.text,
         seed.sentences[index + 1]?.text,
         speed,
+        course.targetLanguage,
       );
       const pcm = decodeToPcm(mp3, workDir, sentence.id);
       const offsetMs = (offsetSamples / SAMPLE_RATE) * 1000;
@@ -279,6 +288,27 @@ async function generateStory(
   };
 }
 
+/**
+ * 결과 표 쓰기. 윈도우에서 다른 프로그램(편집기·백신)이 파일을 잠깐 잡고 있으면
+ * open 이 UNKNOWN 으로 실패할 때가 있어 조금 쉬었다가 다시 쓴다.
+ */
+function writeWithRetry(file: string, content: string) {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      writeFileSync(file, content);
+      return;
+    } catch (error) {
+      if (attempt >= 5) throw error;
+      Atomics.wait(
+        new Int32Array(new SharedArrayBuffer(4)),
+        0,
+        0,
+        300 * attempt,
+      );
+    }
+  }
+}
+
 /** API 린트(prettier)가 나중에 다시 고치지 않게 처음부터 그 모양으로 쓴다 */
 function formatWithPrettier(file: string) {
   execFileSync(
@@ -296,12 +326,12 @@ function formatWithPrettier(file: string) {
 
 function writeApiTimings(map: GeneratedStoryAudioMap) {
   const ordered = Object.fromEntries(
-    ENGLISH_STORY_SEEDS.filter((seed) => map[seed.code]).map((seed) => [
+    ALL_STORIES.filter(({ seed }) => map[seed.code]).map(({ seed }) => [
       seed.code,
       map[seed.code],
     ]),
   );
-  writeFileSync(
+  writeWithRetry(
     API_TIMINGS,
     [
       '// 자동 생성 파일 — 손으로 고치지 않는다.',
@@ -316,12 +346,12 @@ function writeApiTimings(map: GeneratedStoryAudioMap) {
 }
 
 function writeMobileRegistry(map: GeneratedStoryAudioMap) {
-  const keys = ENGLISH_STORY_SEEDS.map((seed) => map[seed.code]?.key).filter(
+  const keys = ALL_STORIES.map(({ seed }) => map[seed.code]?.key).filter(
     (key): key is string =>
       !!key && existsSync(join(MOBILE_AUDIO_DIR, `${key}.mp3`)),
   );
   mkdirSync(dirname(MOBILE_REGISTRY), { recursive: true });
-  writeFileSync(
+  writeWithRetry(
     MOBILE_REGISTRY,
     [
       '// 자동 생성 파일 — 손으로 고치지 않는다.',
@@ -339,7 +369,63 @@ function writeMobileRegistry(map: GeneratedStoryAudioMap) {
   );
 }
 
+/**
+ * 한 번에 하나만 돌린다. 두 개가 겹치면 결과 표를 서로 덮어써서 만든 오디오가
+ * 표에서 빠진다 (실제로 있었다). 끝나면 지운다 — 강제 종료로 남았으면 손으로 지운다.
+ */
+const LOCK_FILE = join(MOBILE_AUDIO_DIR, '.generating.lock');
+
+function acquireLock() {
+  mkdirSync(MOBILE_AUDIO_DIR, { recursive: true });
+  try {
+    writeFileSync(LOCK_FILE, String(process.pid), { flag: 'wx' });
+  } catch {
+    console.error(
+      `이미 다른 생성기가 돌고 있다 (${LOCK_FILE}). 그게 끝난 뒤 다시 돌린다 — 아무것도 안 돌고 있으면 이 파일을 지운다.`,
+    );
+    process.exit(1);
+  }
+  const release = () => rmSync(LOCK_FILE, { force: true });
+  process.on('exit', release);
+  process.on('SIGINT', () => process.exit(130));
+}
+
+/**
+ * 표와 파일을 맞춘다: 본문이 바뀌어 낡은 항목·시드에서 빠진 항목은 표에서 빼고
+ * (앱은 그 이야기를 TTS 로 읽는다), 표가 가리키지 않는 mp3 는 지운다.
+ * 크레딧이 떨어져 일부만 만들어졌을 때도 커밋할 수 있는 상태로 만든다.
+ */
+function prune(map: GeneratedStoryAudioMap): GeneratedStoryAudioMap {
+  const kept: GeneratedStoryAudioMap = {};
+  for (const { seed } of ALL_STORIES) {
+    const entry = map[seed.code];
+    if (!entry) continue;
+    const fileThere = existsSync(join(MOBILE_AUDIO_DIR, `${entry.key}.mp3`));
+    if (isGeneratedAudioFresh(seed, entry) && fileThere) {
+      kept[seed.code] = entry;
+    } else {
+      console.log(`− ${seed.code} 표에서 뺌 (본문이 바뀌었거나 파일이 없다)`);
+    }
+  }
+  const keys = new Set(Object.values(kept).map((entry) => `${entry.key}.mp3`));
+  for (const file of readdirSync(MOBILE_AUDIO_DIR)) {
+    if (file.endsWith('.mp3') && !keys.has(file)) {
+      rmSync(join(MOBILE_AUDIO_DIR, file));
+      console.log(`− ${file} 지움 (표에 없다)`);
+    }
+  }
+  return kept;
+}
+
 async function main() {
+  acquireLock();
+  if (process.argv.includes('--prune')) {
+    const kept = prune({ ...STORY_AUDIO });
+    writeApiTimings(kept);
+    writeMobileRegistry(kept);
+    console.log(`정리 끝 — 오디오 있음 ${Object.keys(kept).length}편.`);
+    return;
+  }
   const apiKey = env('ELEVENLABS_API_KEY');
   if (!apiKey) {
     console.error(
@@ -349,11 +435,11 @@ async function main() {
   }
   const force = process.argv.includes('--force');
   const only = arg('only') ? arg('only').split(',') : null;
-  const map: GeneratedStoryAudioMap = { ...ENGLISH_STORY_AUDIO };
+  const map: GeneratedStoryAudioMap = { ...STORY_AUDIO };
 
   let made = 0;
   let failed = 0;
-  for (const seed of ENGLISH_STORY_SEEDS) {
+  for (const { course, seed } of ALL_STORIES) {
     if (only && !only.includes(seed.code)) continue;
     const current = map[seed.code];
     const fileThere =
@@ -363,10 +449,10 @@ async function main() {
       continue;
     }
     process.stdout.write(
-      `🎙 ${seed.code} (${NARRATOR_VOICES[seed.narrator.id]?.label}) `,
+      `🎙 ${seed.code} (${STORY_NARRATORS[seed.narrator.id]?.label}) `,
     );
     try {
-      map[seed.code] = await generateStory(apiKey, seed);
+      map[seed.code] = await generateStory(apiKey, course, seed);
       made += 1;
       console.log(` ✓ ${(map[seed.code].durationMs / 1000).toFixed(1)}s`);
       // 한 편 끝날 때마다 쓴다 — 중간에 끊겨도 만든 것은 남는다
@@ -378,8 +464,9 @@ async function main() {
     }
   }
 
-  writeApiTimings(map);
-  writeMobileRegistry(map);
+  const kept = prune(map);
+  writeApiTimings(kept);
+  writeMobileRegistry(kept);
   console.log(
     `\n만듦 ${made} · 실패 ${failed}. 다음: seed:validate-stories → seed:stories, 앱은 OTA.`,
   );

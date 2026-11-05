@@ -19,6 +19,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Pressable } from "@/components/ui/Pressables";
 import * as Haptics from "@/utils/haptics";
 import { StoriesService, storyContentLang } from "@/services/stories.service";
+import {
+  DEFAULT_LEARNING_COURSES,
+  isLearnCourse,
+  type LearnCourse,
+} from "@/constants/learnCourses";
 import { StoryScene } from "./StoryScene";
 import { StoryDock, DOCK_HEIGHT } from "./StoryDock";
 import { StorySentenceView } from "./StorySentenceView";
@@ -63,8 +68,11 @@ export default function StoryPlayerScreen() {
     scene?: string;
     title?: string;
     autoplay?: string;
+    course?: string;
   }>();
   const code = String(params.code ?? "");
+  const course: LearnCourse = isLearnCourse(params.course) ? params.course : "en";
+  const targetLanguage = DEFAULT_LEARNING_COURSES[course].targetLanguage;
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
   const copy = useStoriesCopy();
@@ -81,13 +89,13 @@ export default function StoryPlayerScreen() {
   const load = useCallback(async () => {
     setLoadState("loading");
     try {
-      const detail = await StoriesService.get(code);
+      const detail = await StoriesService.get(code, targetLanguage);
       setStory(detail);
       setLoadState("ready");
     } catch {
       setLoadState("error");
     }
-  }, [code]);
+  }, [code, targetLanguage]);
 
   useEffect(() => {
     void load();
@@ -221,9 +229,9 @@ export default function StoryPlayerScreen() {
   const playNext = useCallback((nextCode: string) => {
     router.replace({
       pathname: "/story-player",
-      params: { code: nextCode, autoplay: "1" },
+      params: { code: nextCode, autoplay: "1", course },
     });
-  }, []);
+  }, [course]);
 
   // 안드로이드 뒤로: 시트부터 닫는다
   useEffect(() => {
@@ -266,7 +274,11 @@ export default function StoryPlayerScreen() {
         />
         <View style={[styles.topBar, { top: insets.top + 6 }]}>
           <Pressable
-            onPress={() => (router.canGoBack() ? router.back() : router.replace("/english-stories"))}
+            onPress={() =>
+              router.canGoBack()
+                ? router.back()
+                : router.replace({ pathname: "/stories", params: { course } })
+            }
             accessibilityRole="button"
             accessibilityLabel={copy.close}
             hitSlop={8}
@@ -395,7 +407,9 @@ export default function StoryPlayerScreen() {
             ticks={ticks}
             rate={player.rate}
             translationOn={showTranslation}
-            translationBadge={translationBadge(storyContentLang())}
+            translationBadge={translationBadge(
+              storyContentLang(story.targetLanguage ?? targetLanguage),
+            )}
             shadowOn={shadowing.active}
             bottomInset={insets.bottom}
             onToggle={() => {
@@ -487,8 +501,8 @@ const styles = StyleSheet.create({
   },
   levelText: { color: "#FFFFFF", fontSize: 13, fontWeight: "900", letterSpacing: 0.6 },
   titleBlock: { position: "absolute", left: 24, right: 24, bottom: 10 },
-  title: { fontSize: 29, lineHeight: 34, fontWeight: "900", letterSpacing: -0.6 },
-  meta: { marginTop: 4, fontSize: 13, fontWeight: "800" },
+  title: { fontSize: 25, lineHeight: 30, fontWeight: "900", letterSpacing: -0.5 },
+  meta: { marginTop: 4, fontSize: 12, fontWeight: "800" },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 14, padding: 24 },
   stateText: { fontSize: 16, fontWeight: "800", textAlign: "center" },
   retry: {

@@ -44,7 +44,7 @@ import SwipeSlides, {
 } from "@/components/common/SwipeSlides";
 import { useSwipeTabs } from "@/components/common/useSwipeTabs";
 import { englishPronunciationCopy } from "@/constants/pronunciation-curriculum";
-import { ENGLISH_CATEGORY_CARDS } from "@/constants/learnCourses";
+import { ENGLISH_CATEGORY_CARDS, STORY_COURSES } from "@/constants/learnCourses";
 import { useGrokPromoAccess } from "@/features/grok-promo-tutor/useGrokPromoAccess";
 
 /** 세그먼트 순서 = 옆으로 넘기는 순서 */
@@ -76,7 +76,7 @@ const CATEGORIES: Array<{
 }> = [
   // 한글은 맨 앞. 아직 못 읽는 사람은 여기부터 시작해야 한다
   { key: "hangul", category: "hangul", icon: "text", color: "#7E57C2", guided: true, feature: "hangul" },
-  // 영어 코스 전용 — 틀어 놓고 보는 듣기 이야기. 로드가 짜주지 않으니 두 모드 모두에서 보인다.
+  // 틀어 놓고 보는 듣기 이야기 — STORY_COURSES 에 있는 코스에서만. 로드가 짜주지 않으니 두 모드 모두에서 보인다.
   // ENGLISH_CATEGORY_CARDS(텔레그램과 같은 표)에는 넣지 않는다 — 텔레그램엔 아직 화면이 없다
   {
     key: "stories",
@@ -257,6 +257,11 @@ function makeGo(
       router.push({ pathname: "/hangul", params: { lang: language } });
       return;
     }
+    // 듣기 이야기 — 학습 모드가 아니라 단발 바로가기다. 코스(배우는 언어)를 넘긴다
+    if (c.category === "stories") {
+      router.push({ pathname: "/stories", params: { course: language } });
+      return;
+    }
     if (c.category === "pronunciation" || c.category === "games") {
       router.push({
         pathname: c.category === "games" ? "/games" : "/pronunciation-practice",
@@ -268,8 +273,6 @@ function makeGo(
     // 학습 모드로 저장하면 홈의 "이어서 학습하기" 가 갈 곳을 잃는다.
     const SHORTCUTS: Record<string, string> = {
       wordCard: "/word-library",
-      // 영어 듣기 이야기 — 학습 모드가 아니라 단발 바로가기다
-      stories: "/english-stories",
       // 실전 회화 = AI 음성 튜터. 로드맵이 없는 단발 진입이다
       // 회화 = 새 AI 음성 튜터 (옛 Gemini Live 튜터는 앱에서 뺐다)
       conversation: "/voice-tutor",
@@ -485,13 +488,13 @@ export default function CourseCategories() {
         {CATEGORIES.filter(
           (c) =>
             // 영어도 같은 분야 카드 UI를 사용한다. 지원하는 카드만 코스별로 고른다.
-            // 듣기 이야기는 영어 코스에만 있다
-            (isEnglish
-              ? c.category === "stories" ||
+            // 듣기 이야기는 STORY_COURSES 에 있는 코스에서만
+            (c.category === "stories"
+              ? STORY_COURSES.includes(isEnglish ? "en" : "ko")
+              : !isEnglish ||
                 ENGLISH_CATEGORY_CARDS.includes(
                   c.category as (typeof ENGLISH_CATEGORY_CARDS)[number],
-                )
-              : c.category !== "stories") &&
+                )) &&
             (mode === "free" || c.guided),
         ).map((c, i) => (
           <CategoryCard

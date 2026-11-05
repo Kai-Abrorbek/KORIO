@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { STORY_LEVELS, STORY_SCENES } from '../stories.const';
+import { STORY_SCENES } from '../stories.const';
 
 /**
  * 듣기 이야기 한 편.
@@ -18,17 +18,23 @@ import { STORY_LEVELS, STORY_SCENES } from '../stories.const';
  * 그래서 시드를 다시 밀어도 기록이 안 날아간다.
  */
 
-/** 번역 한 벌. 영어 원문을 배우는 사람의 설명 언어들 */
+/**
+ * 번역 한 벌 (설명 언어들). 원문 언어와 같은 칸은 비어 있다 — 영어 이야기의 en.
+ * 어느 칸이 꼭 차 있어야 하는지는 코스가 정한다 (story-courses.ts).
+ */
 @Schema({ _id: false })
 export class StoryTranslation {
+  @Prop({ default: '' })
+  ko: string;
+
   @Prop({ default: '' })
   uz: string;
 
   @Prop({ default: '' })
-  ru: string;
+  en: string;
 
   @Prop({ default: '' })
-  ko: string;
+  ru: string;
 }
 export const StoryTranslationSchema =
   SchemaFactory.createForClass(StoryTranslation);
@@ -133,7 +139,7 @@ export const StoryNarratorSchema = SchemaFactory.createForClass(StoryNarrator);
 
 @Schema({ timestamps: true })
 export class Story {
-  /** 시드가 정하는 사람이 읽는 키. `en-story-a1-01` 꼴 */
+  /** 시드가 정하는 사람이 읽는 키. `<언어>-story-<레벨 slug>-<번호>` — `en-story-b1p-01` */
   @Prop({ required: true, trim: true })
   code: string;
 
@@ -143,13 +149,14 @@ export class Story {
   @Prop({ required: true })
   targetLanguage: string;
 
-  @Prop({ required: true, enum: STORY_LEVELS })
+  /** 코스의 레벨 key ("A1", "B1+"). 어떤 값이 있는지는 story-courses.ts — 시드 검증기가 본다 */
+  @Prop({ required: true })
   level: string;
 
   @Prop({ required: true, min: 1 })
   order: number;
 
-  /** 원문(영어) 제목 */
+  /** 원문(배우는 언어) 제목 */
   @Prop({ required: true, trim: true })
   title: string;
 

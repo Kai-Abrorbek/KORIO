@@ -6,9 +6,10 @@ import { useSettingsStore } from "@/store/settings.store";
  */
 const COPY = {
   ko: {
-    libraryTitle: "영어 이야기",
+    libraryTitle: "이야기",
+    levelSoon: "이 레벨 이야기는 곧 추가돼요",
+    heard: (done: number, total: number) => `${total}편 중 ${done}편 들음`,
     librarySubtitle: "틀어 두면 그림 속 빛이 단어를 하나씩 읽어 줘요",
-    levelHint: { A1: "처음 시작", A2: "기초", B1: "중급" },
     upNext: "다음 이야기",
     continueListening: "이어서 듣기",
     listenAgain: "다시 듣기",
@@ -56,8 +57,9 @@ const COPY = {
   },
   uz: {
     libraryTitle: "Hikoyalar",
+    levelSoon: "Bu darajadagi hikoyalar tez orada qo‘shiladi",
+    heard: (done: number, total: number) => `${total} tadan ${done} tasi tinglandi`,
     librarySubtitle: "Qo‘yib qo‘ying — rasmdagi nur so‘zlarni birma-bir o‘qib beradi",
-    levelHint: { A1: "Boshlang‘ich", A2: "Elementar", B1: "O‘rta" },
     upNext: "Navbatdagi hikoya",
     continueListening: "Davom ettirish",
     listenAgain: "Qayta tinglash",
@@ -105,8 +107,9 @@ const COPY = {
   },
   en: {
     libraryTitle: "Stories",
+    levelSoon: "Stories for this level are coming soon",
+    heard: (done: number, total: number) => `${done} of ${total} heard`,
     librarySubtitle: "Press play — the light in the picture reads each word to you",
-    levelHint: { A1: "Starter", A2: "Elementary", B1: "Intermediate" },
     upNext: "Up next",
     continueListening: "Keep listening",
     listenAgain: "Listen again",
@@ -154,8 +157,9 @@ const COPY = {
   },
   ru: {
     libraryTitle: "Истории",
+    levelSoon: "Истории этого уровня скоро появятся",
+    heard: (done: number, total: number) => `Прослушано ${done} из ${total}`,
     librarySubtitle: "Включите — свет в картинке прочитает вам каждое слово",
-    levelHint: { A1: "Начальный", A2: "Элементарный", B1: "Средний" },
     upNext: "Следующая история",
     continueListening: "Слушать дальше",
     listenAgain: "Послушать снова",

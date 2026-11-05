@@ -15,6 +15,12 @@ import type { StorySentence } from "./stories.types";
 
 export type SentenceState = "past" | "active" | "future";
 
+/**
+ * 번역(설명 언어) 글자색. 장면과 상관없이 늘 같은 라벤더 — "보라색 줄 = 내 말" 로
+ * 원문(흰색)·지금 단어(장면의 빛 색)와 한눈에 갈린다. 어두운 바닥 어디서나 읽힌다.
+ */
+export const TRANSLATION_INK = "#C9C2FF";
+
 const TONE_COLOR = {
   good: "#58CC02",
   warn: "#F5A623",
@@ -136,7 +142,7 @@ function StorySentenceViewBase({
         <Text
           style={[
             styles.translation,
-            { color: withAlpha(palette.ink, active ? 0.74 : 0.42) },
+            { color: withAlpha(TRANSLATION_INK, active ? 1 : 0.6) },
           ]}
         >
           {sentence.translation}
@@ -173,15 +179,15 @@ const styles = StyleSheet.create({
     borderRadius: 18,
   },
   english: {
-    fontSize: 22,
-    lineHeight: 31,
+    fontSize: 19,
+    lineHeight: 27,
     fontWeight: "800",
-    letterSpacing: -0.2,
+    letterSpacing: -0.1,
   },
   translation: {
-    marginTop: 6,
-    fontSize: 15,
-    lineHeight: 21,
+    marginTop: 5,
+    fontSize: 14,
+    lineHeight: 20,
     fontWeight: "700",
   },
   scoreRow: {

@@ -7,6 +7,7 @@ import {
 } from "react-native-reanimated";
 import { useSpeech } from "@/hooks/useSpeech";
 import { activatePlaybackAudio } from "@/utils/audio-session";
+import { storySpeechLocale } from "@/services/stories.service";
 import { STORY_AUDIO_FILES } from "./storyAudio.generated";
 import { locateInStory, type PlayerPosition } from "./storyTiming";
 import type { StoryDetail } from "./stories.types";
@@ -36,6 +37,8 @@ export function useStoryPlayer(
   const mode: "audio" | "tts" = source ? "audio" : "tts";
   const player = useAudioPlayer(source, { updateInterval: 60 });
   const { speak, stop: stopSpeech } = useSpeech();
+  /** 번들 오디오가 없을 때 기기 TTS 가 쓸 말 (이야기 언어) */
+  const locale = storySpeechLocale(story?.targetLanguage);
 
   const [status, setStatus] = useState<PlayerStatus>("idle");
   const [position, setPosition] = useState<PlayerPosition>(IDLE);
@@ -130,7 +133,7 @@ export function useStoryPlayer(
       if (!sentence) return;
       moveTo({ sentence: index, word: Number.MAX_SAFE_INTEGER });
       setProgress((index + 0.5) / Math.max(1, sentences.length));
-      speak(sentence.text, "en-US", {
+      speak(sentence.text, locale, {
         rate: rateRef.current,
         respectSoundSettings: false,
         onDone: () => {
@@ -156,7 +159,7 @@ export function useStoryPlayer(
         },
       });
     },
-    [moveTo, sentences, setProgress, speak],
+    [locale, moveTo, sentences, setProgress, speak],
   );
 
   /* ── 조작 ── */
@@ -302,7 +305,7 @@ export function useStoryPlayer(
     (sentenceIndex: number, wordIndex: number, fallbackText: string) => {
       const word = sentences[sentenceIndex]?.words[wordIndex];
       if (mode !== "audio" || !word) {
-        speak(fallbackText, "en-US", { respectSoundSettings: false });
+        speak(fallbackText, locale, { respectSoundSettings: false });
         return;
       }
       void activatePlaybackAudio("doNotMix");
@@ -315,7 +318,7 @@ export function useStoryPlayer(
       setStatus("playing");
       player.play();
     },
-    [mode, player, sentences, speak],
+    [locale, mode, player, sentences, speak],
   );
 
   /** 단어 시트를 열기 전 자리 */

@@ -1,4 +1,4 @@
-import { ENGLISH_STORY_SEEDS } from '../seed/data/english-stories';
+import { STORY_SEED_SETS } from '../seed/data/stories';
 import {
   buildStoryDocument,
   isGeneratedAudioFresh,
@@ -10,10 +10,18 @@ import {
   validateStorySeeds,
   type GeneratedStoryAudio,
   type StorySeed,
+  type StorySeedSet,
 } from './story-content.util';
+import { STORY_COURSES, storyCourseOf } from './story-courses';
 
+const EN = storyCourseOf('en-general')!;
+const enSet = () =>
+  STORY_SEED_SETS.find((set) => set.courseId === 'en-general')!;
 const seed = (): StorySeed =>
-  JSON.parse(JSON.stringify(ENGLISH_STORY_SEEDS[0])) as StorySeed;
+  JSON.parse(JSON.stringify(enSet().stories[0])) as StorySeed;
+const asSet = (...stories: StorySeed[]): StorySeedSet[] => [
+  { courseId: 'en-general', stories },
+];
 
 /** 시드 본문과 1:1 로 맞는 가짜 타이밍 (단어 하나당 300ms) */
 function fakeAudio(story: StorySeed): GeneratedStoryAudio {
@@ -52,6 +60,11 @@ describe('story-content.util', () => {
     expect(normalizeStoryToken('o’clock.')).toBe("o'clock");
   });
 
+  it('keeps non-Latin letters so other languages can mark key words', () => {
+    expect(normalizeStoryToken('«Привет!»')).toBe('привет');
+    expect(normalizeStoryToken('“학교에서,”')).toBe('학교에서');
+  });
+
   it('changes the audio key when the text or the narrator changes', () => {
     const base = seed();
     const edited = seed();
@@ -70,7 +83,9 @@ describe('story-content.util', () => {
   it('applies timings only while the audio still matches the text', () => {
     const story = seed();
     const audio = fakeAudio(story);
-    const doc = buildStoryDocument(story, audio);
+    const doc = buildStoryDocument(EN, story, audio);
+    expect(doc.courseId).toBe('en-general');
+    expect(doc.targetLanguage).toBe('en');
     expect(doc.audio.key).toBe(audio.key);
     expect(doc.sentences[1].words).toHaveLength(
       tokenizeStoryText(story.sentences[1].text).length,
@@ -79,24 +94,83 @@ describe('story-content.util', () => {
     const edited = seed();
     edited.sentences[2].text += ' Really.';
     expect(isGeneratedAudioFresh(edited, audio)).toBe(false);
-    const stale = buildStoryDocument(edited, audio);
+    const stale = buildStoryDocument(EN, edited, audio);
     expect(stale.audio.key).toBe('');
     expect(stale.sentences.every((s) => s.words.length === 0)).toBe(true);
   });
 
-  it('falls back to Uzbek for the target language itself', () => {
+  it('falls back to the course default when asked in the target language', () => {
     const t = { uz: 'kuz', ru: 'осень', ko: '가을' };
-    expect(pickStoryTranslation(t, 'ru')).toBe('осень');
-    expect(pickStoryTranslation(t, 'en')).toBe('kuz');
+    expect(pickStoryTranslation(t, 'ru', 'en-general')).toBe('осень');
+    expect(pickStoryTranslation(t, 'en', 'en-general')).toBe('kuz');
     expect(pickStoryTranslation({ uz: 'kuz', ru: '', ko: '' }, 'ko')).toBe(
       'kuz',
     );
   });
 
   it('keeps every shipped story valid', () => {
-    const report = validateStorySeeds(ENGLISH_STORY_SEEDS, {}, () => true);
+    const report = validateStorySeeds(STORY_SEED_SETS, {}, () => true);
     expect(report.errors).toEqual([]);
-    expect(ENGLISH_STORY_SEEDS).toHaveLength(12);
+    // 레벨 탭마다 10편
+    for (const level of EN.levels) {
+      expect(
+        enSet().stories.filter((story) => story.level === level.key),
+      ).toHaveLength(10);
+    }
+  });
+
+  it('lists CEFR tabs up to C1 even before their stories exist', () => {
+    expect(EN.levels.map((level) => level.key)).toEqual([
+      'A1',
+      'A2',
+      'B1',
+      'B1+',
+      'B2',
+      'C1',
+    ]);
+    for (const course of STORY_COURSES) {
+      for (const level of course.levels) {
+        expect(Object.values(level.label).every((label) => !!label)).toBe(true);
+      }
+    }
+  });
+
+  it('checks the level against the course and the code against the level', () => {
+    const plus = seed();
+    plus.level = 'B1+';
+    plus.code = 'en-story-b1p-01';
+    expect(validateStorySeeds(asSet(plus), {}, () => true).errors).toEqual([]);
+
+    const wrongCode = seed();
+    wrongCode.level = 'B1+';
+    wrongCode.code = 'en-story-b1+-01';
+    expect(
+      validateStorySeeds(asSet(wrongCode), {}, () => true).errors.join('\n'),
+    ).toContain('en-story-b1p-');
+
+    const unknown = seed();
+    unknown.level = 'C2';
+    expect(
+      validateStorySeeds(asSet(unknown), {}, () => true).errors.join('\n'),
+    ).toContain('없는 레벨 C2');
+
+    expect(
+      validateStorySeeds(
+        [{ courseId: 'ja-general', stories: [seed()] }],
+        {},
+        () => true,
+      ).errors.join('\n'),
+    ).toContain('없는 코스');
+  });
+
+  it('requires only the translations the course asks for', () => {
+    const story = seed();
+    delete story.sentences[0].translation.ko;
+    expect(
+      validateStorySeeds(asSet(story), {}, () => true).errors.join('\n'),
+    ).toContain('s1 번역 ko');
+    // 원문 언어(en) 칸은 비어 있어도 된다
+    expect(story.sentences[1].translation.en).toBeUndefined();
   });
 
   it('flags vocabulary that is missing from the text and stale audio', () => {
@@ -108,7 +182,7 @@ describe('story-content.util', () => {
     const audio = fakeAudio(seed());
     story.sentences[0].text = 'Hi, everyone.';
     const report = validateStorySeeds(
-      [story],
+      asSet(story),
       { [story.code]: audio },
       () => true,
     );

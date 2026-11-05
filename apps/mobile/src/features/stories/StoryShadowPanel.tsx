@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  title: { flex: 1, fontSize: 14, lineHeight: 19, fontWeight: "800" },
+  title: { flex: 1, fontSize: 13, lineHeight: 18, fontWeight: "800" },
   choices: { flexDirection: "row", gap: 8 },
   choice: {
     height: 36,

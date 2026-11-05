@@ -13,24 +13,24 @@ import {
 } from 'class-validator';
 import { CourseScopeQueryDto } from '../../common/dto/course-scope-query.dto';
 import {
+  STORY_CONTENT_LANGUAGES,
   STORY_OPTION_COUNT,
-  STORY_QUERY_LANGUAGES,
   STORY_QUESTION_COUNT,
-  type StoryQueryLanguage,
+  type StoryContentLanguage,
 } from '../stories.const';
 
 /** 목록: 어느 코스의 이야기를, 어느 설명 언어로 */
 export class ListStoriesQueryDto extends CourseScopeQueryDto {
   @IsOptional()
-  @IsIn([...STORY_QUERY_LANGUAGES])
-  lang: StoryQueryLanguage = 'uz';
+  @IsIn([...STORY_CONTENT_LANGUAGES])
+  lang: StoryContentLanguage = 'uz';
 }
 
 /** 한 편: 설명 언어만 */
 export class StoryLangQueryDto {
   @IsOptional()
-  @IsIn([...STORY_QUERY_LANGUAGES])
-  lang: StoryQueryLanguage = 'uz';
+  @IsIn([...STORY_CONTENT_LANGUAGES])
+  lang: StoryContentLanguage = 'uz';
 }
 
 export class StoryAnswerDto {

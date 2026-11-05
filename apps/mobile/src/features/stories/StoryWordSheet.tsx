@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from "react-native-reanimated";
 import { Pressable } from "@/components/ui/Pressables";
 import { withAlpha, type ScenePalette } from "./scenes";
+import { TRANSLATION_INK } from "./StorySentenceView";
 import type { StoriesCopy } from "./stories.copy";
 
 /**
@@ -69,7 +70,7 @@ function StoryWordSheetBase({
         <Text style={[styles.label, { color: withAlpha(palette.ink, 0.55) }]}>
           {copy.meaning}
         </Text>
-        <Text style={[styles.meaning, { color: palette.ink }]}>{meaning}</Text>
+        <Text style={[styles.meaning, { color: TRANSLATION_INK }]}>{meaning}</Text>
       </Animated.View>
     </View>
   );
@@ -92,8 +93,8 @@ const styles = StyleSheet.create({
   },
   grabber: { alignSelf: "center", width: 40, height: 4, borderRadius: 2, marginBottom: 18 },
   row: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  word: { flex: 1, fontSize: 34, lineHeight: 40, fontWeight: "900", letterSpacing: -0.5 },
+  word: { flex: 1, fontSize: 30, lineHeight: 36, fontWeight: "900", letterSpacing: -0.4 },
   hear: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
   label: { marginTop: 16, fontSize: 12, fontWeight: "900", letterSpacing: 0.4 },
-  meaning: { marginTop: 4, fontSize: 20, lineHeight: 27, fontWeight: "800" },
+  meaning: { marginTop: 4, fontSize: 18, lineHeight: 24, fontWeight: "800" },
 });

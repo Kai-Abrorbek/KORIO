@@ -42,10 +42,13 @@ export function locateInStory(
 
 export const tokenize = (text: string) => text.split(/\s+/).filter(Boolean);
 
-/** 소문자 + 앞뒤 문장부호 제거 ("“Brave”," → "brave", "o’clock." → "o'clock") */
+/**
+ * 소문자 + 앞뒤 문장부호 제거 ("“Brave”," → "brave", "«Привет!»" → "привет").
+ * 글자 판단은 유니코드 기준이라 어느 언어 이야기든 핵심 단어를 찾는다.
+ */
 export function normalizeToken(token: string): string {
   return token
     .toLowerCase()
     .replace(/[’‘]/g, "'")
-    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
+    .replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, "");
 }

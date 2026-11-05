@@ -54,6 +54,13 @@ export const ENGLISH_CATEGORY_CARDS = [
   "conversation",
 ] as const;
 
+/**
+ * 듣기 이야기(Stories)가 열린 코스. 분야 화면에 "이야기" 카드가 이 코스에서만 뜬다.
+ * 새 언어: 서버 apps/api/src/stories/story-courses.ts 에 코스를 등록하고 시드를 넣은 뒤
+ * 여기 한 줄. 레벨 탭·이름은 서버가 내려 준다 (앱은 모른다).
+ */
+export const STORY_COURSES: readonly LearnCourse[] = ["en"];
+
 /** UI language selection and curriculum identity are different axes. */
 export const DEFAULT_LEARNING_COURSES = {
   ko: { courseId: "ko-general", targetLanguage: "ko", speechLocale: "ko-KR" },

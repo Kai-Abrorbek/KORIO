@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   ScrollView,
@@ -8,35 +8,46 @@ import {
   useWindowDimensions,
   type LayoutChangeEvent,
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 import Animated, {
-  FadeInDown,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Pressable } from "@/components/ui/Pressables";
+import SwipePager from "@/components/common/SwipePager";
 import { useTheme } from "@/hooks/useTheme";
 import * as Haptics from "@/utils/haptics";
+import {
+  LEARN_COURSES,
+  isLearnCourse,
+  type LearnCourse,
+} from "@/constants/learnCourses";
 import { StoriesService } from "@/services/stories.service";
 import { StoryScene } from "./StoryScene";
 import { sceneOf, withAlpha } from "./scenes";
 import { formatClock, useStoriesCopy, type StoriesCopy } from "./stories.copy";
-import type { StoryLevel, StorySummary, StoryLibraryResponse } from "./stories.types";
+import type {
+  StoryLevelGroup,
+  StoryLibraryResponse,
+  StorySummary,
+} from "./stories.types";
 
 /**
- * 듣기 이야기 서가. 레벨 탭(A1·A2·B1) → 다음에 들을 이야기 하나를 크게(움직이는 그림),
- * 나머지는 작은 그림이 붙은 줄로. 앱의 밝은/어두운 테마를 그대로 따른다 —
- * 그림에 잠기는 건 플레이어에 들어간 뒤부터다.
+ * 듣기 이야기 서가 (코스마다 같은 화면 — `?course=en`).
+ *
+ * 레벨 탭(서버가 내려 준 대로 — 이야기가 아직 없는 레벨도 탭은 있다) → 옆으로 밀어서
+ * 레벨을 넘긴다. 레벨마다 다음에 들을 이야기 하나를 크게(움직이는 그림), 나머지는
+ * 작은 그림이 붙은 줄로. 앱의 밝은/어두운 테마를 따른다 — 그림에 잠기는 건 플레이어부터.
  */
 
 const VIOLET = "#776EE2";
 const VIOLET_DEEP = "#5B4DD4";
-/** 마지막으로 본 레벨 (앱을 켜 둔 동안) */
-let lastLevel: StoryLevel | null = null;
+/** 마지막으로 본 레벨 (코스별, 앱을 켜 둔 동안) */
+const lastLevel = new Map<LearnCourse, string>();
 
 export default function StoryLibraryScreen() {
   const theme = useTheme();
@@ -44,29 +55,38 @@ export default function StoryLibraryScreen() {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const copy = useStoriesCopy();
+  const { t } = useTranslation();
+  const params = useLocalSearchParams<{ course?: string }>();
+  const course: LearnCourse = isLearnCourse(params.course) ? params.course : "en";
+
   const [library, setLibrary] = useState<StoryLibraryResponse | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [level, setLevel] = useState<StoryLevel | null>(lastLevel);
+  const [index, setIndex] = useState(0);
+  const progress = useSharedValue(0);
 
+  const placedRef = useRef(false);
   const load = useCallback(async () => {
     try {
-      const response = await StoriesService.list();
-      setLibrary(response);
-      setState("ready");
-      // 처음 들어오면 아직 안 들은 이야기가 있는 첫 레벨로
-      setLevel((current) => {
-        if (current && response.levels.some((group) => group.level === current)) {
-          return current;
-        }
-        const open = response.levels.find((group) =>
+      const response = await StoriesService.list(course);
+      // 처음 들어오면: 지난번 레벨 → 아직 안 들은 이야기가 있는 첫 레벨 → 첫 탭
+      if (!placedRef.current) {
+        placedRef.current = true;
+        const remembered = response.levels.findIndex(
+          (group) => group.level === lastLevel.get(course),
+        );
+        const open = response.levels.findIndex((group) =>
           group.stories.some((story) => !story.progress.completed),
         );
-        return (open ?? response.levels[0])?.level ?? null;
-      });
+        const start = remembered >= 0 ? remembered : Math.max(0, open);
+        setIndex(start);
+        progress.value = start;
+      }
+      setLibrary(response);
+      setState("ready");
     } catch {
       setState((prev) => (prev === "ready" ? prev : "error"));
     }
-  }, []);
+  }, [course, progress]);
 
   // 플레이어에서 돌아오면 체크 표시가 바로 보이게 다시 읽는다
   useFocusEffect(
@@ -75,210 +95,299 @@ export default function StoryLibraryScreen() {
     }, [load]),
   );
 
-  const group = library?.levels.find((item) => item.level === level);
-  const hero = useMemo(
-    () => group?.stories.find((story) => !story.progress.completed) ?? group?.stories[0],
-    [group],
-  );
-  const rest = useMemo(
-    () => group?.stories.filter((story) => story.code !== hero?.code) ?? [],
-    [group, hero],
+  const levels = useMemo(() => library?.levels ?? [], [library]);
+  const current = levels[index];
+
+  const selectLevel = useCallback(
+    (next: number) => {
+      setIndex(next);
+      const level = levels[next]?.level;
+      if (level) lastLevel.set(course, level);
+    },
+    [course, levels],
   );
 
-  const open = (story: StorySummary) => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push({
-      pathname: "/story-player",
-      params: { code: story.code, scene: story.scene, title: story.title },
-    });
-  };
+  const open = useCallback(
+    (story: StorySummary) => {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      router.push({
+        pathname: "/story-player",
+        params: {
+          code: story.code,
+          scene: story.scene,
+          title: story.title,
+          course,
+        },
+      });
+    },
+    [course],
+  );
 
-  const selectLevel = (next: StoryLevel) => {
-    lastLevel = next;
-    setLevel(next);
-  };
+  // 미는 동안 다시 그려지지 않게 장(page)들을 고정한다 (SwipePager 규칙)
+  const pages = useMemo(
+    () =>
+      levels.map((group) => (
+        <LevelPage
+          key={group.level}
+          group={group}
+          copy={copy}
+          width={width}
+          isDark={isDark}
+          textColor={theme.text}
+          mutedColor={theme.textSecondary}
+          surface={theme.surface}
+          border={theme.border}
+          onOpen={open}
+        />
+      )),
+    [copy, isDark, levels, open, theme, width],
+  );
+
+  const languageName = t(`courses.languages.${LEARN_COURSES[course].key}`);
+  const done = current?.stories.filter((story) => story.progress.completed).length ?? 0;
 
   return (
-    <View style={[styles.screen, { backgroundColor: theme.bg }]}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingTop: insets.top + 8,
-          paddingBottom: insets.bottom + 40,
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.header}>
+    <View style={[styles.screen, { backgroundColor: theme.bg, paddingTop: insets.top + 8 }]}>
+      <View style={styles.header}>
+        <Pressable
+          onPress={() => (router.canGoBack() ? router.back() : router.replace("/courses"))}
+          accessibilityRole="button"
+          accessibilityLabel={copy.close}
+          hitSlop={10}
+        >
+          <Ionicons name="chevron-back" size={28} color={theme.text} />
+        </Pressable>
+      </View>
+      <View style={styles.intro}>
+        <View style={styles.titleRow}>
+          <Text style={[styles.title, { color: theme.text }]}>{copy.libraryTitle}</Text>
+          <View style={[styles.languagePill, { backgroundColor: withAlpha(VIOLET, 0.14) }]}>
+            <Text style={[styles.languageText, { color: isDark ? "#C4BEF0" : VIOLET_DEEP }]}>
+              {languageName}
+            </Text>
+          </View>
+        </View>
+        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
+          {copy.librarySubtitle}
+        </Text>
+      </View>
+
+      {state === "loading" && !library && (
+        <View style={styles.center}>
+          <ActivityIndicator color={VIOLET} />
+        </View>
+      )}
+
+      {state === "error" && !library && (
+        <View style={styles.center}>
+          <Text style={[styles.stateText, { color: theme.text }]}>{copy.loadFailed}</Text>
           <Pressable
-            onPress={() => (router.canGoBack() ? router.back() : router.replace("/courses"))}
+            onPress={() => {
+              setState("loading");
+              void load();
+            }}
             accessibilityRole="button"
-            accessibilityLabel={copy.close}
-            hitSlop={10}
+            style={styles.retry}
           >
-            <Ionicons name="chevron-back" size={28} color={theme.text} />
+            <Text style={styles.retryText}>{copy.retry}</Text>
           </Pressable>
         </View>
-        <View style={styles.intro}>
-          <Text style={[styles.title, { color: theme.text }]}>{copy.libraryTitle}</Text>
-          <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-            {copy.librarySubtitle}
-          </Text>
+      )}
+
+      {library && levels.length === 0 && (
+        <View style={styles.center}>
+          <Text style={[styles.stateText, { color: theme.textSecondary }]}>{copy.empty}</Text>
         </View>
+      )}
 
-        {state === "loading" && !library && (
-          <View style={styles.center}>
-            <ActivityIndicator color={VIOLET} />
-          </View>
-        )}
-
-        {state === "error" && !library && (
-          <View style={styles.center}>
-            <Text style={[styles.stateText, { color: theme.text }]}>{copy.loadFailed}</Text>
-            <Pressable
-              onPress={() => {
-                setState("loading");
-                void load();
-              }}
-              accessibilityRole="button"
-              style={styles.retry}
-            >
-              <Text style={styles.retryText}>{copy.retry}</Text>
-            </Pressable>
-          </View>
-        )}
-
-        {library && library.levels.length === 0 && (
-          <View style={styles.center}>
-            <Text style={[styles.stateText, { color: theme.textSecondary }]}>{copy.empty}</Text>
-          </View>
-        )}
-
-        {library && library.levels.length > 0 && level && (
-          <>
-            <LevelTabs
-              levels={library.levels}
-              level={level}
-              copy={copy}
-              isDark={isDark}
-              textColor={theme.text}
-              mutedColor={theme.textSecondary}
-              trackColor={theme.border}
-              onSelect={selectLevel}
-            />
-
-            {hero && (
-              <Animated.View key={hero.code} entering={FadeInDown.duration(320)}>
-                <HeroCard
-                  story={hero}
-                  copy={copy}
-                  width={width - 32}
-                  onPress={() => open(hero)}
-                />
-              </Animated.View>
-            )}
-
-            <View style={styles.list}>
-              {rest.map((story, index) => (
-                <Animated.View
-                  key={story.code}
-                  entering={FadeInDown.delay(60 + index * 50).duration(300)}
-                >
-                  <StoryRow
-                    story={story}
-                    copy={copy}
-                    isDark={isDark}
-                    textColor={theme.text}
-                    mutedColor={theme.textSecondary}
-                    surface={theme.surface}
-                    border={theme.border}
-                    onPress={() => open(story)}
-                  />
-                </Animated.View>
-              ))}
-            </View>
-          </>
-        )}
-      </ScrollView>
+      {library && levels.length > 0 && (
+        <>
+          <LevelTabs
+            levels={levels}
+            index={index}
+            isDark={isDark}
+            textColor={theme.text}
+            border={theme.border}
+            onSelect={(next) => {
+              void Haptics.selectionAsync();
+              selectLevel(next);
+            }}
+          />
+          {current && (
+            <Text style={[styles.levelLine, { color: theme.textSecondary }]}>
+              {current.stories.length
+                ? `${current.label}  ·  ${copy.heard(done, current.stories.length)}`
+                : current.label}
+            </Text>
+          )}
+          <SwipePager
+            index={index}
+            onIndexChange={selectLevel}
+            pages={pages}
+            progress={progress}
+            contentContainerStyle={{ paddingTop: 4, paddingBottom: insets.bottom + 40 }}
+          />
+        </>
+      )}
     </View>
   );
 }
 
 /* ───────────────────────── 레벨 탭 ───────────────────────── */
 
+/**
+ * 레벨이 여섯 개라 한 줄에 다 안 들어가면 옆으로 스크롤된다. 고른 탭은 보이는 자리로
+ * 저절로 온다. 움직임 없이 색만 바뀐다 — 밀어서 넘길 때 화면이 이미 움직이니까.
+ */
 function LevelTabs({
   levels,
-  level,
-  copy,
+  index,
   isDark,
   textColor,
-  mutedColor,
-  trackColor,
+  border,
   onSelect,
 }: {
-  levels: StoryLibraryResponse["levels"];
-  level: StoryLevel;
-  copy: StoriesCopy;
+  levels: StoryLevelGroup[];
+  index: number;
   isDark: boolean;
   textColor: string;
-  mutedColor: string;
-  trackColor: string;
-  onSelect: (level: StoryLevel) => void;
+  border: string;
+  onSelect: (index: number) => void;
 }) {
-  const [segmentWidth, setSegmentWidth] = useState(0);
-  const index = Math.max(0, levels.findIndex((item) => item.level === level));
-  const thumbX = useSharedValue(0);
+  const scrollRef = useRef<ScrollView>(null);
+  const positions = useRef<number[]>([]);
+
   useEffect(() => {
-    thumbX.value = withSpring(index * segmentWidth, { damping: 18, stiffness: 220 });
-  }, [index, segmentWidth, thumbX]);
-  const thumbStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: thumbX.value }],
-  }));
+    const x = positions.current[index];
+    if (x === undefined) return;
+    scrollRef.current?.scrollTo({ x: Math.max(0, x - 24), animated: true });
+  }, [index]);
 
   return (
-    <View
-      style={[styles.tabs, { backgroundColor: isDark ? "#25252E" : trackColor }]}
-      onLayout={(event: LayoutChangeEvent) =>
-        setSegmentWidth((event.nativeEvent.layout.width - 8) / levels.length)
-      }
+    <ScrollView
+      ref={scrollRef}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.tabs}
+      style={styles.tabsScroll}
     >
-      {segmentWidth > 0 && (
-        <Animated.View
-          style={[styles.tabThumb, { width: segmentWidth }, thumbStyle]}
-        />
-      )}
-      {levels.map((item) => {
-        const selected = item.level === level;
-        const done = item.stories.filter((story) => story.progress.completed).length;
+      {levels.map((group, i) => {
+        const selected = i === index;
+        const empty = group.stories.length === 0;
         return (
           <Pressable
-            key={item.level}
-            onPress={() => {
-              void Haptics.selectionAsync();
-              onSelect(item.level);
+            key={group.level}
+            onPress={() => onSelect(i)}
+            onLayout={(event: LayoutChangeEvent) => {
+              positions.current[i] = event.nativeEvent.layout.x;
             }}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
-            style={styles.tab}
+            accessibilityLabel={`${group.level} ${group.label}`}
+            style={[
+              styles.tab,
+              selected
+                ? { backgroundColor: VIOLET, borderColor: VIOLET, borderBottomColor: VIOLET_DEEP }
+                : {
+                    backgroundColor: isDark ? "#25252E" : "#FFFFFF",
+                    borderColor: border,
+                    borderBottomColor: isDark ? "#101016" : "#DAD6EE",
+                  },
+            ]}
           >
-            <Text style={[styles.tabLevel, { color: selected ? "#FFFFFF" : textColor }]}>
-              {item.level}
-            </Text>
             <Text
-              numberOfLines={1}
               style={[
-                styles.tabHint,
-                { color: selected ? "rgba(255,255,255,0.82)" : mutedColor },
+                styles.tabText,
+                { color: selected ? "#FFFFFF" : textColor },
+                empty && !selected && { opacity: 0.45 },
               ]}
             >
-              {`${copy.levelHint[item.level]} · ${done}/${item.stories.length}`}
+              {group.level}
             </Text>
           </Pressable>
         );
       })}
+    </ScrollView>
+  );
+}
+
+/* ───────────────────────── 레벨 한 장 ───────────────────────── */
+
+function LevelPage({
+  group,
+  copy,
+  width,
+  isDark,
+  textColor,
+  mutedColor,
+  surface,
+  border,
+  onOpen,
+}: {
+  group: StoryLevelGroup;
+  copy: StoriesCopy;
+  width: number;
+  isDark: boolean;
+  textColor: string;
+  mutedColor: string;
+  surface: string;
+  border: string;
+  onOpen: (story: StorySummary) => void;
+}) {
+  if (group.stories.length === 0) {
+    return (
+      <View style={styles.soon}>
+        <View style={styles.soonScene}>
+          <StoryScene scene="night" width={width - 32} height={150} animated={false} />
+        </View>
+        <Text style={[styles.soonText, { color: mutedColor }]}>{copy.levelSoon}</Text>
+      </View>
+    );
+  }
+
+  const hero = group.stories.find((story) => !story.progress.completed) ?? group.stories[0];
+  const rest = group.stories.filter((story) => story.code !== hero.code);
+
+  return (
+    <View>
+      <HeroCard story={hero} copy={copy} width={width - 32} onPress={() => onOpen(hero)} />
+      <View style={styles.list}>
+        {rest.map((story) => (
+          <StoryRow
+            key={story.code}
+            story={story}
+            copy={copy}
+            isDark={isDark}
+            textColor={textColor}
+            mutedColor={mutedColor}
+            surface={surface}
+            border={border}
+            onPress={() => onOpen(story)}
+          />
+        ))}
+      </View>
     </View>
   );
 }
 
 /* ───────────────────────── 다음 이야기 (크게) ───────────────────────── */
+
+/** 누르면 받침 깊이만큼 가라앉는다 (DESIGN: Press-Sinks) */
+function useSink(depth: number) {
+  const sink = useSharedValue(0);
+  const style = useAnimatedStyle(() => ({
+    transform: [{ translateY: sink.value * depth }],
+  }));
+  return {
+    style,
+    onPressIn: () => {
+      sink.value = withTiming(1, { duration: 60 });
+    },
+    onPressOut: () => {
+      sink.value = withTiming(0, { duration: 90 });
+    },
+  };
+}
 
 function HeroCard({
   story,
@@ -292,24 +401,21 @@ function HeroCard({
   onPress: () => void;
 }) {
   const palette = sceneOf(story.scene);
-  const sink = useSharedValue(0);
-  const sinkStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sink.value * 5 }],
-  }));
-  const sceneHeight = Math.round(Math.min(220, width * 0.56));
+  const sink = useSink(5);
+  const sceneHeight = Math.round(Math.min(200, width * 0.52));
   const label = story.progress.completed ? copy.listenAgain : copy.upNext;
 
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => (sink.value = withTiming(1, { duration: 60 }))}
-      onPressOut={() => (sink.value = withTiming(0, { duration: 90 }))}
+      onPressIn={sink.onPressIn}
+      onPressOut={sink.onPressOut}
       accessibilityRole="button"
       accessibilityLabel={`${label}: ${story.title}`}
       style={styles.heroWrap}
     >
       <View style={[styles.heroSlab, { backgroundColor: palette.groundDeep }]} />
-      <Animated.View style={[styles.hero, { backgroundColor: palette.ground }, sinkStyle]}>
+      <Animated.View style={[styles.hero, { backgroundColor: palette.ground }, sink.style]}>
         <StoryScene
           scene={story.scene}
           width={width}
@@ -333,7 +439,7 @@ function HeroCard({
             <View style={[styles.heroPlayFace, { backgroundColor: VIOLET }]}>
               <Ionicons
                 name={story.progress.completed ? "refresh" : "play"}
-                size={26}
+                size={24}
                 color="#FFFFFF"
                 style={story.progress.completed ? undefined : { marginLeft: 3 }}
               />
@@ -366,27 +472,24 @@ function StoryRow({
   border: string;
   onPress: () => void;
 }) {
-  const sink = useSharedValue(0);
-  const sinkStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sink.value * 4 }],
-  }));
+  const sink = useSink(4);
   const slab = isDark ? "#0F0F15" : "#DAD6EE";
 
   return (
     <Pressable
       onPress={onPress}
-      onPressIn={() => (sink.value = withTiming(1, { duration: 60 }))}
-      onPressOut={() => (sink.value = withTiming(0, { duration: 90 }))}
+      onPressIn={sink.onPressIn}
+      onPressOut={sink.onPressOut}
       accessibilityRole="button"
       accessibilityLabel={`${story.title}, ${story.topic}`}
       style={styles.rowWrap}
     >
       <View style={[styles.rowSlab, { backgroundColor: slab }]} />
       <Animated.View
-        style={[styles.row, { backgroundColor: surface, borderColor: border }, sinkStyle]}
+        style={[styles.row, { backgroundColor: surface, borderColor: border }, sink.style]}
       >
         <View style={styles.thumb}>
-          <StoryScene scene={story.scene} width={68} height={68} animated={false} />
+          <StoryScene scene={story.scene} width={64} height={64} animated={false} />
         </View>
         <View style={styles.flex}>
           <Text numberOfLines={1} style={[styles.rowTitle, { color: textColor }]}>
@@ -401,10 +504,10 @@ function StoryRow({
         </View>
         {story.progress.completed ? (
           <View style={styles.done} accessibilityLabel={copy.done}>
-            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+            <Ionicons name="checkmark" size={15} color="#FFFFFF" />
           </View>
         ) : (
-          <Ionicons name="play-circle" size={30} color={VIOLET} />
+          <Ionicons name="play-circle" size={28} color={VIOLET} />
         )}
       </Animated.View>
     </Pressable>
@@ -414,10 +517,13 @@ function StoryRow({
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   flex: { flex: 1 },
-  header: { paddingHorizontal: 14, height: 44, justifyContent: "center" },
-  intro: { paddingHorizontal: 20, marginBottom: 18 },
-  title: { fontSize: 30, lineHeight: 35, fontWeight: "900", letterSpacing: -0.5 },
-  subtitle: { marginTop: 6, fontSize: 14, lineHeight: 20, fontWeight: "700" },
+  header: { paddingHorizontal: 14, height: 40, justifyContent: "center" },
+  intro: { paddingHorizontal: 20, marginBottom: 14 },
+  titleRow: { flexDirection: "row", alignItems: "center", gap: 10, flexWrap: "wrap" },
+  title: { fontSize: 26, lineHeight: 31, fontWeight: "900", letterSpacing: -0.4 },
+  languagePill: { height: 26, borderRadius: 13, paddingHorizontal: 10, justifyContent: "center" },
+  languageText: { fontSize: 12, fontWeight: "900" },
+  subtitle: { marginTop: 6, fontSize: 13, lineHeight: 19, fontWeight: "700" },
   center: { alignItems: "center", justifyContent: "center", gap: 14, paddingVertical: 60 },
   stateText: { fontSize: 15, fontWeight: "800", textAlign: "center" },
   retry: {
@@ -431,68 +537,72 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   retryText: { color: "#FFFFFF", fontSize: 16, fontWeight: "900" },
-  tabs: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    height: 58,
-    borderRadius: 29,
-    padding: 4,
-    flexDirection: "row",
+  tabsScroll: { flexGrow: 0 },
+  tabs: { paddingHorizontal: 16, gap: 8, paddingBottom: 3 },
+  tab: {
+    minWidth: 54,
+    height: 40,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderBottomWidth: 3,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  tabThumb: {
-    position: "absolute",
-    top: 4,
-    left: 4,
-    bottom: 4,
-    borderRadius: 25,
-    backgroundColor: VIOLET,
+  tabText: { fontSize: 15, fontWeight: "900", letterSpacing: 0.3 },
+  levelLine: {
+    marginTop: 8,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    fontSize: 12.5,
+    fontWeight: "800",
   },
-  tab: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 4 },
-  tabLevel: { fontSize: 16, fontWeight: "900", letterSpacing: 0.4 },
-  tabHint: { marginTop: 1, fontSize: 11, fontWeight: "800" },
-  heroWrap: { marginHorizontal: 16, marginBottom: 18, paddingBottom: 5 },
-  heroSlab: { position: "absolute", left: 0, right: 0, top: 5, bottom: 0, borderRadius: 26 },
-  hero: { borderRadius: 26, overflow: "hidden" },
+  soon: { marginHorizontal: 16, alignItems: "center", gap: 16 },
+  soonScene: { borderRadius: 24, overflow: "hidden", opacity: 0.85 },
+  soonText: { fontSize: 14, lineHeight: 20, fontWeight: "800", textAlign: "center" },
+  heroWrap: { marginHorizontal: 16, marginBottom: 16, paddingBottom: 5 },
+  heroSlab: { position: "absolute", left: 0, right: 0, top: 5, bottom: 0, borderRadius: 24 },
+  hero: { borderRadius: 24, overflow: "hidden" },
   heroBody: {
     flexDirection: "row",
     alignItems: "flex-end",
     gap: 14,
     paddingHorizontal: 18,
-    paddingBottom: 18,
-    marginTop: -46,
+    paddingBottom: 16,
+    marginTop: -42,
   },
-  heroTitle: { fontSize: 25, lineHeight: 30, fontWeight: "900", letterSpacing: -0.5 },
-  heroTopic: { marginTop: 3, fontSize: 14, fontWeight: "800" },
-  heroMeta: { marginTop: 8, fontSize: 12, fontWeight: "800", fontVariant: ["tabular-nums"] },
-  heroPlay: { width: 58, height: 63 },
-  heroPlaySlab: { position: "absolute", top: 5, width: 58, height: 58, borderRadius: 29 },
+  heroTitle: { fontSize: 21, lineHeight: 26, fontWeight: "900", letterSpacing: -0.4 },
+  heroTopic: { marginTop: 3, fontSize: 13, fontWeight: "800" },
+  heroMeta: { marginTop: 7, fontSize: 11.5, fontWeight: "800", fontVariant: ["tabular-nums"] },
+  heroPlay: { width: 54, height: 59 },
+  heroPlaySlab: { position: "absolute", top: 5, width: 54, height: 54, borderRadius: 27 },
   heroPlayFace: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     alignItems: "center",
     justifyContent: "center",
   },
-  list: { paddingHorizontal: 16, gap: 12 },
+  list: { paddingHorizontal: 16, gap: 10 },
   rowWrap: { paddingBottom: 4 },
-  rowSlab: { position: "absolute", left: 0, right: 0, top: 4, bottom: 0, borderRadius: 20 },
+  rowSlab: { position: "absolute", left: 0, right: 0, top: 4, bottom: 0, borderRadius: 18 },
   row: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    padding: 10,
-    paddingRight: 16,
-    borderRadius: 20,
+    gap: 12,
+    padding: 9,
+    paddingRight: 14,
+    borderRadius: 18,
     borderWidth: 1,
   },
-  thumb: { width: 68, height: 68, borderRadius: 16, overflow: "hidden" },
-  rowTitle: { fontSize: 16, lineHeight: 21, fontWeight: "900" },
-  rowTopic: { marginTop: 1, fontSize: 13, fontWeight: "700" },
-  rowMeta: { marginTop: 4, fontSize: 12, fontWeight: "800", fontVariant: ["tabular-nums"] },
+  thumb: { width: 64, height: 64, borderRadius: 14, overflow: "hidden" },
+  rowTitle: { fontSize: 15, lineHeight: 20, fontWeight: "900" },
+  rowTopic: { marginTop: 1, fontSize: 12.5, fontWeight: "700" },
+  rowMeta: { marginTop: 3, fontSize: 11.5, fontWeight: "800", fontVariant: ["tabular-nums"] },
   done: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: VIOLET,
     alignItems: "center",
     justifyContent: "center",
