@@ -71,7 +71,8 @@ for (const [key, gap] of ORDER) {
   cursor = S[key] + Math.round(LINES[key].len * FPS);
 }
 const SPEECH_END = cursor;
-const TAIL = 75;
+/** 끝 카드(앱 아이콘)를 4초 보여 준다 */
+const TAIL = 120;
 export const XATO_TOTAL = SPEECH_END + TAIL;
 const end = (key: Key) => S[key] + Math.round(LINES[key].len * FPS);
 const norm = (t: string) => t.toLowerCase().replace(/[«»"“”.,:!?—ʻ‘'’]/g, "");
@@ -568,10 +569,10 @@ function Graphics() {
         )}
       </Show>
 
-      {/* 끝: 번호 댓글 */}
-      <Show from={S.n21 - 4} to={XATO_TOTAL}>
-        {() => (
-          <div style={{ position: "absolute", left: 0, right: 0, top: 230, display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
+      {/* 끝: 번호 댓글 → 앱 아이콘 카드 */}
+      <Show from={S.n21 - 4} to={SPEECH_END + 10}>
+        {(_, out) => (
+          <div style={{ position: "absolute", left: 0, right: 0, top: 230, display: "flex", flexDirection: "column", alignItems: "center", gap: 26, opacity: 1 - out }}>
             <div style={{ fontFamily: HEAVY, fontSize: 64, lineHeight: 1.1, color: INK, textAlign: "center", opacity: ramp(frame, S.n21, 8) }}>
               Qaysi biri
               <br />
@@ -590,19 +591,46 @@ function Graphics() {
             {frame >= wAt("n21", "izohga") ? (
               <div style={{ padding: "14px 34px", borderRadius: 999, background: YELLOW, fontFamily: HEAVY, fontSize: 48, color: INK, transform: `scale(${pop(frame, wAt("n21", "izohga"), 260, 12)}) rotate(-2deg)`, boxShadow: "0 12px 26px rgba(0,0,0,0.25)" }}>Izohga raqamini yozing</div>
             ) : null}
-            {frame >= SPEECH_END ? (
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 10, opacity: ramp(frame, SPEECH_END, 10) }}>
-                <div style={{ display: "inline-block", padding: "4px 22px", borderRadius: 18, background: "#fff", boxShadow: "0 10px 22px rgba(0,0,0,0.2)" }}>
-                  <span style={{ fontFamily: HEAVY, fontSize: 64, color: PURPLE }}>KORI</span>
-                  <span style={{ fontFamily: HEAVY, fontSize: 64, color: "#FF5FA2" }}>O</span>
-                </div>
-                <div style={{ fontFamily: BODY, fontWeight: 800, fontSize: 32, color: "#5B4A3A" }}>Android: Google Play · iPhone: Telegram @KorioLoginBot</div>
-              </div>
-            ) : null}
           </div>
         )}
       </Show>
+      <StoreCard />
     </>
+  );
+}
+
+/**
+ * 끝 카드 — Google Play 에 보이는 앱 아이콘을 크게. "어떤 게 KORIO 냐"는 질문이 와서,
+ * 가게에서 그대로 찾을 수 있게 아이콘 + 이름 + 검색어를 보여 준다.
+ */
+function StoreCard() {
+  const frame = useCurrentFrame();
+  const at = SPEECH_END + 2;
+  if (frame < at) return null;
+  const s = pop(frame, at, 160, 13);
+  return (
+    <AbsoluteFill style={{ opacity: ramp(frame, at, 10) }}>
+      <PaperBg />
+      <div style={{ position: "absolute", left: 0, right: 0, top: 420, display: "flex", flexDirection: "column", alignItems: "center", gap: 30 }}>
+        <div style={{ width: 500, height: 500, borderRadius: 112, overflow: "hidden", background: "#fff", boxShadow: "0 40px 80px rgba(70,40,140,0.35), 0 0 0 6px #fff", transform: `scale(${0.6 + s * 0.4}) rotate(${(1 - s) * -8}deg)` }}>
+          <Img src={staticFile("brand/korio-icon.png")} style={{ width: "100%", height: "100%" }} />
+        </div>
+        <div style={{ opacity: ramp(frame, at + 8, 8), transform: `translateY(${(1 - pop(frame, at + 8, 200, 15)) * 40}px)` }}>
+          <span style={{ fontFamily: HEAVY, fontSize: 150, letterSpacing: 4, color: PURPLE }}>KORI</span>
+          <span style={{ fontFamily: HEAVY, fontSize: 150, letterSpacing: 4, color: "#FF5FA2" }}>O</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "18px 34px", borderRadius: 999, background: "#111", color: "#fff", fontFamily: HEAVY, fontSize: 44, opacity: ramp(frame, at + 16, 8), transform: `scale(${pop(frame, at + 16, 240, 13)})` }}>
+          <svg height={52} viewBox="0 0 24 24" width={52}>
+            <path d="M4 2.5l10.5 9.5L4 21.5z" fill="#00D7FE" />
+            <path d="M4 2.5l13.8 6.2-3.3 3.3z" fill="#32BBFF" opacity="0.9" />
+            <path d="M14.5 12l3.3 3.3L4 21.5z" fill="#FF3A44" />
+            <path d="M17.8 8.7l3.2 1.8c1.1.7 1.1 2.3 0 3l-3.2 1.8-3.3-3.3z" fill="#FFD109" />
+          </svg>
+          Google Play’da «KORIO» deb qidiring
+        </div>
+        <div style={{ padding: "12px 28px", borderRadius: 999, background: "#2AABEE", color: "#fff", fontFamily: HEAVY, fontSize: 36, opacity: ramp(frame, at + 24, 8) }}>iPhone: Telegram @KorioLoginBot</div>
+      </div>
+    </AbsoluteFill>
   );
 }
 
