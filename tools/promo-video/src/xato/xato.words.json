@@ -1,0 +1,1543 @@
+{
+ "lines": {
+  "t01": {
+   "len": 4.84,
+   "voice": "tour",
+   "lang": "en",
+   "text": "Excuse me! Do you speak English? How can I get to Amir Temur Square?"
+  },
+  "m01": {
+   "len": 2.9,
+   "voice": "mal",
+   "lang": "en",
+   "text": "Ehh... I... ehm..."
+  },
+  "n01": {
+   "len": 5.92,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Malika ikki yildan beri ingliz tilini oʻrganadi. Hammasini tushundi — lekin javob bera olmadi.",
+   "heard": "Malika ikki yildan beri ingliz tilini o'rganadi. Hammasini tushundi, lekin javob bera olmadi",
+   "words": [
+    {
+     "w": "Malika",
+     "s": 0.08,
+     "e": 0.58
+    },
+    {
+     "w": "ikki",
+     "s": 0.64,
+     "e": 0.88
+    },
+    {
+     "w": "yildan",
+     "s": 0.92,
+     "e": 1.18
+    },
+    {
+     "w": "beri",
+     "s": 1.22,
+     "e": 1.5
+    },
+    {
+     "w": "ingliz",
+     "s": 1.54,
+     "e": 1.84
+    },
+    {
+     "w": "tilini",
+     "s": 1.88,
+     "e": 2.12
+    },
+    {
+     "w": "oʻrganadi.",
+     "s": 2.16,
+     "e": 2.58
+    },
+    {
+     "w": "Hammasini",
+     "s": 3.06,
+     "e": 3.52
+    },
+    {
+     "w": "tushundi",
+     "s": 3.54,
+     "e": 3.96
+    },
+    {
+     "w": "lekin",
+     "s": 4.42,
+     "e": 4.74
+    },
+    {
+     "w": "javob",
+     "s": 4.94,
+     "e": 5.2
+    },
+    {
+     "w": "bera",
+     "s": 5.22,
+     "e": 5.4
+    },
+    {
+     "w": "olmadi.",
+     "s": 5.44,
+     "e": 5.82
+    }
+   ]
+  },
+  "n02": {
+   "len": 7.2,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bu faqat uning muammosi emas. Ingliz tili boʻyicha Oʻzbekiston yuz yigirma uchta davlat ichida yuz toʻrtinchi oʻrinda.",
+   "heard": "Bu faqat uning muammosi emas. Ingliz tili bo'yicha O'zbekiston yuz yigirma uchta davlat ichida yuz to'rtinchi o'rinda",
+   "words": [
+    {
+     "w": "Bu",
+     "s": 0.08,
+     "e": 0.12
+    },
+    {
+     "w": "faqat",
+     "s": 0.2,
+     "e": 0.5
+    },
+    {
+     "w": "uning",
+     "s": 0.6,
+     "e": 0.82
+    },
+    {
+     "w": "muammosi",
+     "s": 0.84,
+     "e": 1.36
+    },
+    {
+     "w": "emas.",
+     "s": 1.4,
+     "e": 1.76
+    },
+    {
+     "w": "Ingliz",
+     "s": 2.38,
+     "e": 2.7
+    },
+    {
+     "w": "tili",
+     "s": 2.72,
+     "e": 2.86
+    },
+    {
+     "w": "boʻyicha",
+     "s": 2.9,
+     "e": 3.4
+    },
+    {
+     "w": "Oʻzbekiston",
+     "s": 3.44,
+     "e": 4.06
+    },
+    {
+     "w": "yuz",
+     "s": 4.32,
+     "e": 4.46
+    },
+    {
+     "w": "yigirma",
+     "s": 4.5,
+     "e": 4.82
+    },
+    {
+     "w": "uchta",
+     "s": 4.86,
+     "e": 5.1
+    },
+    {
+     "w": "davlat",
+     "s": 5.16,
+     "e": 5.48
+    },
+    {
+     "w": "ichida",
+     "s": 5.5,
+     "e": 5.84
+    },
+    {
+     "w": "yuz",
+     "s": 6.06,
+     "e": 6.18
+    },
+    {
+     "w": "toʻrtinchi",
+     "s": 6.26,
+     "e": 6.7
+    },
+    {
+     "w": "oʻrinda.",
+     "s": 6.74,
+     "e": 7.1
+    }
+   ]
+  },
+  "n03": {
+   "len": 4.33,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Koʻpincha gap qobiliyatda emas. Gap — uchta katta xatoda.",
+   "heard": "Ko'pincha gap qobiliyatda emas, gap uchta katta xatoda",
+   "words": [
+    {
+     "w": "Koʻpincha",
+     "s": 0.04,
+     "e": 0.48
+    },
+    {
+     "w": "gap",
+     "s": 0.6,
+     "e": 0.8
+    },
+    {
+     "w": "qobiliyatda",
+     "s": 0.88,
+     "e": 1.4
+    },
+    {
+     "w": "emas.",
+     "s": 1.42,
+     "e": 1.8
+    },
+    {
+     "w": "Gap",
+     "s": 2.36,
+     "e": 2.64
+    },
+    {
+     "w": "uchta",
+     "s": 3.04,
+     "e": 3.4
+    },
+    {
+     "w": "katta",
+     "s": 3.44,
+     "e": 3.72
+    },
+    {
+     "w": "xatoda.",
+     "s": 3.76,
+     "e": 4.22
+    }
+   ]
+  },
+  "n04": {
+   "len": 8.52,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Birinchi xato: «Koʻrdim — demak bilaman». Malika har kecha yuzlab soʻzni varaqlaydi va «bilaman» deb oʻylaydi.",
+   "heard": "Birinchi xato: ko'rdim, demak bilaman. Malika har kecha yuzlab so'zni varaqlaydi va bilaman deb o'ylaydi",
+   "words": [
+    {
+     "w": "Birinchi",
+     "s": 0.08,
+     "e": 0.46
+    },
+    {
+     "w": "xato:",
+     "s": 0.5,
+     "e": 0.8
+    },
+    {
+     "w": "«Koʻrdim",
+     "s": 1.38,
+     "e": 1.74
+    },
+    {
+     "w": "demak",
+     "s": 2.28,
+     "e": 2.62
+    },
+    {
+     "w": "bilaman».",
+     "s": 2.78,
+     "e": 3.16
+    },
+    {
+     "w": "Malika",
+     "s": 3.74,
+     "e": 4.14
+    },
+    {
+     "w": "har",
+     "s": 4.4,
+     "e": 4.54
+    },
+    {
+     "w": "kecha",
+     "s": 4.62,
+     "e": 4.88
+    },
+    {
+     "w": "yuzlab",
+     "s": 4.94,
+     "e": 5.32
+    },
+    {
+     "w": "soʻzni",
+     "s": 5.38,
+     "e": 5.66
+    },
+    {
+     "w": "varaqlaydi",
+     "s": 5.68,
+     "e": 6.26
+    },
+    {
+     "w": "va",
+     "s": 6.5,
+     "e": 6.66
+    },
+    {
+     "w": "«bilaman»",
+     "s": 7.14,
+     "e": 7.62
+    },
+    {
+     "w": "deb",
+     "s": 7.82,
+     "e": 7.96
+    },
+    {
+     "w": "oʻylaydi.",
+     "s": 8,
+     "e": 8.42
+    }
+   ]
+  },
+  "n05": {
+   "len": 6.53,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Lekin ertasi kuni oʻsha soʻz kerak boʻlsa — esga kelmaydi. Tanish tuyulish — eslash degani emas.",
+   "heard": "Lekin ertasi kuni o'sha so'z kerak bo'lsa, esga kelmaydi. Tanish tuyulish, eslash degani emas",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.36
+    },
+    {
+     "w": "ertasi",
+     "s": 0.5,
+     "e": 0.84
+    },
+    {
+     "w": "kuni",
+     "s": 0.9,
+     "e": 1.14
+    },
+    {
+     "w": "oʻsha",
+     "s": 1.18,
+     "e": 1.38
+    },
+    {
+     "w": "soʻz",
+     "s": 1.46,
+     "e": 1.68
+    },
+    {
+     "w": "kerak",
+     "s": 1.7,
+     "e": 1.92
+    },
+    {
+     "w": "boʻlsa",
+     "s": 1.98,
+     "e": 2.34
+    },
+    {
+     "w": "esga",
+     "s": 2.72,
+     "e": 2.94
+    },
+    {
+     "w": "kelmaydi.",
+     "s": 3,
+     "e": 3.48
+    },
+    {
+     "w": "Tanish",
+     "s": 4.06,
+     "e": 4.34
+    },
+    {
+     "w": "tuyulish",
+     "s": 4.42,
+     "e": 4.88
+    },
+    {
+     "w": "eslash",
+     "s": 5.32,
+     "e": 5.68
+    },
+    {
+     "w": "degani",
+     "s": 5.74,
+     "e": 6.02
+    },
+    {
+     "w": "emas.",
+     "s": 6.06,
+     "e": 6.4
+    }
+   ]
+  },
+  "n06": {
+   "len": 10.18,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Tadqiqotda bir guruh soʻzlarni qayta oʻqidi, ikkinchisi — yoddan esladi. Bir haftadan keyin: oʻqiganlar — oʻttiz olti foiz, eslaganlar — sakson foiz.",
+   "heard": "Tadqiqotda bir guruh so'zlarni qayta o'qidi, ikkinchisi yoddan esladi. Bir haftadan keyin o'qiganlar o'ttiz olti foiz, eslaganlar sakson foiz",
+   "words": [
+    {
+     "w": "Tadqiqotda",
+     "s": 0,
+     "e": 0.72
+    },
+    {
+     "w": "bir",
+     "s": 0.86,
+     "e": 0.96
+    },
+    {
+     "w": "guruh",
+     "s": 1.04,
+     "e": 1.22
+    },
+    {
+     "w": "soʻzlarni",
+     "s": 1.28,
+     "e": 1.76
+    },
+    {
+     "w": "qayta",
+     "s": 1.8,
+     "e": 2.08
+    },
+    {
+     "w": "oʻqidi,",
+     "s": 2.1,
+     "e": 2.4
+    },
+    {
+     "w": "ikkinchisi",
+     "s": 2.82,
+     "e": 3.38
+    },
+    {
+     "w": "yoddan",
+     "s": 3.76,
+     "e": 4.12
+    },
+    {
+     "w": "esladi.",
+     "s": 4.18,
+     "e": 4.52
+    },
+    {
+     "w": "Bir",
+     "s": 5.08,
+     "e": 5.16
+    },
+    {
+     "w": "haftadan",
+     "s": 5.22,
+     "e": 5.6
+    },
+    {
+     "w": "keyin:",
+     "s": 5.64,
+     "e": 5.92
+    },
+    {
+     "w": "oʻqiganlar",
+     "s": 6.36,
+     "e": 6.9
+    },
+    {
+     "w": "oʻttiz",
+     "s": 7.12,
+     "e": 7.42
+    },
+    {
+     "w": "olti",
+     "s": 7.48,
+     "e": 7.68
+    },
+    {
+     "w": "foiz,",
+     "s": 7.72,
+     "e": 8.04
+    },
+    {
+     "w": "eslaganlar",
+     "s": 8.42,
+     "e": 9
+    },
+    {
+     "w": "sakson",
+     "s": 9.32,
+     "e": 9.66
+    },
+    {
+     "w": "foiz.",
+     "s": 9.74,
+     "e": 10.06
+    }
+   ]
+  },
+  "n07": {
+   "len": 5.67,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Toʻgʻri yoʻl: kitobni yoping va soʻzni yoddan ayting. Esga kelmasa — keyin qarang.",
+   "heard": "To'g'ri yo'l. Kitobni yoping va so'zni yoddan ayting. Esga kelmasa, keyin qarang",
+   "words": [
+    {
+     "w": "Toʻgʻri",
+     "s": 0.04,
+     "e": 0.38
+    },
+    {
+     "w": "yoʻl:",
+     "s": 0.4,
+     "e": 0.62
+    },
+    {
+     "w": "kitobni",
+     "s": 1.1,
+     "e": 1.46
+    },
+    {
+     "w": "yoping",
+     "s": 1.5,
+     "e": 1.88
+    },
+    {
+     "w": "va",
+     "s": 2.16,
+     "e": 2.3
+    },
+    {
+     "w": "soʻzni",
+     "s": 2.46,
+     "e": 2.74
+    },
+    {
+     "w": "yoddan",
+     "s": 2.78,
+     "e": 3.12
+    },
+    {
+     "w": "ayting.",
+     "s": 3.16,
+     "e": 3.44
+    },
+    {
+     "w": "Esga",
+     "s": 3.96,
+     "e": 4.2
+    },
+    {
+     "w": "kelmasa",
+     "s": 4.24,
+     "e": 4.64
+    },
+    {
+     "w": "keyin",
+     "s": 5.08,
+     "e": 5.34
+    },
+    {
+     "w": "qarang.",
+     "s": 5.36,
+     "e": 5.62
+    }
+   ]
+  },
+  "n08": {
+   "len": 3.02,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Ikkinchi xatoni esa deyarli hammamiz qilamiz.",
+   "heard": "Ikkinchi xatoni esa deyarli hammamiz qilamiz",
+   "words": [
+    {
+     "w": "Ikkinchi",
+     "s": 0.06,
+     "e": 0.44
+    },
+    {
+     "w": "xatoni",
+     "s": 0.5,
+     "e": 0.88
+    },
+    {
+     "w": "esa",
+     "s": 0.94,
+     "e": 1.22
+    },
+    {
+     "w": "deyarli",
+     "s": 1.5,
+     "e": 1.88
+    },
+    {
+     "w": "hammamiz",
+     "s": 2.02,
+     "e": 2.46
+    },
+    {
+     "w": "qilamiz.",
+     "s": 2.5,
+     "e": 2.92
+    }
+   ]
+  },
+  "n09": {
+   "len": 6.59,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "«Dushanbadan boshlayman». Malika dushanba kuni besh soat oʻqidi — keyin ikki hafta kitobni ochmadi.",
+   "heard": "Dushanbadan boshlayman. Malika dushanba kuni besh soat o'qidi, keyin ikki hafta kitobni ochmadi",
+   "words": [
+    {
+     "w": "«Dushanbadan",
+     "s": 0.1,
+     "e": 0.7
+    },
+    {
+     "w": "boshlayman».",
+     "s": 0.76,
+     "e": 1.36
+    },
+    {
+     "w": "Malika",
+     "s": 1.9,
+     "e": 2.3
+    },
+    {
+     "w": "dushanba",
+     "s": 2.48,
+     "e": 2.82
+    },
+    {
+     "w": "kuni",
+     "s": 2.88,
+     "e": 3.08
+    },
+    {
+     "w": "besh",
+     "s": 3.18,
+     "e": 3.4
+    },
+    {
+     "w": "soat",
+     "s": 3.44,
+     "e": 3.66
+    },
+    {
+     "w": "oʻqidi",
+     "s": 3.72,
+     "e": 4.02
+    },
+    {
+     "w": "keyin",
+     "s": 4.52,
+     "e": 4.82
+    },
+    {
+     "w": "ikki",
+     "s": 5.02,
+     "e": 5.28
+    },
+    {
+     "w": "hafta",
+     "s": 5.32,
+     "e": 5.58
+    },
+    {
+     "w": "kitobni",
+     "s": 5.64,
+     "e": 6
+    },
+    {
+     "w": "ochmadi.",
+     "s": 6.06,
+     "e": 6.48
+    }
+   ]
+  },
+  "n10": {
+   "len": 6.05,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bu gulni ikki haftada bir marta, bir chelak suv bilan sugʻorishga oʻxshaydi. Gul baribir quriydi.",
+   "heard": "Bu gulni ikki haftada bir marta bir chelak suv bilan sug'orishga o'xshaydi. Gul baribir quriydi",
+   "words": [
+    {
+     "w": "Bu",
+     "s": 0.08,
+     "e": 0.16
+    },
+    {
+     "w": "gulni",
+     "s": 0.2,
+     "e": 0.64
+    },
+    {
+     "w": "ikki",
+     "s": 0.68,
+     "e": 0.94
+    },
+    {
+     "w": "haftada",
+     "s": 0.98,
+     "e": 1.32
+    },
+    {
+     "w": "bir",
+     "s": 1.42,
+     "e": 1.52
+    },
+    {
+     "w": "marta,",
+     "s": 1.6,
+     "e": 1.96
+    },
+    {
+     "w": "bir",
+     "s": 2.26,
+     "e": 2.36
+    },
+    {
+     "w": "chelak",
+     "s": 2.42,
+     "e": 2.68
+    },
+    {
+     "w": "suv",
+     "s": 2.78,
+     "e": 2.94
+    },
+    {
+     "w": "bilan",
+     "s": 2.98,
+     "e": 3.14
+    },
+    {
+     "w": "sugʻorishga",
+     "s": 3.22,
+     "e": 3.66
+    },
+    {
+     "w": "oʻxshaydi.",
+     "s": 3.68,
+     "e": 4.12
+    },
+    {
+     "w": "Gul",
+     "s": 4.68,
+     "e": 4.88
+    },
+    {
+     "w": "baribir",
+     "s": 5.08,
+     "e": 5.44
+    },
+    {
+     "w": "quriydi.",
+     "s": 5.54,
+     "e": 5.94
+    }
+   ]
+  },
+  "n11": {
+   "len": 10.06,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Toʻgʻri yoʻl — har kuni oz-ozdan. Qirq sakkizta tadqiqot koʻrsatgan: har kuni takrorlangan soʻz uzoqroq esda qoladi. Kuniga oʻn besh daqiqa ham yetadi.",
+   "heard": "To'g'ri yo'l har kuni oz-ozdan. Qirq sakkizta tadqiqot ko'rsatgan. Har kuni takrorlangan so'z uzoqroq esda qoladi. Kuniga o'n besh daqiqa ham yetadi",
+   "words": [
+    {
+     "w": "Toʻgʻri",
+     "s": 0.04,
+     "e": 0.36
+    },
+    {
+     "w": "yoʻl",
+     "s": 0.42,
+     "e": 0.64
+    },
+    {
+     "w": "har",
+     "s": 1.12,
+     "e": 1.26
+    },
+    {
+     "w": "kuni",
+     "s": 1.32,
+     "e": 1.62
+    },
+    {
+     "w": "oz-ozdan.",
+     "s": 1.68,
+     "e": 2.22
+    },
+    {
+     "w": "Qirq",
+     "s": 2.68,
+     "e": 2.9
+    },
+    {
+     "w": "sakkizta",
+     "s": 2.94,
+     "e": 3.34
+    },
+    {
+     "w": "tadqiqot",
+     "s": 3.4,
+     "e": 3.84
+    },
+    {
+     "w": "koʻrsatgan:",
+     "s": 3.88,
+     "e": 4.42
+    },
+    {
+     "w": "har",
+     "s": 4.88,
+     "e": 5.02
+    },
+    {
+     "w": "kuni",
+     "s": 5.08,
+     "e": 5.26
+    },
+    {
+     "w": "takrorlangan",
+     "s": 5.3,
+     "e": 5.92
+    },
+    {
+     "w": "soʻz",
+     "s": 6.06,
+     "e": 6.32
+    },
+    {
+     "w": "uzoqroq",
+     "s": 6.48,
+     "e": 7
+    },
+    {
+     "w": "esda",
+     "s": 7.04,
+     "e": 7.24
+    },
+    {
+     "w": "qoladi.",
+     "s": 7.3,
+     "e": 7.62
+    },
+    {
+     "w": "Kuniga",
+     "s": 8.12,
+     "e": 8.54
+    },
+    {
+     "w": "oʻn",
+     "s": 8.6,
+     "e": 8.74
+    },
+    {
+     "w": "besh",
+     "s": 8.8,
+     "e": 8.98
+    },
+    {
+     "w": "daqiqa",
+     "s": 9.02,
+     "e": 9.36
+    },
+    {
+     "w": "ham",
+     "s": 9.4,
+     "e": 9.56
+    },
+    {
+     "w": "yetadi.",
+     "s": 9.6,
+     "e": 9.94
+    }
+   ]
+  },
+  "n12": {
+   "len": 2.32,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Uchinchisi esa — eng yomoni.",
+   "heard": "Uchinchisi esa eng yomoni",
+   "words": [
+    {
+     "w": "Uchinchisi",
+     "s": 0.04,
+     "e": 0.6
+    },
+    {
+     "w": "esa",
+     "s": 0.68,
+     "e": 1
+    },
+    {
+     "w": "eng",
+     "s": 1.56,
+     "e": 1.74
+    },
+    {
+     "w": "yomoni.",
+     "s": 1.78,
+     "e": 2.22
+    }
+   ]
+  },
+  "n13": {
+   "len": 7.6,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "«Avval mukammal bilay, keyin gapiraman». Mehmonda togʻasi: «Qani, inglizcha bir narsa de-chi!» — Malika jim.",
+   "heard": "Avval mukammal bilay, keyin gapiraman. Mehmonda tog'asi: qani inglizcha bir narsa dechi? Malika jim",
+   "words": [
+    {
+     "w": "«Avval",
+     "s": 0.08,
+     "e": 0.36
+    },
+    {
+     "w": "mukammal",
+     "s": 0.42,
+     "e": 0.86
+    },
+    {
+     "w": "bilay,",
+     "s": 0.94,
+     "e": 1.2
+    },
+    {
+     "w": "keyin",
+     "s": 1.66,
+     "e": 1.88
+    },
+    {
+     "w": "gapiraman».",
+     "s": 1.92,
+     "e": 2.42
+    },
+    {
+     "w": "Mehmonda",
+     "s": 3.04,
+     "e": 3.48
+    },
+    {
+     "w": "togʻasi:",
+     "s": 3.52,
+     "e": 3.92
+    },
+    {
+     "w": "«Qani,",
+     "s": 4.36,
+     "e": 4.64
+    },
+    {
+     "w": "inglizcha",
+     "s": 5,
+     "e": 5.4
+    },
+    {
+     "w": "bir",
+     "s": 5.42,
+     "e": 5.52
+    },
+    {
+     "w": "narsa",
+     "s": 5.56,
+     "e": 5.78
+    },
+    {
+     "w": "de-chi!»",
+     "s": 5.82,
+     "e": 6.18
+    },
+    {
+     "w": "Malika",
+     "s": 6.8,
+     "e": 7.14
+    },
+    {
+     "w": "jim.",
+     "s": 7.24,
+     "e": 7.5
+    }
+   ]
+  },
+  "n14": {
+   "len": 3.95,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Lekin suzishni kitob oʻqib oʻrganib boʻlmaydi. Suvga tushish kerak.",
+   "heard": "Lekin suzishni kitob o'qib o'rganib bo'lmaydi, suvga tushish kerak",
+   "words": [
+    {
+     "w": "Lekin",
+     "s": 0.08,
+     "e": 0.38
+    },
+    {
+     "w": "suzishni",
+     "s": 0.58,
+     "e": 0.92
+    },
+    {
+     "w": "kitob",
+     "s": 0.96,
+     "e": 1.28
+    },
+    {
+     "w": "oʻqib",
+     "s": 1.32,
+     "e": 1.56
+    },
+    {
+     "w": "oʻrganib",
+     "s": 1.62,
+     "e": 1.96
+    },
+    {
+     "w": "boʻlmaydi.",
+     "s": 2,
+     "e": 2.44
+    },
+    {
+     "w": "Suvga",
+     "s": 2.98,
+     "e": 3.2
+    },
+    {
+     "w": "tushish",
+     "s": 3.26,
+     "e": 3.5
+    },
+    {
+     "w": "kerak.",
+     "s": 3.56,
+     "e": 3.86
+    }
+   ]
+  },
+  "n15": {
+   "len": 3.36,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Toʻgʻri yoʻl: xato qilsangiz ham — bugunoq gapiring.",
+   "heard": "To'g'ri yo'l. Xato qilsangiz ham bugun oq gapiring",
+   "words": [
+    {
+     "w": "Toʻgʻri",
+     "s": 0.04,
+     "e": 0.55
+    },
+    {
+     "w": "yoʻl:",
+     "s": 0.55,
+     "e": 0.93
+    },
+    {
+     "w": "xato",
+     "s": 0.93,
+     "e": 1.25
+    },
+    {
+     "w": "qilsangiz",
+     "s": 1.25,
+     "e": 1.88
+    },
+    {
+     "w": "ham",
+     "s": 1.88,
+     "e": 2.14
+    },
+    {
+     "w": "bugunoq",
+     "s": 2.14,
+     "e": 2.64
+    },
+    {
+     "w": "gapiring.",
+     "s": 2.64,
+     "e": 3.28
+    }
+   ]
+  },
+  "n16": {
+   "len": 9.11,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Shuning uchun Malika Korio ilovasini yuklab oldi. Darajasini tanladi — A1 dan C2 gacha — va har kuni oʻziga mos dars oladi.",
+   "heard": "Shuning uchun Malika ko'ryo ilovasini yuklab oldi, darajasini tanladi. A1 dan C2 gacha va har kuni o'ziga mos darz oladi",
+   "words": [
+    {
+     "w": "Shuning",
+     "s": 0.08,
+     "e": 0.34
+    },
+    {
+     "w": "uchun",
+     "s": 0.38,
+     "e": 0.7
+    },
+    {
+     "w": "Malika",
+     "s": 0.92,
+     "e": 1.3
+    },
+    {
+     "w": "Korio",
+     "s": 1.34,
+     "e": 1.64
+    },
+    {
+     "w": "ilovasini",
+     "s": 1.72,
+     "e": 2.24
+    },
+    {
+     "w": "yuklab",
+     "s": 2.28,
+     "e": 2.58
+    },
+    {
+     "w": "oldi.",
+     "s": 2.64,
+     "e": 2.86
+    },
+    {
+     "w": "Darajasini",
+     "s": 3.42,
+     "e": 3.94
+    },
+    {
+     "w": "tanladi",
+     "s": 3.96,
+     "e": 4.38
+    },
+    {
+     "w": "A1",
+     "s": 4.92,
+     "e": 5.32
+    },
+    {
+     "w": "dan",
+     "s": 5.36,
+     "e": 5.58
+    },
+    {
+     "w": "C2",
+     "s": 5.82,
+     "e": 6.26
+    },
+    {
+     "w": "gacha",
+     "s": 6.3,
+     "e": 6.6
+    },
+    {
+     "w": "va",
+     "s": 7.06,
+     "e": 7.14
+    },
+    {
+     "w": "har",
+     "s": 7.26,
+     "e": 7.4
+    },
+    {
+     "w": "kuni",
+     "s": 7.48,
+     "e": 7.76
+    },
+    {
+     "w": "oʻziga",
+     "s": 7.82,
+     "e": 8.12
+    },
+    {
+     "w": "mos",
+     "s": 8.18,
+     "e": 8.38
+    },
+    {
+     "w": "dars",
+     "s": 8.46,
+     "e": 8.7
+    },
+    {
+     "w": "oladi.",
+     "s": 8.74,
+     "e": 9
+    }
+   ]
+  },
+  "n17": {
+   "len": 4.46,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Oʻn besh daqiqa: yangi soʻzlar va ularni yoddan aytadigan mashqlar.",
+   "heard": "O'n besh daqiqa. Yangi so'zlar va ularni yoddan aytadigan mashqlar",
+   "words": [
+    {
+     "w": "Oʻn",
+     "s": 0.06,
+     "e": 0.18
+    },
+    {
+     "w": "besh",
+     "s": 0.24,
+     "e": 0.42
+    },
+    {
+     "w": "daqiqa:",
+     "s": 0.46,
+     "e": 0.86
+    },
+    {
+     "w": "yangi",
+     "s": 1.42,
+     "e": 1.66
+    },
+    {
+     "w": "soʻzlar",
+     "s": 1.76,
+     "e": 2.18
+    },
+    {
+     "w": "va",
+     "s": 2.44,
+     "e": 2.54
+    },
+    {
+     "w": "ularni",
+     "s": 2.58,
+     "e": 2.92
+    },
+    {
+     "w": "yoddan",
+     "s": 2.96,
+     "e": 3.32
+    },
+    {
+     "w": "aytadigan",
+     "s": 3.36,
+     "e": 3.84
+    },
+    {
+     "w": "mashqlar.",
+     "s": 3.88,
+     "e": 4.36
+    }
+   ]
+  },
+  "n18": {
+   "len": 9.37,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Eng muhimi — gapirish. Sunʻiy intellekt ustoz bilan jonli suhbat: xato qilsa — ustoz darhol toʻgʻrilaydi. Hech kim kulmaydi.",
+   "heard": "Eng muhimi gapirish sun’iy intellekt ustoz bilan jonli suhbat xato qilsa, ustoz darhol to‘g‘rilaydi. Hech kim kulmaydi",
+   "words": [
+    {
+     "w": "Eng",
+     "s": 0.08,
+     "e": 0.24
+    },
+    {
+     "w": "muhimi",
+     "s": 0.28,
+     "e": 0.74
+    },
+    {
+     "w": "gapirish.",
+     "s": 1.18,
+     "e": 1.76
+    },
+    {
+     "w": "Sunʻiy",
+     "s": 2.36,
+     "e": 2.72
+    },
+    {
+     "w": "intellekt",
+     "s": 2.78,
+     "e": 3.24
+    },
+    {
+     "w": "ustoz",
+     "s": 3.3,
+     "e": 3.66
+    },
+    {
+     "w": "bilan",
+     "s": 3.68,
+     "e": 3.92
+    },
+    {
+     "w": "jonli",
+     "s": 4.04,
+     "e": 4.32
+    },
+    {
+     "w": "suhbat:",
+     "s": 4.4,
+     "e": 4.82
+    },
+    {
+     "w": "xato",
+     "s": 5.26,
+     "e": 5.48
+    },
+    {
+     "w": "qilsa",
+     "s": 5.54,
+     "e": 5.88
+    },
+    {
+     "w": "ustoz",
+     "s": 6.22,
+     "e": 6.6
+    },
+    {
+     "w": "darhol",
+     "s": 6.74,
+     "e": 7.12
+    },
+    {
+     "w": "toʻgʻrilaydi.",
+     "s": 7.18,
+     "e": 7.72
+    },
+    {
+     "w": "Hech",
+     "s": 8.4,
+     "e": 8.58
+    },
+    {
+     "w": "kim",
+     "s": 8.64,
+     "e": 8.74
+    },
+    {
+     "w": "kulmaydi.",
+     "s": 8.82,
+     "e": 9.26
+    }
+   ]
+  },
+  "n19": {
+   "len": 3.36,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Bir necha oydan keyin oʻsha joyda yana sayyoh yoʻl soʻradi.",
+   "heard": "Bir necha oydan keyin o'sha joyda yana sayyoh yo'l so'radi",
+   "words": [
+    {
+     "w": "Bir",
+     "s": 0.08,
+     "e": 0.16
+    },
+    {
+     "w": "necha",
+     "s": 0.22,
+     "e": 0.48
+    },
+    {
+     "w": "oydan",
+     "s": 0.54,
+     "e": 0.8
+    },
+    {
+     "w": "keyin",
+     "s": 0.88,
+     "e": 1.18
+    },
+    {
+     "w": "oʻsha",
+     "s": 1.36,
+     "e": 1.54
+    },
+    {
+     "w": "joyda",
+     "s": 1.62,
+     "e": 1.9
+    },
+    {
+     "w": "yana",
+     "s": 2.02,
+     "e": 2.24
+    },
+    {
+     "w": "sayyoh",
+     "s": 2.3,
+     "e": 2.66
+    },
+    {
+     "w": "yoʻl",
+     "s": 2.72,
+     "e": 2.84
+    },
+    {
+     "w": "soʻradi.",
+     "s": 2.92,
+     "e": 3.26
+    }
+   ]
+  },
+  "t02": {
+   "len": 3.23,
+   "voice": "tour",
+   "lang": "en",
+   "text": "Excuse me, how can I get to Amir Temur Square?"
+  },
+  "m02": {
+   "len": 4.37,
+   "voice": "mal",
+   "lang": "en",
+   "text": "Go straight... then turn left. It is five minutes walking!"
+  },
+  "t03": {
+   "len": 1.86,
+   "voice": "tour",
+   "lang": "en",
+   "text": "Thank you so much!"
+  },
+  "n20": {
+   "len": 2.47,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Mukammal emas. Lekin gapirdi.",
+   "heard": "Mukammal emas, lekin gapirdi",
+   "words": [
+    {
+     "w": "Mukammal",
+     "s": 0.06,
+     "e": 0.52
+    },
+    {
+     "w": "emas.",
+     "s": 0.64,
+     "e": 1.08
+    },
+    {
+     "w": "Lekin",
+     "s": 1.6,
+     "e": 1.86
+    },
+    {
+     "w": "gapirdi.",
+     "s": 1.92,
+     "e": 2.36
+    }
+   ]
+  },
+  "n21": {
+   "len": 6.8,
+   "voice": "nar",
+   "lang": "uz",
+   "text": "Uchta xatodan qaysi biri sizga tanish? Izohga raqamini yozing — va ingliz tilini oʻrganayotgan doʻstingizga yuboring.",
+   "heard": "Uqta xatodan qaysi biri sizga tanish? Izohga raqamini yozing va ingliz tilini o'rganayotgan do'stingizga yuboring",
+   "words": [
+    {
+     "w": "Uchta",
+     "s": 0.06,
+     "e": 0.3
+    },
+    {
+     "w": "xatodan",
+     "s": 0.34,
+     "e": 0.8
+    },
+    {
+     "w": "qaysi",
+     "s": 1.02,
+     "e": 1.28
+    },
+    {
+     "w": "biri",
+     "s": 1.32,
+     "e": 1.44
+    },
+    {
+     "w": "sizga",
+     "s": 1.5,
+     "e": 1.7
+    },
+    {
+     "w": "tanish?",
+     "s": 1.76,
+     "e": 2.1
+    },
+    {
+     "w": "Izohga",
+     "s": 2.56,
+     "e": 2.92
+    },
+    {
+     "w": "raqamini",
+     "s": 2.96,
+     "e": 3.32
+    },
+    {
+     "w": "yozing",
+     "s": 3.36,
+     "e": 3.7
+    },
+    {
+     "w": "va",
+     "s": 4.14,
+     "e": 4.38
+    },
+    {
+     "w": "ingliz",
+     "s": 4.44,
+     "e": 4.76
+    },
+    {
+     "w": "tilini",
+     "s": 4.78,
+     "e": 5.04
+    },
+    {
+     "w": "oʻrganayotgan",
+     "s": 5.08,
+     "e": 5.68
+    },
+    {
+     "w": "doʻstingizga",
+     "s": 5.72,
+     "e": 6.3
+    },
+    {
+     "w": "yuboring.",
+     "s": 6.34,
+     "e": 6.72
+    }
+   ]
+  }
+ }
+}

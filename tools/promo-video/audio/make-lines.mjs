@@ -6,7 +6,7 @@
  *
  * 대사 파일:
  *   { "id": "<편>",
- *     "voices": { "<이름>": { "id": "<ElevenLabs voiceId>", "speed": 1.0, "tempo": 1.04 } },
+ *     "voices": { "<이름>": { "id": "<ElevenLabs voiceId>", "speed": 1.0, "tempo": 1.04, "model": "eleven_v4" } },
  *     "lines": [ { "key": "n01", "voice": "<이름>", "lang": "uz" | "ko" | ..., "text": "…" } ] }
  *   → public/ai/<id>/<key>.mp3 (앞뒤 무음을 자르고 tempo 배) · src/<편>/<편>.words.json (줄 길이, uz 줄의 단어 시각)
  *
@@ -41,7 +41,8 @@ async function tts(voice, lang, text) {
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice.id}?output_format=mp3_44100_128`, {
     method: "POST",
     headers: { "xi-api-key": env.ELEVENLABS_API_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({ text, model_id: "eleven_v4_turbo", language_code: lang, voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.45, use_speaker_boost: true, speed: voice.speed ?? 1 } }),
+    // voices.<name>.model 로 줄마다 모델을 고를 수 있다 (우즈벡어 내레이션은 eleven_v4 — turbo 보다 비싸지만 발음이 원어민)
+    body: JSON.stringify({ text, model_id: voice.model ?? "eleven_v4_turbo", language_code: lang, voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.45, use_speaker_boost: true, speed: voice.speed ?? 1 } }),
   });
   if (!response.ok) throw new Error(`tts ${voice.id} → ${response.status} ${(await response.text()).slice(0, 300)}`);
   return Buffer.from(await response.arrayBuffer());

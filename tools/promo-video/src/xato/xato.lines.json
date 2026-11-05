@@ -1,0 +1,181 @@
+{
+  "id": "xato",
+  "voices": {
+    "nar": {
+      "id": "EkK5I93UQWFDigLMpZcX",
+      "speed": 1.0,
+      "tempo": 1.1,
+      "model": "eleven_v4"
+    },
+    "tour": {
+      "id": "aaHNjm7ksE1iw31dNOq5",
+      "speed": 1.0,
+      "tempo": 1.0,
+      "model": "eleven_v4"
+    },
+    "mal": {
+      "id": "XrExE9yKIg1WjnnlVkGX",
+      "speed": 0.95,
+      "tempo": 1.0,
+      "model": "eleven_v4"
+    }
+  },
+  "lines": [
+    {
+      "key": "t01",
+      "voice": "tour",
+      "lang": "en",
+      "text": "Excuse me! Do you speak English? How can I get to Amir Temur Square?"
+    },
+    {
+      "key": "m01",
+      "voice": "mal",
+      "lang": "en",
+      "text": "Ehh... I... ehm..."
+    },
+    {
+      "key": "n01",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Malika ikki yildan beri ingliz tilini oʻrganadi. Hammasini tushundi — lekin javob bera olmadi."
+    },
+    {
+      "key": "n02",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bu faqat uning muammosi emas. Ingliz tili boʻyicha Oʻzbekiston yuz yigirma uchta davlat ichida yuz toʻrtinchi oʻrinda."
+    },
+    {
+      "key": "n03",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Koʻpincha gap qobiliyatda emas. Gap — uchta katta xatoda."
+    },
+    {
+      "key": "n04",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Birinchi xato: «Koʻrdim — demak bilaman». Malika har kecha yuzlab soʻzni varaqlaydi va «bilaman» deb oʻylaydi."
+    },
+    {
+      "key": "n05",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Lekin ertasi kuni oʻsha soʻz kerak boʻlsa — esga kelmaydi. Tanish tuyulish — eslash degani emas."
+    },
+    {
+      "key": "n06",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Tadqiqotda bir guruh soʻzlarni qayta oʻqidi, ikkinchisi — yoddan esladi. Bir haftadan keyin: oʻqiganlar — oʻttiz olti foiz, eslaganlar — sakson foiz."
+    },
+    {
+      "key": "n07",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Toʻgʻri yoʻl: kitobni yoping va soʻzni yoddan ayting. Esga kelmasa — keyin qarang."
+    },
+    {
+      "key": "n08",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Ikkinchi xatoni esa deyarli hammamiz qilamiz."
+    },
+    {
+      "key": "n09",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "«Dushanbadan boshlayman». Malika dushanba kuni besh soat oʻqidi — keyin ikki hafta kitobni ochmadi."
+    },
+    {
+      "key": "n10",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bu gulni ikki haftada bir marta, bir chelak suv bilan sugʻorishga oʻxshaydi. Gul baribir quriydi."
+    },
+    {
+      "key": "n11",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Toʻgʻri yoʻl — har kuni oz-ozdan. Qirq sakkizta tadqiqot koʻrsatgan: har kuni takrorlangan soʻz uzoqroq esda qoladi. Kuniga oʻn besh daqiqa ham yetadi."
+    },
+    {
+      "key": "n12",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Uchinchisi esa — eng yomoni."
+    },
+    {
+      "key": "n13",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "«Avval mukammal bilay, keyin gapiraman». Mehmonda togʻasi: «Qani, inglizcha bir narsa de-chi!» — Malika jim."
+    },
+    {
+      "key": "n14",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Lekin suzishni kitob oʻqib oʻrganib boʻlmaydi. Suvga tushish kerak."
+    },
+    {
+      "key": "n15",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Toʻgʻri yoʻl: xato qilsangiz ham — bugunoq gapiring."
+    },
+    {
+      "key": "n16",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Shuning uchun Malika Korio ilovasini yuklab oldi. Darajasini tanladi — A1 dan C2 gacha — va har kuni oʻziga mos dars oladi."
+    },
+    {
+      "key": "n17",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Oʻn besh daqiqa: yangi soʻzlar va ularni yoddan aytadigan mashqlar."
+    },
+    {
+      "key": "n18",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Eng muhimi — gapirish. Sunʻiy intellekt ustoz bilan jonli suhbat: xato qilsa — ustoz darhol toʻgʻrilaydi. Hech kim kulmaydi."
+    },
+    {
+      "key": "n19",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Bir necha oydan keyin oʻsha joyda yana sayyoh yoʻl soʻradi."
+    },
+    {
+      "key": "t02",
+      "voice": "tour",
+      "lang": "en",
+      "text": "Excuse me, how can I get to Amir Temur Square?"
+    },
+    {
+      "key": "m02",
+      "voice": "mal",
+      "lang": "en",
+      "text": "Go straight... then turn left. It is five minutes walking!"
+    },
+    {
+      "key": "t03",
+      "voice": "tour",
+      "lang": "en",
+      "text": "Thank you so much!"
+    },
+    {
+      "key": "n20",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Mukammal emas. Lekin gapirdi."
+    },
+    {
+      "key": "n21",
+      "voice": "nar",
+      "lang": "uz",
+      "text": "Uchta xatodan qaysi biri sizga tanish? Izohga raqamini yozing — va ingliz tilini oʻrganayotgan doʻstingizga yuboring."
+    }
+  ]
+}
