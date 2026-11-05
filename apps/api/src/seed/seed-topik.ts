@@ -3,11 +3,16 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getModelToken, MongooseModule } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { TopikExam } from '../topik/schemas/topik-exam.schema';
-import { TopikQuestionGroup } from '../topik/schemas/topik-question-group.schema';
-import { TopikQuestion } from '../topik/schemas/topik-question.schema';
+import { TopikExam, TopikExamSchema } from '../topik/schemas/topik-exam.schema';
+import {
+  TopikQuestionGroup,
+  TopikQuestionGroupSchema,
+} from '../topik/schemas/topik-question-group.schema';
+import {
+  TopikQuestion,
+  TopikQuestionSchema,
+} from '../topik/schemas/topik-question.schema';
 import { TopikResponseType } from '../topik/schemas/topik-content.schema';
-import { TopikModule } from '../topik/topik.module';
 import {
   TOPIK_LISTENING_MOCK_1_SEED,
   TOPIK_LISTENING_MOCK_2_SEED,
@@ -95,7 +100,13 @@ import {
         uri: configService.getOrThrow<string>('MONGODB_URI'),
       }),
     }),
-    TopikModule,
+    // 시드는 모델 세 개만 쓴다. TopikModule 을 통째로 띄우면 LessonsModule → PushModule 이
+    // 전역 MailModule 을 요구해서 시드가 시작도 못 한다
+    MongooseModule.forFeature([
+      { name: TopikExam.name, schema: TopikExamSchema },
+      { name: TopikQuestionGroup.name, schema: TopikQuestionGroupSchema },
+      { name: TopikQuestion.name, schema: TopikQuestionSchema },
+    ]),
   ],
 })
 class TopikSeedModule {}

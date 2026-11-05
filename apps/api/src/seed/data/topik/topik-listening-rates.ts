@@ -21,7 +21,8 @@ export function topikListeningSpeechRate(
   return TOPIK_LISTENING_RATE_BY_NUMBER[examType]?.[number];
 }
 
-function withRate(
+/** 음성 하나에 TTS 속도를 붙인다 (레시피 문제은행처럼 시드 밖에서 음성을 복사할 때) */
+export function withTopikAudioRate(
   audio: TopikAudio | undefined,
   examType: string,
   fallbackNumber?: number,
@@ -48,10 +49,10 @@ export function withTopikListeningRates<
   return {
     ...item,
     ...('audio' in item
-      ? { audio: withRate(item.audio, examType, number) }
+      ? { audio: withTopikAudioRate(item.audio, examType, number) }
       : {}),
     ...('sharedAudio' in item
-      ? { sharedAudio: withRate(item.sharedAudio, examType, number) }
+      ? { sharedAudio: withTopikAudioRate(item.sharedAudio, examType, number) }
       : {}),
   };
 }

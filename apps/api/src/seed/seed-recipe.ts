@@ -15,11 +15,20 @@ import {
   TopikTextSegmentType,
   TopikVisualTemplate,
 } from '../topik/schemas/topik-content.schema';
-import { TopikExam } from '../topik/schemas/topik-exam.schema';
-import { TopikQuestionGroup } from '../topik/schemas/topik-question-group.schema';
-import { TopikQuestion } from '../topik/schemas/topik-question.schema';
-import { TopikRecipe } from '../topik/schemas/topik-recipe.schema';
-import { TopikModule } from '../topik/topik.module';
+import { TopikExam, TopikExamSchema } from '../topik/schemas/topik-exam.schema';
+import {
+  TopikQuestionGroup,
+  TopikQuestionGroupSchema,
+} from '../topik/schemas/topik-question-group.schema';
+import {
+  TopikQuestion,
+  TopikQuestionSchema,
+} from '../topik/schemas/topik-question.schema';
+import {
+  TopikRecipe,
+  TopikRecipeSchema,
+} from '../topik/schemas/topik-recipe.schema';
+import { withTopikAudioRate } from './data/topik/topik-listening-rates';
 import { RECIPE_READING_01_02 } from './data/recipe/reading-01-02';
 import { RECIPE_CATALOG } from './data/recipe/recipe-catalog';
 import {
@@ -134,7 +143,7 @@ function buildCustomQuestion(
     points: question.points ?? 2,
     prompt: promptBlocks(question.prompt),
     stimulus: question.stimulus,
-    audio: question.audio,
+    audio: withTopikAudioRate(question.audio, TopikExamType.TOPIK_II),
     writingConfig: question.writingConfig,
     choices,
     correctChoiceKey:
@@ -222,7 +231,12 @@ function cloneSourceQuestion(
     number: storedNumber,
     order,
     stimulus: source.stimulus ?? sourceGroup?.sharedStimulus,
-    audio: source.audio ?? sourceGroup?.sharedAudio,
+    // 원본 모의고사 음성을 복사하면서 TOPIK II 같은 번호의 TTS 속도를 붙인다
+    audio: withTopikAudioRate(
+      source.audio ?? sourceGroup?.sharedAudio,
+      TopikExamType.TOPIK_II,
+      source.number,
+    ),
     responseType: source.responseType ?? TopikResponseType.MULTIPLE_CHOICE,
     isActive: true,
   };
@@ -237,7 +251,14 @@ function cloneSourceQuestion(
         uri: config.get<string>('MONGODB_URI'),
       }),
     }),
-    TopikModule,
+    // 모델만 등록한다. TopikModule 을 통째로 띄우면 LessonsModule → PushModule 이
+    // 전역 MailModule 을 요구해서 시드가 시작도 못 한다 (seed-topik 과 같음)
+    MongooseModule.forFeature([
+      { name: TopikExam.name, schema: TopikExamSchema },
+      { name: TopikQuestionGroup.name, schema: TopikQuestionGroupSchema },
+      { name: TopikQuestion.name, schema: TopikQuestionSchema },
+      { name: TopikRecipe.name, schema: TopikRecipeSchema },
+    ]),
   ],
 })
 class SeedRecipeModule {}
