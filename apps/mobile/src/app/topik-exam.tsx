@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  AppState,
   ScrollView,
   StyleSheet,
   Text,
@@ -45,6 +46,8 @@ function formatTime(totalSeconds: number) {
 }
 
 const TOPIK_ANSWER_TIME_PER_QUESTION_MS = 10_000;
+/** 실전 듣기를 이어서 들을 때 나간 자리보다 이만큼 앞부터 (문장 중간에서 시작하지 않게) */
+const RESUME_REWIND_SECONDS = 5;
 
 export default function TopikExamScreen() {
   const { t } = useTranslation();
@@ -337,7 +340,17 @@ export default function TopikExamScreen() {
     if (attempt.mode === "mock_exam") {
       if (mockStartedAttemptRef.current === attempt.id) return;
       mockStartedAttemptRef.current = attempt.id;
-      listeningPlayback.play(mockPlaybackRequest);
+      // 저장하고 나갔다 돌아왔으면 나간 자리 조금 앞부터 이어서 듣는다
+      const resuming = attempt.elapsedSeconds > 0;
+      listeningPlayback.play({
+        ...mockPlaybackRequest,
+        startAtSeconds: resuming
+          ? Math.max(0, attempt.elapsedSeconds - RESUME_REWIND_SECONDS)
+          : undefined,
+        startAtQuestionNumber: resuming
+          ? attempt.currentQuestionNumber
+          : undefined,
+      });
       return;
     }
 
@@ -377,6 +390,15 @@ export default function TopikExamScreen() {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, [showExamTimer]);
+
+  // 저장 버튼을 안 누르고 앱을 내리거나 꺼도 그 자리까지는 남긴다
+  useEffect(() => {
+    if (isReview) return;
+    const subscription = AppState.addEventListener("change", (next) => {
+      if (next === "background") void saveProgress().catch(() => undefined);
+    });
+    return () => subscription.remove();
+  }, [isReview, saveProgress]);
 
   useEffect(() => {
     if (!isReview && attempt?.mode === "guided" && activeQuestions.length > 0) {

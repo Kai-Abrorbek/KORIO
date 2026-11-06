@@ -38,6 +38,12 @@ export interface TopikListeningPlaybackRequest {
   volume?: number;
   respectSoundSettings?: boolean;
   fallbackToSpeech?: boolean;
+  /**
+   * 저장하고 나갔던 실전 시험을 이어서 들을 때: 원본 음원은 이 시각(초)부터,
+   * 대본 TTS 는 이 문항이 든 묶음부터 시작한다
+   */
+  startAtSeconds?: number;
+  startAtQuestionNumber?: number;
 }
 
 interface ResolvedTopikListeningSpeechSegment
@@ -54,6 +60,8 @@ interface ResolvedPlaybackRun {
   repeatPauseMs: number;
   volume: number;
   fallbackToSpeech: boolean;
+  /** TTS 를 시작할 묶음 (이어서 듣기) */
+  startSegmentIndex: number;
 }
 
 interface NativePlaybackRun {
@@ -61,6 +69,25 @@ interface NativePlaybackRun {
   repeatIndex: number;
   repeatCount: number;
   fallbackAttempted: boolean;
+  /** 원본이 불러와지면 이 시각으로 넘긴다 (이어서 듣기) */
+  pendingSeekSeconds: number | null;
+}
+
+/** 이 문항이 든 묶음의 첫 TTS 구간 (실전 이어서 듣기) */
+function segmentIndexFor(
+  segments: TopikListeningSpeechSegment[],
+  questionNumber: number | undefined,
+) {
+  if (!questionNumber) return 0;
+  let groupStart: number | undefined;
+  segments.forEach((segment) => {
+    const n = segment.questionNumber;
+    if (n !== undefined && n <= questionNumber && (groupStart === undefined || n > groupStart)) {
+      groupStart = n;
+    }
+  });
+  const index = segments.findIndex((segment) => segment.questionNumber === groupStart);
+  return Math.max(0, index);
 }
 
 export function useTopikListeningPlayback() {
@@ -197,7 +224,7 @@ export function useTopikListeningPlayback() {
         }
       };
 
-      speakLine(0, 0, 0);
+      speakLine(0, run.startSegmentIndex, 0);
     },
     [finishRun, speakAzure],
   );
@@ -290,6 +317,10 @@ export function useTopikListeningPlayback() {
         repeatPauseMs: Math.max(0, request.repeatPauseMs ?? 0),
         volume,
         fallbackToSpeech: request.fallbackToSpeech ?? false,
+        startSegmentIndex: Math.min(
+          segmentIndexFor(speechSegments, request.startAtQuestionNumber),
+          Math.max(0, speechSegments.length - 1),
+        ),
       };
       activeRunRef.current = run;
       setStatus("playing");
@@ -307,6 +338,10 @@ export function useTopikListeningPlayback() {
         repeatIndex: 0,
         repeatCount: 1,
         fallbackAttempted: false,
+        pendingSeekSeconds:
+          request.startAtSeconds && request.startAtSeconds > 0
+            ? request.startAtSeconds
+            : null,
       };
       nativeRunRef.current = nativeRun;
 
@@ -352,6 +387,16 @@ export function useTopikListeningPlayback() {
       return;
     }
 
+    // 이어서 듣기: 원격 원본은 불러온 뒤에야 넘길 수 있다
+    if (nativeRun.pendingSeekSeconds !== null && audioStatus.isLoaded) {
+      const target = Math.min(
+        nativeRun.pendingSeekSeconds,
+        Math.max(0, (audioStatus.duration || Infinity) - 1),
+      );
+      nativeRun.pendingSeekSeconds = null;
+      void audioPlayer.seekTo(target).catch(() => undefined);
+    }
+
     if (!audioStatus.didJustFinish) {
       handledNativeFinishRef.current = false;
       return;
@@ -387,7 +432,9 @@ export function useTopikListeningPlayback() {
   }, [
     audioPlayer,
     audioStatus.didJustFinish,
+    audioStatus.duration,
     audioStatus.error,
+    audioStatus.isLoaded,
     fallbackToSpeechOrFail,
     finishRun,
   ]);

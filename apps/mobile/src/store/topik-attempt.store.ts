@@ -102,9 +102,10 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
       set({ isLoading: true, errorCode: null });
     }
     try {
+      // 저장하고 나갔던 시험이 있으면 서버가 그 시도를 돌려준다 (실전도 남은 시간 그대로)
       const [session, attempt] = await Promise.all([
         TopikService.getSession(examCode),
-        TopikService.startAttempt(examCode, mode, mode !== "mock_exam"),
+        TopikService.startAttempt(examCode, mode, true),
       ]);
       const questions = orderedQuestions(session);
       const savedQuestionIndex = questions.findIndex(
@@ -225,22 +226,20 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
 
   saveProgress: async () => {
     const state = get();
-    if (
-      !state.attempt ||
-      state.attempt.status !== "in_progress" ||
-      state.attempt.mode === "mock_exam"
-    ) {
-      return;
-    }
+    if (!state.attempt || state.attempt.status !== "in_progress") return;
 
+    // 답·지금 문제·(실전이면) 지난 시간까지 저장한다 — 다시 들어오면 그 자리에서 이어진다.
+    // 답을 아직 안 골랐어도 위치는 남긴다
     const answers = Object.values(state.answers).map(
       ({ startedAtMs: _startedAtMs, ...answer }) => answer,
     );
-    if (answers.length === 0) return;
 
     set({ isSaving: true, errorCode: null });
     try {
-      const elapsedSeconds = 0;
+      const elapsedSeconds =
+        state.attempt.mode === "mock_exam" && state.sessionStartedAtMs
+          ? Math.max(0, Math.floor((Date.now() - state.sessionStartedAtMs) / 1000))
+          : state.attempt.elapsedSeconds;
       const currentQuestionNumber = state.session
         ? (orderedQuestions(state.session)[state.currentIndex]?.number ??
           state.currentIndex + 1)
@@ -250,7 +249,15 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
         answers,
         currentQuestionNumber,
         elapsedSeconds,
-      );
+      ).catch((error: unknown) => {
+        // 답 없이 위치만 남기는 저장은 옛 서버가 거절한다 — 그건 실패로 보지 않는다
+        if (answers.length === 0) return null;
+        throw error;
+      });
+      if (!saved) {
+        set({ isSaving: false });
+        return;
+      }
       set((current) => ({
         attempt: current.attempt
           ? {
@@ -361,24 +368,7 @@ export const useTopikAttemptStore = create<TopikAttemptState>((set, get) => ({
     const state = get();
     if (!state.attempt) throw new Error("TOPIK_ATTEMPT_NOT_FOUND");
 
-    if (state.attempt.mode === "mock_exam") {
-      const answers = Object.values(state.answers).map(
-        ({ startedAtMs: _startedAtMs, ...answer }) => answer,
-      );
-      if (answers.length > 0) {
-        const elapsedSeconds = state.sessionStartedAtMs
-          ? Math.floor((Date.now() - state.sessionStartedAtMs) / 1000)
-          : state.attempt.elapsedSeconds;
-        await TopikService.saveAnswers(
-          state.attempt.id,
-          answers,
-          state.currentIndex + 1,
-          elapsedSeconds,
-        );
-      }
-    } else {
-      await state.saveProgress();
-    }
+    await state.saveProgress();
     const submission = await TopikService.submitAttempt(state.attempt.id);
     const result = await TopikService.getResult(state.attempt.id);
     set({ result });

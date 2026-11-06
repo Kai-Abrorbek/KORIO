@@ -187,7 +187,9 @@ export class TopikService {
 
     const isMockExam = dto.mode === TopikAttemptMode.MOCK_EXAM;
 
-    if (dto.resume && !isMockExam) {
+    // 저장하고 나갔던 시험은 그 자리에서 이어서 푼다 (실전도 — 남은 시간까지).
+    // 새로 시작(resume=false)일 때만 진행 중이던 실전 시도를 포기 처리한다
+    if (dto.resume) {
       const existingAttempt = await this.attemptModel
         .findOne({
           userId: new Types.ObjectId(userId),

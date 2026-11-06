@@ -40,6 +40,23 @@ export interface TopikPlaybackRequest {
    */
   respectSoundSettings?: boolean;
   volume?: number;
+  /**
+   * 저장하고 나갔던 실전 시험을 이어서 들을 때: 원본 음원은 이 시각(초)부터,
+   * 대본 TTS 는 이 문항이 든 묶음부터 시작한다 (앱과 같음)
+   */
+  startAtSeconds?: number;
+  startAtQuestionNumber?: number;
+}
+
+/** 이 문항이 든 묶음의 첫 TTS 구간 (실전 이어서 듣기) */
+function segmentIndexFor(segments: TopikSpeechSegment[], questionNumber: number | undefined) {
+  if (!questionNumber) return 0;
+  let groupStart: number | undefined;
+  for (const segment of segments) {
+    const n = segment.questionNumber;
+    if (n !== undefined && n <= questionNumber && (groupStart === undefined || n > groupStart)) groupStart = n;
+  }
+  return Math.max(0, segments.findIndex((segment) => segment.questionNumber === groupStart));
 }
 
 /** use-korean-speech 와 같은 음소거 판정 */
@@ -182,7 +199,8 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
           else continuePlayback();
         };
 
-        speakLine(0, 0, 0);
+        // 이어서 듣기면 그 문항이 든 묶음부터
+        speakLine(0, Math.min(segmentIndexFor(segments, playback.startAtQuestionNumber), Math.max(0, segments.length - 1)), 0);
       };
 
       if (!playback.audioUrl) {
@@ -195,6 +213,14 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
       const audio = new Audio(audioSource(playback.audioUrl));
       audio.preload = "auto";
       audio.playbackRate = 1;
+      // 이어서 듣기: 원격 원본은 길이를 안 뒤에야 넘길 수 있다
+      const startAt = playback.startAtSeconds ?? 0;
+      if (startAt > 0) {
+        audio.addEventListener("loadedmetadata", () => {
+          const end = Number.isFinite(audio.duration) ? audio.duration - 1 : startAt;
+          audio.currentTime = Math.max(0, Math.min(startAt, end));
+        }, { once: true });
+      }
       if (playback.volume !== undefined) audio.volume = Math.max(0, Math.min(1, playback.volume));
       audioRef.current = audio;
       audio.onended = () => {

@@ -45,6 +45,8 @@ import styles from "./topik-exam-screen.module.css";
 import { openCelebration } from "../../misc/model/streak-chest-route";
 
 const ANSWER_TIME_PER_QUESTION_MS = 10_000;
+/** 실전 듣기를 이어서 들을 때 나간 자리보다 이만큼 앞부터 (앱과 같음) */
+const RESUME_REWIND_SECONDS = 5;
 
 function formatTime(totalSeconds: number) {
   const minutes = Math.floor(totalSeconds / 60);
@@ -189,7 +191,8 @@ export function TopikExamScreen() {
       } else {
         const [nextSession, nextAttempt] = await Promise.all([
           getTopikSession(request, examCode),
-          startTopikAttempt(request, examCode, mode, mode !== "mock_exam"),
+          // 저장하고 나갔던 시험은 서버가 그 시도를 돌려준다 (실전도 남은 시간 그대로, 앱과 같음)
+          startTopikAttempt(request, examCode, mode, true),
         ]);
         const nextQuestions = flattenTopikQuestions(nextSession);
         const savedIndex = nextQuestions.findIndex((item) => item.number === nextAttempt.currentQuestionNumber);
@@ -285,7 +288,13 @@ export function TopikExamScreen() {
       const key = `${attempt.id}:mock`;
       if (autoPlayedRef.current.has(key)) return;
       autoPlayedRef.current.add(key);
-      playAudio(mockPlayback);
+      // 저장하고 나갔다 돌아왔으면 나간 자리 조금 앞부터 이어서 듣는다
+      const resuming = attempt.elapsedSeconds > 0;
+      playAudio({
+        ...mockPlayback,
+        startAtSeconds: resuming ? Math.max(0, attempt.elapsedSeconds - RESUME_REWIND_SECONDS) : undefined,
+        startAtQuestionNumber: resuming ? attempt.currentQuestionNumber : undefined,
+      });
       return;
     }
     if (!activeAudio) return;
@@ -325,11 +334,29 @@ export function TopikExamScreen() {
 
   const elapsedSeconds = startedAt ? Math.max(0, Math.floor((now - startedAt) / 1000)) : 0;
   const remainingSeconds = Math.max(0, (session?.exam.durationMinutes ?? 70) * 60 - elapsedSeconds);
+  // 답·지금 문제·(실전이면) 지난 시간까지 저장한다 — 다시 들어오면 그 자리에서 이어진다 (앱과 같음).
+  // 답을 아직 안 골랐어도 위치는 남긴다 (옛 서버가 거절하면 그건 실패로 보지 않는다)
   const saveProgress = useCallback(async () => {
-    if (!attempt || attempt.status !== "in_progress" || attempt.mode === "mock_exam" || Object.keys(answers).length === 0) return;
+    if (!attempt || attempt.status !== "in_progress") return;
     const currentNumber = questions[currentIndex]?.number ?? currentIndex + 1;
-    await saveTopikAnswers(request, attempt.id, Object.values(answers), currentNumber, 0);
-  }, [answers, attempt, currentIndex, questions, request]);
+    const list = Object.values(answers);
+    const elapsed = attempt.mode === "mock_exam" && startedAt
+      ? Math.max(0, Math.floor((Date.now() - startedAt) / 1000))
+      : attempt.elapsedSeconds;
+    await saveTopikAnswers(request, attempt.id, list, currentNumber, elapsed).catch((error: unknown) => {
+      if (list.length > 0) throw error;
+    });
+  }, [answers, attempt, currentIndex, questions, request, startedAt]);
+
+  // 저장 버튼을 안 누르고 창을 내리거나 닫아도 그 자리까지는 남긴다
+  useEffect(() => {
+    if (isReview) return;
+    const onHide = () => {
+      if (document.visibilityState === "hidden") void saveProgress().catch(() => undefined);
+    };
+    document.addEventListener("visibilitychange", onHide);
+    return () => document.removeEventListener("visibilitychange", onHide);
+  }, [isReview, saveProgress]);
 
   const moveBy = async (direction: -1 | 1) => {
     setBusy(true);
@@ -418,11 +445,7 @@ export function TopikExamScreen() {
     setBusy(true);
     setActionError(null);
     try {
-      if (attempt.mode === "mock_exam" && Object.keys(answers).length) {
-        await saveTopikAnswers(request, attempt.id, Object.values(answers), question?.number ?? currentIndex + 1, elapsedSeconds);
-      } else {
-        await saveProgress();
-      }
+      await saveProgress();
       const submission = await submitTopikAttempt(request, attempt.id);
       const result = await getTopikResult(request, attempt.id);
       stopAudio();

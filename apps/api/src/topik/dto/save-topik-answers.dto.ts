@@ -72,8 +72,8 @@ export class SaveTopikWrittenResponseDto {
 }
 
 export class SaveTopikAnswersDto {
+  // 답을 아직 하나도 안 골랐어도 "어디까지 봤는지·남은 시간"은 저장한다 (이어서 풀기)
   @IsArray()
-  @ArrayMinSize(1)
   @ArrayMaxSize(50)
   @ValidateNested({ each: true })
   @Type(() => SaveTopikAnswerItemDto)
