@@ -235,3 +235,24 @@ export const readingMock2Question = (
     isActive: true,
   };
 };
+
+export const withOfficialReadingImage = (
+  question: TopikSeedQuestion,
+  round: number,
+): TopikSeedQuestion => {
+  if ((question.number !== 9 && question.number !== 10) || !question.stimulus) {
+    return question;
+  }
+
+  const number = String(question.number).padStart(2, '0');
+  const visualType = question.number === 9 ? '안내문' : '그래프';
+
+  return {
+    ...question,
+    stimulus: {
+      ...question.stimulus,
+      imageUrl: `/topik/reading/topik-ii-${round}-q${number}.png`,
+      imageAlt: `제${round}회 TOPIK II 읽기 ${question.number}번 원본 ${visualType}`,
+    },
+  };
+};

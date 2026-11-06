@@ -2,6 +2,7 @@ import { TopikSeedQuestion } from './topik-seed.types';
 import {
   ReadingMock2QuestionInput,
   readingMock2Question,
+  withOfficialReadingImage,
 } from './topik-reading-mock-2.helpers';
 
 const sourcePageFor = (number: number) => {
@@ -15,7 +16,7 @@ const sourcePageFor = (number: number) => {
 export function topikII64ReadingQuestion(
   input: ReadingMock2QuestionInput,
 ): TopikSeedQuestion {
-  const question = readingMock2Question(input);
+  const question = withOfficialReadingImage(readingMock2Question(input), 64);
   const pdfPage = sourcePageFor(input.number);
 
   return {

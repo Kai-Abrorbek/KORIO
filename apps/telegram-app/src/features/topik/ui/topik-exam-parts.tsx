@@ -206,6 +206,13 @@ export function StimulusCard({
   stimulus: TopikStimulus;
   highlightedKeys?: ReadonlySet<string>;
 }) {
+  if (stimulus.imageUrl) {
+    return (
+      <section className={`${styles.chartCard} ${styles.chartImageCard}`}>
+        <img alt={stimulus.imageAlt} className={styles.chartImage} src={stimulus.imageUrl} />
+      </section>
+    );
+  }
   if (stimulus.kind === "advertisement") {
     return (
       <section className={styles.advertisement}>

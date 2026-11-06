@@ -17,6 +17,37 @@ function useStyles() {
   return useMemo(() => getStyles(palette), [palette]);
 }
 
+function StimulusImage({ stimulus }: { stimulus: TopikStimulus }) {
+  const styles = useStyles();
+  const [frameWidth, setFrameWidth] = useState(0);
+  const source = topikStimulusImageSource(stimulus.imageUrl);
+  const { width, height } = Image.resolveAssetSource(source);
+  const aspectRatio = width && height ? width / height : 1.8;
+
+  return (
+    <View style={[styles.chartCard, styles.chartImageCard]}>
+      <View
+        onLayout={(event) =>
+          setFrameWidth(Math.round(event.nativeEvent.layout.width))
+        }
+        style={styles.chartImageFrame}
+      >
+        {frameWidth > 0 && (
+          <Image
+            accessibilityLabel={stimulus.imageAlt}
+            resizeMode="contain"
+            source={source}
+            style={[
+              styles.chartImage,
+              { width: frameWidth, height: frameWidth / aspectRatio },
+            ]}
+          />
+        )}
+      </View>
+    </View>
+  );
+}
+
 function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
   const styles = useStyles();
   return (
@@ -72,38 +103,8 @@ function Notice({ stimulus }: { stimulus: TopikStimulus }) {
 function Chart({ stimulus }: { stimulus: TopikStimulus }) {
   const { t } = useTranslation();
   const styles = useStyles();
-  const [imageFrameWidth, setImageFrameWidth] = useState(0);
   const chart = stimulus.chart;
   if (!chart) return null;
-
-  if (stimulus.imageUrl) {
-    const source = topikStimulusImageSource(stimulus.imageUrl);
-    const { width, height } = Image.resolveAssetSource(source);
-    const aspectRatio = width && height ? width / height : 1.8;
-    const imageWidth = Math.min(imageFrameWidth, 180 * aspectRatio);
-    return (
-      <View style={[styles.chartCard, styles.chartImageCard]}>
-        <View
-          onLayout={(event) =>
-            setImageFrameWidth(Math.round(event.nativeEvent.layout.width))
-          }
-          style={styles.chartImageFrame}
-        >
-          {imageWidth > 0 && (
-            <Image
-              accessibilityLabel={stimulus.imageAlt}
-              resizeMode="contain"
-              source={source}
-              style={[
-                styles.chartImage,
-                { width: imageWidth, height: imageWidth / aspectRatio },
-              ]}
-            />
-          )}
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.chartCard}>
@@ -175,6 +176,10 @@ export function TopikStimulusCard({
   const { t } = useTranslation();
   const styles = useStyles();
 
+  if (stimulus.imageUrl) {
+    return <StimulusImage stimulus={stimulus} />;
+  }
+
   if (stimulus.kind === "advertisement") {
     return <Advertisement stimulus={stimulus} />;
   }
@@ -215,14 +220,6 @@ export function TopikStimulusCard({
         blocks={stimulus.blocks}
         highlightedKeys={highlightedKeys}
       />
-      {!!stimulus.imageUrl && (
-        <Image
-          source={topikStimulusImageSource(stimulus.imageUrl)}
-          accessibilityLabel={stimulus.imageAlt}
-          resizeMode="contain"
-          style={styles.image}
-        />
-      )}
     </View>
   );
 }
@@ -388,5 +385,4 @@ const getStyles = (palette: TopikPalette) =>
       padding: 15,
     },
     givenLabel: { color: palette.primary, fontSize: 11, fontWeight: "900" },
-    image: { width: "100%", height: 180 },
   });
