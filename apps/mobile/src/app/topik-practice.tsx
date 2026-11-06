@@ -18,6 +18,11 @@ import {
 import { TopikTextBlocks } from "@/components/topik/TopikTextBlocks";
 import { TopikChoiceList } from "@/components/topik/TopikChoiceList";
 import { TopikStimulusCard } from "@/components/topik/TopikStimulusCard";
+import {
+  TopikGlossScope,
+  TopikGlossWords,
+  TopikWordGlossProvider,
+} from "@/components/topik/TopikWordGloss";
 import { TopikService } from "@/services/topik.service";
 import { useTopikListeningPlayback } from "@/hooks/useTopikListeningPlayback";
 import {
@@ -202,235 +207,253 @@ export default function TopikPracticeScreen() {
 
   return (
     <SafeAreaView style={s.container} edges={["top"]}>
-      <View style={s.header}>
-        <Pressable onPress={() => router.back()} hitSlop={10} style={s.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={palette.text} />
-        </Pressable>
-        <View style={{ flex: 1 }}>
-          <Text style={s.headerLabel}>{topikText(set.label, lang)}</Text>
-          <Text style={s.headerTitle}>{t("topik.recipe.practice")}</Text>
-        </View>
-        <Text style={s.progress}>
-          {phase === "result"
-            ? writtenOnly
-              ? `${answeredCount}/${total}`
-              : `${correctCount}/${total}`
-            : `${answeredCount}/${total}`}
-        </Text>
-      </View>
-
-      {/* 진행 바 */}
-      <View style={s.progressTrack}>
-        <View
-          style={[
-            s.progressFill,
-            { width: `${total ? (answeredCount / total) * 100 : 0}%` },
-          ]}
-        />
-      </View>
-
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={s.scroll}
-        showsVerticalScrollIndicator={false}
-      >
-        {phase === "result" && (
-          <View style={s.resultCard}>
-            <Text style={s.resultScore}>
-              {writtenOnly ? answeredCount : correctCount} / {total}
-            </Text>
-            <Text style={s.resultLabel}>
-              {t(
-                writtenOnly
-                  ? "topik.recipe.writingResultTitle"
-                  : "topik.recipe.resultTitle",
-              )}
-            </Text>
+      <TopikWordGlossProvider enabled>
+        <View style={s.header}>
+          <Pressable
+            onPress={() => router.back()}
+            hitSlop={10}
+            style={s.backBtn}
+          >
+            <Ionicons name="chevron-back" size={24} color={palette.text} />
+          </Pressable>
+          <View style={{ flex: 1 }}>
+            <Text style={s.headerLabel}>{topikText(set.label, lang)}</Text>
+            <Text style={s.headerTitle}>{t("topik.recipe.practice")}</Text>
           </View>
-        )}
+          <Text style={s.progress}>
+            {phase === "result"
+              ? writtenOnly
+                ? `${answeredCount}/${total}`
+                : `${correctCount}/${total}`
+              : `${answeredCount}/${total}`}
+          </Text>
+        </View>
 
-        {set.questions.map((question, index) => {
-          const picked = answers[question.id];
-          const answerKey = solutionById.get(question.id)?.correctChoiceKey;
-          const solution = solutionById.get(question.id)?.solution;
-          const graded = phase === "result" && !!answerKey;
-          const hasAudio = Boolean(question.audio?.transcript.length);
+        {/* 진행 바 */}
+        <View style={s.progressTrack}>
+          <View
+            style={[
+              s.progressFill,
+              { width: `${total ? (answeredCount / total) * 100 : 0}%` },
+            ]}
+          />
+        </View>
 
-          return (
-            <View key={question.id} style={s.qCard}>
-              {question.stimulus && (
-                <View style={s.stimulusWrap}>
-                  <TopikStimulusCard stimulus={question.stimulus} />
-                </View>
-              )}
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={s.scroll}
+          showsVerticalScrollIndicator={false}
+        >
+          {phase === "result" && (
+            <View style={s.resultCard}>
+              <Text style={s.resultScore}>
+                {writtenOnly ? answeredCount : correctCount} / {total}
+              </Text>
+              <Text style={s.resultLabel}>
+                {t(
+                  writtenOnly
+                    ? "topik.recipe.writingResultTitle"
+                    : "topik.recipe.resultTitle",
+                )}
+              </Text>
+            </View>
+          )}
 
-              <View style={s.qHead}>
-                {/*
+          {set.questions.map((question, index) => {
+            const picked = answers[question.id];
+            const answerKey = solutionById.get(question.id)?.correctChoiceKey;
+            const solution = solutionById.get(question.id)?.solution;
+            const graded = phase === "result" && !!answerKey;
+            const hasAudio = Boolean(question.audio?.transcript.length);
+
+            return (
+              // 연습 화면: 이 문제 글의 단어를 두 번 누르면 뜻 (서버가 이 문제 글로 문맥을 잡는다)
+              <TopikGlossScope key={question.id} questionId={question.id}>
+                <View style={s.qCard}>
+                  {question.stimulus && (
+                    <View style={s.stimulusWrap}>
+                      <TopikStimulusCard stimulus={question.stimulus} />
+                    </View>
+                  )}
+
+                  <View style={s.qHead}>
+                    {/*
                   question.number 는 문항 은행 안의 저장 번호(11~30)라
                   화면에는 세트 안 순서를 쓴다.
                 */}
-                <Text style={s.qNumber}>{index + 1}.</Text>
-                <View style={{ flex: 1 }}>
-                  <TopikTextBlocks blocks={question.prompt} />
-                </View>
-              </View>
-
-              {hasAudio && (
-                <View style={s.audioCard}>
-                  <Pressable
-                    style={s.audioButton}
-                    onPress={() => playQuestionAudio(question)}
-                  >
-                    <Ionicons
-                      name={
-                        listeningPlayback.activeKey === question.id &&
-                        listeningPlayback.isPlaying
-                          ? "stop"
-                          : "play"
-                      }
-                      size={17}
-                      color="#fff"
-                    />
-                    <Text style={s.audioButtonText}>
-                      {t(
-                        listeningPlayback.activeKey === question.id &&
-                          listeningPlayback.isPlaying
-                          ? "topik.recipe.stopAudio"
-                          : "topik.recipe.listenAudio",
-                      )}
-                    </Text>
-                  </Pressable>
-                  {phase === "result" && (
-                    <View style={s.transcript}>
-                      {question.audio?.transcript.map((line, lineIndex) => (
-                        <View
-                          key={`${question.id}-line-${lineIndex}`}
-                          style={s.audioLine}
-                        >
-                          {!!line.speaker && (
-                            <Text style={s.speaker}>{line.speaker}</Text>
-                          )}
-                          <Text style={s.audioText}>{line.text}</Text>
-                        </View>
-                      ))}
+                    <Text style={s.qNumber}>{index + 1}.</Text>
+                    <View style={{ flex: 1 }}>
+                      <TopikTextBlocks blocks={question.prompt} />
                     </View>
-                  )}
-                </View>
-              )}
+                  </View>
 
-              {question.responseType === "written" ? (
-                <View style={s.writingStack}>
-                  {!!question.writingConfig && (
-                    <Text style={s.writingGuide}>
-                      {topikText(question.writingConfig.guide, lang)}
-                    </Text>
-                  )}
-                  {(question.writingConfig?.fields ?? []).map((field) => {
-                    const key = `${question.id}:${field.key}`;
-                    const value = writtenAnswers[key] ?? "";
-                    return (
-                      <View key={key} style={s.writingField}>
-                        <View style={s.writingFieldHead}>
-                          <Text style={s.writingLabel}>{field.label}</Text>
-                          <Text style={s.characterCount}>
-                            {value.length}/{field.maxCharacters}
-                          </Text>
-                        </View>
-                        <TextInput
-                          editable={phase === "solving"}
-                          maxLength={field.maxCharacters}
-                          multiline={field.multiline}
-                          onChangeText={(text) =>
-                            setWrittenAnswers((prev) => ({
-                              ...prev,
-                              [key]: text,
-                            }))
+                  {hasAudio && (
+                    <View style={s.audioCard}>
+                      <Pressable
+                        style={s.audioButton}
+                        onPress={() => playQuestionAudio(question)}
+                      >
+                        <Ionicons
+                          name={
+                            listeningPlayback.activeKey === question.id &&
+                            listeningPlayback.isPlaying
+                              ? "stop"
+                              : "play"
                           }
-                          placeholder={t("topik.recipe.writingPlaceholder")}
-                          placeholderTextColor={palette.textSubtle}
-                          style={[
-                            s.writingInput,
-                            field.multiline && s.writingInputMultiline,
-                          ]}
-                          textAlignVertical={field.multiline ? "top" : "center"}
-                          value={value}
+                          size={17}
+                          color="#fff"
                         />
-                        {phase === "solving" &&
-                          value.trim().length < field.minCharacters && (
-                            <Text style={s.minimumText}>
-                              {t("topik.recipe.minimumCharacters", {
-                                count: field.minCharacters,
-                              })}
-                            </Text>
+                        <Text style={s.audioButtonText}>
+                          {t(
+                            listeningPlayback.activeKey === question.id &&
+                              listeningPlayback.isPlaying
+                              ? "topik.recipe.stopAudio"
+                              : "topik.recipe.listenAudio",
                           )}
-                      </View>
-                    );
-                  })}
-                  {phase === "result" && solution?.sampleAnswer && (
-                    <View style={s.sampleCard}>
-                      <Text style={s.sampleTitle}>
-                        {t("topik.recipe.sampleAnswer")}
-                      </Text>
-                      <Text style={s.sampleText}>{solution.sampleAnswer}</Text>
-                      {(solution.rubric ?? []).map((item, rubricIndex) => (
-                        <Text
-                          key={`${question.id}-rubric-${rubricIndex}`}
-                          style={s.rubricText}
-                        >
-                          {rubricIndex + 1}. {topikText(item, lang)}
                         </Text>
-                      ))}
+                      </Pressable>
+                      {phase === "result" && (
+                        <View style={s.transcript}>
+                          {question.audio?.transcript.map((line, lineIndex) => (
+                            <View
+                              key={`${question.id}-line-${lineIndex}`}
+                              style={s.audioLine}
+                            >
+                              {!!line.speaker && (
+                                <Text style={s.speaker}>{line.speaker}</Text>
+                              )}
+                              <TopikGlossWords
+                                style={s.audioText}
+                                text={line.text}
+                              />
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  {question.responseType === "written" ? (
+                    <View style={s.writingStack}>
+                      {!!question.writingConfig && (
+                        <Text style={s.writingGuide}>
+                          {topikText(question.writingConfig.guide, lang)}
+                        </Text>
+                      )}
+                      {(question.writingConfig?.fields ?? []).map((field) => {
+                        const key = `${question.id}:${field.key}`;
+                        const value = writtenAnswers[key] ?? "";
+                        return (
+                          <View key={key} style={s.writingField}>
+                            <View style={s.writingFieldHead}>
+                              <Text style={s.writingLabel}>{field.label}</Text>
+                              <Text style={s.characterCount}>
+                                {value.length}/{field.maxCharacters}
+                              </Text>
+                            </View>
+                            <TextInput
+                              editable={phase === "solving"}
+                              maxLength={field.maxCharacters}
+                              multiline={field.multiline}
+                              onChangeText={(text) =>
+                                setWrittenAnswers((prev) => ({
+                                  ...prev,
+                                  [key]: text,
+                                }))
+                              }
+                              placeholder={t("topik.recipe.writingPlaceholder")}
+                              placeholderTextColor={palette.textSubtle}
+                              style={[
+                                s.writingInput,
+                                field.multiline && s.writingInputMultiline,
+                              ]}
+                              textAlignVertical={
+                                field.multiline ? "top" : "center"
+                              }
+                              value={value}
+                            />
+                            {phase === "solving" &&
+                              value.trim().length < field.minCharacters && (
+                                <Text style={s.minimumText}>
+                                  {t("topik.recipe.minimumCharacters", {
+                                    count: field.minCharacters,
+                                  })}
+                                </Text>
+                              )}
+                          </View>
+                        );
+                      })}
+                      {phase === "result" && solution?.sampleAnswer && (
+                        <View style={s.sampleCard}>
+                          <Text style={s.sampleTitle}>
+                            {t("topik.recipe.sampleAnswer")}
+                          </Text>
+                          <Text style={s.sampleText}>
+                            {solution.sampleAnswer}
+                          </Text>
+                          {(solution.rubric ?? []).map((item, rubricIndex) => (
+                            <Text
+                              key={`${question.id}-rubric-${rubricIndex}`}
+                              style={s.rubricText}
+                            >
+                              {rubricIndex + 1}. {topikText(item, lang)}
+                            </Text>
+                          ))}
+                        </View>
+                      )}
+                    </View>
+                  ) : (
+                    <View style={s.qChoices}>
+                      <TopikChoiceList
+                        choices={question.choices}
+                        layout={
+                          question.presentation?.choiceLayout ?? "one_column"
+                        }
+                        selectedChoiceKey={picked}
+                        correctChoiceKey={graded ? answerKey : undefined}
+                        disabled={phase === "result"}
+                        onSelect={(choiceKey) =>
+                          setAnswers((prev) => ({
+                            ...prev,
+                            [question.id]: choiceKey,
+                          }))
+                        }
+                      />
                     </View>
                   )}
                 </View>
-              ) : (
-                <View style={s.qChoices}>
-                  <TopikChoiceList
-                    choices={question.choices}
-                    layout={question.presentation?.choiceLayout ?? "one_column"}
-                    selectedChoiceKey={picked}
-                    correctChoiceKey={graded ? answerKey : undefined}
-                    disabled={phase === "result"}
-                    onSelect={(choiceKey) =>
-                      setAnswers((prev) => ({
-                        ...prev,
-                        [question.id]: choiceKey,
-                      }))
-                    }
-                  />
-                </View>
-              )}
-            </View>
-          );
-        })}
-      </ScrollView>
+              </TopikGlossScope>
+            );
+          })}
+        </ScrollView>
 
-      {/* 하단 고정 — 네비게이션 바 위로 띄운다 */}
-      <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
-        {submitError && (
-          <Text style={s.submitError}>{t("topik.home.loadError")}</Text>
-        )}
-        {phase === "solving" ? (
-          <Pressable
-            onPress={submit}
-            disabled={!allAnswered}
-            style={[s.submitBtn, !allAnswered && s.submitBtnDisabled]}
-          >
-            <Text
-              style={[
-                s.submitText,
-                !allAnswered && { color: palette.textSubtle },
-              ]}
+        {/* 하단 고정 — 네비게이션 바 위로 띄운다 */}
+        <View style={[s.footer, { paddingBottom: insets.bottom + 12 }]}>
+          {submitError && (
+            <Text style={s.submitError}>{t("topik.home.loadError")}</Text>
+          )}
+          {phase === "solving" ? (
+            <Pressable
+              onPress={submit}
+              disabled={!allAnswered}
+              style={[s.submitBtn, !allAnswered && s.submitBtnDisabled]}
             >
-              {t("topik.recipe.submit")}
-            </Text>
-          </Pressable>
-        ) : (
-          <Pressable onPress={() => router.back()} style={s.submitBtn}>
-            <Text style={s.submitText}>{t("topik.recipe.backToRecipe")}</Text>
-          </Pressable>
-        )}
-      </View>
+              <Text
+                style={[
+                  s.submitText,
+                  !allAnswered && { color: palette.textSubtle },
+                ]}
+              >
+                {t("topik.recipe.submit")}
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable onPress={() => router.back()} style={s.submitBtn}>
+              <Text style={s.submitText}>{t("topik.recipe.backToRecipe")}</Text>
+            </Pressable>
+          )}
+        </View>
+      </TopikWordGlossProvider>
     </SafeAreaView>
   );
 }

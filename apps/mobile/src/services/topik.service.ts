@@ -23,6 +23,7 @@ import type {
   TopikRecipeSolutionEntry,
   TopikRecipeSummary,
 } from "@/types/topik-recipe";
+import type { ReadingWordGloss } from "@/types/reading-listening";
 
 type TopikStatsExamType = "topik_i" | "topik_ii";
 type TopikStatsSection = "listening" | "reading" | "writing";
@@ -93,6 +94,18 @@ export const TopikService = {
 
   submitAttempt: (attemptId: string): Promise<TopikSubmission> =>
     api.post(`/topik/attempts/${attemptId}/submit`, {}),
+
+  /**
+   * 연습 화면에서 단어를 두 번 눌렀을 때 뜻. 그 문제 묶음 글에 있는 단어만 된다.
+   * 처음 찾는 단어만 서버가 만들고(잠깐 걸린다) 그 뒤로는 저장된 걸 바로 준다
+   */
+  gloss: (
+    questionId: string,
+    word: string,
+  ): Promise<{ gloss: ReadingWordGloss | null }> =>
+    api.post(`/topik/questions/${encodeURIComponent(questionId)}/gloss`, {
+      word,
+    }),
 
   getResult: (attemptId: string): Promise<TopikAttemptResult> =>
     api.get(`/topik/attempts/${attemptId}/result`),

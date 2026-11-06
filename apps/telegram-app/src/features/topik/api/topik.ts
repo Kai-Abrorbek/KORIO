@@ -17,11 +17,23 @@ import type {
   TopikStatsSummary,
 } from "../model/topik";
 import type { StudyCelebration } from "../../misc/model/streak-chest-route";
+import type { ReadingWordGloss } from "../../reading-listening/api/reading-listening";
 
 type AuthenticatedRequest = <T>(
   path: string,
   init?: RequestInit,
 ) => Promise<T>;
+
+/**
+ * 연습 화면에서 단어를 두 번 눌렀을 때 뜻. 그 문제 묶음 글에 있는 단어만 된다.
+ * 처음 찾는 단어만 서버가 만들고 그 뒤로는 저장된 걸 바로 준다 (앱과 같은 API)
+ */
+export function glossTopikWord(request: AuthenticatedRequest, questionId: string, word: string) {
+  return request<{ gloss: ReadingWordGloss | null }>(`/topik/questions/${encodeURIComponent(questionId)}/gloss`, {
+    method: "POST",
+    body: JSON.stringify({ word }),
+  });
+}
 
 export function getTopikExams(request: AuthenticatedRequest) {
   return request<TopikExam[]>("/topik/exams");

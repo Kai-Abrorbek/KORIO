@@ -42,6 +42,7 @@ import {
   SheetModal,
 } from "./topik-exam-parts";
 import styles from "./topik-exam-screen.module.css";
+import { TopikWordGlossProvider } from "./topik-word-gloss";
 import { openCelebration } from "../../misc/model/streak-chest-route";
 
 const ANSWER_TIME_PER_QUESTION_MS = 10_000;
@@ -479,7 +480,8 @@ export function TopikExamScreen() {
 
   const supportFor = (item: TopikQuestionWithGroup) => <HintPanel busy={busy} onRevealHint={() => void revealHint(item)} onRevealSolution={() => void revealSolution(item)} selected={Boolean(answers[item.id])} solution={solutions[item.id]} support={supports[item.id]} />;
 
-  return <main className={styles.screen}>
+  // 연습(학습) 모드에서만: 지문·대본 단어를 두 번 누르면 뜻 (앱과 같음)
+  return <TopikWordGlossProvider enabled={attempt.mode === "guided"} questionId={question.id} request={request}><main className={styles.screen}>
     <header className={styles.examHeader}>
       <button aria-label="Yopish" onClick={() => isReview ? safeBack(router) : setExitOpen(true)} type="button"><MobileIcon name="close" size={25} /></button>
       <div className={styles.progressArea}><span><i style={{ width: `${(progressPosition / questions.length) * 100}%` }} /></span><small>{progressLabel}</small></div>
@@ -511,7 +513,7 @@ export function TopikExamScreen() {
     <SheetModal onClose={() => setActionError(null)} visible={actionError === "support"}>
       <div className={`${styles.modalIcon} ${styles.errorIcon}`}><MobileIcon name="bulb-outline" size={30} /></div><h2>Yechimni ochib bo‘lmadi.</h2><p>Javobni saqlab, qayta urinib ko‘ring.</p><button className={styles.modalPrimary} onClick={() => { setActionError(null); void revealSolution(question); }} type="button"><MobileIcon name="refresh" size={18} />Qayta urinish</button><button className={styles.modalSecondary} onClick={() => setActionError(null)} type="button">Bekor qilish</button>
     </SheetModal>
-  </main>;
+  </main></TopikWordGlossProvider>;
 }
 
 function ProgressCard({ answered, total, saveNotice = false }: { answered: number; total: number; saveNotice?: boolean }) {

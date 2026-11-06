@@ -20,6 +20,7 @@ import {
   TopikQuestionCard,
   TopikReadingSetCard,
   TopikSubmitModal,
+  TopikWordGlossProvider,
 } from "@/components/topik";
 import {
   type TopikPalette,
@@ -586,230 +587,244 @@ export default function TopikExamScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.header}>
-        <Pressable
-          accessibilityLabel={t("topik.common.close")}
-          onPress={confirmExit}
-          style={styles.headerButton}
-        >
-          <Ionicons name="close" size={25} color={palette.text} />
-        </Pressable>
-        <View style={styles.progressArea}>
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${(progressPosition / questions.length) * 100}%` },
-              ]}
-            />
-          </View>
-          <Text style={styles.progressText}>{progressLabel}</Text>
-        </View>
-        <View style={styles.timer}>
-          <Ionicons
-            name={showExamTimer ? "time-outline" : "book-outline"}
-            size={16}
-            color={palette.primary}
-          />
-          <Text style={styles.timerText}>
-            {showExamTimer
-              ? formatTime(remainingSeconds)
-              : isReview
-                ? t("topik.exam.reviewMode")
-                : t("topik.modes.guided")}
-          </Text>
-        </View>
-      </View>
-
-      <ScrollView
-        ref={scrollRef}
-        style={styles.scroll}
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
+      {/* 연습(학습) 모드에서만: 지문·대본 단어를 두 번 누르면 뜻 */}
+      <TopikWordGlossProvider
+        questionId={question?.id ?? null}
+        enabled={attempt?.mode === "guided"}
       >
-        <View style={styles.statusRow}>
-          <Text style={styles.modeLabel}>
-            {isReview
-              ? t("topik.exam.reviewMode")
-              : attempt.mode === "guided"
-                ? t("topik.modes.guided")
-                : t("topik.modes.mockExam")}
-          </Text>
-          <Text style={styles.answerCount}>
-            {t("topik.exam.answerProgress", {
-              answered: answeredCount,
-              total: questions.length,
-            })}
-          </Text>
+        <View style={styles.header}>
+          <Pressable
+            accessibilityLabel={t("topik.common.close")}
+            onPress={confirmExit}
+            style={styles.headerButton}
+          >
+            <Ionicons name="close" size={25} color={palette.text} />
+          </Pressable>
+          <View style={styles.progressArea}>
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${(progressPosition / questions.length) * 100}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.progressText}>{progressLabel}</Text>
+          </View>
+          <View style={styles.timer}>
+            <Ionicons
+              name={showExamTimer ? "time-outline" : "book-outline"}
+              size={16}
+              color={palette.primary}
+            />
+            <Text style={styles.timerText}>
+              {showExamTimer
+                ? formatTime(remainingSeconds)
+                : isReview
+                  ? t("topik.exam.reviewMode")
+                  : t("topik.modes.guided")}
+            </Text>
+          </View>
         </View>
 
-        {isListening ? (
-          <TopikListeningQuestionCard
-            questions={activeQuestions}
-            mode={attempt.mode}
-            selectedChoiceKeys={Object.fromEntries(
-              activeQuestions.map((item) => [
-                item.id,
-                answers[item.id]?.selectedChoiceKey,
-              ]),
-            )}
-            correctChoiceKeys={Object.fromEntries(
-              activeQuestions.map((item) => [
-                item.id,
-                revealedSolutions[item.id]?.correctChoiceKey,
-              ]),
-            )}
-            showTranscript={showListeningTranscript}
-            playbackStatus={listeningPlayback.status}
-            activeAudioKey={listeningPlayback.activeKey}
-            playCount={
-              activeAudio ? (guidedPlayCounts[activeAudio.key] ?? 0) : 0
-            }
-            onPlayAudio={() => {
-              if (activeAudio) {
-                playGuidedAudio(
-                  activeAudio,
-                  activeAudioRepeatCount,
-                  activeQuestions[0]?.number ?? 1,
-                );
-              }
-            }}
-            onStopAudio={listeningPlayback.stop}
-            onSelect={(questionId, choiceKey) =>
-              selectAnswer(questionId, choiceKey)
-            }
-            renderSupport={(item) =>
-              attempt.mode === "guided" ? (
-                <TopikHintPanel
-                  support={learningSupport[item.id]}
-                  solution={revealedSolutions[item.id]}
-                  selected={allActiveAnswered}
-                  busy={busy}
-                  onRevealHint={async () => {
-                    setBusy(true);
-                    try {
-                      await revealNextHint(item.id);
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                  onRevealSolution={() => void revealQuestionSolution(item.id)}
-                />
-              ) : null
-            }
-          />
-        ) : activeQuestions.length > 1 ? (
-          <TopikReadingSetCard
-            questions={activeQuestions}
-            selectedChoiceKeys={Object.fromEntries(
-              activeQuestions.map((item) => [
-                item.id,
-                answers[item.id]?.selectedChoiceKey,
-              ]),
-            )}
-            correctChoiceKeys={Object.fromEntries(
-              activeQuestions.map((item) => [
-                item.id,
-                revealedSolutions[item.id]?.correctChoiceKey,
-              ]),
-            )}
-            highlightedKeys={setHighlightedKeys}
-            onSelect={(questionId, choiceKey) =>
-              selectAnswer(questionId, choiceKey)
-            }
-            renderSupport={(item) =>
-              attempt.mode === "guided" ? (
-                <TopikHintPanel
-                  support={learningSupport[item.id]}
-                  solution={revealedSolutions[item.id]}
-                  selected={Boolean(answers[item.id])}
-                  busy={busy}
-                  onRevealHint={async () => {
-                    setBusy(true);
-                    try {
-                      await revealNextHint(item.id);
-                    } finally {
-                      setBusy(false);
-                    }
-                  }}
-                  onRevealSolution={() => void revealQuestionSolution(item.id)}
-                />
-              ) : null
-            }
-          />
-        ) : (
-          <>
-            <TopikQuestionCard
-              question={question}
-              selectedChoiceKey={selectedAnswer?.selectedChoiceKey}
-              correctChoiceKey={solution?.correctChoiceKey}
-              highlightedKeys={highlightedKeys}
-              disabled={Boolean(solution)}
-              onSelect={(choiceKey) => selectAnswer(question.id, choiceKey)}
-            />
-
-            {attempt.mode === "guided" && (
-              <TopikHintPanel
-                support={support}
-                solution={solution}
-                selected={Boolean(selectedAnswer)}
-                busy={busy}
-                onRevealHint={async () => {
-                  setBusy(true);
-                  try {
-                    await revealNextHint(question.id);
-                  } finally {
-                    setBusy(false);
-                  }
-                }}
-                onRevealSolution={() =>
-                  void revealQuestionSolution(question.id)
-                }
-              />
-            )}
-          </>
-        )}
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <Pressable
-          disabled={activeStepIndex === 0 || busy}
-          onPress={() => void moveByStep(-1)}
-          style={[
-            styles.secondaryButton,
-            activeStepIndex === 0 && styles.disabled,
-          ]}
+        <ScrollView
+          ref={scrollRef}
+          style={styles.scroll}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
         >
-          <Ionicons
-            name="chevron-back"
-            size={21}
-            color={palette.textSecondary}
-          />
-          <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
-        </Pressable>
-        {activeStepIndex === stepStartIndices.length - 1 ? (
-          <Pressable
-            disabled={busy}
-            onPress={isReview ? leaveReview : confirmSubmit}
-            style={styles.primaryButton}
-          >
-            <Text style={styles.primaryText}>
+          <View style={styles.statusRow}>
+            <Text style={styles.modeLabel}>
               {isReview
-                ? t("topik.exam.backToResult")
-                : t("topik.exam.submitAnswers")}
+                ? t("topik.exam.reviewMode")
+                : attempt.mode === "guided"
+                  ? t("topik.modes.guided")
+                  : t("topik.modes.mockExam")}
             </Text>
-          </Pressable>
-        ) : (
+            <Text style={styles.answerCount}>
+              {t("topik.exam.answerProgress", {
+                answered: answeredCount,
+                total: questions.length,
+              })}
+            </Text>
+          </View>
+
+          {isListening ? (
+            <TopikListeningQuestionCard
+              questions={activeQuestions}
+              mode={attempt.mode}
+              selectedChoiceKeys={Object.fromEntries(
+                activeQuestions.map((item) => [
+                  item.id,
+                  answers[item.id]?.selectedChoiceKey,
+                ]),
+              )}
+              correctChoiceKeys={Object.fromEntries(
+                activeQuestions.map((item) => [
+                  item.id,
+                  revealedSolutions[item.id]?.correctChoiceKey,
+                ]),
+              )}
+              showTranscript={showListeningTranscript}
+              playbackStatus={listeningPlayback.status}
+              activeAudioKey={listeningPlayback.activeKey}
+              playCount={
+                activeAudio ? (guidedPlayCounts[activeAudio.key] ?? 0) : 0
+              }
+              onPlayAudio={() => {
+                if (activeAudio) {
+                  playGuidedAudio(
+                    activeAudio,
+                    activeAudioRepeatCount,
+                    activeQuestions[0]?.number ?? 1,
+                  );
+                }
+              }}
+              onStopAudio={listeningPlayback.stop}
+              onSelect={(questionId, choiceKey) =>
+                selectAnswer(questionId, choiceKey)
+              }
+              renderSupport={(item) =>
+                attempt.mode === "guided" ? (
+                  <TopikHintPanel
+                    support={learningSupport[item.id]}
+                    solution={revealedSolutions[item.id]}
+                    selected={allActiveAnswered}
+                    busy={busy}
+                    onRevealHint={async () => {
+                      setBusy(true);
+                      try {
+                        await revealNextHint(item.id);
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                    onRevealSolution={() =>
+                      void revealQuestionSolution(item.id)
+                    }
+                  />
+                ) : null
+              }
+            />
+          ) : activeQuestions.length > 1 ? (
+            <TopikReadingSetCard
+              questions={activeQuestions}
+              selectedChoiceKeys={Object.fromEntries(
+                activeQuestions.map((item) => [
+                  item.id,
+                  answers[item.id]?.selectedChoiceKey,
+                ]),
+              )}
+              correctChoiceKeys={Object.fromEntries(
+                activeQuestions.map((item) => [
+                  item.id,
+                  revealedSolutions[item.id]?.correctChoiceKey,
+                ]),
+              )}
+              highlightedKeys={setHighlightedKeys}
+              onSelect={(questionId, choiceKey) =>
+                selectAnswer(questionId, choiceKey)
+              }
+              renderSupport={(item) =>
+                attempt.mode === "guided" ? (
+                  <TopikHintPanel
+                    support={learningSupport[item.id]}
+                    solution={revealedSolutions[item.id]}
+                    selected={Boolean(answers[item.id])}
+                    busy={busy}
+                    onRevealHint={async () => {
+                      setBusy(true);
+                      try {
+                        await revealNextHint(item.id);
+                      } finally {
+                        setBusy(false);
+                      }
+                    }}
+                    onRevealSolution={() =>
+                      void revealQuestionSolution(item.id)
+                    }
+                  />
+                ) : null
+              }
+            />
+          ) : (
+            <>
+              <TopikQuestionCard
+                question={question}
+                selectedChoiceKey={selectedAnswer?.selectedChoiceKey}
+                correctChoiceKey={solution?.correctChoiceKey}
+                highlightedKeys={highlightedKeys}
+                disabled={Boolean(solution)}
+                onSelect={(choiceKey) => selectAnswer(question.id, choiceKey)}
+              />
+
+              {attempt.mode === "guided" && (
+                <TopikHintPanel
+                  support={support}
+                  solution={solution}
+                  selected={Boolean(selectedAnswer)}
+                  busy={busy}
+                  onRevealHint={async () => {
+                    setBusy(true);
+                    try {
+                      await revealNextHint(question.id);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                  onRevealSolution={() =>
+                    void revealQuestionSolution(question.id)
+                  }
+                />
+              )}
+            </>
+          )}
+        </ScrollView>
+
+        <View style={styles.footer}>
           <Pressable
-            disabled={busy}
-            onPress={() => void moveByStep(1)}
-            style={styles.primaryButton}
+            disabled={activeStepIndex === 0 || busy}
+            onPress={() => void moveByStep(-1)}
+            style={[
+              styles.secondaryButton,
+              activeStepIndex === 0 && styles.disabled,
+            ]}
           >
-            <Text style={styles.primaryText}>{t("topik.exam.next")}</Text>
-            <Ionicons name="chevron-forward" size={21} color={palette.white} />
+            <Ionicons
+              name="chevron-back"
+              size={21}
+              color={palette.textSecondary}
+            />
+            <Text style={styles.secondaryText}>{t("topik.exam.previous")}</Text>
           </Pressable>
-        )}
-      </View>
+          {activeStepIndex === stepStartIndices.length - 1 ? (
+            <Pressable
+              disabled={busy}
+              onPress={isReview ? leaveReview : confirmSubmit}
+              style={styles.primaryButton}
+            >
+              <Text style={styles.primaryText}>
+                {isReview
+                  ? t("topik.exam.backToResult")
+                  : t("topik.exam.submitAnswers")}
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              disabled={busy}
+              onPress={() => void moveByStep(1)}
+              style={styles.primaryButton}
+            >
+              <Text style={styles.primaryText}>{t("topik.exam.next")}</Text>
+              <Ionicons
+                name="chevron-forward"
+                size={21}
+                color={palette.white}
+              />
+            </Pressable>
+          )}
+        </View>
+      </TopikWordGlossProvider>
 
       <TopikExitModal
         visible={exitModalVisible}

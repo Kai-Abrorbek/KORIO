@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { TopikStimulus } from "@/types/topik";
 import { TopikPassage } from "./TopikPassage";
 import { TopikTextBlocks } from "./TopikTextBlocks";
+import { TopikGlossWords } from "./TopikWordGloss";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
 import { topikStimulusImageSource } from "./topikWritingAssets";
 
@@ -52,9 +53,11 @@ function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
   const styles = useStyles();
   return (
     <View style={styles.advertisement}>
-      {!!stimulus.title && <Text style={styles.adTitle}>{stimulus.title}</Text>}
+      {!!stimulus.title && (
+        <TopikGlossWords style={styles.adTitle} text={stimulus.title} />
+      )}
       {!!stimulus.subtitle && (
-        <Text style={styles.adSubtitle}>{stimulus.subtitle}</Text>
+        <TopikGlossWords style={styles.adSubtitle} text={stimulus.subtitle} />
       )}
       {stimulus.blocks.length > 0 && (
         <TopikTextBlocks
@@ -63,9 +66,11 @@ function Advertisement({ stimulus }: { stimulus: TopikStimulus }) {
         />
       )}
       {stimulus.bulletItems.map((item) => (
-        <Text key={item} style={styles.adBullet}>
-          • {item}
-        </Text>
+        <TopikGlossWords
+          key={item}
+          style={styles.adBullet}
+          text={`• ${item}`}
+        />
       ))}
     </View>
   );
@@ -76,21 +81,24 @@ function Notice({ stimulus }: { stimulus: TopikStimulus }) {
   return (
     <View style={styles.notice}>
       {!!stimulus.title && (
-        <Text style={styles.noticeTitle}>{stimulus.title}</Text>
+        <TopikGlossWords style={styles.noticeTitle} text={stimulus.title} />
       )}
       {!!stimulus.subtitle && (
-        <Text style={styles.noticeSubtitle}>{stimulus.subtitle}</Text>
+        <TopikGlossWords
+          style={styles.noticeSubtitle}
+          text={stimulus.subtitle}
+        />
       )}
       {stimulus.bulletItems.map((item) => (
         <View key={item} style={styles.noticeRow}>
           <View style={styles.noticeDot} />
-          <Text style={styles.noticeText}>{item}</Text>
+          <TopikGlossWords style={styles.noticeText} text={item} />
         </View>
       ))}
       {stimulus.infoItems.map((item) => (
         <View key={`${item.label}-${item.value}`} style={styles.infoRow}>
           <Text style={styles.infoLabel}>{item.label}</Text>
-          <Text style={styles.infoValue}>{item.value}</Text>
+          <TopikGlossWords style={styles.infoValue} text={item.value} />
         </View>
       ))}
       {stimulus.blocks.length > 0 && (
@@ -198,7 +206,7 @@ export function TopikStimulusCard({
     return (
       <View style={styles.headline}>
         <Text style={styles.headlineLabel}>{t("topik.stimulus.headline")}</Text>
-        <Text style={styles.headlineText}>{stimulus.title}</Text>
+        <TopikGlossWords style={styles.headlineText} text={stimulus.title} />
       </View>
     );
   }
@@ -214,7 +222,7 @@ export function TopikStimulusCard({
         </View>
       )}
       {!!stimulus.title && (
-        <Text style={styles.passageTitle}>{stimulus.title}</Text>
+        <TopikGlossWords style={styles.passageTitle} text={stimulus.title} />
       )}
       <TopikPassage
         blocks={stimulus.blocks}

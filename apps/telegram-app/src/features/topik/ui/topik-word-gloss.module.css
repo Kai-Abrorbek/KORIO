@@ -1,0 +1,21 @@
+/* TOPIK 연습 화면 단어 뜻보기 — 읽기·듣기 학습의 뜻보기 시트와 같은 모양 */
+.word { border-radius: 4px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.word:active { background: rgb(55 105 79 / 14%); }
+
+.backdrop { align-items: flex-end; background: rgb(11 22 17 / 32%); display: flex; inset: 0; justify-content: center; position: fixed; z-index: 90; }
+.sheet { animation: rise .2s ease-out; background: #fff; border-radius: 30px 30px 0 0; box-shadow: 0 -8px 24px rgb(0 0 0 / 16%); color: #21342c; max-height: 70dvh; overflow: auto; padding: 10px 18px max(22px, var(--korio-bottom)); width: min(620px, 100%); }
+.sheet > i:first-child { background: #e3e7e1; border-radius: 3px; display: block; height: 5px; margin: 0 auto 15px; width: 42px; }
+.sheet > header { align-items: flex-start; display: flex; gap: 12px; padding: 0 2px 12px; }
+.sheet > header > div { flex: 1; min-width: 0; }
+.sheet > header small { color: #37694f; font-size: 10px; font-weight: 900; letter-spacing: .6px; }
+.sheet > header h2 { font-size: 24px; font-weight: 900; letter-spacing: -.5px; line-height: 31px; margin: 4px 0 0; }
+.sheet > header p { color: #6f7e76; font-size: 12px; font-weight: 700; margin: 3px 0 0; }
+.sheet > header > button { align-items: center; background: #e8f2eb; border: 0; border-radius: 14px; color: #37694f; display: flex; flex: 0 0 auto; height: 40px; justify-content: center; padding: 0; width: 40px; }
+.sheet > aside { background: #fbf8ee; border-radius: 14px; font-size: 12px; line-height: 18px; margin-top: 10px; padding: 12px; }
+.meaning { font-size: 17px; font-weight: 800; line-height: 24px; margin: 0; }
+.missing { color: #6f7e76; font-size: 14px; font-weight: 700; margin: 0; padding: 8px 0; }
+.loading { align-items: center; color: #6f7e76; display: flex; gap: 10px; min-height: 64px; }
+.spinner { animation: spin .75s linear infinite; border: 2px solid #cfe4d5; border-radius: 50%; border-top-color: #37694f; display: block; height: 20px; width: 20px; }
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+@media (prefers-reduced-motion: reduce) { .sheet, .spinner { animation-duration: 1ms; } }

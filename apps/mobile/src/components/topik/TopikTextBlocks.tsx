@@ -2,6 +2,7 @@ import { Fragment, useMemo } from "react";
 import { StyleSheet, Text, View, type TextStyle } from "react-native";
 import type { TopikTextBlock, TopikTextSegment } from "@/types/topik";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
+import { TopikGlossWords } from "./TopikWordGloss";
 
 interface TopikTextBlocksProps {
   blocks: TopikTextBlock[];
@@ -58,7 +59,13 @@ export function TopikTextBlocks({
                     highlighted && styles.highlighted,
                   ]}
                 >
-                  {segmentText(segment)}
+                  {segment.type === "blank" ||
+                  segment.type === "insertion_marker" ? (
+                    segmentText(segment)
+                  ) : (
+                    // 연습 화면이면 단어를 두 번 눌러 뜻을 본다 (아니면 그냥 글자)
+                    <TopikGlossWords text={segmentText(segment)} />
+                  )}
                 </Text>
               </Fragment>
             );

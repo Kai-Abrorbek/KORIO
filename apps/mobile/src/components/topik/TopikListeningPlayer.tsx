@@ -6,6 +6,7 @@ import { Pressable } from "@/components/ui/Pressables";
 import { useTranslation } from "react-i18next";
 import type { TopikAudio } from "@/types/topik";
 import { type TopikPalette, useTopikTheme } from "./topikTheme";
+import { TopikGlossWords } from "./TopikWordGloss";
 
 interface TopikListeningPlayerProps {
   audio: TopikAudio;
@@ -143,7 +144,8 @@ export function TopikListeningPlayer({
                 style={styles.transcriptLine}
               >
                 <Text style={styles.speaker}>{line.speaker}</Text>
-                <Text style={styles.lineText}>{line.text}</Text>
+                {/* 연습 화면이면 대본 단어를 두 번 눌러 뜻을 본다 */}
+                <TopikGlossWords style={styles.lineText} text={line.text} />
               </View>
             ))}
           </View>

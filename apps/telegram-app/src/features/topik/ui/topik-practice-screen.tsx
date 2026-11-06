@@ -13,6 +13,7 @@ import { useTopikListeningPlayback } from "../browser/use-topik-listening-playba
 import { topikUzText, type TopikRecipeQuestion } from "../model/topik";
 import { ChoiceList, StimulusCard, TopikTextBlocks } from "./topik-exam-parts";
 import styles from "./topik-practice-screen.module.css";
+import { TopikGlossScope, TopikGlossWords, TopikWordGlossProvider } from "./topik-word-gloss";
 import { safeBack } from "../../../shared/telegram/back-button";
 
 type Phase = "solving" | "result";
@@ -125,6 +126,7 @@ export function TopikPracticeScreen() {
   }
 
   return (
+    <TopikWordGlossProvider enabled request={request}>
     <main className={styles.screen}>
       <header className={styles.header}>
         <button aria-label="Orqaga" onClick={() => safeBack(router)} type="button"><MobileIcon name="chevron-back" size={24} /></button>
@@ -149,7 +151,9 @@ export function TopikPracticeScreen() {
           const graded = phase === "result" && Boolean(answerKey);
           const playing = listening.activeKey === question.id && listening.status === "playing";
           return (
-            <article className={styles.questionCard} key={question.id}>
+            // 이 문제 글의 단어를 두 번 누르면 뜻 (서버가 이 문제 글로 문맥을 잡는다)
+            <TopikGlossScope key={question.id} questionId={question.id}>
+            <article className={styles.questionCard}>
               {question.stimulus ? <div className={styles.stimulus}><StimulusCard stimulus={question.stimulus} /></div> : null}
               <div className={styles.questionHead}><b>{index + 1}.</b><TopikTextBlocks blocks={question.prompt} /></div>
               {question.audio?.transcript.length ? (
@@ -161,7 +165,7 @@ export function TopikPracticeScreen() {
                   {phase === "result" ? (
                     <div className={styles.transcript}>
                       {question.audio.transcript.map((line, lineIndex) => (
-                        <p key={`${question.id}-line-${lineIndex}`}>{line.speaker ? <b>{line.speaker}</b> : null}<span>{line.text}</span></p>
+                        <p key={`${question.id}-line-${lineIndex}`}>{line.speaker ? <b>{line.speaker}</b> : null}<span><TopikGlossWords text={line.text} /></span></p>
                       ))}
                     </div>
                   ) : null}
@@ -207,6 +211,7 @@ export function TopikPracticeScreen() {
                 </div>
               )}
             </article>
+            </TopikGlossScope>
           );
         })}
       </div>
@@ -220,5 +225,6 @@ export function TopikPracticeScreen() {
         )}
       </footer>
     </main>
+    </TopikWordGlossProvider>
   );
 }

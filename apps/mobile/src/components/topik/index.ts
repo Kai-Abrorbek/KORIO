@@ -14,3 +14,4 @@ export * from "./TopikStimulusCard";
 export * from "./TopikSubmitModal";
 export * from "./TopikTextBlocks";
 export * from "./topikTheme";
+export * from "./TopikWordGloss";

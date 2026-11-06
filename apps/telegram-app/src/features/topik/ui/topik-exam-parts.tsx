@@ -15,6 +15,7 @@ import {
 } from "../model/topik";
 import type { TopikPlaybackStatus } from "../browser/use-topik-listening-playback";
 import styles from "./topik-exam-screen.module.css";
+import { TopikGlossWords } from "./topik-word-gloss";
 
 const MARKERS = ["㉠", "㉡", "㉢", "㉣"];
 const CHOICE_MARKS: Record<string, string> = {
@@ -61,7 +62,9 @@ export function TopikTextBlocks({
               }`}
               key={`${segment.key || segment.type}-${segmentIndex}`}
             >
-              {segmentText(segment)}
+              {segment.type === "blank" || segment.type === "insertion_marker"
+                ? segmentText(segment)
+                : <TopikGlossWords text={segmentText(segment) ?? ""} />}
             </span>
           ))}
         </p>
@@ -327,7 +330,7 @@ function ListeningPlayer({ audio, showTranscript, isPlaying, playCount, repeatCo
       <p><MobileIcon name="phone-portrait-outline" size={13} /> {audio.audioUrl ? "Asl imtihon audiosi" : "Qurilmaning koreyscha ovozi bilan"}</p>
       {repeatCount > 1 ? <em><MobileIcon name="repeat" size={13} />{` Ketma-ket ${repeatCount} marta eshittiriladi`}</em> : null}
     </section>
-    {showTranscript ? <section className={styles.transcript}><header><span><MobileIcon name="document-text-outline" size={16} /></span><div><small>IZOHLI REJIM</small><strong>To‘liq matn</strong></div></header>{audio.transcript.map((line, index) => <p key={`${line.speaker}-${index}`}><b>{line.speaker}</b><span>{line.text}</span></p>)}</section> : null}
+    {showTranscript ? <section className={styles.transcript}><header><span><MobileIcon name="document-text-outline" size={16} /></span><div><small>IZOHLI REJIM</small><strong>To‘liq matn</strong></div></header>{audio.transcript.map((line, index) => <p key={`${line.speaker}-${index}`}><b>{line.speaker}</b><span><TopikGlossWords text={line.text} /></span></p>)}</section> : null}
   </div>;
 }
 

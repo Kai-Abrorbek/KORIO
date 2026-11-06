@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import {
-  UserStats,
-  UserStatsSchema,
-} from '../users/schemas/user-stats.schema';
+import { UserStats, UserStatsSchema } from '../users/schemas/user-stats.schema';
 import {
   TopikAttempt,
   TopikAttemptSchema,
@@ -32,6 +29,13 @@ import { TopikRecipeService } from './topik-recipe.service';
 import { TopikRecipe, TopikRecipeSchema } from './schemas/topik-recipe.schema';
 import { User, UserSchema } from '../users/schemas/user.schema';
 import { LessonsModule } from '../lessons/lessons.module';
+import { RateLimitGuard } from '../common/rate-limit';
+import { ReadingGlossService } from '../reading-lessons/reading-gloss.service';
+import {
+  ReadingGlossCache,
+  ReadingGlossCacheSchema,
+} from '../reading-lessons/schemas/reading-gloss-cache.schema';
+import { TopikGlossService } from './topik-gloss.service';
 
 @Module({
   imports: [
@@ -50,10 +54,19 @@ import { LessonsModule } from '../lessons/lessons.module';
       { name: TopikRecipe.name, schema: TopikRecipeSchema },
       { name: UserStats.name, schema: UserStatsSchema },
       { name: User.name, schema: UserSchema },
+      // 단어 뜻보기 캐시 — 읽기·듣기 학습과 같은 저장소를 쓴다 (topik:<묶음 id>)
+      { name: ReadingGlossCache.name, schema: ReadingGlossCacheSchema },
     ]),
   ],
   controllers: [TopikController],
-  providers: [TopikService, TopikStatsService, TopikRecipeService],
+  providers: [
+    TopikService,
+    TopikStatsService,
+    TopikRecipeService,
+    TopikGlossService,
+    ReadingGlossService,
+    RateLimitGuard,
+  ],
   exports: [MongooseModule, TopikService, TopikStatsService],
 })
 export class TopikModule {}

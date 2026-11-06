@@ -17,6 +17,10 @@ import { TopikStatsQueryDto } from './dto/topik-stats-query.dto';
 import { TopikService } from './topik.service';
 import { TopikStatsService } from './topik-stats.service';
 import { TopikRecipeService } from './topik-recipe.service';
+import { TopikGlossService } from './topik-gloss.service';
+import { RateLimit, RateLimitGuard } from '../common/rate-limit';
+import { GlossWordDto } from '../reading-lessons/dto/gloss-word.dto';
+import { GLOSS_RATE_LIMIT } from '../reading-lessons/reading-gloss.const';
 import { LessonsService } from '../lessons/lessons.service';
 import { StudyCategory } from '../users/utils/study-category.util';
 
@@ -34,6 +38,7 @@ export class TopikController {
     private readonly topikStatsService: TopikStatsService,
     private readonly topikRecipeService: TopikRecipeService,
     private readonly lessonsService: LessonsService,
+    private readonly topikGlossService: TopikGlossService,
   ) {}
 
   // ── 유형별 학습 (합격 레시피) ──
@@ -144,6 +149,20 @@ export class TopikController {
       query.examType,
       query.section,
     );
+  }
+
+  /**
+   * 연습 화면에서 단어를 두 번 눌렀을 때 뜻·간단한 설명. 그 문제 묶음 글에 있는 단어만.
+   * 한 번 만든 뜻은 저장돼서 다음 사람부터 바로 나간다 (TopikGlossService)
+   */
+  @UseGuards(RateLimitGuard)
+  @RateLimit(GLOSS_RATE_LIMIT)
+  @Post('questions/:questionId/gloss')
+  glossWord(
+    @Param('questionId') questionId: string,
+    @Body() dto: GlossWordDto,
+  ) {
+    return this.topikGlossService.glossWord(questionId, dto.word);
   }
 
   @Get('attempts/:attemptId')
