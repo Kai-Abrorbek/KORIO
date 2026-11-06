@@ -17,10 +17,10 @@ export const TOPIK_II_96_READING_EXAM: TopikSeedExam = {
     ru: '96-й TOPIK II: чтение',
   },
   description: {
-    ko: '제96회 한국어능력시험 TOPIK II 읽기 1번부터 50번까지를 원문 구조대로 구성했습니다. 단, 42~43번의 공통 지문은 제공된 원본에서 저작권상 비공개입니다.',
-    uz: '96-TOPIK II o‘qish bo‘limining 1–50-savollari asl imtihon tuzilishida; 42–43-savollarning matni manbada berilmagan.',
-    en: 'Questions 1–50 of the 96th TOPIK II Reading test; the shared passage for 42–43 is withheld in the supplied source.',
-    ru: 'Задания 1–50 чтения 96-го TOPIK II; общий текст для 42–43 не опубликован в исходном файле.',
+    ko: '제96회 한국어능력시험 TOPIK II 읽기 1번부터 50번까지를 원문 구조대로 구성했습니다. 공개되지 않은 42~43번 공통 지문은 선택지와 정답에 맞춰 자체 제작한 대체 지문입니다.',
+    uz: '96-TOPIK II o‘qish bo‘limining 1–50-savollari; e’lon qilinmagan 42–43-savollar uchun variantlar va javoblarga mos muqobil matn yaratildi.',
+    en: 'Questions 1–50 of the 96th TOPIK II Reading test; the unpublished passage for 42–43 is an original substitute written to match the choices and answer keys.',
+    ru: 'Задания 1–50 чтения 96-го TOPIK II; для неопубликованного текста 42–43 создана оригинальная замена под варианты и ключи ответов.',
   },
   examType: TopikExamType.TOPIK_II,
   section: TopikSection.READING,
@@ -36,7 +36,7 @@ export const TOPIK_II_96_READING_EXAM: TopikSeedExam = {
     edition: '제96회',
     publisher: '국립국제교육원',
     reference:
-      '사용자 제공 reading-test-paper-paper.pdf 및 answer-keys-answers.pdf',
+      '사용자 제공 reading-test-paper-paper.pdf 및 answer-keys-answers.pdf; 비공개 공통 지문은 선택지와 정답을 바탕으로 자체 작성',
   },
   publishedAt: new Date('2024-10-13T00:00:00+09:00'),
   isActive: true,
@@ -193,7 +193,7 @@ export const TOPIK_II_96_READING_GROUPS: TopikSeedGroup[] = [
     '[42~43] 다음을 읽고 물음에 답하십시오. (각 2점)',
     TopikVisualTemplate.EXAM_PASSAGE,
     passage(
-      '원본 시험지에서 42~43번의 공통 지문은 저작권 관련 법령에 따라 공개하지 않는다고 명시되어 있습니다. 제공된 자료만으로 지문을 확인할 수 없어 임의로 복원하지 않았습니다.',
+      '출산 예정일을 일주일 앞둔 아내는 집에서 편히 쉬겠다고 약속했다. 회사에서 퇴근 준비를 하던 재현은 아내에게서 영상 통화를 받았다. 화면에는 아내와 처제가 아기 용품 박람회에서 나란히 웃고 있었다. 신중한 아내와 달리 처제는 즉흥적이고 활발한 성격이었다. 사람이 많은 곳은 피하고 휴식을 취하라는 의사의 말이 떠올라 재현은 왜 밖에 나갔느냐고 물었다. 처제는 자기가 옆에 있으니 걱정하지 말라며 웃었다. [[underline:emotion|재현은 웃고 있는 처제를 보며 입술을 굳게 다물었다. 의사의 말을 가볍게 여긴 처제의 행동이 영 마음에 들지 않았다.]]',
     ),
   ),
   group(

@@ -296,7 +296,7 @@ export const TOPIK_II_102_READING_QUESTIONS_26_50: TopikSeedQuestion[] = [
     groupCode: 'reading-42-43',
     type: Type.AUTHOR_EMOTION,
     prompt:
-      '밑줄 친 부분에 나타난 ‘그’의 심정으로 가장 알맞은 것을 고르십시오. (원본 지문 비공개)',
+      '밑줄 친 부분에 나타난 ‘그’의 심정으로 가장 알맞은 것을 고르십시오.',
     choices: [
       '화나고 답답하다',
       '놀라고 당황스럽다',
@@ -305,14 +305,14 @@ export const TOPIK_II_102_READING_QUESTIONS_26_50: TopikSeedQuestion[] = [
     ],
     answer: '2',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ②입니다.',
-    clue: '원본 42~43번 지문 비공개',
+      '예정보다 먼저 반지함이 들통나 눈이 커지고 머릿속이 하얘게 되었으므로 ‘놀라고 당황스럽다’가 알맞습니다.',
+    clue: '전혀 예상하지 못한 상황 / 머릿속이 하얘게 되었다',
   }),
   question({
     number: 43,
     groupCode: 'reading-42-43',
     type: Type.PASSAGE_CONTENT_MATCH,
-    prompt: '윗글의 내용으로 알 수 있는 것을 고르십시오. (원본 지문 비공개)',
+    prompt: '윗글의 내용으로 알 수 있는 것을 고르십시오.',
     choices: [
       '그는 반지함이 어디에 있는지 몰랐다.',
       '그는 여자 앞에서 눈물을 자주 보였다.',
@@ -321,8 +321,8 @@ export const TOPIK_II_102_READING_QUESTIONS_26_50: TopikSeedQuestion[] = [
     ],
     answer: '3',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ③입니다.',
-    clue: '원본 42~43번 지문 비공개',
+      '그는 여자 친구에게 청혼하기 위해 미리 주말여행을 계획했다고 했습니다.',
+    clue: '청혼하기 위해 오래전부터 주말여행을 계획했다',
   }),
   question({
     number: 44,

@@ -300,18 +300,18 @@ export const TOPIK_II_96_READING_QUESTIONS_26_50: TopikSeedQuestion[] = [
     groupCode: 'reading-42-43',
     type: Type.AUTHOR_EMOTION,
     prompt:
-      '밑줄 친 부분에 나타난 ‘재현’의 심정으로 가장 알맞은 것을 고르십시오. (원본 지문 비공개)',
+      '밑줄 친 부분에 나타난 ‘재현’의 심정으로 가장 알맞은 것을 고르십시오.',
     choices: ['대견하다', '허전하다', '못마땅하다', '감격스럽다'],
     answer: '3',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ③입니다.',
-    clue: '원본 42~43번 지문 비공개',
+      '의사의 당부를 가볍게 여기고 아내를 박람회에 데려간 처제의 행동이 마음에 들지 않았으므로 ‘못마땅하다’가 알맞습니다.',
+    clue: '입술을 굳게 다물었다 / 영 마음에 들지 않았다',
   }),
   question({
     number: 43,
     groupCode: 'reading-42-43',
     type: Type.PASSAGE_CONTENT_MATCH,
-    prompt: '윗글의 내용으로 알 수 있는 것을 고르십시오. (원본 지문 비공개)',
+    prompt: '윗글의 내용으로 알 수 있는 것을 고르십시오.',
     choices: [
       '아내는 지금 처제와 함께 있다.',
       '처제는 아내와 성격이 비슷하다.',
@@ -320,8 +320,8 @@ export const TOPIK_II_96_READING_QUESTIONS_26_50: TopikSeedQuestion[] = [
     ],
     answer: '1',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ①입니다.',
-    clue: '원본 42~43번 지문 비공개',
+      '영상 통화 화면에 아내와 처제가 아기 용품 박람회에서 나란히 있었습니다.',
+    clue: '화면에는 아내와 처제가 나란히 웃고 있었다',
   }),
   question({
     number: 44,

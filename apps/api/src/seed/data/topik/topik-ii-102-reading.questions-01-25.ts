@@ -436,18 +436,18 @@ export const TOPIK_II_102_READING_QUESTIONS_01_25: TopikSeedQuestion[] = [
     groupCode: 'reading-23-24',
     type: Type.AUTHOR_EMOTION,
     prompt:
-      '밑줄 친 부분에 나타난 ‘나’의 심정으로 가장 알맞은 것을 고르십시오. (원본 지문 비공개)',
+      '밑줄 친 부분에 나타난 ‘나’의 심정으로 가장 알맞은 것을 고르십시오.',
     choices: ['설레다', '샘나다', '아쉽다', '그립다'],
     answer: '1',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ①입니다.',
-    clue: '원본 23~24번 지문 비공개',
+      '승급 심사에 합격한 뒤 새 띠를 매고 수업에 갈 생각에 마음이 들뜨고 웃음이 났으므로 ‘설레다’가 알맞습니다.',
+    clue: '마음이 들뜨고 자꾸 웃음이 났다',
   }),
   question({
     number: 24,
     groupCode: 'reading-23-24',
     type: Type.PASSAGE_CONTENT_MATCH,
-    prompt: '윗글의 내용과 같은 것을 고르십시오. (원본 지문 비공개)',
+    prompt: '윗글의 내용과 같은 것을 고르십시오.',
     choices: [
       '나는 태권도 승급 시험에서 떨어졌다.',
       '나는 어릴 때부터 태권도를 즐겨 했다.',
@@ -456,8 +456,8 @@ export const TOPIK_II_102_READING_QUESTIONS_01_25: TopikSeedQuestion[] = [
     ],
     answer: '4',
     explanation:
-      '제공된 시험지에서 공통 지문이 비공개 처리되어 근거를 확인할 수 없습니다. 정답지에 표시된 답은 ④입니다.',
-    clue: '원본 23~24번 지문 비공개',
+      '피곤한 날이나 비가 오는 날에도 태권도 수업에 한 번도 빠지지 않았다고 했습니다.',
+    clue: '수업에 한 번도 빠지지 않았다',
   }),
   question({
     number: 25,

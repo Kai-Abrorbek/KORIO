@@ -17,10 +17,10 @@ export const TOPIK_II_102_READING_EXAM: TopikSeedExam = {
     ru: '102-й TOPIK II: чтение',
   },
   description: {
-    ko: '제102회 한국어능력시험 TOPIK II 읽기 1번부터 50번까지를 원문 구조대로 구성했습니다. 23~24번과 42~43번의 공통 지문은 원본에서 저작권상 비공개입니다.',
-    uz: '102-TOPIK II o‘qish bo‘limining 1–50-savollari; 23–24 va 42–43-savollar matni manbada berilmagan.',
-    en: 'Questions 1–50 of the 102nd TOPIK II Reading test; passages for 23–24 and 42–43 are withheld in the supplied source.',
-    ru: 'Задания 1–50 чтения 102-го TOPIK II; тексты для 23–24 и 42–43 не опубликованы в исходном файле.',
+    ko: '제102회 한국어능력시험 TOPIK II 읽기 1번부터 50번까지를 원문 구조대로 구성했습니다. 공개되지 않은 23~24번과 42~43번 공통 지문은 선택지와 정답에 맞춰 자체 제작한 대체 지문입니다.',
+    uz: '102-TOPIK II o‘qish bo‘limining 1–50-savollari; e’lon qilinmagan 23–24 va 42–43-savollar uchun variantlar va javoblarga mos muqobil matnlar yaratildi.',
+    en: 'Questions 1–50 of the 102nd TOPIK II Reading test; unpublished passages for 23–24 and 42–43 are original substitutes written to match the choices and answer keys.',
+    ru: 'Задания 1–50 чтения 102-го TOPIK II; для неопубликованных текстов 23–24 и 42–43 созданы оригинальные замены под варианты и ключи ответов.',
   },
   examType: TopikExamType.TOPIK_II,
   section: TopikSection.READING,
@@ -36,7 +36,7 @@ export const TOPIK_II_102_READING_EXAM: TopikSeedExam = {
     edition: '제102회',
     publisher: '국립국제교육원',
     reference:
-      '사용자 제공 reading-test-paper-paper.pdf 및 reading-answer-keys-answers.pdf',
+      '사용자 제공 reading-test-paper-paper.pdf 및 reading-answer-keys-answers.pdf; 비공개 공통 지문은 선택지와 정답을 바탕으로 자체 작성',
   },
   publishedAt: new Date('2025-10-19T00:00:00+09:00'),
   isActive: true,
@@ -62,10 +62,6 @@ const group = (
   version: 1,
   isActive: true,
 });
-
-const withheldPassage = passage(
-  '원본 시험지에서 이 문항의 공통 지문은 저작권 관련 법령에 따라 공개하지 않는다고 명시되어 있습니다. 제공된 자료만으로 지문을 확인할 수 없어 임의로 복원하지 않았습니다.',
-);
 
 export const TOPIK_II_102_READING_GROUPS: TopikSeedGroup[] = [
   group(
@@ -145,7 +141,9 @@ export const TOPIK_II_102_READING_GROUPS: TopikSeedGroup[] = [
     24,
     '[23~24] 다음을 읽고 물음에 답하십시오. (각 2점)',
     TopikVisualTemplate.EXAM_PASSAGE,
-    withheldPassage,
+    passage(
+      '운동이라면 질색하던 나는 어릴 때 태권도를 배워 본 적도 없었다. 지난해 건강 검진 결과를 받고 운동을 시작해야겠다고 생각했다. 집 앞 태권도장에 성인 반이 있다는 것을 알았지만 자신이 없어 망설이다가 한 달이 지난 후에야 등록했다. 처음에는 동작을 따라 하기도 힘들었지만, 피곤한 날이나 비가 오는 날에도 수업에 한 번도 빠지지 않았다. 지난주에는 첫 승급 심사에 합격해 노란 띠를 받았다. [[underline:emotion|새 띠를 매고 도장에 들어설 생각을 하니 벌써부터 마음이 들뜨고 자꾸 웃음이 났다.]]',
+    ),
   ),
   group(
     'reading-25-27',
@@ -194,7 +192,9 @@ export const TOPIK_II_102_READING_GROUPS: TopikSeedGroup[] = [
     43,
     '[42~43] 다음을 읽고 물음에 답하십시오. (각 2점)',
     TopikVisualTemplate.EXAM_PASSAGE,
-    withheldPassage,
+    passage(
+      '그는 여자 친구에게 청혼하기 위해 오래전부터 주말여행을 계획했다. 혼자 반지를 고른 후 반지함을 여행 가방 안쪽 주머니에 넣고 위치를 여러 번 확인했다. 해가 질 때 호숫가에서 반지를 건네리라는 계획이었다. 여행지로 가던 중 둘은 휴게소에 잠시 들렀다. 그가 음료를 사러 간 사이, 여자가 가방에서 겉옷을 꺼내다가 반지함을 발견했다. 여자는 돌아온 그에게 반지함을 내밀며 무엇이냐고 물었다. [[underline:emotion|그는 여자의 손에 들린 반지함을 보는 순간 눈이 커졌다. 전혀 예상하지 못한 상황에 머릿속이 하얘게 되어 한동안 아무 말도 하지 못했다.]]',
+    ),
   ),
   group(
     'reading-44-45',
