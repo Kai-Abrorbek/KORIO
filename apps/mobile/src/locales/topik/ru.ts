@@ -245,6 +245,7 @@ export default {
     accuracy: "Точность",
     durationLabel: "Время",
     questionResults: "Результаты заданий",
+    replayGrading: "Нажмите на бланк ответов, чтобы проверить заново",
     questionResultsDescription:
       "Изучите объяснения и разберите причины ошибок.",
     wrongOnly: "Только ошибки",

@@ -248,6 +248,7 @@ export default {
     accuracy: "Accuracy",
     durationLabel: "Time spent",
     questionResults: "Question results",
+    replayGrading: "Tap the answer sheet to grade it again",
     questionResultsDescription:
       "Read the explanations and learn from each mistake.",
     wrongOnly: "Wrong only",

@@ -237,6 +237,7 @@ export default {
     accuracy: "정답률",
     durationLabel: "풀이 시간",
     questionResults: "문항별 결과",
+    replayGrading: "답안지를 누르면 다시 채점해요",
     questionResultsDescription: "해설을 읽고 틀린 이유를 확인해 보세요.",
     wrongOnly: "오답만",
     reviewQuestion: "{{number}}번 문항 다시 보기",

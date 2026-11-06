@@ -16,7 +16,11 @@ import {
   type TopikPalette,
   useTopikTheme,
 } from "@/components/topik/topikTheme";
-import TopikSuccessConfetti from "@/components/topik/TopikSuccessConfetti";
+import {
+  TopikResultReveal,
+  topikRevealTotalMs,
+} from "@/components/topik/TopikResultReveal";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { TopikService } from "@/services/topik.service";
 import { useTopikAttemptStore } from "@/store/topik-attempt.store";
 import type { TopikAttemptResult } from "@/types/topik";
@@ -96,6 +100,15 @@ export default function TopikResultScreen() {
   const topikLevel = result.examType === "topik_i" ? "I" : "II";
   const heroColors =
     result.examType === "topik_i" ? palette.levelOneHero : palette.levelTwoHero;
+  // 서술형(쓰기)은 맞음·틀림이 없어 답안지 칸 없이 점수만 공개한다
+  const gradedQuestions =
+    result.section === "writing"
+      ? []
+      : result.questions.map((question) => ({
+          number: question.number,
+          isCorrect: question.isCorrect,
+        }));
+  const revealMs = topikRevealTotalMs(gradedQuestions.length);
 
   const openQuestionReview = (questionNumber: number) => {
     if (!canReviewQuestions) return;
@@ -143,26 +156,15 @@ export default function TopikResultScreen() {
               </View>
               <Text style={styles.heroTitle}>{t("topik.result.complete")}</Text>
             </View>
-            <View pointerEvents="none" style={styles.successArtwork}>
-              <TopikSuccessConfetti
-                dom={{
-                  scrollEnabled: false,
-                  showsHorizontalScrollIndicator: false,
-                  showsVerticalScrollIndicator: false,
-                  style: styles.successArtworkFill,
-                }}
-              />
-            </View>
           </View>
 
-          <View style={styles.scoreBlock}>
-            <Text style={styles.score}>{result.score}</Text>
-            <Text style={styles.scoreUnit}>
-              {t("topik.result.scoreTotal", { score: 100 })}
-            </Text>
-          </View>
+          {/* 답안지 채점 → 점수가 오르고 → 금색 동그라미·하늘몬 (TopikResultReveal) */}
+          <TopikResultReveal questions={gradedQuestions} score={result.score} />
 
-          <View style={styles.summaryGrid}>
+          <Animated.View
+            entering={FadeInDown.delay(revealMs).duration(320)}
+            style={styles.summaryGrid}
+          >
             <View style={styles.summaryCard}>
               <View style={styles.summaryIconSuccess}>
                 <Ionicons name="checkmark" size={14} color={palette.white} />
@@ -227,172 +229,182 @@ export default function TopikResultScreen() {
                 </View>
               </View>
             )}
-          </View>
+          </Animated.View>
         </LinearGradient>
 
-        <View style={styles.reviewHeader}>
-          <View>
-            <Text style={styles.sectionTitle}>
-              {t("topik.result.questionResults")}
-            </Text>
-            <Text style={styles.sectionCaption}>
-              {t("topik.result.questionResultsDescription")}
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => setWrongOnly((value) => !value)}
-            style={[
-              styles.filterButton,
-              wrongOnly && styles.filterButtonActive,
-            ]}
-          >
-            <Text
-              style={[styles.filterText, wrongOnly && styles.filterTextActive]}
-            >
-              {t("topik.result.wrongOnly")}
-            </Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.resultList}>
-          {visibleQuestions.map((question) => (
+        <Animated.View
+          entering={FadeIn.delay(revealMs + 220).duration(300)}
+          style={styles.below}
+        >
+          <View style={styles.reviewHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>
+                {t("topik.result.questionResults")}
+              </Text>
+              <Text style={styles.sectionCaption}>
+                {t("topik.result.questionResultsDescription")}
+              </Text>
+            </View>
             <Pressable
-              key={question.questionId}
-              accessibilityRole={canReviewQuestions ? "button" : undefined}
-              accessibilityLabel={
-                canReviewQuestions
-                  ? t("topik.result.reviewQuestion", {
-                      number: question.number,
-                    })
-                  : undefined
-              }
-              disabled={!canReviewQuestions}
-              onPress={() => openQuestionReview(question.number)}
-              style={({ pressed }) => [
-                styles.resultCard,
-                canReviewQuestions && styles.reviewableCard,
-                pressed && styles.resultCardPressed,
+              onPress={() => setWrongOnly((value) => !value)}
+              style={[
+                styles.filterButton,
+                wrongOnly && styles.filterButtonActive,
               ]}
             >
-              <View style={styles.resultTop}>
-                <View
-                  style={[
-                    styles.numberBadge,
-                    question.isCorrect
-                      ? styles.correctBadge
-                      : styles.wrongBadge,
-                  ]}
-                >
-                  <Text
+              <Text
+                style={[
+                  styles.filterText,
+                  wrongOnly && styles.filterTextActive,
+                ]}
+              >
+                {t("topik.result.wrongOnly")}
+              </Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.resultList}>
+            {visibleQuestions.map((question) => (
+              <Pressable
+                key={question.questionId}
+                accessibilityRole={canReviewQuestions ? "button" : undefined}
+                accessibilityLabel={
+                  canReviewQuestions
+                    ? t("topik.result.reviewQuestion", {
+                        number: question.number,
+                      })
+                    : undefined
+                }
+                disabled={!canReviewQuestions}
+                onPress={() => openQuestionReview(question.number)}
+                style={({ pressed }) => [
+                  styles.resultCard,
+                  canReviewQuestions && styles.reviewableCard,
+                  pressed && styles.resultCardPressed,
+                ]}
+              >
+                <View style={styles.resultTop}>
+                  <View
                     style={[
-                      styles.numberText,
+                      styles.numberBadge,
                       question.isCorrect
-                        ? styles.correctText
-                        : styles.wrongText,
+                        ? styles.correctBadge
+                        : styles.wrongBadge,
                     ]}
                   >
-                    {String(question.number).padStart(2, "0")}
-                  </Text>
-                </View>
-                <View style={styles.answerInfo}>
-                  <Text style={styles.answerLine}>
-                    {t("topik.result.myAnswer", {
-                      answer: question.selectedChoiceKey
-                        ? t("topik.common.answerNumber", {
-                            number: question.selectedChoiceKey,
-                          })
-                        : t("topik.common.unanswered"),
-                    })}
-                  </Text>
-                  <Text style={styles.correctLine}>
-                    {t("topik.result.correctAnswer", {
-                      answer: t("topik.common.answerNumber", {
-                        number: question.correctChoiceKey,
-                      }),
-                    })}
-                  </Text>
-                </View>
-                <Ionicons
-                  name={
-                    question.isCorrect ? "checkmark-circle" : "close-circle"
-                  }
-                  size={25}
-                  color={question.isCorrect ? palette.success : palette.danger}
-                />
-              </View>
-              <View style={styles.explanation}>
-                <Text style={styles.explanationLabel}>
-                  {t("topik.result.explanation")}
-                </Text>
-                <Text style={styles.explanationText}>
-                  {topikText(question.solution.explanation, language)}
-                </Text>
-              </View>
-              {canReviewQuestions && (
-                <View style={styles.reviewLink}>
+                    <Text
+                      style={[
+                        styles.numberText,
+                        question.isCorrect
+                          ? styles.correctText
+                          : styles.wrongText,
+                      ]}
+                    >
+                      {String(question.number).padStart(2, "0")}
+                    </Text>
+                  </View>
+                  <View style={styles.answerInfo}>
+                    <Text style={styles.answerLine}>
+                      {t("topik.result.myAnswer", {
+                        answer: question.selectedChoiceKey
+                          ? t("topik.common.answerNumber", {
+                              number: question.selectedChoiceKey,
+                            })
+                          : t("topik.common.unanswered"),
+                      })}
+                    </Text>
+                    <Text style={styles.correctLine}>
+                      {t("topik.result.correctAnswer", {
+                        answer: t("topik.common.answerNumber", {
+                          number: question.correctChoiceKey,
+                        }),
+                      })}
+                    </Text>
+                  </View>
                   <Ionicons
                     name={
-                      result.section === "listening"
-                        ? "headset-outline"
-                        : "book-outline"
+                      question.isCorrect ? "checkmark-circle" : "close-circle"
                     }
-                    size={16}
-                    color={palette.primary}
-                  />
-                  <Text style={styles.reviewLinkText}>
-                    {t("topik.result.reviewQuestion", {
-                      number: question.number,
-                    })}
-                  </Text>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={16}
-                    color={palette.primary}
+                    size={25}
+                    color={
+                      question.isCorrect ? palette.success : palette.danger
+                    }
                   />
                 </View>
-              )}
-            </Pressable>
-          ))}
-        </View>
+                <View style={styles.explanation}>
+                  <Text style={styles.explanationLabel}>
+                    {t("topik.result.explanation")}
+                  </Text>
+                  <Text style={styles.explanationText}>
+                    {topikText(question.solution.explanation, language)}
+                  </Text>
+                </View>
+                {canReviewQuestions && (
+                  <View style={styles.reviewLink}>
+                    <Ionicons
+                      name={
+                        result.section === "listening"
+                          ? "headset-outline"
+                          : "book-outline"
+                      }
+                      size={16}
+                      color={palette.primary}
+                    />
+                    <Text style={styles.reviewLinkText}>
+                      {t("topik.result.reviewQuestion", {
+                        number: question.number,
+                      })}
+                    </Text>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={16}
+                      color={palette.primary}
+                    />
+                  </View>
+                )}
+              </Pressable>
+            ))}
+          </View>
 
-        <View style={styles.actions}>
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/topik-stats",
-                params: {
-                  level: result.examType === "topik_i" ? "1" : "2",
-                  section: result.section,
-                },
-              })
-            }
-            style={styles.statsButton}
-          >
-            <Ionicons name="stats-chart" size={19} color={palette.primary} />
-            <Text style={styles.statsButtonText}>
-              {t("topik.result.viewStats")}
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              reset();
-              router.replace({
-                pathname: "/topik",
-                params: {
-                  level: result.examType === "topik_i" ? "1" : "2",
-                  section:
-                    result.section === "listening" ? "listening" : "reading",
-                },
-              });
-            }}
-            style={styles.homeButton}
-          >
-            <Text style={styles.homeButtonText}>
-              {t("topik.result.tryAnother")}
-            </Text>
-            <Ionicons name="arrow-forward" size={19} color={palette.white} />
-          </Pressable>
-        </View>
+          <View style={styles.actions}>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/topik-stats",
+                  params: {
+                    level: result.examType === "topik_i" ? "1" : "2",
+                    section: result.section,
+                  },
+                })
+              }
+              style={styles.statsButton}
+            >
+              <Ionicons name="stats-chart" size={19} color={palette.primary} />
+              <Text style={styles.statsButtonText}>
+                {t("topik.result.viewStats")}
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                reset();
+                router.replace({
+                  pathname: "/topik",
+                  params: {
+                    level: result.examType === "topik_i" ? "1" : "2",
+                    section:
+                      result.section === "listening" ? "listening" : "reading",
+                  },
+                });
+              }}
+              style={styles.homeButton}
+            >
+              <Text style={styles.homeButtonText}>
+                {t("topik.result.tryAnother")}
+              </Text>
+              <Ionicons name="arrow-forward" size={19} color={palette.white} />
+            </Pressable>
+          </View>
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -473,28 +485,7 @@ const getStyles = (palette: TopikPalette) =>
       fontWeight: "900",
       letterSpacing: -0.6,
     },
-    successArtwork: {
-      width: 92,
-      height: 92,
-      marginRight: -7,
-      marginTop: -7,
-      overflow: "hidden",
-    },
-    successArtworkFill: { width: "100%", height: "100%" },
-    scoreBlock: {
-      flexDirection: "row",
-      alignItems: "baseline",
-      gap: 7,
-      marginTop: 22,
-    },
-    score: {
-      color: palette.white,
-      fontSize: 64,
-      lineHeight: 70,
-      fontWeight: "900",
-      letterSpacing: -3,
-    },
-    scoreUnit: { color: palette.heroMuted, fontSize: 13, fontWeight: "800" },
+    below: { gap: 19 },
     summaryGrid: {
       flexDirection: "row",
       flexWrap: "wrap",

@@ -250,6 +250,7 @@ export default {
     accuracy: "Aniqlik",
     durationLabel: "Sarflangan vaqt",
     questionResults: "Savollar natijasi",
+    replayGrading: "Javoblar varaqasini bosing — qaytadan tekshiriladi",
     questionResultsDescription:
       "Izohlarni o‘qing va xatolaringiz sababini tushuning.",
     wrongOnly: "Faqat xatolar",

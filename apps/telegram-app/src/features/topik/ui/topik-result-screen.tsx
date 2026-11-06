@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useTelegramAuth } from "../../auth/model/telegram-auth-context";
@@ -9,6 +8,7 @@ import { MobileIcon } from "../../../shared/ui/mobile-icon";
 import { getTopikResult } from "../api/topik";
 import { topikUzText, type TopikAttemptResult } from "../model/topik";
 import styles from "./topik-result-screen.module.css";
+import { TopikResultReveal, topikRevealTotalMs } from "./topik-result-reveal";
 
 const SECTION = {
   listening: "TINGLASH",
@@ -62,6 +62,9 @@ export function TopikResultScreen() {
   const canReview = result.section !== "writing";
   const level = result.examType === "topik_i" ? "I" : "II";
   const numericLevel = result.examType === "topik_i" ? "1" : "2";
+  // 서술형(쓰기)은 맞음·틀림이 없어 답안지 칸 없이 점수만 공개한다
+  const graded = result.section === "writing" ? [] : result.questions.map((q) => ({ number: q.number, isCorrect: q.isCorrect }));
+  const revealStyle = { "--reveal": `${topikRevealTotalMs(graded.length)}ms` } as CSSProperties;
 
   return <main className={styles.screen}>
     <div className={styles.content}>
@@ -69,10 +72,10 @@ export function TopikResultScreen() {
         <i className={styles.orbLarge} /><i className={styles.orbSmall} />
         <div className={styles.heroTop}>
           <div><span><MobileIcon name={result.section === "listening" ? "headset-outline" : "book-outline"} size={13} />{`TOPIK ${level} · ${SECTION[result.section]}`}</span><h1>Tekshirish tugadi</h1></div>
-          <Image alt="" className={styles.confetti} height={92} priority src="/topik/success-confetti.svg" width={92} />
         </div>
-        <div className={styles.score}><strong>{result.score}</strong><span>/ 100 ball</span></div>
-        <div className={styles.summaryGrid}>
+        {/* 답안지 채점 → 점수가 오르고 → 금색 동그라미·하늘몬 (앱과 같은 장면) */}
+        <TopikResultReveal questions={graded} score={result.score} />
+        <div className={`${styles.summaryGrid} ${styles.later}`} style={revealStyle}>
           <Summary icon="checkmark" label="To‘g‘ri" tone="success" value={String(result.correctCount)} />
           <Summary icon="close" label="Noto‘g‘ri" tone="danger" value={String(wrongCount)} />
           <Summary full={result.mode !== "mock_exam"} icon="analytics-outline" label="Aniqlik" value={`${accuracy}%`} />
@@ -80,6 +83,7 @@ export function TopikResultScreen() {
         </div>
       </section>
 
+      <div className={`${styles.below} ${styles.laterFade}`} style={revealStyle}>
       <header className={styles.reviewHeader}>
         <div><h2>Savollar natijasi</h2><p>Izohlarni o‘qing va xatolaringiz sababini tushuning.</p></div>
         <button className={wrongOnly ? styles.filterActive : ""} onClick={() => setWrongOnly((current) => !current)} type="button">Faqat xatolar</button>
@@ -110,6 +114,7 @@ export function TopikResultScreen() {
         <button onClick={() => router.push(`/topik-stats?level=${numericLevel}&section=${result.section}`)} type="button"><MobileIcon name="stats-chart" size={19} />Statistikani ko‘rish</button>
         <button onClick={() => router.replace(`/topik?level=${numericLevel}&section=${result.section === "listening" ? "listening" : "reading"}`)} type="button">Boshqa imtihonni yechish<MobileIcon name="arrow-forward" size={19} /></button>
       </section>
+      </div>
     </div>
   </main>;
 }
