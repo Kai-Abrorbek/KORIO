@@ -82,6 +82,11 @@ import {
 } from './data/topik';
 import { withTopikListeningRates } from './data/topik/topik-listening-rates';
 import {
+  reachableTopikMediaBase,
+  topikExamAudioUrl,
+  withTopikListeningMedia,
+} from './data/topik/topik-listening-media';
+import {
   validateTopikII35ReadingSeed,
   validateTopikII83ReadingSeed,
   validateTopikListeningSeed,
@@ -384,11 +389,24 @@ async function seedTopik() {
       },
     ];
 
+    // 서버에 원본 음원이 올라가 있을 때만 링크한다 (없으면 대본 TTS 그대로)
+    const mediaBase = await reachableTopikMediaBase();
+    console.log(
+      mediaBase
+        ? `TOPIK 원본 음원 연결: ${mediaBase}`
+        : 'TOPIK 원본 음원 연결 안 함',
+    );
+
     for (const { data, validation } of seeds) {
       const { exam: examData, groups, questions } = data;
+      const examAudioUrl = topikExamAudioUrl(examData.code, mediaBase);
       const exam = await examModel.findOneAndUpdate(
         { code: examData.code },
-        { $set: examData },
+        {
+          $set: examAudioUrl
+            ? { ...examData, listeningAudioUrl: examAudioUrl }
+            : examData,
+        },
         { upsert: true, returnDocument: 'after', runValidators: true },
       );
       const groupIdByCode = new Map<string, unknown>();
@@ -398,7 +416,10 @@ async function seedTopik() {
           { examId: exam._id, code: groupData.code },
           {
             $set: {
-              ...withTopikListeningRates(groupData, examData.examType),
+              ...withTopikListeningMedia(
+                withTopikListeningRates(groupData, examData.examType),
+                mediaBase,
+              ),
               examId: exam._id,
             },
           },
@@ -408,9 +429,9 @@ async function seedTopik() {
       }
 
       for (const questionData of questions) {
-        const { groupCode, ...content } = withTopikListeningRates(
-          questionData,
-          examData.examType,
+        const { groupCode, ...content } = withTopikListeningMedia(
+          withTopikListeningRates(questionData, examData.examType),
+          mediaBase,
         );
         const groupId = groupIdByCode.get(groupCode);
 

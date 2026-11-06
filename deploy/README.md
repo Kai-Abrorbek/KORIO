@@ -436,6 +436,41 @@ adb shell pm verify-app-links --re-verify com.kai_dev.mobile   # 다시 검증
 ⚠️ 검증은 **앱 설치 시점에** 한 번 돈다. assetlinks 를 나중에 올렸다면 앱을
 지웠다 다시 깔거나 위 `--re-verify` 를 돌려야 반영된다.
 
+## 미디어 파일 (TOPIK 기출 원본 듣기 음원)
+
+`https://korio.online/media/...` 는 `www/media/` 를 그대로 내보낸다 (위 `{$WEB_DOMAIN}`
+블록의 `file_server`). 수백 MB 라 **git 에 없다** — 개발 PC 에서 만든 파일을 서버의
+같은 자리에 직접 올린다. Caddy 설정·재시작은 필요 없다 (`www` 는 이미 마운트돼 있다).
+
+```
+www/media/topik/clips/<음성 키>.mp3   문항 클립 — 연습·학습 모드 (다시 듣기)
+www/media/topik/exam/<시험 코드>.mp3  회차 원본 전체 — 모의고사 실전 모드
+```
+
+- 원본 MP3 를 **다시 인코딩하지 않고** 잘랐다 (`ffmpeg -c copy`). 속도·음질이 원본 그대로다.
+  원본이 AAC 인 회차(TOPIK I 64회)만 `.m4a` 다.
+- 클립은 시험에서 나오는 그대로다: "N번" 안내 → 대화 → (신호음·쉼 → 대화 한 번 더).
+  앱은 원본을 언제나 1.0배로, 따로 반복하지 않고 튼다.
+- 어떤 파일이 있는지는 `apps/api/src/seed/data/topik/topik-listening-media.generated.ts`.
+
+### 올리는 순서 (순서가 중요하다)
+
+1. **파일 올리기** (개발 PC 에서, 약 700MB)
+
+   ```bash
+   rsync -av --progress deploy/www/media/topik/ root@<서버>:~/korio/deploy/www/media/topik/
+   ```
+
+   rsync 가 없으면 `scp -r deploy/www/media/topik root@<서버>:~/korio/deploy/www/media/`.
+   확인: `curl -sI https://korio.online/media/topik/exam/topik-i-listening-102-2025.mp3` → 200, `audio/mpeg`.
+
+2. **앱 OTA + 텔레그램 배포 먼저.** 옛 앱은 녹음 파일을 문항 번호에 따라 0.82~1.03배로
+   틀고 클립을 한 번 더 반복한다. 새 앱이 깔린 뒤에 3번을 한다.
+
+3. **TOPIK 시드** — `pnpm --filter api seed:topik`. 시드가 클립 하나와 회차 파일 하나를
+   HEAD 로 확인해서 **서버에 있을 때만** 주소를 넣는다 (없으면 대본 TTS 그대로).
+   다른 곳에 올렸으면 `TOPIK_MEDIA_BASE_URL=<주소>`, 링크를 빼려면 `TOPIK_MEDIA_BASE_URL=off`.
+
 ## 새 Voice Tutor 배포 메모 (2026-09-29)
 
 - 앱의 "회화" 카드는 이제 **새 Voice Tutor(`/voice-tutor`)** 로 간다. 옛 Gemini Live 튜터는 앱에서 뺐다.

@@ -190,31 +190,17 @@ export function useTopikListeningPlayback(request: AuthenticatedRequest) {
         return true;
       }
 
-      let repeatIndex = 0;
+      // 원본 기출 음원: 시험에서 나오는 그대로("N번"·두 번 읽기·쉼이 파일 안에 있다).
+      // 속도는 언제나 1.0배, 앱이 따로 반복하지 않는다 (반복은 대본 TTS 로 읽을 때만)
       const audio = new Audio(audioSource(playback.audioUrl));
       audio.preload = "auto";
-      audio.playbackRate = listeningRate(playback.questionNumber);
+      audio.playbackRate = 1;
       if (playback.volume !== undefined) audio.volume = Math.max(0, Math.min(1, playback.volume));
       audioRef.current = audio;
       audio.onended = () => {
         if (runRef.current !== runId) return;
-        if (repeatIndex + 1 >= repeatCount) {
-          audioRef.current = null;
-          finish("completed");
-          return;
-        }
-        repeatIndex += 1;
-        const replay = () => {
-          timerRef.current = null;
-          audio.currentTime = 0;
-          void audio.play().catch(() => {
-            if (playback.fallbackToSpeech) playSpeech();
-            else finish("error");
-          });
-        };
-        const pause = playback.repeatPauseMs ?? 0;
-        if (pause > 0) timerRef.current = window.setTimeout(replay, pause);
-        else replay();
+        audioRef.current = null;
+        finish("completed");
       };
       audio.onerror = () => {
         audioRef.current = null;

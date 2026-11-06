@@ -19,7 +19,8 @@ export const TOPIK_LISTENING_QUESTION_RATE_OVERRIDES: Readonly<
 
 /**
  * 서버가 문항 음성마다 `speechRate`(원본 기출 음원에서 잰 빠르기)를 준다 — 그게 먼저다.
- * 이 표는 그 값이 없을 때(옛 서버 데이터, 녹음 파일 재생)만 쓰는 예비값이다.
+ * 이 표는 그 값이 없을 때(옛 서버 데이터)만 쓰는 예비값이다. 원본 음원(audioUrl)은
+ * 속도를 바꾸지 않고 언제나 1.0배로 튼다 (useTopikListeningPlayback).
  * 측정값: apps/api/src/seed/data/topik/topik-listening-rates.generated.ts
  */
 export const TOPIK_LISTENING_RATE_RANGES = [

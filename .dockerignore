@@ -14,6 +14,9 @@ apps/mobile/ios
 apps/mobile/assets
 apps/mobile/src
 
+# korio.online 이 Caddy 로 바로 내보내는 미디어 (수백 MB) — 이미지 빌드에 필요 없다
+deploy/www/media/
+
 # 작업용 잔여물
 tmp/
 _to_delete/

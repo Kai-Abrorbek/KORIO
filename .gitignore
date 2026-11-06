@@ -56,6 +56,9 @@ deploy/api.env
 # 🔴 GOOGLE_API_KEY / LIVEKIT_API_SECRET 가 들어간다
 deploy/agent.env
 deploy/grok-promo-agent.env
+# korio.online 이 그대로 내보내는 미디어 (TOPIK 기출 원본 음원 등). 수백 MB 라 git 에
+# 넣지 않고 서버의 deploy/www/media 에 직접 올린다 — deploy/README.md "미디어 파일"
+deploy/www/media/
 # 서비스 계정 키 (푸시 발송 권한 — 절대 커밋 금지)
 *firebase-adminsdk*.json
 *-serviceaccount*.json

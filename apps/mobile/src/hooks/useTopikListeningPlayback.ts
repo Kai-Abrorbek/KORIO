@@ -16,6 +16,9 @@ export type TopikListeningPlaybackStatus =
   | "unavailable"
   | "error";
 
+/** 원본 기출 음원(audioUrl) 재생 속도. 대본 TTS 속도와 달리 절대 바꾸지 않는다 */
+const ORIGINAL_AUDIO_RATE = 1;
+
 export interface TopikListeningSpeechSegment {
   transcript: TopikAudioLine[];
   questionNumber?: number;
@@ -49,8 +52,6 @@ interface ResolvedPlaybackRun {
   speechSegments: ResolvedTopikListeningSpeechSegment[];
   repeatCount: number;
   repeatPauseMs: number;
-  /** 녹음 파일(audioUrl) 재생 속도. 대본 TTS 속도(speechRate)와 따로 둔다 */
-  nativeRate: number;
   volume: number;
   fallbackToSpeech: boolean;
 }
@@ -287,7 +288,6 @@ export function useTopikListeningPlayback() {
         speechSegments,
         repeatCount: Math.max(1, request.repeatCount ?? 1),
         repeatPauseMs: Math.max(0, request.repeatPauseMs ?? 0),
-        nativeRate: getTopikListeningRate(request.questionNumber),
         volume,
         fallbackToSpeech: request.fallbackToSpeech ?? false,
       };
@@ -300,10 +300,12 @@ export function useTopikListeningPlayback() {
         return true;
       }
 
+      // 원본 음원은 시험에서 나오는 그대로다 — "N번"·두 번 읽기·쉼이 파일 안에 있다.
+      // 그래서 앱이 따로 반복하지 않는다 (반복 횟수는 대본 TTS 로 대신 읽을 때만 쓴다)
       const nativeRun: NativePlaybackRun = {
         id: run.id,
         repeatIndex: 0,
-        repeatCount: run.repeatCount,
+        repeatCount: 1,
         fallbackAttempted: false,
       };
       nativeRunRef.current = nativeRun;
@@ -312,8 +314,10 @@ export function useTopikListeningPlayback() {
         if (runIdRef.current !== run.id) return;
         try {
           audioPlayer.volume = run.volume;
-          // expo-audio 56 Android 는 playbackRate 대입 시 던진다 (setter 미구현)
-          audioPlayer.setPlaybackRate(run.nativeRate);
+          // 원본 음원은 언제나 1.0배 — 실제 시험 빠르기를 바꾸지 않는다.
+          // (앞 재생이 남긴 속도를 지우려고 매번 1 로 둔다.
+          //  expo-audio 56 Android 는 playbackRate 대입 시 던진다 → setPlaybackRate)
+          audioPlayer.setPlaybackRate(ORIGINAL_AUDIO_RATE);
           audioPlayer.replace(run.audioUrl);
           audioPlayer.play();
         } catch {
