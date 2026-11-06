@@ -299,6 +299,8 @@ export default {
       TOO_MANY_REQUESTS: "요청이 너무 잦아요. 잠시 뒤에 다시 시도해 주세요.",
       INVALID_CREDENTIALS: "이메일 또는 비밀번호가 틀렸습니다.",
       EMAIL_ALREADY_EXISTS: "이미 사용중인 이메일입니다.",
+      ACCOUNT_RECENTLY_DELETED:
+        "탈퇴한 계정은 90일이 지나야 같은 계정으로 다시 가입할 수 있어요.",
       USER_NOT_FOUND: "존재하지 않는 계정입니다.",
       SOCIAL_LOGIN_FAILED: "소셜 로그인에 실패했어요. 다시 시도해 주세요.",
     },

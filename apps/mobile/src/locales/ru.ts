@@ -299,6 +299,8 @@ export default {
       TOO_MANY_REQUESTS: "Слишком много запросов. Попробуйте чуть позже.",
       INVALID_CREDENTIALS: "Неверный email или пароль.",
       EMAIL_ALREADY_EXISTS: "Email уже используется.",
+      ACCOUNT_RECENTLY_DELETED:
+        "После удаления аккаунта повторная регистрация с тем же входом возможна через 90 дней.",
       USER_NOT_FOUND: "Аккаунт не найден.",
       SOCIAL_LOGIN_FAILED:
         "Не удалось войти через соцсеть. Попробуйте ещё раз.",

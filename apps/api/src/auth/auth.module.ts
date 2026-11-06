@@ -1,3 +1,7 @@
+import {
+  DeletedIdentity,
+  DeletedIdentitySchema,
+} from '../users/schemas/deleted-identity.schema';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -31,6 +35,7 @@ import { RateLimitGuard } from '../common/rate-limit';
       { name: Onboarding.name, schema: OnboardingSchema },
       { name: PasswordReset.name, schema: PasswordResetSchema },
       { name: PendingSignup.name, schema: PendingSignupSchema },
+      { name: DeletedIdentity.name, schema: DeletedIdentitySchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],

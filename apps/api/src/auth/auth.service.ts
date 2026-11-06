@@ -11,6 +11,11 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from '../users/schemas/user.schema';
 import {
+  DeletedIdentity,
+  assertCanRejoin,
+  type IdentityParts,
+} from '../users/schemas/deleted-identity.schema';
+import {
   Onboarding,
   OnboardingDocument,
 } from '../onboarding/schemas/onboarding.schema';
@@ -49,7 +54,17 @@ export class AuthService {
     @InjectModel(Onboarding.name)
     private onboardingModel: Model<OnboardingDocument>,
     private jwtService: JwtService,
+    @InjectModel(DeletedIdentity.name)
+    private deletedIdentityModel: Model<DeletedIdentity>,
   ) {}
+
+  /**
+   * 탈퇴한 지 90일이 안 된 신원이면 ACCOUNT_RECENTLY_DELETED 를 던진다.
+   * 새 계정을 만드는 곳에서만 부른다 — 있는 계정의 로그인은 막지 않는다.
+   */
+  assertCanRejoin(parts: IdentityParts) {
+    return assertCanRejoin(this.deletedIdentityModel, parts);
+  }
 
   /**
    * 옛 가입 엔드포인트. 이메일 인증 없이 계정을 만들던 곳이라 막았다.
@@ -77,6 +92,7 @@ export class AuthService {
     // 대소문자만 다른 옛 문서가 있으면 그것도 같은 사람이다
     const existing = await findUserByEmail(this.userModel, email);
     if (existing) throw new ConflictException('EMAIL_ALREADY_EXISTS');
+    await this.assertCanRejoin({ email });
 
     // 인증 대기 중에 다른 사람이 같은 번호를 먼저 등록했을 수 있다 — 그럼 번호만 뺀다
     let phone: { phoneHash?: string; phoneLast4?: string } = {};
@@ -184,6 +200,7 @@ export class AuthService {
     }
 
     if (!user) {
+      await this.assertCanRejoin({ provider: dto.provider, providerId, email });
       user = await this.userModel.create({
         email,
         nickname,
@@ -346,6 +363,10 @@ export class AuthService {
     });
 
     if (!user) {
+      await this.assertCanRejoin({
+        provider: AuthProvider.TELEGRAM,
+        providerId,
+      });
       user = await this.userModel.create({
         provider: AuthProvider.TELEGRAM,
         providerId,
@@ -422,6 +443,7 @@ export class AuthService {
     }
 
     if (!user) {
+      await this.assertCanRejoin({ provider, providerId, email });
       user = await this.userModel.create({
         provider,
         providerId,

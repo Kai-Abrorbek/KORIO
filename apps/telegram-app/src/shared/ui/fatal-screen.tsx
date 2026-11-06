@@ -22,6 +22,10 @@ const messages: Record<string, string> = {
   TELEGRAM_INIT_DATA_INVALID:
     "Telegram tekshiruvi o'tmadi. Ilovani yopib, App tugmasidan qayta oching.",
 
+  // 탈퇴한 텔레그램 계정은 90일 동안 새 계정을 못 만든다
+  ACCOUNT_RECENTLY_DELETED:
+    "Hisobingiz yaqinda o'chirilgan. Shu Telegram hisobi bilan 90 kundan keyin qayta ro'yxatdan o'tishingiz mumkin.",
+
   // ── 서버 문제. 유저는 기다리는 것 말고 할 게 없다 ──
   TELEGRAM_NOT_CONFIGURED:
     "Xizmat sozlanmagan. Biz xabardormiz — birozdan keyin urinib ko'ring.",

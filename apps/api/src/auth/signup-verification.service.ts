@@ -61,6 +61,8 @@ export class SignupVerificationService {
     if (await findUserByEmail(this.userModel, email)) {
       throw new ConflictException('EMAIL_ALREADY_EXISTS');
     }
+    // 인증 코드를 보내기 전에 알려준다 — 코드까지 넣고 나서 막히면 더 억울하다
+    await this.auth.assertCanRejoin({ email });
 
     let phone: { phoneHash?: string; phoneLast4?: string } = {};
     if (dto.phone?.trim()) {

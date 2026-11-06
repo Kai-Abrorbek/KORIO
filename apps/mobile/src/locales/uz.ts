@@ -300,6 +300,8 @@ export default {
       TOO_MANY_REQUESTS: "Juda tez-tez so'rayapsiz. Birozdan so'ng urinib ko'ring.",
       INVALID_CREDENTIALS: "Email yoki parol noto'g'ri.",
       EMAIL_ALREADY_EXISTS: "Bu email allaqachon ishlatilmoqda.",
+      ACCOUNT_RECENTLY_DELETED:
+        "Hisob o'chirilgandan keyin xuddi shu login bilan 90 kundan so'ng qayta ro'yxatdan o'tish mumkin.",
       USER_NOT_FOUND: "Bunday akkaunt mavjud emas.",
       SOCIAL_LOGIN_FAILED:
         "Ijtimoiy tarmoq orqali kirish amalga oshmadi. Qayta urinib ko'ring.",

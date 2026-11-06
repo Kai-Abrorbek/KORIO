@@ -16,6 +16,10 @@ import {
 } from '../common/learning-course';
 import * as bcrypt from 'bcrypt';
 import { User, UserDocument } from './schemas/user.schema';
+import {
+  DeletedIdentity,
+  recordDeletedIdentity,
+} from './schemas/deleted-identity.schema';
 import { UserStats, UserStatsDocument } from './schemas/user-stats.schema';
 import {
   UserProgress,
@@ -166,6 +170,9 @@ export class UsersService {
     private readonly notifications: NotificationsService,
     private readonly push: PushService,
     @Optional() private readonly gemLedger?: GemLedgerService,
+    @Optional()
+    @InjectModel(DeletedIdentity.name)
+    private readonly deletedIdentityModel?: Model<DeletedIdentity>,
   ) {}
 
   /**
@@ -795,8 +802,17 @@ export class UsersService {
    */
   async deleteAccount(userId: string) {
     const _id = new Types.ObjectId(userId);
-    const user = await this.userModel.findById(_id).select('_id').lean();
+    const user = await this.userModel
+      .findById(_id)
+      .select('_id provider providerId email')
+      .lean();
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다');
+
+    // 지우기 전에 신원 지문부터 남긴다 — 90일 동안 같은 신원으로 새 계정을 못 만든다.
+    // 이게 실패하면 아무것도 지우지 않는다 (지문 없이 지워지면 바로 재가입이 된다)
+    if (!this.deletedIdentityModel)
+      throw new Error('DeletedIdentity model is not registered');
+    await recordDeletedIdentity(this.deletedIdentityModel, user);
 
     await Promise.all([
       this.progressModel.deleteMany({ userId: _id }),

@@ -1,3 +1,4 @@
+import { ACCOUNT_RECENTLY_DELETED } from '../users/schemas/deleted-identity.schema';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { RateLimit, RateLimitGuard } from '../common/rate-limit';
 import { AuthService } from './auth.service';
@@ -211,9 +212,9 @@ export class AuthController {
       const login = await this.authService.telegramLogin(q);
       const challenge: unknown = (q as Record<string, unknown>).code_challenge;
       return res.redirect(appReturnUrl(target, login, challenge));
-    } catch {
+    } catch (e) {
       // 앱은 token 이 없으면 실패로 처리한다
-      return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
+      return res.redirect(`${target}?error=${loginErrorCode(e)}`);
     }
   }
 
@@ -272,12 +273,22 @@ export class AuthController {
     try {
       const login = await this.authService.oauthLogin(key, code, state.session);
       return res.redirect(appReturnUrl(target, login, state.cc));
-    } catch {
+    } catch (e) {
       // 내부 예외 메시지(제공자 응답, 스택, 키 일부)가 리다이렉트 URL 을 타고
       // 브라우저 히스토리·로그에 남지 않게 고정 코드만 내보낸다.
-      return res.redirect(`${target}?error=SOCIAL_LOGIN_FAILED`);
+      return res.redirect(`${target}?error=${loginErrorCode(e)}`);
     }
   }
+}
+
+/**
+ * 리다이렉트에 실을 오류 코드. 유저에게 알려줘야 하는 고정 코드만 통과시키고
+ * 나머지는 전부 SOCIAL_LOGIN_FAILED 로 덮는다.
+ */
+function loginErrorCode(e: unknown): string {
+  return e instanceof Error && e.message === ACCOUNT_RECENTLY_DELETED
+    ? ACCOUNT_RECENTLY_DELETED
+    : 'SOCIAL_LOGIN_FAILED';
 }
 
 /**

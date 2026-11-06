@@ -267,6 +267,8 @@ export default {
       TOO_MANY_REQUESTS: "Too many requests. Please try again in a moment.",
       INVALID_CREDENTIALS: "Invalid email or password.",
       EMAIL_ALREADY_EXISTS: "Email already in use.",
+      ACCOUNT_RECENTLY_DELETED:
+        "A deleted account can sign up again with the same login after 90 days.",
       USER_NOT_FOUND: "Account not found.",
       SOCIAL_LOGIN_FAILED: "Social login failed. Please try again.",
     },
